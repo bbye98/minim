@@ -8,9 +8,9 @@ class GenresAPI(DeezerResourceAPI):
     """
     Genres API endpoints for the Deezer API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPI` and
+       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
        should not be instantiated directly.
     """
 
@@ -36,41 +36,43 @@ class GenresAPI(DeezerResourceAPI):
             Deezer content metadata for the genre(s).
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single genre
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single genre
 
-                     {
-                       "id": <int>,
-                       "name": <str>,
-                       "picture": <str>,
-                       "picture_big": <str>,
-                       "picture_medium": <str>,
-                       "picture_small": <str>,
-                       "picture_xl": <str>,
-                       "type": "genre"
-                     }
+                     .. code::
 
-               .. tab:: Available genres
+                        {
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": <str>,
+                          "picture_big": <str>,
+                          "picture_medium": <str>,
+                          "picture_small": <str>,
+                          "picture_xl": <str>,
+                          "type": "genre"
+                        }
 
-                  .. code::
+                  .. tab-item:: Available genres
 
-                     {
-                       "data": [
-                         {
-                           "id": <int>,
-                           "name": <str>,
-                           "picture": <str>,
-                           "picture_big": <str>,
-                           "picture_medium": <str>,
-                           "picture_small": <str>,
-                           "picture_xl": <str>,
-                           "type": "genre"
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "picture_big": <str>,
+                              "picture_medium": <str>,
+                              "picture_small": <str>,
+                              "picture_xl": <str>,
+                              "type": "genre"
+                            }
+                          ]
+                        }
         """
         if genre_id is None:
             return self._client._request("GET", "genre").json()
@@ -96,7 +98,7 @@ class GenresAPI(DeezerResourceAPI):
             Deezer content metadata for the genre's artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -161,7 +163,7 @@ class GenresAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the genre's podcasts.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -195,7 +197,7 @@ class GenresAPI(DeezerResourceAPI):
             Deezer content metadata for the genre's radio.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

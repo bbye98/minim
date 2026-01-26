@@ -10,7 +10,7 @@ class ProvidersAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPI`
+       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -41,43 +41,45 @@ class ProvidersAPI(TIDALResourceAPI):
             TIDAL content metadata for the providers.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single provider
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single provider
 
-                     {
-                       "data": {
-                         "attributes": {
-                           "name": <str>
-                         },
-                         "id": <str>,
-                         "type": "providers"
-                       },
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
 
-               .. tab:: Multiple providers
+                        {
+                          "data": {
+                            "attributes": {
+                              "name": <str>
+                            },
+                            "id": <str>,
+                            "type": "providers"
+                          },
+                          "links": {
+                            "self": <str>
+                          }
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple providers
 
-                     {
-                       "data": [
-                         {
-                           "attributes": {
-                             "name": <str>
-                           },
-                           "id": <str>,
-                           "type": "providers"
-                         }
-                       ],
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "attributes": {
+                                "name": <str>
+                              },
+                              "id": <str>,
+                              "type": "providers"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
         """
         return self._get_resources(
             "providers", provider_ids, country_code=None

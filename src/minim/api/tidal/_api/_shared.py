@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import TIDALAPI
+    from .. import TIDALAPIClient
 
 
 class TIDALResourceAPI(ResourceAPI):
@@ -12,7 +12,7 @@ class TIDALResourceAPI(ResourceAPI):
     """
 
     _RELATIONSHIPS: set[str]
-    _client: "TIDALAPI"
+    _client: "TIDALAPIClient"
 
     @staticmethod
     def _process_sort(
@@ -42,8 +42,8 @@ class TIDALResourceAPI(ResourceAPI):
             Valid fields to sort by.
 
         params : dict[str, Any]; keyword-only
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 
@@ -60,8 +60,44 @@ class TIDALResourceAPI(ResourceAPI):
         params["sort"] = f"{'-' if descending else ''}{prefix}{sort_by}"
 
     @staticmethod
+    def _validate_tidal_ids(
+        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
+    ) -> None:
+        """
+        Validate one or more TIDAL IDs.
+
+        Parameters
+        ----------
+        tidal_ids : int, str, or list[int | str]; positional-only
+            TIDAL IDs.
+        """
+        if not isinstance(tidal_ids, int) and not tidal_ids:
+            raise ValueError("At least one TIDAL ID must be specified.")
+
+        if isinstance(tidal_ids, str):
+            if not tidal_ids.isdecimal():
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+        elif not isinstance(tidal_ids, int):
+            if _recursive:
+                if not isinstance(tidal_ids, tuple | list | str):
+                    raise ValueError("TIDAL IDs must be integers or strings.")
+                for tidal_id in tidal_ids:
+                    TIDALResourceAPI._validate_tidal_ids(
+                        tidal_id, _recursive=False
+                    )
+            else:
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+
+    @staticmethod
     def _validate_uuids(uuids: str | list[str], /) -> None:
-        """ """
+        """
+        Validate universally unique identifiers (UUIDs).
+
+        Parameters
+        ----------
+        uuids : str or list[str]; positional-only
+            UUIDs.
+        """
         if isinstance(uuids, str):
             ResourceAPI._validate_uuid(uuids)
         elif isinstance(uuids, list | tuple):
@@ -81,7 +117,7 @@ class TIDALResourceAPI(ResourceAPI):
         relationships: set[str] | None = None,
     ) -> list[str]:
         """
-        Normalize, validate, and prepare a list of related resources.
+        Validate, normalize, and prepare a list of related resources.
 
         Parameters
         ----------
@@ -169,12 +205,12 @@ class TIDALResourceAPI(ResourceAPI):
         default: :code:`"id"`
             Resource identifier type.
 
-            **Valid values**: :code:`"id"`, :code:`"uuid"`, 
+            **Valid values**: :code:`"id"`, :code:`"uuid"`,
             :code:`"query"`.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 
@@ -204,7 +240,7 @@ class TIDALResourceAPI(ResourceAPI):
             )
         if resource_identifiers is not None:
             if resource_identifier_type == "id":
-                self._client._validate_tidal_ids(resource_identifiers)
+                self._validate_tidal_ids(resource_identifiers)
             elif resource_identifier_type == "uuid":
                 self._validate_uuids(resource_identifiers)
             else:
@@ -217,11 +253,11 @@ class TIDALResourceAPI(ResourceAPI):
                 ).json()
             params["filter[id]"] = resource_identifiers
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
+            params["page[cursor]"] = self._prepare_string("cursor", cursor)
         if share_code is not None:
-            self._validate_type("share_code", share_code, str)
-            params["shareCode"] = share_code
+            params["shareCode"] = self._prepare_string(
+                "share_code", share_code
+            )
         return self._client._request(
             "GET", resource_type, params=params
         ).json()
@@ -282,12 +318,12 @@ class TIDALResourceAPI(ResourceAPI):
         default: :code:`"id"`
             Resource identifier type.
 
-            **Valid values**: :code:`"id"`, :code:`"uuid"`, 
+            **Valid values**: :code:`"id"`, :code:`"uuid"`,
             :code:`"query"`.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 
@@ -299,9 +335,7 @@ class TIDALResourceAPI(ResourceAPI):
             TIDAL content metadata for the related resource.
         """
         if resource_identifier_type == "id":
-            self._client._validate_tidal_ids(
-                resource_identifier, _recursive=False
-            )
+            self._validate_tidal_ids(resource_identifier, _recursive=False)
         elif resource_identifier_type == "uuid":
             self._validate_uuid(resource_identifier)
         else:
@@ -324,11 +358,11 @@ class TIDALResourceAPI(ResourceAPI):
             if include_metadata:
                 params["include"] = relationship
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
+            params["page[cursor]"] = self._prepare_string("cursor", cursor)
         if share_code is not None:
-            self._validate_type("share_code", share_code, str)
-            params["shareCode"] = share_code
+            params["shareCode"] = self._prepare_string(
+                "share_code", share_code
+            )
         return self._client._request(
             "GET",
             f"{resource_type}/{resource_identifier}/relationships/{relationship}",

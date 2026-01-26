@@ -17,7 +17,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -26,15 +26,6 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
     def _get_video_stream(self, manifest: bytes | str, /) -> tuple[str, bytes]:
         """
         Get the video stream data for a music video.
-
-        .. admonition:: Subscription
-           :class: authorization-scope dropdown
-
-           .. tab:: Optional
-
-              TIDAL streaming plan
-                 Stream full-length and high-resolution audio.
-                 `Learn more. <https://tidal.com/pricing>`__
 
         Parameters
         ----------
@@ -102,7 +93,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the video.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -199,7 +190,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the video's contributors.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -255,13 +246,15 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         Get playback information for a video.
 
         .. admonition:: Subscription
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Required
+           .. tab-set::
 
-              TIDAL streaming plan
-                 Stream full-length videos.
-                 `Learn more. <https://tidal.com/pricing>`__
+              .. tab-item:: Required
+
+                 TIDAL streaming plan
+                    Stream full-length videos.
+                    `Learn more. <https://tidal.com/pricing>`__
 
         Parameters
         ----------
@@ -275,23 +268,18 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"AUDIO_ONLY"` – 96 kbps AAC audio only.
-               * :code:`"LOW"` – Up to 360p H.264 video, AAC-LC audio.
-               * :code:`"MEDIUM"` – Up to 720p H.264 video, AAC-LC
-                 audio.
-               * :code:`"HIGH"` – Up to 1080p H.264 video, AAC-LC audio.
+            * :code:`"AUDIO_ONLY"` – 96 kbps AAC audio only.
+            * :code:`"LOW"` – Up to 360p H.264 video, AAC-LC audio.
+            * :code:`"MEDIUM"` – Up to 720p H.264 video, AAC-LC audio.
+            * :code:`"HIGH"` – Up to 1080p H.264 video, AAC-LC audio.
 
         intent : str; keyword-only; default: :code:`"STREAM"`
             Playback mode or intended use of the video.
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"OFFLINE"` – Offline download.
-               * :code:`"STREAM"` – Streaming playback.
+            * :code:`"OFFLINE"` – Offline download.
+            * :code:`"STREAM"` – Streaming playback.
 
         preview : bool; keyword-only; default: :code:`False`
             Whether to return a 30-second preview instead of the full
@@ -303,7 +291,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             Playback information for the video.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -321,9 +309,8 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._require_subscription("videos.get_video_playback_info")
-        self._client._validate_tidal_ids(video_id, _recursive=False)
-        self._validate_type("quality", quality, str)
-        quality = quality.strip().upper()
+        self._validate_tidal_ids(video_id, _recursive=False)
+        quality = self._prepare_string("quality", quality).upper()
         if quality not in self._VIDEO_QUALITIES:
             video_qualities_str = "', '".join(self._VIDEO_QUALITIES)
             raise ValueError(

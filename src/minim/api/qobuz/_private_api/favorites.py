@@ -8,9 +8,9 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
     """
     Favorites API endpoints for the private Qobuz API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -35,12 +35,19 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
+
+        .. important::
+
+           At least one of :code:`album_ids`, :code:`artist_ids`, or
+           :code:`track_ids` must be specified.
 
         Parameters
         ----------
@@ -105,12 +112,19 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
+
+        .. important::
+
+           At least one of :code:`album_ids`, :code:`artist_ids`, or
+           :code:`track_ids` must be specified.
 
         Parameters
         ----------
@@ -177,12 +191,14 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -216,7 +232,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -431,8 +447,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication("favorites.get_my_saved_items")
         params = {}
         if item_type is not None:
-            self._validate_type("item_type", item_type, str)
-            item_type = item_type.strip().lower()
+            item_type = self._prepare_string("item_type", item_type).lower()
             if item_type not in self._FAVORITE_TYPES:
                 favorite_types_str = "', '".join(self._FAVORITE_TYPES)
                 raise ValueError(
@@ -455,12 +470,14 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Get Qobuz IDs of the items in the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Returns
         -------
@@ -468,7 +485,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             Qobuz IDs of the items in the user's favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -494,12 +511,14 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Check whether an item is in the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -522,8 +541,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": <bool>}`.
         """
         self._client._require_authentication("favorites.is_item_saved")
-        self._validate_type("item_type", item_type, str)
-        item_type = item_type.strip().lower()
+        item_type = self._prepare_string("item_type", item_type).lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
             favorite_types_str = "', '".join(
                 ft[:-1] for ft in self._FAVORITE_TYPES
@@ -549,12 +567,14 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Toggle the saved status of an item.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -577,8 +597,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": <bool>}`.
         """
         self._client._require_authentication("favorites.toggle_item_saved")
-        self._validate_type("item_type", item_type, str)
-        item_type = item_type.strip().lower()
+        item_type = self._prepare_string("item_type", item_type).lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
             favorite_types_str = "', '".join(
                 ft[:-1] for ft in self._FAVORITE_TYPES

@@ -2,6 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
+from .charts import ChartsAPI
 from .users import UsersAPI
 
 
@@ -9,9 +10,9 @@ class PlaylistsAPI(DeezerResourceAPI):
     """
     Playlists API endpoints for the Deezer API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPI` and
+       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
        should not be instantiated directly.
     """
 
@@ -54,7 +55,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             Deezer content metadata for the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -198,7 +199,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the playlist's fans.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -267,7 +268,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the artist's top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -356,7 +357,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             radio.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -402,6 +403,14 @@ class PlaylistsAPI(DeezerResourceAPI):
         """
         return self._request_resource_relationship(
             "GET", "playlist", playlist_id, "radio"
+        )
+
+    @_copy_docstring(ChartsAPI.get_top_playlists)
+    def get_top_playlists(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        return self._client.charts.get_top_playlists(
+            limit=limit, offset=offset
         )
 
     @_copy_docstring(UsersAPI.create_playlist)

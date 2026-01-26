@@ -20,7 +20,7 @@ from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.genres import PrivateGenresAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
 from ._private_api.purchases import PrivatePurchasesAPI
-from ._private_api.search import PrivateSearchEndpoints
+from ._private_api.search import PrivateSearchAPI
 from ._private_api.tracks import PrivateTracksAPI
 from ._private_api.users import PrivateUsersAPI
 
@@ -28,7 +28,7 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 
-class PrivateQobuzAPI(APIClient):
+class PrivateQobuzAPIClient(APIClient):
     """
     Private Qobuz API client.
     """
@@ -67,10 +67,8 @@ class PrivateQobuzAPI(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"password"` – Qobuz Web Player login flow.
+            * :code:`None` – No authentication.
+            * :code:`"password"` – Qobuz Web Player login flow.
 
         app_id : str; keyword-only; optional
             Application ID. If not provided, it is loaded from the
@@ -115,23 +113,20 @@ class PrivateQobuzAPI(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"kwargs"` – User credentials (email or username
-                 and password or its MD5 hash) provided directly via the
-                 `username` and `password` keyword arguments,
-                 respectively.
-               * :code:`"getpass"` – Prompt for credentials in an
-                 echo-free terminal.
-               * :code:`"playwright"` – Open the Qobuz Web Player login
-                 page in a Playwright Firefox browser.
+            * :code:`"kwargs"` – User credentials (email or username and
+              password or its MD5 hash) provided directly via the
+              `username` and `password` keyword arguments, respectively.
+            * :code:`"getpass"` – Prompt for credentials in an echo-free
+              terminal.
+            * :code:`"playwright"` – Open the Qobuz Web Player login
+              page in a Playwright Firefox browser.
 
         enable_cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 2 minutes to 1 day, depending on their expected
-            update frequency.
+            cached for one minute to one day, depending on their
+            expected update frequency.
 
             .. seealso::
 
@@ -184,7 +179,7 @@ class PrivateQobuzAPI(APIClient):
         #: Purchases API endpoints for the private Qobuz API.
         self.purchases: PrivatePurchasesAPI = PrivatePurchasesAPI(self)
         #: Search-related endpoints for the private Qobuz API.
-        self.search: PrivateSearchEndpoints = PrivateSearchEndpoints(self)
+        self.search: PrivateSearchAPI = PrivateSearchAPI(self)
         #: Tracks API endpoints for the private Qobuz API.
         self.tracks: PrivateTracksAPI = PrivateTracksAPI(self)
         #: Users API endpoints for the private Qobuz API.
@@ -231,7 +226,7 @@ class PrivateQobuzAPI(APIClient):
             authenticate=False,
         )
         if authorization_flow is None:
-            self._resolve_app_secret()
+            self._determine_app_secret()
         elif user_auth_token:
             self.set_user_auth_token(user_auth_token)
         else:
@@ -352,6 +347,24 @@ class PrivateQobuzAPI(APIClient):
             ],
         )
 
+    def _determine_app_secret(self) -> None:
+        """
+        Determine the working application secret from the possible
+        values.
+        """
+        if isinstance(self._app_secret, list):
+            for app_secret in self._app_secret:
+                try:
+                    self._app_secret = app_secret
+                    self.tracks.get_track_playback_info(344521217, format_id=5)
+                    break
+                except RuntimeError:
+                    continue
+            else:
+                raise RuntimeError(
+                    "No valid application secret was found in 'bundle.js'."
+                )
+
     def _login(
         self,
         username: str | None = None,
@@ -440,10 +453,8 @@ class PrivateQobuzAPI(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"password"` – Qobuz Web Player login flow.
+            * :code:`None` – No authentication.
+            * :code:`"password"` – Qobuz Web Player login flow.
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to
@@ -467,7 +478,7 @@ class PrivateQobuzAPI(APIClient):
 
         # Figure out the working application secret from the possible
         # values
-        self._resolve_app_secret()
+        self._determine_app_secret()
 
         if self._store_tokens:
             TokenDatabase.add_token(
@@ -507,10 +518,10 @@ class PrivateQobuzAPI(APIClient):
             Private Qobuz API endpoint.
 
         signed : bool; keyword-only; default: :code:`False`
-            ...
+            Whether to sign the request.
 
         sig_params : dict[str, Any]; keyword-only; optional
-            ...
+            Query parameters to include in the signature.
 
         **kwargs : dict[str, Any]
             Keyword parameters to pass to :meth:`httpx.Client.request`.
@@ -562,23 +573,6 @@ class PrivateQobuzAPI(APIClient):
                 "authentication."
             )
 
-    def _resolve_app_secret(self) -> None:
-        """
-        Resolve the working application secret from the possible values.
-        """
-        if isinstance(self._app_secret, list):
-            for app_secret in self._app_secret:
-                try:
-                    self._app_secret = app_secret
-                    self.tracks.get_track_playback_info(344521217, format_id=5)
-                    break
-                except RuntimeError:
-                    continue
-            else:
-                raise RuntimeError(
-                    "No valid application secret was found in 'bundle.js'."
-                )
-
     def _resolve_user_identifier(self) -> str:
         """
         Return the Qobuz user ID as the user identifier for the
@@ -625,10 +619,8 @@ class PrivateQobuzAPI(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"password"` – Qobuz Web Player login flow.
+            * :code:`None` – No authentication.
+            * :code:`"password"` – Qobuz Web Player login flow.
 
         app_id : str; keyword-only; optional
             Application ID. If not provided, it is loaded from the
@@ -667,14 +659,12 @@ class PrivateQobuzAPI(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"kwargs"` – Use credentials provided directly
-                 via the `username` and `password` keyword arguments.
-               * :code:`"getpass"` – Prompt for credentials in an
-                 echo-free terminal.
-               * :code:`"playwright"` – Open the Qobuz Web Player login
-                 page in a Playwright Firefox browser.
+            * :code:`"kwargs"` – Use credentials provided directly via
+              the `username` and `password` keyword arguments.
+            * :code:`"getpass"` – Prompt for credentials in an echo-free
+              terminal.
+            * :code:`"playwright"` – Open the Qobuz Web Player login
+              page in a Playwright Firefox browser.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
@@ -756,5 +746,7 @@ class PrivateQobuzAPI(APIClient):
             if "X-User-Auth-Token" in self._client.headers:
                 del self._client.headers["X-User-Auth-Token"]
             return
-
-        self._client.headers["X-User-Auth-Token"] = user_auth_token
+        elif isinstance(user_auth_token, str):
+            self._client.headers["X-User-Auth-Token"] = user_auth_token
+        else:
+            raise TypeError("`user_auth_token` must be a string.")

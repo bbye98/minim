@@ -23,9 +23,9 @@ class TracksAPI(SpotifyResourceAPI):
     """
     Tracks API endpoints for the Spotify Web API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -180,7 +180,7 @@ class TracksAPI(SpotifyResourceAPI):
         self, seed_genres: str | list[str], /, limit: int
     ) -> tuple[str, int]:
         """
-        Normalize, validate, and serialize seed genres.
+        Validate, normalize, and serialize seed genres.
 
         Parameters
         ----------
@@ -225,14 +225,16 @@ class TracksAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple tracks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -242,11 +244,10 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -268,175 +269,177 @@ class TracksAPI(SpotifyResourceAPI):
             Spotify content metadata for the tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single track
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single track
 
-                     {
-                       "album": {
-                         "album_type": <str>,
-                         "artists": [
-                           {
-                             "external_urls": {
-                               "spotify": <str>
-                             },
-                             "href": <str>,
-                             "id": <str>,
-                             "name": <str>,
-                             "type": "artist",
-                             "uri": <str>
-                           }
-                         ],
-                         "available_markets": <list[str]>,
-                         "external_urls": {
-                           "spotify": <str>
-                         },
-                         "href": <str>,
-                         "id": <str>,
-                         "images": [
-                           {
-                             "height": <int>,
-                             "url": <str>,
-                             "width": <int>
-                           }
-                         ],
-                         "name": <str>,
-                         "release_date": <str>,
-                         "release_date_precision": <str>,
-                         "restrictions": {
-                           "reason": <str>
-                         },
-                         "total_tracks": <int>,
-                         "type": "album",
-                         "uri": <str>
-                       },
-                       "artists": [
-                         {
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "href": <str>,
-                           "id": <str>,
-                           "name": <str>,
-                           "type": "artist",
-                           "uri": <str>
-                         }
-                       ],
-                       "available_markets": <list[str]>,
-                       "disc_number": <int>,
-                       "duration_ms": <int>,
-                       "explicit": <bool>,
-                       "external_ids": {
-                         "ean": <str>,
-                         "isrc": <str>,
-                         "upc": <str>
-                       },
-                       "external_urls": {
-                         "spotify": <str>
-                       },
-                       "href": <str>,
-                       "id": <str>,
-                       "is_local": <bool>,
-                       "is_playable": <bool>,
-                       "linked_from": <dict[str, Any]>,
-                       "name": <str>,
-                       "popularity": <int>,
-                       "preview_url": <str>,
-                       "restrictions": {
-                         "reason": <str>
-                       },
-                       "track_number": <int>,
-                       "type": "track",
-                       "uri": <str>
-                     }
+                     .. code::
 
-               .. tab:: Multiple tracks
+                        {
+                          "album": {
+                            "album_type": <str>,
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "name": <str>,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ],
+                            "available_markets": <list[str]>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "height": <int>,
+                                "url": <str>,
+                                "width": <int>
+                              }
+                            ],
+                            "name": <str>,
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
+                            "restrictions": {
+                              "reason": <str>
+                            },
+                            "total_tracks": <int>,
+                            "type": "album",
+                            "uri": <str>
+                          },
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": <list[str]>,
+                          "disc_number": <int>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
+                          "external_ids": {
+                            "ean": <str>,
+                            "isrc": <str>,
+                            "upc": <str>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "is_local": <bool>,
+                          "is_playable": <bool>,
+                          "linked_from": <dict[str, Any]>,
+                          "name": <str>,
+                          "popularity": <int>,
+                          "preview_url": <str>,
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "track_number": <int>,
+                          "type": "track",
+                          "uri": <str>
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple tracks
 
-                     {
-                       "tracks": [
-                         {
-                           "album": {
-                             "album_type": <str>,
-                             "artists": [
-                               {
-                                 "external_urls": {
-                                   "spotify": <str>
-                                 },
-                                 "href": <str>,
-                                 "id": <str>,
-                                 "name": <str>,
-                                 "type": "artist",
-                                 "uri": <str>
-                               }
-                             ],
-                             "available_markets": <list[str]>,
-                             "external_urls": {
-                               "spotify": <str>
-                             },
-                             "href": <str>,
-                             "id": <str>,
-                             "images": [
-                               {
-                                 "height": <int>,
-                                 "url": <str>,
-                                 "width": <int>
-                               }
-                             ],
-                             "name": <str>,
-                             "release_date": <str>,
-                             "release_date_precision": <str>,
-                             "restrictions": {
-                               "reason": <str>
-                             },
-                             "total_tracks": <int>,
-                             "type": "album",
-                             "uri": <str>
-                           },
-                           "artists": [
-                             {
-                               "external_urls": {
-                                 "spotify": <str>
-                               },
-                               "href": <str>,
-                               "id": <str>,
-                               "name": <str>,
-                               "type": "artist",
-                               "uri": <str>
-                             }
-                           ],
-                           "available_markets": <list[str]>,
-                           "disc_number": <int>,
-                           "duration_ms": <int>,
-                           "explicit": <bool>,
-                           "external_ids": {
-                             "ean": <str>,
-                             "isrc": <str>,
-                             "upc": <str>
-                           },
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "href": <str>,
-                           "id": <str>,
-                           "is_local": <bool>,
-                           "is_playable": <bool>,
-                           "linked_from": <dict[str, Any]>,
-                           "name": <str>,
-                           "popularity": <int>,
-                           "preview_url": <str>,
-                           "restrictions": {
-                             "reason": <str>
-                           },
-                           "track_number": <int>,
-                           "type": "track",
-                           "uri": <str>
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "tracks": [
+                            {
+                              "album": {
+                                "album_type": <str>,
+                                "artists": [
+                                  {
+                                    "external_urls": {
+                                      "spotify": <str>
+                                    },
+                                    "href": <str>,
+                                    "id": <str>,
+                                    "name": <str>,
+                                    "type": "artist",
+                                    "uri": <str>
+                                  }
+                                ],
+                                "available_markets": <list[str]>,
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "images": [
+                                  {
+                                    "height": <int>,
+                                    "url": <str>,
+                                    "width": <int>
+                                  }
+                                ],
+                                "name": <str>,
+                                "release_date": <str>,
+                                "release_date_precision": <str>,
+                                "restrictions": {
+                                  "reason": <str>
+                                },
+                                "total_tracks": <int>,
+                                "type": "album",
+                                "uri": <str>
+                              },
+                              "artists": [
+                                {
+                                  "external_urls": {
+                                    "spotify": <str>
+                                  },
+                                  "href": <str>,
+                                  "id": <str>,
+                                  "name": <str>,
+                                  "type": "artist",
+                                  "uri": <str>
+                                }
+                              ],
+                              "available_markets": <list[str]>,
+                              "disc_number": <int>,
+                              "duration_ms": <int>,
+                              "explicit": <bool>,
+                              "external_ids": {
+                                "ean": <str>,
+                                "isrc": <str>,
+                                "upc": <str>
+                              },
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "is_local": <bool>,
+                              "is_playable": <bool>,
+                              "linked_from": <dict[str, Any]>,
+                              "name": <str>,
+                              "popularity": <int>,
+                              "preview_url": <str>,
+                              "restrictions": {
+                                "reason": <str>
+                              },
+                              "track_number": <int>,
+                              "type": "track",
+                              "uri": <str>
+                            }
+                          ]
+                        }
         """
         return self._get_resources(
             "tracks", track_ids, country_code=country_code
@@ -487,14 +490,17 @@ class TracksAPI(SpotifyResourceAPI):
         multiple tracks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access the :code:`GET /audio-features/{id}` endpoint.
-                  `Learn more. <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Required
+
+                 Extended quota mode before November 27, 2024
+                    Access the :code:`GET /audio-features/{id}`
+                    endpoint. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -504,11 +510,10 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
 
         Returns
         -------
@@ -516,61 +521,63 @@ class TracksAPI(SpotifyResourceAPI):
             Audio features for the tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single track
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single track
 
-                     {
-                       "acousticness": <float>,
-                       "analysis_url": <str>,
-                       "danceability": <float>,
-                       "duration_ms": <int>,
-                       "energy": <float>,
-                       "id": <str>,
-                       "instrumentalness": <float>,
-                       "key": <int>,
-                       "liveness": <float>,
-                       "loudness": <float>,
-                       "mode": <int>,
-                       "speechiness": <float>,
-                       "tempo": <float>,
-                       "time_signature": <int>,
-                       "track_href": <str>,
-                       "type": "audio_features",
-                       "uri": <str>,
-                       "valence": <float>
-                     }
+                     .. code::
 
-               .. tab:: Multiple tracks
+                        {
+                          "acousticness": <float>,
+                          "analysis_url": <str>,
+                          "danceability": <float>,
+                          "duration_ms": <int>,
+                          "energy": <float>,
+                          "id": <str>,
+                          "instrumentalness": <float>,
+                          "key": <int>,
+                          "liveness": <float>,
+                          "loudness": <float>,
+                          "mode": <int>,
+                          "speechiness": <float>,
+                          "tempo": <float>,
+                          "time_signature": <int>,
+                          "track_href": <str>,
+                          "type": "audio_features",
+                          "uri": <str>,
+                          "valence": <float>
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple tracks
 
-                     {
-                       "audio_features": [
-                         {
-                           "acousticness": <float>,
-                           "analysis_url": <str>,
-                           "danceability": <float>,
-                           "duration_ms": <int>,
-                           "energy": <float>,
-                           "id": <str>,
-                           "instrumentalness": <float>,
-                           "key": <int>,
-                           "liveness": <float>,
-                           "loudness": <float>,
-                           "mode": <int>,
-                           "speechiness": <float>,
-                           "tempo": <float>,
-                           "time_signature": <int>,
-                           "track_href": <str>,
-                           "type": "audio_features",
-                           "uri": <str>,
-                           "valence": <float>
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "audio_features": [
+                            {
+                              "acousticness": <float>,
+                              "analysis_url": <str>,
+                              "danceability": <float>,
+                              "duration_ms": <int>,
+                              "energy": <float>,
+                              "id": <str>,
+                              "instrumentalness": <float>,
+                              "key": <int>,
+                              "liveness": <float>,
+                              "loudness": <float>,
+                              "mode": <int>,
+                              "speechiness": <float>,
+                              "tempo": <float>,
+                              "time_signature": <int>,
+                              "track_href": <str>,
+                              "type": "audio_features",
+                              "uri": <str>,
+                              "valence": <float>
+                            }
+                          ]
+                        }
         """
         return self._get_resources("audio-features", track_ids, limit=100)
 
@@ -584,14 +591,16 @@ class TracksAPI(SpotifyResourceAPI):
         and timbre) of a track.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access the :code:`GET/audio-analysis/{id}` endpoint.
-                  `Learn more. <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Required
+
+                 Extended quota mode before November 27, 2024
+                    Access the :code:`GET/audio-analysis/{id}` endpoint.
+                    `Learn more. <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -606,7 +615,7 @@ class TracksAPI(SpotifyResourceAPI):
             Audio analysis of the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -736,14 +745,16 @@ class TracksAPI(SpotifyResourceAPI):
         tracks, with optional tuning parameters.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access the :code:`GET/recommendations` endpoint. `Learn
-                  more. <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Required
+
+                 Extended quota mode before November 27, 2024
+                    Access the :code:`GET/recommendations` endpoint.
+                    `Learn more. <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         .. note::
 
@@ -752,9 +763,9 @@ class TracksAPI(SpotifyResourceAPI):
 
         .. important::
 
-           Up to 5 seed values may be provided in any combination of
-           :code:`seed_artist_ids`, :code:`seed_genres`, and
-           :code:`seed_track_ids`.
+           At least one and up to five seed values may be provided in
+           any combination of :code:`seed_artist_ids`,
+           :code:`seed_genres`, and :code:`seed_track_ids`.
 
         .. hint::
 
@@ -779,11 +790,10 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"0TnOYISbd1XYRBk9myaseg"`
-               * :code:`"0TnOYISbd1XYRBk9myaseg,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["0TnOYISbd1XYRBk9myaseg", "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"0TnOYISbd1XYRBk9myaseg"`
+            * :code:`"0TnOYISbd1XYRBk9myaseg,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["0TnOYISbd1XYRBk9myaseg",
+              "57dN52uHvrHOxijzpIgu3E"]`
 
         seed_genres : str or list[str]; optional
             Spotify IDs of seed genres.
@@ -798,11 +808,10 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -873,21 +882,19 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`-1` – No key detected.
-               * :code:`0` – C.
-               * :code:`1` – C♯ or D♭.
-               * :code:`2` – D
-               * :code:`3` – D♯ or E♭.
-               * :code:`4` – E.
-               * :code:`5` – F.
-               * :code:`6` – F♯ or G♭.
-               * :code:`7` – G.
-               * :code:`8` – G♯ or A♭.
-               * :code:`9` – A.
-               * :code:`10` – A♯ or B♭.
-               * :code:`11` – B.
+            * :code:`-1` – No key detected.
+            * :code:`0` – C.
+            * :code:`1` – C♯ or D♭.
+            * :code:`2` – D
+            * :code:`3` – D♯ or E♭.
+            * :code:`4` – E.
+            * :code:`5` – F.
+            * :code:`6` – F♯ or G♭.
+            * :code:`7` – G.
+            * :code:`8` – G♯ or A♭.
+            * :code:`9` – A.
+            * :code:`10` – A♯ or B♭.
+            * :code:`11` – B.
 
         liveness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track was performed live
@@ -942,13 +949,11 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`3` – 3/4.
-               * :code:`4` – 4/4.
-               * :code:`5` – 5/4.
-               * :code:`6` – 6/4.
-               * :code:`7` – 7/4.
+            * :code:`3` – 3/4.
+            * :code:`4` – 4/4.
+            * :code:`5` – 5/4.
+            * :code:`6` – 6/4.
+            * :code:`7` – 7/4.
 
         valence : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of the musical positiveness conveyed by a
@@ -966,7 +971,7 @@ class TracksAPI(SpotifyResourceAPI):
             generated from the provided seeds and tuning parameters.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1126,21 +1131,23 @@ class TracksAPI(SpotifyResourceAPI):
         information for the current user's top tracks.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-top-read` scope
-                 Read your top artists and contents. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-top-read>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-top-read` scope
+                    Read your top artists and contents. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-top-read>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -1150,14 +1157,12 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"long_term"` – Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"` – Approximately the last six
-                 months of data.
-               * :code:`"short_term"` – Approximately the last four
-                 weeks of data.
+            * :code:`"long_term"` – Approximately one year of data,
+              including all new data as it becomes available.
+            * :code:`"medium_term"` – Approximately the last six months
+              of data.
+            * :code:`"short_term"` – Approximately the last four weeks
+              of data.
 
             **API default**: :code:`"medium_term"`.
 
@@ -1183,7 +1188,7 @@ class TracksAPI(SpotifyResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

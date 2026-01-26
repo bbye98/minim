@@ -10,7 +10,7 @@ class ArtworksAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPI`
+       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -34,12 +34,14 @@ class ArtworksAPI(TIDALResourceAPI):
         information for multiple artworks.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              User authentication
-                 Access information on an item's owners.
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access information on an item's owners.
 
         Parameters
         ----------
@@ -68,79 +70,81 @@ class ArtworksAPI(TIDALResourceAPI):
             TIDAL content metadata for the artworks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single artwork
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single artwork
 
-                     {
-                       "data": {
-                         "attributes": {
-                           "files": [
-                             {
-                               "href": <str>,
-                               "meta": {
-                                 "height": <int>,
-                                 "width": <int>
-                               }
-                             }
-                           ],
-                           "mediaType": "IMAGE"
-                         },
-                         "id": <str>,
-                         "relationships": {
-                           "owners": {
-                             "data": [],
-                             "links": {
-                               "self": <str>
-                             }
-                           }
-                         },
-                         "type": "artworks"
-                       },
-                       "included": [],
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
 
-               .. tab:: Multiple artworks
+                        {
+                          "data": {
+                            "attributes": {
+                              "files": [
+                                {
+                                  "href": <str>,
+                                  "meta": {
+                                    "height": <int>,
+                                    "width": <int>
+                                  }
+                                }
+                              ],
+                              "mediaType": "IMAGE"
+                            },
+                            "id": <str>,
+                            "relationships": {
+                              "owners": {
+                                "data": [],
+                                "links": {
+                                  "self": <str>
+                                }
+                              }
+                            },
+                            "type": "artworks"
+                          },
+                          "included": [],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple artworks
 
-                     {
-                       "data": [
-                         {
-                           "attributes": {
-                             "files": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "height": <int>,
-                                   "width": <int>
-                                 }
-                               }
-                             ],
-                             "mediaType": "IMAGE"
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "owners": {
-                               "data": [],
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "artworks"
-                         }
-                       ],
-                       "included": [],
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "attributes": {
+                                "files": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "height": <int>,
+                                      "width": <int>
+                                    }
+                                  }
+                                ],
+                                "mediaType": "IMAGE"
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "owners": {
+                                  "data": [],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "artworks"
+                            }
+                          ],
+                          "included": [],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
         """
         return self._get_resources(
             "artworks", artwork_ids, country_code=country_code, expand=expand
@@ -162,12 +166,14 @@ class ArtworksAPI(TIDALResourceAPI):
         information for an artwork's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              User authentication
-                 Access information on an item's owners.
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access information on an item's owners.
 
         Parameters
         ----------
@@ -191,7 +197,7 @@ class ArtworksAPI(TIDALResourceAPI):
             TIDAL content metadata for the artwork's owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

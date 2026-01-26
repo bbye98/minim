@@ -8,9 +8,9 @@ class UsersAPI(DeezerResourceAPI):
     """
     Users API endpoints for the Deezer API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPI` and
+       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
        should not be instantiated directly.
     """
 
@@ -21,18 +21,20 @@ class UsersAPI(DeezerResourceAPI):
         information for a Deezer user.
 
         .. admonition:: Permission and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's basic information.
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 User authentication
+                    Access the user's basic information.
 
-              :code:`email` permission
-                 Access the user's email. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Optional
+
+                 :code:`email` permission
+                    Access the user's email. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -49,7 +51,7 @@ class UsersAPI(DeezerResourceAPI):
             Profile information for the specified user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -90,12 +92,14 @@ class UsersAPI(DeezerResourceAPI):
         /permissions>`_: Get the permissions granted to the client.
 
         .. admonition:: Permission and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's basic information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's basic information.
 
         Parameters
         ----------
@@ -112,7 +116,7 @@ class UsersAPI(DeezerResourceAPI):
             Permissions granted to the client.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -140,12 +144,14 @@ class UsersAPI(DeezerResourceAPI):
         user's options.
 
         .. admonition:: Permission and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's basic information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's basic information.
 
         Parameters
         ----------
@@ -162,7 +168,7 @@ class UsersAPI(DeezerResourceAPI):
             User's options.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -194,6 +200,16 @@ class UsersAPI(DeezerResourceAPI):
         `User > Notification <https://developers.deezer.com/api/user
         /notifications>`_: Add a notification to a user's feed.
 
+        .. admonition:: Permission and user authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's basic information.
+
         Parameters
         ----------
         message : str
@@ -213,15 +229,13 @@ class UsersAPI(DeezerResourceAPI):
 
             **Sample response**: :code:`{"success": True}`.
         """
-        self._validate_type("message", message, str)
-        if not len(message):
-            raise ValueError("The message cannot be blank.")
+        self._client._require_authentication("users.send_notification")
         return self._request_resource_relationship(
             "POST",
             "user",
             user_id,
             "notifications",
-            params={"message": message},
+            params={"message": self._prepare_string("message", message)},
         )
 
     def get_user_mix_tracks(
@@ -233,13 +247,15 @@ class UsersAPI(DeezerResourceAPI):
         mix.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -256,7 +272,7 @@ class UsersAPI(DeezerResourceAPI):
             Deezer content metadata for tracks in the user's Flow mix.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -323,13 +339,15 @@ class UsersAPI(DeezerResourceAPI):
         played by a user.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`listening_history` permission
-                 Access the user's listening history. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`listening_history` permission
+                    Access the user's listening history. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -360,7 +378,7 @@ class UsersAPI(DeezerResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -432,13 +450,15 @@ class UsersAPI(DeezerResourceAPI):
         top albums.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -468,7 +488,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's top albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -530,13 +550,15 @@ class UsersAPI(DeezerResourceAPI):
         top artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -566,7 +588,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's top artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -619,13 +641,15 @@ class UsersAPI(DeezerResourceAPI):
         user's top playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -656,7 +680,7 @@ class UsersAPI(DeezerResourceAPI):
             playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -724,13 +748,15 @@ class UsersAPI(DeezerResourceAPI):
         top tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -760,7 +786,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -829,13 +855,15 @@ class UsersAPI(DeezerResourceAPI):
         /api/user/recommendations/albums>`_: Get album recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -866,7 +894,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -932,13 +960,15 @@ class UsersAPI(DeezerResourceAPI):
         /releases>`_: Get new album recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -969,7 +999,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1037,13 +1067,15 @@ class UsersAPI(DeezerResourceAPI):
         recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1074,7 +1106,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1126,13 +1158,15 @@ class UsersAPI(DeezerResourceAPI):
         /playlists>`_: Get playlist recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1163,7 +1197,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1231,13 +1265,15 @@ class UsersAPI(DeezerResourceAPI):
         /api/user/recommendations/radios>`_: Get radio recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1268,7 +1304,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1311,13 +1347,15 @@ class UsersAPI(DeezerResourceAPI):
         /api/user/recommendations/tracks>`_: Get track recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1348,7 +1386,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1419,13 +1457,15 @@ class UsersAPI(DeezerResourceAPI):
         favorite albums.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1456,7 +1496,7 @@ class UsersAPI(DeezerResourceAPI):
             albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1515,14 +1555,16 @@ class UsersAPI(DeezerResourceAPI):
         `User > Albums <https://developers.deezer.com/api
         /actions-post>`__: Add one or more albums to a user's favorites.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1565,17 +1607,19 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove an album from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1619,13 +1663,15 @@ class UsersAPI(DeezerResourceAPI):
         favorite artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1656,7 +1702,7 @@ class UsersAPI(DeezerResourceAPI):
             artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1702,14 +1748,16 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add one or more artists to a user's
         favorites.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1752,17 +1800,19 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove an artist from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1810,13 +1860,15 @@ class UsersAPI(DeezerResourceAPI):
         playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1846,7 +1898,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1907,14 +1959,16 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add one or more playlists to a user's
         favorites.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1961,17 +2015,19 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a playlist from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2018,13 +2074,15 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Create a playlist.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2050,11 +2108,12 @@ class UsersAPI(DeezerResourceAPI):
         self._client._require_permissions(
             "users.create_playlist", "manage_library"
         )
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
         return self._request_resource_relationship(
-            "POST", "user", user_id, "playlists", params={"name": name}
+            "POST",
+            "user",
+            user_id,
+            "playlists",
+            params={"name": self._prepare_string("name", name)},
         )
 
     def update_playlist_details(
@@ -2072,13 +2131,20 @@ class UsersAPI(DeezerResourceAPI):
         /playlist#actions>`__: Update the details of a playlist.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+        .. important::
+
+           At least one of :code:`name`, :code:`description`,
+           :code:`public`, or :code:`collaborative` must be specified.
 
         Parameters
         ----------
@@ -2115,13 +2181,11 @@ class UsersAPI(DeezerResourceAPI):
         )
         params = {}
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            params["name"] = name
+            params["name"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            params["description"] = description
+            params["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             params["public"] = public
@@ -2147,17 +2211,19 @@ class UsersAPI(DeezerResourceAPI):
         /playlist#actions>`__: Update the details of a playlist.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2186,13 +2252,15 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add tracks to a playlist.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2232,13 +2300,15 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Reorder tracks in a playlist.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2290,13 +2360,15 @@ class UsersAPI(DeezerResourceAPI):
         favorite podcasts.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -2327,7 +2399,7 @@ class UsersAPI(DeezerResourceAPI):
             podcasts.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2368,14 +2440,16 @@ class UsersAPI(DeezerResourceAPI):
         `User > Podcasts <https://developers.deezer.com/api
         /actions-post>`__: Add a podcast to a user's favorites.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2420,17 +2494,19 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a podcast from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2470,14 +2546,16 @@ class UsersAPI(DeezerResourceAPI):
         `Episode > Bookmark <https://developers.deezer.com/api
         /actions-post>`__: Set a resume point for a podcast episode.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2518,14 +2596,16 @@ class UsersAPI(DeezerResourceAPI):
         `Episode > Bookmark <https://developers.deezer.com/api
         /actions-delete>`__: Remove a resume point for a podcast episode.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2564,13 +2644,15 @@ class UsersAPI(DeezerResourceAPI):
         favorite radios.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -2601,7 +2683,7 @@ class UsersAPI(DeezerResourceAPI):
             radios.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2625,14 +2707,16 @@ class UsersAPI(DeezerResourceAPI):
         `User > Radios <https://developers.deezer.com/api
         /actions-post>`__: Add a radio to a user's favorites.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2667,17 +2751,19 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a radio from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2721,13 +2807,15 @@ class UsersAPI(DeezerResourceAPI):
         favorite tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -2758,7 +2846,7 @@ class UsersAPI(DeezerResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2825,14 +2913,16 @@ class UsersAPI(DeezerResourceAPI):
         `User > Tracks <https://developers.deezer.com/api
         /actions-post>`__: Add one or more tracks to a user's favorites.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2875,17 +2965,19 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a track from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2929,13 +3021,15 @@ class UsersAPI(DeezerResourceAPI):
         uploaded tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -2966,7 +3060,7 @@ class UsersAPI(DeezerResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3034,14 +3128,21 @@ class UsersAPI(DeezerResourceAPI):
         `Track <https://developers.deezer.com/api/actions-post>`__:
         Update the details of a user-uploaded track.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+        .. important::
+
+           At least one of :code:`album`, :code:`artist`, or
+           :code:`title` must be specified.
 
         Parameters
         ----------
@@ -3069,20 +3170,11 @@ class UsersAPI(DeezerResourceAPI):
         )
         params = {}
         if album is not None:
-            self._validate_type("album", album, str)
-            if not len(album):
-                raise ValueError("`album` is blank.")
-            params["album"] = album
+            params["album"] = self._prepare_string("album", album)
         if artist is not None:
-            self._validate_type("artist", artist, str)
-            if not len(artist):
-                raise ValueError("`artist` is blank.")
-            params["artist"] = artist
+            params["artist"] = self._prepare_string("artist", artist)
         if title is not None:
-            self._validate_type("title", title, str)
-            if not len(title):
-                raise ValueError("`title` is blank.")
-            params["title"] = title
+            params["title"] = self._prepare_string("title", title)
         if not params:
             raise ValueError("At least one change must be specified.")
         return self._request_resource_relationship(
@@ -3094,14 +3186,16 @@ class UsersAPI(DeezerResourceAPI):
         `Track <https://developers.deezer.com/api/actions-delete>`__:
         Delete a user-uploaded track.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -3135,13 +3229,15 @@ class UsersAPI(DeezerResourceAPI):
         followed by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -3171,7 +3267,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the followed users.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3214,13 +3310,15 @@ class UsersAPI(DeezerResourceAPI):
         followers.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -3250,7 +3348,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's followers.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3285,14 +3383,16 @@ class UsersAPI(DeezerResourceAPI):
         `User > Followings <https://developers.deezer.com/api
         /actions-post>`__: Follow a user.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_community` permission
-                 Manage a user's friends. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_community` permission
+                    Manage a user's friends. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -3332,14 +3432,16 @@ class UsersAPI(DeezerResourceAPI):
         `User > Followings <https://developers.deezer.com/api
         /actions-delete>`__: Unfollow a user.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        .. admonition:: Permission
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_community` permission
-                 Manage a user's friends. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_community` permission
+                    Manage a user's friends. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------

@@ -11,7 +11,7 @@ class ArtistsAPI(SpotifyResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -35,12 +35,10 @@ class ArtistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["2CIMQHirSU0MQqyYHq0eOx",
-                 "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["2CIMQHirSU0MQqyYHq0eOx",
+              "57dN52uHvrHOxijzpIgu3E"]`
 
         Returns
         -------
@@ -48,67 +46,69 @@ class ArtistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the artists.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single artist
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single artist
 
-                     {
-                       "external_urls": {
-                         "spotify": <str>
-                       },
-                       "followers": {
-                         "href": <str>,
-                         "total": <int>
-                       },
-                       "genres": <list[str]>,
-                       "href": <str>,
-                       "id": <str>,
-                       "images": [
-                         {
-                           "height": <int>,
-                           "url": <str>,
-                           "width": <int>
-                         }
-                       ],
-                       "name": <str>,
-                       "popularity": <int>,
-                       "type": "artist",
-                       "uri": <str>
-                     }
+                     .. code::
 
-               .. tab:: Multiple artists
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "genres": <list[str]>,
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": <int>,
+                          "type": "artist",
+                          "uri": <str>
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple artists
 
-                     {
-                       "artists": [
-                         {
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "followers": {
-                             "href": <str>,
-                             "total": <int>
-                           },
-                           "genres": <list[str]>,
-                           "href": <str>,
-                           "id": <str>,
-                           "images": [
-                             {
-                               "height": <int>,
-                               "url": <str>,
-                               "width": <int>
-                             }
-                           ],
-                           "name": <str>,
-                           "popularity": <int>,
-                           "type": "artist",
-                           "uri": <str>
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
+                                "href": <str>,
+                                "total": <int>
+                              },
+                              "genres": <list[str]>,
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                }
+                              ],
+                              "name": <str>,
+                              "popularity": <int>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ]
+                        }
         """
         return self._get_resources("artists", artist_ids)
 
@@ -180,7 +180,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the artist's albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -262,14 +262,16 @@ class ArtistsAPI(SpotifyResourceAPI):
         for an artist's top tracks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -298,7 +300,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the artist's top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -397,14 +399,17 @@ class ArtistsAPI(SpotifyResourceAPI):
         information for artists similar to a given artist.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access the :code:`GET /artists/{id}/related-artists`
-                  endpoint. `Learn more. <https://developer.spotify.com
-                  /blog/2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Required
+
+                 Extended quota mode before November 27, 2024
+                     Access the :code:`GET /artists/{id}
+                     /related-artists` endpoint. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -419,7 +424,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the related artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -470,21 +475,23 @@ class ArtistsAPI(SpotifyResourceAPI):
         information for the current user's top artists.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-top-read` scope
-                 Read your top artists and contents. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-top-read>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-top-read` scope
+                    Read your top artists and contents. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-top-read>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -494,14 +501,12 @@ class ArtistsAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"long_term"` – Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"` – Approximately the last six
-                 months of data.
-               * :code:`"short_term"` – Approximately the last four
-                 weeks of data.
+            * :code:`"long_term"` – Approximately one year of data,
+              including all new data as it becomes available.
+            * :code:`"medium_term"` – Approximately the last six months
+              of data.
+            * :code:`"short_term"` – Approximately the last four weeks
+              of data.
 
             **API default**: :code:`"medium_term"`.
 
@@ -527,7 +532,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
               .. code::
 

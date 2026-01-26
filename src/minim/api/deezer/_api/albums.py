@@ -2,6 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
+from .charts import ChartsAPI
 from .users import UsersAPI
 
 
@@ -9,9 +10,9 @@ class AlbumsAPI(DeezerResourceAPI):
     """
     Albums API endpoints for the Deezer API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPI` and
+       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
        should not be instantiated directly.
     """
 
@@ -56,7 +57,7 @@ class AlbumsAPI(DeezerResourceAPI):
             Deezer content metadata for the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -206,7 +207,7 @@ class AlbumsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the album's fans.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -275,7 +276,7 @@ class AlbumsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the tracks in the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -314,6 +315,12 @@ class AlbumsAPI(DeezerResourceAPI):
         return self._request_resource_relationship(
             "GET", "album", album_id, "tracks", limit=limit, offset=offset
         )
+
+    @_copy_docstring(ChartsAPI.get_top_albums)
+    def get_top_albums(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        return self._client.charts.get_top_albums(limit=limit, offset=offset)
 
     @_copy_docstring(UsersAPI.get_saved_albums)
     def get_saved_albums(

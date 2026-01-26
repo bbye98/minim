@@ -2,7 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
-from .search import PrivateSearchEndpoints
+from .search import PrivateSearchAPI
 
 
 class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
@@ -11,7 +11,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -86,7 +86,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -366,7 +366,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the featured albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -483,12 +483,14 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Save one or more albums to the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -514,12 +516,14 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Remove one or more albums from the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -549,12 +553,14 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Get the current user's saved albums.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -580,7 +586,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -675,12 +681,14 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Check whether an album is in the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -705,12 +713,14 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Toggle the saved status of an album.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -730,7 +740,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.toggle_item_saved("album", album_id)
 
-    @_copy_docstring(PrivateSearchEndpoints.search_albums)
+    @_copy_docstring(PrivateSearchAPI.search_albums)
     def search_albums(
         self,
         query: str,

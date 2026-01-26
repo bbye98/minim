@@ -10,7 +10,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -50,12 +50,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -111,12 +111,10 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -129,7 +127,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the home page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -372,12 +370,10 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -390,7 +386,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the explore page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -521,12 +517,10 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -539,7 +533,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the album page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -859,12 +853,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -877,7 +871,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the artist page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1289,12 +1283,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -1307,7 +1301,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the mix page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1512,12 +1506,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -1530,7 +1524,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the personalized mixes page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1594,12 +1588,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -1612,7 +1606,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the video page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

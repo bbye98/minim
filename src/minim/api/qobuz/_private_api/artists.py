@@ -2,7 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
-from .search import PrivateSearchEndpoints
+from .search import PrivateSearchAPI
 
 
 class PrivateArtistsAPI(PrivateQobuzResourceAPI):
@@ -11,7 +11,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -104,10 +104,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"get"` – Legacy :code:`artist/get` endpoint.
-               * :code:`"page"` – Current :code:`artist/page` endpoint.
+            * :code:`"get"` – Legacy :code:`artist/get` endpoint.
+            * :code:`"page"` – Current :code:`artist/page` endpoint.
 
         Returns
         -------
@@ -115,824 +113,828 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the artist.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. code::
+               .. tab-set::
 
-                  .. tab:: Current (:code:`subresource="page"`) endpoint
+                  .. tab-item:: Current (:code:`subresource="page"`) endpoint
 
-                     {
-                       "artist_category": <str>,
-                       "biography": {
-                         "content": <str>,
-                         "language": <str>,
-                         "source": None
-                       },
-                       "id": <int>,
-                       "images": {
-                         "portrait": {
-                           "format": <str>,
-                           "hash": <str>
-                         }
-                       },
-                       "last_release": {
-                         "artist": {
-                           "id": <int>,
-                           "name": {
-                             "display": <str>
-                           }
-                         },
-                         "artists": [
-                           {
-                             "id": <int>,
-                             "name": <str>,
-                             "roles": <list[str]>
-                           }
-                         ],
-                         "audio_info": {
-                           "maximum_bit_depth": <int>,
-                           "maximum_channel_count": <int>,
-                           "maximum_sampling_rate": <float>
-                         },
-                         "awards": [],
-                         "dates": {
-                           "download": <str>,
-                           "original": <str>,
-                           "stream": <str>
-                         },
-                         "description": <str>,
-                         "duration": <int>,
-                         "genre": {
-                           "id": <int>,
-                           "name": <str>,
-                           "path": <list[str]>
-                         },
-                         "id": <str>,
-                         "image": {
-                           "large": <str>,
-                           "small": <str>,
-                           "thumbnail": <str>
-                         },
-                         "label": {
-                           "id": <int>,
-                           "name": <str>
-                         },
-                         "parental_warning": <bool>,
-                         "release_tags": [],
-                         "release_type": <str>,
-                         "rights": {
-                           "downloadable": <bool>,
-                           "hires_purchasable": <bool>,
-                           "hires_streamable": <bool>,
-                           "purchasable": <bool>,
-                           "streamable": <bool>
-                         },
-                         "title": <str>,
-                         "tracks_count": <int>,
-                         "version": None
-                       },
-                       "name": {
-                         "display": <str>
-                       },
-                       "playlists": {
-                         "has_more": <bool>,
-                         "items": []
-                       },
-                       "releases": [
-                         {
-                           "has_more": <bool>,
-                           "items": [
-                             {
-                               "artist": {
-                                 "id": <int>,
-                                 "name": {
-                                   "display": <str>
-                                 }
-                               },
-                               "artists": [
-                                 {
-                                   "id": <int>,
-                                   "name": <str>,
-                                   "roles": <list[str]>
-                                 }
-                               ],
-                               "audio_info": {
-                                 "maximum_bit_depth": <int>,
-                                 "maximum_channel_count": <int>,
-                                 "maximum_sampling_rate": <float>
-                               },
-                               "awards": [],
-                               "dates": {
-                                 "download": <str>,
-                                 "original": <str>,
-                                 "stream": <str>
-                               },
-                               "duration": <int>,
-                               "genre": {
-                                 "id": <int>,
-                                 "name": <str>,
-                                 "path": <list[str]>
-                               },
-                               "id": <str>,
-                               "image": {
-                                 "large": <str>,
-                                 "small": <str>,
-                                 "thumbnail": <str>
-                               },
-                               "label": {
-                                 "id": <int>,
-                                 "name": <str>
-                               },
-                               "parental_warning": <bool>,
-                               "release_tags": [],
-                               "release_type": <str>,
-                               "rights": {
-                                 "downloadable": <bool>,
-                                 "hires_purchasable": <bool>,
-                                 "hires_streamable": <bool>,
-                                 "purchasable": <bool>,
-                                 "streamable": <bool>
-                               },
-                               "title": <str>,
-                               "tracks_count": <int>,
-                               "version": <str>,
-                             }
-                           ],
-                           "type": "album"
-                         },
-                         {
-                           "has_more": <bool>,
-                           "items": [],
-                           "type": "live"
-                         },
-                         {
-                           "has_more": <bool>,
-                           "items": [],
-                           "type": "compilation"
-                         },
-                         {
-                           "has_more": <bool>,
-                           "items": [
-                             {
-                               "artist": {
-                                 "id": <int>,
-                                 "name": {
-                                   "display": <str>
-                                 }
-                               },
-                               "artists": [
-                                 {
-                                   "id": <int>,
-                                   "name": <str>,
-                                   "roles": <list[str]>
-                                 }
-                               ],
-                               "audio_info": {
-                                 "maximum_bit_depth": <int>,
-                                 "maximum_channel_count": <int>,
-                                 "maximum_sampling_rate": <float>
-                               },
-                               "awards": [],
-                               "dates": {
-                                 "download": <str>,
-                                 "original": <str>,
-                                 "stream": <str>,
-                               },
-                               "duration": <int>,
-                               "genre": {
-                                 "id": <int>,
-                                 "name": <str>,
-                                 "path": <list[int]>
-                               },
-                               "id": <str>,
-                               "image": {
-                                 "large": <str>,
-                                 "small": <str>,
-                                 "thumbnail": <str>
-                               },
-                               "label": {
-                                 "id": <int>,
-                                 "name": <str>
-                               },
-                               "parental_warning": <bool>,
-                               "release_tags": [],
-                               "release_type": <str>,
-                               "rights": {
-                                 "downloadable": <bool>,
-                                 "hires_purchasable": <bool>,
-                                 "hires_streamable": <bool>,
-                                 "purchasable": <bool>,
-                                 "streamable": <bool>
-                               },
-                               "title": <str>,
-                               "tracks_count": <int>,
-                               "version": <str>
-                             }
-                           ],
-                           "type": "epSingle"
-                         },
-                         {
-                           "has_more": <bool>,
-                           "items": [],
-                           "type": "download"
-                         },
-                         {
-                           "has_more": <bool>,
-                           "items": [
-                             {
-                               "artist": {
-                                 "id": <int>,
-                                 "name": {
-                                   "display": <str>
-                                 }
-                               },
-                               "artists": [
-                                 {
-                                   "id": <int>,
-                                   "name": <str>,
-                                   "roles": <list[str]>
-                                 }
-                               ],
-                               "audio_info": {
-                                 "maximum_bit_depth": <int>,
-                                 "maximum_channel_count": <int>,
-                                 "maximum_sampling_rate": <float>
-                               },
-                               "awards": [],
-                               "dates": {
-                                 "download": <str>,
-                                 "original": <str>,
-                                 "stream": <str>
-                               },
-                               "duration": <int>,
-                               "genre": {
-                                 "id": <int>,
-                                 "name": <str>,
-                                 "path": <list[int]>
-                               },
-                               "id": <str>,
-                               "image": {
-                                 "large": <str>,
-                                 "small": <str>,
-                                 "thumbnail": <str>
-                               },
-                               "label": {
-                                 "id": <int>,
-                                 "name": <str>
-                               },
-                               "parental_warning": <bool>,
-                               "release_tags": [],
-                               "release_type": <str>,
-                               "rights": {
-                                 "downloadable": <bool>,
-                                 "hires_purchasable": <bool>,
-                                 "hires_streamable": <bool>,
-                                 "purchasable": <bool>,
-                                 "streamable": <bool>
-                               },
-                               "title": <str>,
-                               "tracks_count": <int>,
-                               "version": <str>
-                             }
-                           ],
-                           "type": "other"
-                         },
-                         {
-                           "has_more": <bool>,
-                           "items": [],
-                           "type": "awardedRelease"
-                         }
-                       ],
-                       "similar_artists": {
-                         "has_more": <bool>,
-                         "items": [
-                           {
-                             "id": <int>,
-                             "images": {
-                               "portrait": {
-                                 "format": <str>,
-                                 "hash": <str>
-                               }
-                             },
-                             "name": {
-                               "display": <str>
-                             }
-                           }
-                         ]
-                       },
-                       "top_tracks": [
-                         {
-                           "album": {
-                             "genre": {
-                               "id": <int>,
-                               "name": <str>,
-                               "path": <list[int]>
-                             },
-                             "id": <str>,
-                             "image": {
-                               "large": <str>,
-                               "small": <str>,
-                               "thumbnail": <str>
-                             },
-                             "label": {
-                               "id": <int>,
-                               "name": <str>
-                             },
-                             "title": <str>,
-                             "version": <str>
-                           },
-                           "artist": {
-                             "id": <int>,
-                             "name": {
-                               "display": <str>
-                             }
-                           },
-                           "artists": [],
-                           "audio_info": {
-                             "maximum_bit_depth": <int>,
-                             "maximum_channel_count": <int>,
-                             "maximum_sampling_rate": <float>
-                           },
-                           "composer": {
-                             "id": <int>,
-                             "name": <str>,
-                           },
-                           "duration": <int>,
-                           "id": <int>,
-                           "isrc": <str>,
-                           "parental_warning": <bool>,
-                           "physical_support": {
-                             "media_number": <int>,
-                             "track_number": <int>
-                           },
-                           "rights": {
-                             "downloadable": <bool>,
-                             "hires_purchasable": <bool>,
-                             "hires_streamable": <bool>,
-                             "previewable": <bool>,
-                             "purchasable": <bool>,
-                             "sampleable": <bool>,
-                             "streamable": <bool>
-                           },
-                           "title": <str>,
-                           "version": <str>,
-                           "work": None
-                         }
-                       ]
-                     }
+                     .. code::
 
-                  .. tab:: Legacy (:code:`subresource="get"`) endpoint
+                        {
+                          "artist_category": <str>,
+                          "biography": {
+                            "content": <str>,
+                            "language": <str>,
+                            "source": None
+                          },
+                          "id": <int>,
+                          "images": {
+                            "portrait": {
+                              "format": <str>,
+                              "hash": <str>
+                            }
+                          },
+                          "last_release": {
+                            "artist": {
+                              "id": <int>,
+                              "name": {
+                                "display": <str>
+                              }
+                            },
+                            "artists": [
+                              {
+                                "id": <int>,
+                                "name": <str>,
+                                "roles": <list[str]>
+                              }
+                            ],
+                            "audio_info": {
+                              "maximum_bit_depth": <int>,
+                              "maximum_channel_count": <int>,
+                              "maximum_sampling_rate": <float>
+                            },
+                            "awards": [],
+                            "dates": {
+                              "download": <str>,
+                              "original": <str>,
+                              "stream": <str>
+                            },
+                            "description": <str>,
+                            "duration": <int>,
+                            "genre": {
+                              "id": <int>,
+                              "name": <str>,
+                              "path": <list[str]>
+                            },
+                            "id": <str>,
+                            "image": {
+                              "large": <str>,
+                              "small": <str>,
+                              "thumbnail": <str>
+                            },
+                            "label": {
+                              "id": <int>,
+                              "name": <str>
+                            },
+                            "parental_warning": <bool>,
+                            "release_tags": [],
+                            "release_type": <str>,
+                            "rights": {
+                              "downloadable": <bool>,
+                              "hires_purchasable": <bool>,
+                              "hires_streamable": <bool>,
+                              "purchasable": <bool>,
+                              "streamable": <bool>
+                            },
+                            "title": <str>,
+                            "tracks_count": <int>,
+                            "version": None
+                          },
+                          "name": {
+                            "display": <str>
+                          },
+                          "playlists": {
+                            "has_more": <bool>,
+                            "items": []
+                          },
+                          "releases": [
+                            {
+                              "has_more": <bool>,
+                              "items": [
+                                {
+                                  "artist": {
+                                    "id": <int>,
+                                    "name": {
+                                      "display": <str>
+                                    }
+                                  },
+                                  "artists": [
+                                    {
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "roles": <list[str]>
+                                    }
+                                  ],
+                                  "audio_info": {
+                                    "maximum_bit_depth": <int>,
+                                    "maximum_channel_count": <int>,
+                                    "maximum_sampling_rate": <float>
+                                  },
+                                  "awards": [],
+                                  "dates": {
+                                    "download": <str>,
+                                    "original": <str>,
+                                    "stream": <str>
+                                  },
+                                  "duration": <int>,
+                                  "genre": {
+                                    "id": <int>,
+                                    "name": <str>,
+                                    "path": <list[str]>
+                                  },
+                                  "id": <str>,
+                                  "image": {
+                                    "large": <str>,
+                                    "small": <str>,
+                                    "thumbnail": <str>
+                                  },
+                                  "label": {
+                                    "id": <int>,
+                                    "name": <str>
+                                  },
+                                  "parental_warning": <bool>,
+                                  "release_tags": [],
+                                  "release_type": <str>,
+                                  "rights": {
+                                    "downloadable": <bool>,
+                                    "hires_purchasable": <bool>,
+                                    "hires_streamable": <bool>,
+                                    "purchasable": <bool>,
+                                    "streamable": <bool>
+                                  },
+                                  "title": <str>,
+                                  "tracks_count": <int>,
+                                  "version": <str>,
+                                }
+                              ],
+                              "type": "album"
+                            },
+                            {
+                              "has_more": <bool>,
+                              "items": [],
+                              "type": "live"
+                            },
+                            {
+                              "has_more": <bool>,
+                              "items": [],
+                              "type": "compilation"
+                            },
+                            {
+                              "has_more": <bool>,
+                              "items": [
+                                {
+                                  "artist": {
+                                    "id": <int>,
+                                    "name": {
+                                      "display": <str>
+                                    }
+                                  },
+                                  "artists": [
+                                    {
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "roles": <list[str]>
+                                    }
+                                  ],
+                                  "audio_info": {
+                                    "maximum_bit_depth": <int>,
+                                    "maximum_channel_count": <int>,
+                                    "maximum_sampling_rate": <float>
+                                  },
+                                  "awards": [],
+                                  "dates": {
+                                    "download": <str>,
+                                    "original": <str>,
+                                    "stream": <str>,
+                                  },
+                                  "duration": <int>,
+                                  "genre": {
+                                    "id": <int>,
+                                    "name": <str>,
+                                    "path": <list[int]>
+                                  },
+                                  "id": <str>,
+                                  "image": {
+                                    "large": <str>,
+                                    "small": <str>,
+                                    "thumbnail": <str>
+                                  },
+                                  "label": {
+                                    "id": <int>,
+                                    "name": <str>
+                                  },
+                                  "parental_warning": <bool>,
+                                  "release_tags": [],
+                                  "release_type": <str>,
+                                  "rights": {
+                                    "downloadable": <bool>,
+                                    "hires_purchasable": <bool>,
+                                    "hires_streamable": <bool>,
+                                    "purchasable": <bool>,
+                                    "streamable": <bool>
+                                  },
+                                  "title": <str>,
+                                  "tracks_count": <int>,
+                                  "version": <str>
+                                }
+                              ],
+                              "type": "epSingle"
+                            },
+                            {
+                              "has_more": <bool>,
+                              "items": [],
+                              "type": "download"
+                            },
+                            {
+                              "has_more": <bool>,
+                              "items": [
+                                {
+                                  "artist": {
+                                    "id": <int>,
+                                    "name": {
+                                      "display": <str>
+                                    }
+                                  },
+                                  "artists": [
+                                    {
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "roles": <list[str]>
+                                    }
+                                  ],
+                                  "audio_info": {
+                                    "maximum_bit_depth": <int>,
+                                    "maximum_channel_count": <int>,
+                                    "maximum_sampling_rate": <float>
+                                  },
+                                  "awards": [],
+                                  "dates": {
+                                    "download": <str>,
+                                    "original": <str>,
+                                    "stream": <str>
+                                  },
+                                  "duration": <int>,
+                                  "genre": {
+                                    "id": <int>,
+                                    "name": <str>,
+                                    "path": <list[int]>
+                                  },
+                                  "id": <str>,
+                                  "image": {
+                                    "large": <str>,
+                                    "small": <str>,
+                                    "thumbnail": <str>
+                                  },
+                                  "label": {
+                                    "id": <int>,
+                                    "name": <str>
+                                  },
+                                  "parental_warning": <bool>,
+                                  "release_tags": [],
+                                  "release_type": <str>,
+                                  "rights": {
+                                    "downloadable": <bool>,
+                                    "hires_purchasable": <bool>,
+                                    "hires_streamable": <bool>,
+                                    "purchasable": <bool>,
+                                    "streamable": <bool>
+                                  },
+                                  "title": <str>,
+                                  "tracks_count": <int>,
+                                  "version": <str>
+                                }
+                              ],
+                              "type": "other"
+                            },
+                            {
+                              "has_more": <bool>,
+                              "items": [],
+                              "type": "awardedRelease"
+                            }
+                          ],
+                          "similar_artists": {
+                            "has_more": <bool>,
+                            "items": [
+                              {
+                                "id": <int>,
+                                "images": {
+                                  "portrait": {
+                                    "format": <str>,
+                                    "hash": <str>
+                                  }
+                                },
+                                "name": {
+                                  "display": <str>
+                                }
+                              }
+                            ]
+                          },
+                          "top_tracks": [
+                            {
+                              "album": {
+                                "genre": {
+                                  "id": <int>,
+                                  "name": <str>,
+                                  "path": <list[int]>
+                                },
+                                "id": <str>,
+                                "image": {
+                                  "large": <str>,
+                                  "small": <str>,
+                                  "thumbnail": <str>
+                                },
+                                "label": {
+                                  "id": <int>,
+                                  "name": <str>
+                                },
+                                "title": <str>,
+                                "version": <str>
+                              },
+                              "artist": {
+                                "id": <int>,
+                                "name": {
+                                  "display": <str>
+                                }
+                              },
+                              "artists": [],
+                              "audio_info": {
+                                "maximum_bit_depth": <int>,
+                                "maximum_channel_count": <int>,
+                                "maximum_sampling_rate": <float>
+                              },
+                              "composer": {
+                                "id": <int>,
+                                "name": <str>,
+                              },
+                              "duration": <int>,
+                              "id": <int>,
+                              "isrc": <str>,
+                              "parental_warning": <bool>,
+                              "physical_support": {
+                                "media_number": <int>,
+                                "track_number": <int>
+                              },
+                              "rights": {
+                                "downloadable": <bool>,
+                                "hires_purchasable": <bool>,
+                                "hires_streamable": <bool>,
+                                "previewable": <bool>,
+                                "purchasable": <bool>,
+                                "sampleable": <bool>,
+                                "streamable": <bool>
+                              },
+                              "title": <str>,
+                              "version": <str>,
+                              "work": None
+                            }
+                          ]
+                        }
 
-                     {
-                       "albums": {
-                         "items": [
-                           {
-                             "articles": [],
-                             "artist": {
-                               "albums_count": <int>,
-                               "id": <int>,
-                               "image": None,
-                               "name": <str>,
-                               "picture": None,
-                               "slug": <str>
-                             },
-                             "artists": [
-                               {
-                                 "id": <int>,
-                                 "name": <str>,
-                                 "roles": <list[str]>
-                               }
-                             ],
-                             "displayable": <bool>,
-                             "downloadable": <bool>,
-                             "duration": <int>,
-                             "genre": {
-                               "color": <str>,
-                               "id": <int>,
-                               "name": <str>,
-                               "path": <list[int]>,
-                               "slug": <str>
-                             },
-                             "hires": <bool>,
-                             "hires_streamable": <bool>,
-                             "id": <str>,
-                             "image": {
-                               "back": None,
-                               "large": <str>,
-                               "small": <str>,
-                               "thumbnail": <str>
-                             },
-                             "label": {
-                               "albums_count": <int>,
-                               "id": <int>,
-                               "name": <str>,
-                               "slug": <str>,
-                               "supplier_id": <int>
-                             },
-                             "maximum_bit_depth": <int>,
-                             "maximum_channel_count": <int>,
-                             "maximum_sampling_rate": <float>,
-                             "media_count": <int>,
-                             "parental_warning": <bool>,
-                             "popularity": <int>,
-                             "previewable": <bool>,
-                             "purchasable": <bool>,
-                             "purchasable_at": <int>,
-                             "qobuz_id": <int>,
-                             "release_date_download": <str>,
-                             "release_date_original": <str>,
-                             "release_date_stream": <str>,
-                             "released_at": <int>,
-                             "sampleable": <bool>,
-                             "slug": <str>,
-                             "streamable": <bool>,
-                             "streamable_at": <int>,
-                             "title": <str>,
-                             "tracks_count": <int>,
-                             "upc": <str>,
-                             "url": <str>,
-                             "version": <str>
-                           }
-                         ],
-                         "limit": <int>,
-                         "offset": <int>,
-                         "total": <int>
-                       },
-                       "albums_as_primary_artist_count": <int>,
-                       "albums_as_primary_composer_count": <int>,
-                       "albums_count": <int>,
-                       "albums_without_last_release": {
-                         "items": [
-                           {
-                             "articles": [],
-                             "artist": {
-                               "albums_count": <int>,
-                               "id": <int>,
-                               "image": None,
-                               "name": <str>,
-                               "picture": None,
-                               "slug": <str>
-                             },
-                             "artists": [
-                               {
-                                 "id": <int>,
-                                 "name": <str>,
-                                 "roles": <list[str]>
-                               }
-                             ],
-                             "displayable": <bool>,
-                             "downloadable": <bool>,
-                             "duration": <int>,
-                             "genre": {
-                               "color": <str>,
-                               "id": <int>,
-                               "name": <str>,
-                               "path": <list[int]>,
-                               "slug": <str>
-                             },
-                             "hires": <bool>,
-                             "hires_streamable": <bool>,
-                             "id": <str>,
-                             "image": {
-                               "back": None,
-                               "large": <str>,
-                               "small": <str>,
-                               "thumbnail": <str>
-                             },
-                             "label": {
-                               "albums_count": <int>,
-                               "id": <int>,
-                               "name": <str>,
-                               "slug": <str>,
-                               "supplier_id": <int>
-                             },
-                             "maximum_bit_depth": <int>,
-                             "maximum_channel_count": <int>,
-                             "maximum_sampling_rate": <float>,
-                             "media_count": <int>,
-                             "parental_warning": <bool>,
-                             "popularity": <int>,
-                             "previewable": <bool>,
-                             "purchasable": <bool>,
-                             "purchasable_at": <int>,
-                             "qobuz_id": <int>,
-                             "release_date_download": <str>,
-                             "release_date_original": <str>,
-                             "release_date_stream": <str>,
-                             "released_at": <int>,
-                             "sampleable": <bool>,
-                             "slug": <str>,
-                             "streamable": <bool>,
-                             "streamable_at": <int>,
-                             "title": <str>,
-                             "tracks_count": <int>,
-                             "upc": <str>,
-                             "url": <str>,
-                             "version": <str>
-                           }
-                         ],
-                         "limit": <int>,
-                         "offset": <int>,
-                         "total": <int>
-                       },
-                       "biography": {
-                         "content": <str>,
-                         "language": <str>,
-                         "source": <str>,
-                         "summary": <str>,
-                       },
-                       "id": <int>,
-                       "image": {
-                         "extralarge": <str>,
-                         "large": <str>,
-                         "medium": <str>,
-                         "mega": <str>,
-                         "small": <str>,
-                       },
-                       "information": None,
-                       "name": <str>,
-                       "picture": None,
-                       "playlists": [
-                         {
-                           "created_at": <int>,
-                           "description": <str>,
-                           "duration": <int>,
-                           "featured_artists": [
-                             {
-                               "albums_count": <int>,
-                               "id": <int>,
-                               "image": None,
-                               "name": <str>,
-                               "picture": None,
-                               "slug": <str>
-                             }
-                           ],
-                           "genres": [
-                             {
-                               "color": <str>,
-                               "id": <int>,
-                               "name": <str>,
-                               "path": <list[int]>,
-                               "percent": <int>,
-                               "slug": <str>
-                             }
-                           ],
-                           "id": <int>,
-                           "image_rectangle": <list[str]>,
-                           "image_rectangle_mini": <list[str]>,
-                           "images": <list[str]>,
-                           "images150": <list[str]>,
-                           "images300": <list[str]>,
-                           "indexed_at": <int>,
-                           "is_collaborative": <bool>,
-                           "is_featured": <bool>,
-                           "is_public": <bool>,
-                           "is_published": <bool>,
-                           "name": <str>,
-                           "owner": {
-                             "id": <int>,
-                             "name": <str>
-                           },
-                           "published_from": <int>,
-                           "published_to": <int>,
-                           "slug": <str>,
-                           "stores": <list[str]>,
-                           "timestamp_position": <int>,
-                           "tracks": {
-                             "items": [
-                               {
-                                 "album": {
-                                   "artist": {
-                                     "albums_count": <int>,
-                                     "id": <int>,
-                                     "image": None,
-                                     "name": <str>,
-                                     "picture": None,
-                                     "slug": <str>
-                                   },
-                                   "displayable": <bool>,
-                                   "downloadable": <bool>,
-                                   "duration": <int>,
-                                   "genre": {
-                                     "color": <str>,
-                                     "id": <int>,
-                                     "name": <str>,
-                                     "path": <list[int]>,
-                                     "slug": <str>
-                                   },
-                                   "hires": <bool>,
-                                   "hires_streamable": <bool>,
-                                   "id": <str>,
-                                   "image": {
-                                     "large": <str>,
-                                     "small": <str>,
-                                     "thumbnail": <str>
-                                   },
-                                   "label": {
-                                     "albums_count": <int>,
-                                     "id": <int>,
-                                     "name": <str>,
-                                     "slug": <str>,
-                                     "supplier_id": <int>
-                                   },
-                                   "maximum_bit_depth": <int>,
-                                   "maximum_channel_count": <int>,
-                                   "maximum_sampling_rate": <float>,
-                                   "maximum_technical_specifications": <str>,
-                                   "media_count": <int>,
-                                   "parental_warning": <bool>,
-                                   "previewable": <bool>,
-                                   "purchasable": <bool>,
-                                   "purchasable_at": <str>,
-                                   "qobuz_id": <int>,
-                                   "release_date_download": <str>,
-                                   "release_date_original": <str>,
-                                   "release_date_purchase": <str>,
-                                   "release_date_stream": <str>,
-                                   "released_at": <int>,
-                                   "sampleable": <bool>,
-                                   "streamable": <bool>,
-                                   "streamable_at": <int>,
-                                   "title": <str>,
-                                   "tracks_count": <int>,
-                                   "upc": <str>,
-                                   "version": <str>
-                                 },
-                                 "article_ids": <dict[str, int]>,
-                                 "articles": [
-                                   {
-                                     "currency": <str>,
-                                     "description": <str>,
-                                     "id": <int>,
-                                     "label": <str>,
-                                     "price": <float>,
-                                     "type": <str>,
-                                     "url": <str>,
-                                   }
-                                 ],
-                                 "audio_info": {
-                                   "replaygain_track_gain": <float>,
-                                   "replaygain_track_peak": <float>
-                                 },
-                                 "composer": {
-                                   "id": <int>,
-                                   "name": <str>,
-                                 },
-                                 "copyright": <str>,
-                                 "description": [],
-                                 "displayable": <bool>,
-                                 "downloadable": <bool>,
-                                 "duration": <int>,
-                                 "hires": <bool>,
-                                 "hires_streamable": <bool>,
-                                 "id": <int>,
-                                 "isrc": <str>,
-                                 "maximum_bit_depth": <int>,
-                                 "maximum_channel_count": <int>,
-                                 "maximum_sampling_rate": <float>,
-                                 "maximum_technical_specifications": <str>,
-                                 "media_number": <int>,
-                                 "parental_warning": <bool>,
-                                 "performer": {
-                                   "id": <int>,
-                                   "name": <str>
-                                 },
-                                 "performers": <str>,
-                                 "previewable": <bool>,
-                                 "purchasable": <bool>,
-                                 "purchasable_at": <int>,
-                                 "release_date_download": <str>,
-                                 "release_date_original": <str>,
-                                 "release_date_purchase": <str>,
-                                 "release_date_stream": <str>,
-                                 "sampleable": <bool>,
-                                 "streamable": <bool>,
-                                 "streamable_at": <int>,
-                                 "title": <str>,
-                                 "track_number": <int>,
-                                 "version": <str>,
-                                 "work": <str>
-                               }
-                             ],
-                             "limit": <int>,
-                             "offset": <int>,
-                             "total": <int>
-                           },
-                           "tracks_count": <int>,
-                           "updated_at": <int>,
-                           "users_count": <int>
-                         }
-                       ],
-                       "similar_artist_ids": <list[int]>,
-                       "slug": <str>,
-                       "tracks_appears_on": {
-                         "items": [
-                           {
-                             "album": {
-                               "artist": {
-                                 "albums_count": <int>,
-                                 "id": <int>,
-                                 "image": None,
-                                 "name": <str>,
-                                 "picture": None,
-                                 "slug": <str>
-                               },
-                               "displayable": <bool>,
-                               "downloadable": <bool>,
-                               "duration": <int>,
-                               "genre": {
-                                 "id": <int>,
-                                 "name": <str>,
-                                 "path": <list[int]>,
-                                 "slug": <str>
-                               },
-                               "hires": <bool>,
-                               "hires_streamable": <bool>,
-                               "id": <str>,
-                               "image": {
-                                 "large": <str>,
-                                 "small": <str>,
-                                 "thumbnail": <str>
-                               },
-                               "label": {
-                                 "albums_count": <int>,
-                                 "id": <int>,
-                                 "name": <str>,
-                                 "slug": <str>,
-                                 "supplier_id": <int>
-                               },
-                               "maximum_bit_depth": <int>,
-                               "maximum_channel_count": <int>,
-                               "maximum_sampling_rate": <float>,
-                               "maximum_technical_specifications": <str>,
-                               "media_count": <int>,
-                               "parental_warning": <bool>,
-                               "previewable": <bool>,
-                               "purchasable": <bool>,
-                               "purchasable_at": <str>,
-                               "qobuz_id": <int>,
-                               "release_date_download": <str>,
-                               "release_date_original": <str>,
-                               "release_date_purchase": <str>,
-                               "release_date_stream": <str>,
-                               "released_at": <int>,
-                               "sampleable": <bool>,
-                               "streamable": <bool>,
-                               "streamable_at": <int>,
-                               "title": <str>,
-                               "tracks_count": <int>,
-                               "upc": <str>,
-                               "version": <str>
-                             },
-                             "articles": [],
-                             "audio_info": {
-                               "replaygain_track_gain": <float>,
-                               "replaygain_track_peak": <float>
-                             },
-                             "composer": {
-                               "id": <int>,
-                               "name": <str>
-                             },
-                             "copyright": <str>,
-                             "displayable": <bool>,
-                             "downloadable": <bool>,
-                             "duration": <int>,
-                             "hires": <bool>,
-                             "hires_streamable": <bool>,
-                             "id": <int>,
-                             "isrc": <str>,
-                             "maximum_bit_depth": <int>,
-                             "maximum_channel_count": <int>,
-                             "maximum_sampling_rate": <float>,
-                             "maximum_technical_specifications": <str>,
-                             "media_number": <int>,
-                             "parental_warning": <bool>,
-                             "performer": {
-                               "id": <int>,
-                               "name": <str>
-                             },
-                             "performers": <str>,
-                             "previewable": <bool>,
-                             "purchasable": <bool>,
-                             "purchasable_at": <int>,
-                             "release_date_download": <str>,
-                             "release_date_original": <str>,
-                             "release_date_purchase": <str>,
-                             "release_date_stream": <str>,
-                             "sampleable": <bool>,
-                             "streamable": <bool>,
-                             "streamable_at": <int>,
-                             "title": <str>,
-                             "track_number": <int>,
-                             "version": <str>,
-                             "work": <str>
-                           }
-                         ],
-                         "limit": <int>,
-                         "offset": <int>,
-                         "total": <int>
-                       }
-                     }
+                  .. tab-item:: Legacy (:code:`subresource="get"`) endpoint
+
+                     .. code::
+
+                        {
+                          "albums": {
+                            "items": [
+                              {
+                                "articles": [],
+                                "artist": {
+                                  "albums_count": <int>,
+                                  "id": <int>,
+                                  "image": None,
+                                  "name": <str>,
+                                  "picture": None,
+                                  "slug": <str>
+                                },
+                                "artists": [
+                                  {
+                                    "id": <int>,
+                                    "name": <str>,
+                                    "roles": <list[str]>
+                                  }
+                                ],
+                                "displayable": <bool>,
+                                "downloadable": <bool>,
+                                "duration": <int>,
+                                "genre": {
+                                  "color": <str>,
+                                  "id": <int>,
+                                  "name": <str>,
+                                  "path": <list[int]>,
+                                  "slug": <str>
+                                },
+                                "hires": <bool>,
+                                "hires_streamable": <bool>,
+                                "id": <str>,
+                                "image": {
+                                  "back": None,
+                                  "large": <str>,
+                                  "small": <str>,
+                                  "thumbnail": <str>
+                                },
+                                "label": {
+                                  "albums_count": <int>,
+                                  "id": <int>,
+                                  "name": <str>,
+                                  "slug": <str>,
+                                  "supplier_id": <int>
+                                },
+                                "maximum_bit_depth": <int>,
+                                "maximum_channel_count": <int>,
+                                "maximum_sampling_rate": <float>,
+                                "media_count": <int>,
+                                "parental_warning": <bool>,
+                                "popularity": <int>,
+                                "previewable": <bool>,
+                                "purchasable": <bool>,
+                                "purchasable_at": <int>,
+                                "qobuz_id": <int>,
+                                "release_date_download": <str>,
+                                "release_date_original": <str>,
+                                "release_date_stream": <str>,
+                                "released_at": <int>,
+                                "sampleable": <bool>,
+                                "slug": <str>,
+                                "streamable": <bool>,
+                                "streamable_at": <int>,
+                                "title": <str>,
+                                "tracks_count": <int>,
+                                "upc": <str>,
+                                "url": <str>,
+                                "version": <str>
+                              }
+                            ],
+                            "limit": <int>,
+                            "offset": <int>,
+                            "total": <int>
+                          },
+                          "albums_as_primary_artist_count": <int>,
+                          "albums_as_primary_composer_count": <int>,
+                          "albums_count": <int>,
+                          "albums_without_last_release": {
+                            "items": [
+                              {
+                                "articles": [],
+                                "artist": {
+                                  "albums_count": <int>,
+                                  "id": <int>,
+                                  "image": None,
+                                  "name": <str>,
+                                  "picture": None,
+                                  "slug": <str>
+                                },
+                                "artists": [
+                                  {
+                                    "id": <int>,
+                                    "name": <str>,
+                                    "roles": <list[str]>
+                                  }
+                                ],
+                                "displayable": <bool>,
+                                "downloadable": <bool>,
+                                "duration": <int>,
+                                "genre": {
+                                  "color": <str>,
+                                  "id": <int>,
+                                  "name": <str>,
+                                  "path": <list[int]>,
+                                  "slug": <str>
+                                },
+                                "hires": <bool>,
+                                "hires_streamable": <bool>,
+                                "id": <str>,
+                                "image": {
+                                  "back": None,
+                                  "large": <str>,
+                                  "small": <str>,
+                                  "thumbnail": <str>
+                                },
+                                "label": {
+                                  "albums_count": <int>,
+                                  "id": <int>,
+                                  "name": <str>,
+                                  "slug": <str>,
+                                  "supplier_id": <int>
+                                },
+                                "maximum_bit_depth": <int>,
+                                "maximum_channel_count": <int>,
+                                "maximum_sampling_rate": <float>,
+                                "media_count": <int>,
+                                "parental_warning": <bool>,
+                                "popularity": <int>,
+                                "previewable": <bool>,
+                                "purchasable": <bool>,
+                                "purchasable_at": <int>,
+                                "qobuz_id": <int>,
+                                "release_date_download": <str>,
+                                "release_date_original": <str>,
+                                "release_date_stream": <str>,
+                                "released_at": <int>,
+                                "sampleable": <bool>,
+                                "slug": <str>,
+                                "streamable": <bool>,
+                                "streamable_at": <int>,
+                                "title": <str>,
+                                "tracks_count": <int>,
+                                "upc": <str>,
+                                "url": <str>,
+                                "version": <str>
+                              }
+                            ],
+                            "limit": <int>,
+                            "offset": <int>,
+                            "total": <int>
+                          },
+                          "biography": {
+                            "content": <str>,
+                            "language": <str>,
+                            "source": <str>,
+                            "summary": <str>,
+                          },
+                          "id": <int>,
+                          "image": {
+                            "extralarge": <str>,
+                            "large": <str>,
+                            "medium": <str>,
+                            "mega": <str>,
+                            "small": <str>,
+                          },
+                          "information": None,
+                          "name": <str>,
+                          "picture": None,
+                          "playlists": [
+                            {
+                              "created_at": <int>,
+                              "description": <str>,
+                              "duration": <int>,
+                              "featured_artists": [
+                                {
+                                  "albums_count": <int>,
+                                  "id": <int>,
+                                  "image": None,
+                                  "name": <str>,
+                                  "picture": None,
+                                  "slug": <str>
+                                }
+                              ],
+                              "genres": [
+                                {
+                                  "color": <str>,
+                                  "id": <int>,
+                                  "name": <str>,
+                                  "path": <list[int]>,
+                                  "percent": <int>,
+                                  "slug": <str>
+                                }
+                              ],
+                              "id": <int>,
+                              "image_rectangle": <list[str]>,
+                              "image_rectangle_mini": <list[str]>,
+                              "images": <list[str]>,
+                              "images150": <list[str]>,
+                              "images300": <list[str]>,
+                              "indexed_at": <int>,
+                              "is_collaborative": <bool>,
+                              "is_featured": <bool>,
+                              "is_public": <bool>,
+                              "is_published": <bool>,
+                              "name": <str>,
+                              "owner": {
+                                "id": <int>,
+                                "name": <str>
+                              },
+                              "published_from": <int>,
+                              "published_to": <int>,
+                              "slug": <str>,
+                              "stores": <list[str]>,
+                              "timestamp_position": <int>,
+                              "tracks": {
+                                "items": [
+                                  {
+                                    "album": {
+                                      "artist": {
+                                        "albums_count": <int>,
+                                        "id": <int>,
+                                        "image": None,
+                                        "name": <str>,
+                                        "picture": None,
+                                        "slug": <str>
+                                      },
+                                      "displayable": <bool>,
+                                      "downloadable": <bool>,
+                                      "duration": <int>,
+                                      "genre": {
+                                        "color": <str>,
+                                        "id": <int>,
+                                        "name": <str>,
+                                        "path": <list[int]>,
+                                        "slug": <str>
+                                      },
+                                      "hires": <bool>,
+                                      "hires_streamable": <bool>,
+                                      "id": <str>,
+                                      "image": {
+                                        "large": <str>,
+                                        "small": <str>,
+                                        "thumbnail": <str>
+                                      },
+                                      "label": {
+                                        "albums_count": <int>,
+                                        "id": <int>,
+                                        "name": <str>,
+                                        "slug": <str>,
+                                        "supplier_id": <int>
+                                      },
+                                      "maximum_bit_depth": <int>,
+                                      "maximum_channel_count": <int>,
+                                      "maximum_sampling_rate": <float>,
+                                      "maximum_technical_specifications": <str>,
+                                      "media_count": <int>,
+                                      "parental_warning": <bool>,
+                                      "previewable": <bool>,
+                                      "purchasable": <bool>,
+                                      "purchasable_at": <str>,
+                                      "qobuz_id": <int>,
+                                      "release_date_download": <str>,
+                                      "release_date_original": <str>,
+                                      "release_date_purchase": <str>,
+                                      "release_date_stream": <str>,
+                                      "released_at": <int>,
+                                      "sampleable": <bool>,
+                                      "streamable": <bool>,
+                                      "streamable_at": <int>,
+                                      "title": <str>,
+                                      "tracks_count": <int>,
+                                      "upc": <str>,
+                                      "version": <str>
+                                    },
+                                    "article_ids": <dict[str, int]>,
+                                    "articles": [
+                                      {
+                                        "currency": <str>,
+                                        "description": <str>,
+                                        "id": <int>,
+                                        "label": <str>,
+                                        "price": <float>,
+                                        "type": <str>,
+                                        "url": <str>,
+                                      }
+                                    ],
+                                    "audio_info": {
+                                      "replaygain_track_gain": <float>,
+                                      "replaygain_track_peak": <float>
+                                    },
+                                    "composer": {
+                                      "id": <int>,
+                                      "name": <str>,
+                                    },
+                                    "copyright": <str>,
+                                    "description": [],
+                                    "displayable": <bool>,
+                                    "downloadable": <bool>,
+                                    "duration": <int>,
+                                    "hires": <bool>,
+                                    "hires_streamable": <bool>,
+                                    "id": <int>,
+                                    "isrc": <str>,
+                                    "maximum_bit_depth": <int>,
+                                    "maximum_channel_count": <int>,
+                                    "maximum_sampling_rate": <float>,
+                                    "maximum_technical_specifications": <str>,
+                                    "media_number": <int>,
+                                    "parental_warning": <bool>,
+                                    "performer": {
+                                      "id": <int>,
+                                      "name": <str>
+                                    },
+                                    "performers": <str>,
+                                    "previewable": <bool>,
+                                    "purchasable": <bool>,
+                                    "purchasable_at": <int>,
+                                    "release_date_download": <str>,
+                                    "release_date_original": <str>,
+                                    "release_date_purchase": <str>,
+                                    "release_date_stream": <str>,
+                                    "sampleable": <bool>,
+                                    "streamable": <bool>,
+                                    "streamable_at": <int>,
+                                    "title": <str>,
+                                    "track_number": <int>,
+                                    "version": <str>,
+                                    "work": <str>
+                                  }
+                                ],
+                                "limit": <int>,
+                                "offset": <int>,
+                                "total": <int>
+                              },
+                              "tracks_count": <int>,
+                              "updated_at": <int>,
+                              "users_count": <int>
+                            }
+                          ],
+                          "similar_artist_ids": <list[int]>,
+                          "slug": <str>,
+                          "tracks_appears_on": {
+                            "items": [
+                              {
+                                "album": {
+                                  "artist": {
+                                    "albums_count": <int>,
+                                    "id": <int>,
+                                    "image": None,
+                                    "name": <str>,
+                                    "picture": None,
+                                    "slug": <str>
+                                  },
+                                  "displayable": <bool>,
+                                  "downloadable": <bool>,
+                                  "duration": <int>,
+                                  "genre": {
+                                    "id": <int>,
+                                    "name": <str>,
+                                    "path": <list[int]>,
+                                    "slug": <str>
+                                  },
+                                  "hires": <bool>,
+                                  "hires_streamable": <bool>,
+                                  "id": <str>,
+                                  "image": {
+                                    "large": <str>,
+                                    "small": <str>,
+                                    "thumbnail": <str>
+                                  },
+                                  "label": {
+                                    "albums_count": <int>,
+                                    "id": <int>,
+                                    "name": <str>,
+                                    "slug": <str>,
+                                    "supplier_id": <int>
+                                  },
+                                  "maximum_bit_depth": <int>,
+                                  "maximum_channel_count": <int>,
+                                  "maximum_sampling_rate": <float>,
+                                  "maximum_technical_specifications": <str>,
+                                  "media_count": <int>,
+                                  "parental_warning": <bool>,
+                                  "previewable": <bool>,
+                                  "purchasable": <bool>,
+                                  "purchasable_at": <str>,
+                                  "qobuz_id": <int>,
+                                  "release_date_download": <str>,
+                                  "release_date_original": <str>,
+                                  "release_date_purchase": <str>,
+                                  "release_date_stream": <str>,
+                                  "released_at": <int>,
+                                  "sampleable": <bool>,
+                                  "streamable": <bool>,
+                                  "streamable_at": <int>,
+                                  "title": <str>,
+                                  "tracks_count": <int>,
+                                  "upc": <str>,
+                                  "version": <str>
+                                },
+                                "articles": [],
+                                "audio_info": {
+                                  "replaygain_track_gain": <float>,
+                                  "replaygain_track_peak": <float>
+                                },
+                                "composer": {
+                                  "id": <int>,
+                                  "name": <str>
+                                },
+                                "copyright": <str>,
+                                "displayable": <bool>,
+                                "downloadable": <bool>,
+                                "duration": <int>,
+                                "hires": <bool>,
+                                "hires_streamable": <bool>,
+                                "id": <int>,
+                                "isrc": <str>,
+                                "maximum_bit_depth": <int>,
+                                "maximum_channel_count": <int>,
+                                "maximum_sampling_rate": <float>,
+                                "maximum_technical_specifications": <str>,
+                                "media_number": <int>,
+                                "parental_warning": <bool>,
+                                "performer": {
+                                  "id": <int>,
+                                  "name": <str>
+                                },
+                                "performers": <str>,
+                                "previewable": <bool>,
+                                "purchasable": <bool>,
+                                "purchasable_at": <int>,
+                                "release_date_download": <str>,
+                                "release_date_original": <str>,
+                                "release_date_purchase": <str>,
+                                "release_date_stream": <str>,
+                                "sampleable": <bool>,
+                                "streamable": <bool>,
+                                "streamable_at": <int>,
+                                "title": <str>,
+                                "track_number": <int>,
+                                "version": <str>,
+                                "work": <str>
+                              }
+                            ],
+                            "limit": <int>,
+                            "offset": <int>,
+                            "total": <int>
+                          }
+                        }
         """
         self._validate_qobuz_ids(artist_id, _recursive=False)
         params = {"artist_id": artist_id}
@@ -982,13 +984,15 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Get Qobuz catalog information for an artist's releases.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the :code:`GET /artist/getReleasesGrid` and
-                 :code:`GET /artist/getReleasesList` endpoint.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the :code:`GET /artist/getReleasesGrid` and
+                    :code:`GET /artist/getReleasesList` endpoint.
 
         Parameters
         ----------
@@ -1050,7 +1054,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the artist's releases.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1237,7 +1241,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for similar artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1317,7 +1321,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the featured artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1354,12 +1358,14 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Follow one or more artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -1383,12 +1389,14 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Unfollow one or more artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -1418,12 +1426,14 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Get the current user's followed artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -1449,7 +1459,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1527,7 +1537,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.toggle_item_saved("artist", artist_id)
 
-    @_copy_docstring(PrivateSearchEndpoints.search_artists)
+    @_copy_docstring(PrivateSearchAPI.search_artists)
     def search_artists(
         self,
         query: str,

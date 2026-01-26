@@ -12,7 +12,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPI`
+       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -114,19 +114,21 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlists.
 
         .. admonition:: User authentication and authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              :code:`playlists.read` scope
-                 Read a user's playlists.
+              .. tab-item:: Conditional
 
-           .. tab:: Optional
+                 :code:`playlists.read` scope
+                    Read a user's playlists.
 
-              User authentication
-                 Access information on an item's owners.
+              .. tab-item:: Optional
 
-        .. note::
+                 User authentication
+                    Access information on an item's owners.
+
+        .. important::
 
            Exactly one of `playlist_uuids` or `owner_ids` must be
            provided. When `owner_ids` is specified, the request will
@@ -160,7 +162,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             :code:`"ownerProfiles"`, :code:`"owners"`.
 
             **Examples**: :code:`"coverArt"`,
-           :code:`["items", "owners"]`.
+            :code:`["items", "owners"]`.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results when requesting
@@ -185,489 +187,491 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the playlists.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single playlist
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single playlist
 
-                     {
-                       "data": {
-                         "attributes": {
-                           "accessType": <str>,
-                           "bounded": <bool>,
-                           "createdAt": <str>,
-                           "description": <str>,
-                           "duration": <str>,
-                           "externalLinks": [
-                             {
-                               "href": <str>,
-                               "meta": {
-                                 "type": <str>
-                               }
-                             }
-                           ],
-                           "lastModifiedAt": <str>,
-                           "name": <str>,
-                           "numberOfItems": <int>,
-                           "playlistType": <str>
-                         },
-                         "id": <str>,
-                         "relationships": {
-                           "coverArt": {
-                             "data": [
-                               {
-                                 "id": <str>,
-                                 "type": "artworks"
-                               }
-                             ],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "items": {
-                             "data": [
-                               {
-                                 "id": <str>,
-                                 "meta": {
-                                   "addedAt": <str>,
-                                   "itemId": <str>
-                                 },
-                                 "type": "tracks"
-                               },
-                               {
-                                 "id": <str>,
-                                 "meta": {
-                                   "addedAt": <str>,
-                                   "itemId": <str>
-                                 },
-                                 "type": "videos"
-                               }
-                             ],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "ownerProfiles": {
-                             "data": [],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "owners": {
-                             "data": [],
-                             "links": {
-                               "self": <str>
-                             }
-                           }
-                         },
-                         "type": "playlists"
-                       },
-                       "included": [
-                         {
-                           "attributes": {
-                             "files": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "height": <int>,
-                                   "width": <int>
-                                 }
-                               }
-                             ],
-                             "mediaType": "IMAGE"
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "artworks"
-                         },
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "availability": <list[str]>,
-                             "bpm": <float>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "isrc": <str>,
-                             "key": <str>,
-                             "keyScale": <str>,
-                             "mediaTags": <list[str]>,
-                             "popularity": <float>,
-                             "spotlighted": <bool>,
-                             "title": <str>,
-                             "toneTags": <list[str]>,
-                             "version": <str>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "artists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "genres": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "lyrics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "radio": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "shares": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarTracks": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "sourceFile": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "trackStatistics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "tracks"
-                         },
-                         {
-                           "attributes": {
-                             "availability": <list[str]>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "isrc": <str>,
-                             "popularity": <float>,
-                             "releaseDate": <str>,
-                             "title": <str>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "artists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "thumbnailArt": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "videos"
-                         }
-                       ],
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
 
-               .. tab:: Multiple playlists
+                        {
+                          "data": {
+                            "attributes": {
+                              "accessType": <str>,
+                              "bounded": <bool>,
+                              "createdAt": <str>,
+                              "description": <str>,
+                              "duration": <str>,
+                              "externalLinks": [
+                                {
+                                  "href": <str>,
+                                  "meta": {
+                                    "type": <str>
+                                  }
+                                }
+                              ],
+                              "lastModifiedAt": <str>,
+                              "name": <str>,
+                              "numberOfItems": <int>,
+                              "playlistType": <str>
+                            },
+                            "id": <str>,
+                            "relationships": {
+                              "coverArt": {
+                                "data": [
+                                  {
+                                    "id": <str>,
+                                    "type": "artworks"
+                                  }
+                                ],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "items": {
+                                "data": [
+                                  {
+                                    "id": <str>,
+                                    "meta": {
+                                      "addedAt": <str>,
+                                      "itemId": <str>
+                                    },
+                                    "type": "tracks"
+                                  },
+                                  {
+                                    "id": <str>,
+                                    "meta": {
+                                      "addedAt": <str>,
+                                      "itemId": <str>
+                                    },
+                                    "type": "videos"
+                                  }
+                                ],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "ownerProfiles": {
+                                "data": [],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "owners": {
+                                "data": [],
+                                "links": {
+                                  "self": <str>
+                                }
+                              }
+                            },
+                            "type": "playlists"
+                          },
+                          "included": [
+                            {
+                              "attributes": {
+                                "files": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "height": <int>,
+                                      "width": <int>
+                                    }
+                                  }
+                                ],
+                                "mediaType": "IMAGE"
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "artworks"
+                            },
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "availability": <list[str]>,
+                                "bpm": <float>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "isrc": <str>,
+                                "key": <str>,
+                                "keyScale": <str>,
+                                "mediaTags": <list[str]>,
+                                "popularity": <float>,
+                                "spotlighted": <bool>,
+                                "title": <str>,
+                                "toneTags": <list[str]>,
+                                "version": <str>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "artists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "genres": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "lyrics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "radio": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "shares": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarTracks": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "sourceFile": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "trackStatistics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "tracks"
+                            },
+                            {
+                              "attributes": {
+                                "availability": <list[str]>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "isrc": <str>,
+                                "popularity": <float>,
+                                "releaseDate": <str>,
+                                "title": <str>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "artists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "thumbnailArt": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "videos"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple playlists
 
-                     {
-                       "data": [
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "bounded": <bool>,
-                             "createdAt": <str>,
-                             "description": <str>,
-                             "duration": <str>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "lastModifiedAt": <str>,
-                             "name": <str>,
-                             "numberOfItems": <int>,
-                             "playlistType": <str>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "coverArt": {
-                               "data": [
-                                 {
-                                   "id": <str>,
-                                   "type": "artworks"
-                                 }
-                               ],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "items": {
-                               "data": [
-                                 {
-                                   "id": <str>,
-                                   "meta": {
-                                     "addedAt": <str>,
-                                     "itemId": <str>
-                                   },
-                                   "type": "tracks"
-                                 },
-                                 {
-                                   "id": <str>,
-                                   "meta": {
-                                     "addedAt": <str>,
-                                     "itemId": <str>
-                                   },
-                                   "type": "videos"
-                                 }
-                               ],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "ownerProfiles": {
-                               "data": [],
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                             "owners": {
-                               "data": [],
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "playlists"
-                         }
-                       ],
-                       "included": [
-                         {
-                           "attributes": {
-                             "files": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "height": <int>,
-                                   "width": <int>
-                                 }
-                               }
-                             ],
-                             "mediaType": "IMAGE"
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "artworks"
-                         },
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "availability": <list[str]>,
-                             "bpm": <float>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "isrc": <str>,
-                             "key": <str>,
-                             "keyScale": <str>,
-                             "mediaTags": <list[str]>,
-                             "popularity": <float>,
-                             "spotlighted": <bool>,
-                             "title": <str>,
-                             "toneTags": <list[str]>,
-                             "version": <str>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "artists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "genres": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "lyrics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "radio": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "shares": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarTracks": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "sourceFile": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "trackStatistics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "tracks"
-                         },
-                         {
-                           "attributes": {
-                             "availability": <list[str]>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "isrc": <str>,
-                             "popularity": <float>,
-                             "releaseDate": <str>,
-                             "title": <str>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "artists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "thumbnailArt": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "videos"
-                         }
-                       ],
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "bounded": <bool>,
+                                "createdAt": <str>,
+                                "description": <str>,
+                                "duration": <str>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "lastModifiedAt": <str>,
+                                "name": <str>,
+                                "numberOfItems": <int>,
+                                "playlistType": <str>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "coverArt": {
+                                  "data": [
+                                    {
+                                      "id": <str>,
+                                      "type": "artworks"
+                                    }
+                                  ],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "items": {
+                                  "data": [
+                                    {
+                                      "id": <str>,
+                                      "meta": {
+                                        "addedAt": <str>,
+                                        "itemId": <str>
+                                      },
+                                      "type": "tracks"
+                                    },
+                                    {
+                                      "id": <str>,
+                                      "meta": {
+                                        "addedAt": <str>,
+                                        "itemId": <str>
+                                      },
+                                      "type": "videos"
+                                    }
+                                  ],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "ownerProfiles": {
+                                  "data": [],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                                "owners": {
+                                  "data": [],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "playlists"
+                            }
+                          ],
+                          "included": [
+                            {
+                              "attributes": {
+                                "files": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "height": <int>,
+                                      "width": <int>
+                                    }
+                                  }
+                                ],
+                                "mediaType": "IMAGE"
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "artworks"
+                            },
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "availability": <list[str]>,
+                                "bpm": <float>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "isrc": <str>,
+                                "key": <str>,
+                                "keyScale": <str>,
+                                "mediaTags": <list[str]>,
+                                "popularity": <float>,
+                                "spotlighted": <bool>,
+                                "title": <str>,
+                                "toneTags": <list[str]>,
+                                "version": <str>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "artists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "genres": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "lyrics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "radio": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "shares": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarTracks": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "sourceFile": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "trackStatistics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "tracks"
+                            },
+                            {
+                              "attributes": {
+                                "availability": <list[str]>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "isrc": <str>,
+                                "popularity": <float>,
+                                "releaseDate": <str>,
+                                "title": <str>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "artists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "thumbnailArt": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "videos"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
         """
         if sum(arg is not None for arg in (playlist_uuids, owner_ids)) != 1:
             raise ValueError(
@@ -676,7 +680,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             )
         params = {}
         if owner_ids is not None:
-            self._client._validate_tidal_ids(owner_ids)
+            self._validate_tidal_ids(owner_ids)
             params["filter[owners.id]"] = owner_ids
         if sort_by is not None:
             self._process_sort(
@@ -710,12 +714,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`playlists.write` scope
-                 Write to a user's playlists.
+              .. tab-item:: Required
+
+                 :code:`playlists.write` scope
+                    Write to a user's playlists.
 
         Parameters
         ----------
@@ -739,7 +745,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the newly created playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -793,14 +799,17 @@ class PlaylistsAPI(TIDALResourceAPI):
         if country_code is not None:
             self._validate_country_code(country_code)
             params["countryCode"] = country_code
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
-        payload = {"data": {"attributes": {"name": name}, "type": "playlists"}}
+        payload = {
+            "data": {
+                "attributes": {"name": self._prepare_string("name", name)},
+                "type": "playlists",
+            }
+        }
         attrs = payload["data"]["attributes"]
         if description is not None:
-            self._validate_type("description", description, str)
-            attrs["description"] = description
+            attrs["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
@@ -824,12 +833,19 @@ class PlaylistsAPI(TIDALResourceAPI):
         the details of a playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`playlists.write` scope
-                 Write to a user's playlists.
+              .. tab-item:: Required
+
+                 :code:`playlists.write` scope
+                    Write to a user's playlists.
+
+        .. important::
+
+           At least one of :code:`name`, :code:`description`, or
+           :code:`public` must be specified.
 
         Parameters
         ----------
@@ -869,13 +885,11 @@ class PlaylistsAPI(TIDALResourceAPI):
         }
         attrs = payload["data"]["attributes"]
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            attrs["name"] = name
+            attrs["name"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            attrs["description"] = description
+            attrs["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
@@ -892,12 +906,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         Delete a playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`playlists.write` scope
-                 Write to a user's playlists.
+              .. tab-item:: Required
+
+                 :code:`playlists.write` scope
+                    Write to a user's playlists.
 
         Parameters
         ----------
@@ -955,7 +971,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the playlist cover art.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1053,7 +1069,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the items in the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1249,12 +1265,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`playlists.write` scope
-                 Write to a user's playlists.
+              .. tab-item:: Required
+
+                 :code:`playlists.write` scope
+                    Write to a user's playlists.
 
         Parameters
         ----------
@@ -1269,13 +1287,16 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`(458584456, "tracks")`
+            * :code:`("29597422", "videos")`
+            * :code:`{"id": "35633900", "types": "tracks"}`
+            * .. code::
 
-               * :code:`(458584456, "tracks")`
-               * :code:`("29597422", "videos")`
-               * :code:`{"id": "35633900", "types": "tracks"}`
-               * :code:`[(458584456, "tracks"), ("29597422", "videos"),
-                 {"id": "35633900", "types": "tracks"}]`
+                 [
+                     (458584456, "tracks"),
+                     ("29597422", "videos"),
+                     {"id": "35633900", "types": "tracks"},
+                 ]
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
@@ -1323,12 +1344,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`playlists.write` scope
-                 Write to a user's playlists.
+              .. tab-item:: Required
+
+                 :code:`playlists.write` scope
+                    Write to a user's playlists.
 
         Parameters
         ----------
@@ -1344,32 +1367,40 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+              "tracks")`
+            * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+              "videos")`
+            * .. code::
 
-               * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
-               * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
-               * .. code::
+                 {
+                     "id": "35633900",
+                     "meta": {
+                         "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                     },
+                     "types": "tracks"
+                 }
+            * .. code::
 
-                    {
-                        "id": "35633900",
-                        "meta": {
-                            "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                        },
-                        "types": "tracks"
-                    }
-               * .. code::
-
-                    [
-                        (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
-                        ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
-                        {
-                            "id": "35633900",
-                            "meta": {
-                                "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                            },
-                            "types": "tracks",
-                        },
-                    ]
+                 [
+                     (
+                         458584456,
+                         "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+                         "tracks",
+                     ),
+                     (
+                         "29597422",
+                         "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                         "videos",
+                     ),
+                     {
+                         "id": "35633900",
+                         "meta": {
+                             "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                         },
+                         "types": "tracks",
+                     },
+                 ]
 
             .. seealso::
 
@@ -1409,12 +1440,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         a playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`playlists.write` scope
-                 Write to a user's playlists.
+              .. tab-item:: Required
+
+                 :code:`playlists.write` scope
+                    Write to a user's playlists.
 
         Parameters
         ----------
@@ -1430,32 +1463,40 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+              "tracks")`
+            * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+              "videos")`
+            * .. code::
 
-               * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
-               * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
-               * .. code::
+                 {
+                     "id": "35633900",
+                     "meta": {
+                         "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                     },
+                     "types": "tracks"
+                 }
+            * .. code::
 
-                    {
-                        "id": "35633900",
-                        "meta": {
-                            "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                        },
-                        "types": "tracks"
-                    }
-               * .. code::
-
-                    [
-                        (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
-                        ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
-                        {
-                            "id": "35633900",
-                            "meta": {
-                                "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                            },
-                            "types": "tracks",
-                        },
-                    ]
+                 [
+                     (
+                         458584456,
+                         "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+                         "tracks",
+                     ),
+                     (
+                         "29597422",
+                         "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                         "videos",
+                     ),
+                     {
+                         "id": "35633900",
+                         "meta": {
+                             "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                         },
+                         "types": "tracks",
+                     },
+                 ]
 
             .. seealso::
 
@@ -1488,12 +1529,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         catalog information for an playlist's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              User authentication
-                 Access information on an item's owners.
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access information on an item's owners.
 
         Parameters
         ----------
@@ -1522,7 +1565,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the playlist's owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1565,12 +1608,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         catalog information for an playlist's owners' profiles.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              User authentication
-                 Access information on an item's owners.
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access information on an item's owners.
 
         Parameters
         ----------
@@ -1599,7 +1644,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the playlist's owners' profiles.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

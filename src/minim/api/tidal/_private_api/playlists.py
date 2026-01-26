@@ -11,7 +11,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -103,12 +103,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Conditional
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -130,12 +132,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`1` – Legacy
-                 :code:`GET /v1/playlists/{playlist_uuid}` endpoint.
-               * :code:`2` – Current
-                 :code:`GET /v2/user-playlists/{playlist_uuid}` endpoint.
+            * :code:`1` – Legacy
+              :code:`GET /v1/playlists/{playlist_uuid}` endpoint.
+            * :code:`2` – Current
+              :code:`GET /v2/user-playlists/{playlist_uuid}` endpoint.
 
         Returns
         -------
@@ -143,106 +143,108 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the playlist.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Current (:code:`v2`) endpoint
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Current (:code:`v2`) endpoint
 
-                     {
-                       "followInfo": {
-                         "followType": "PLAYLIST",
-                         "followed": <bool>,
-                         "nrOfFollowers": <int>,
-                         "tidalResourceName": <str>
-                       },
-                       "playlist": {
-                         "contentBehavior": <str>,
-                         "created": <str>,
-                         "creator": {
-                           "id": <int>,
-                           "name": <str>,
-                           "picture": <str>,
-                           "type": "USER"
-                         },
-                         "curators": [
-                           {
-                             "handle": <str>,
-                             "id": <int>,
-                             "name": <str>,
-                             "picture": <str>
-                           }
-                         ],
-                         "customImageUrl": <str>,
-                         "description": <str>,
-                         "duration": <int>,
-                         "image": <str>,
-                         "lastItemAddedAt": <str>,
-                         "lastUpdated": <str>,
-                         "numberOfTracks": <int>,
-                         "numberOfVideos": <int>,
-                         "promotedArtists": [
-                           {
-                             "contributionLinkUrl": <str>,
-                             "handle": <str>,
-                             "id": <int>,
-                             "name": <str>,
-                             "picture": <str>,
-                             "type": <str>,
-                             "userId": <int>
-                           }
-                         ],
-                         "sharingLevel": "PUBLIC",
-                         "source": <str>,
-                         "squareImage": <str>,
-                         "status": <str>,
-                         "title": <str>,
-                         "trn": <str>,
-                         "type": "USER",
-                         "url": <str>,
-                         "uuid": <str>
-                       },
-                       "profile": {
-                         "color": <list[str]>,
-                         "name": <str>,
-                         "userId": <int>
-                       }
-                     }
+                     .. code::
 
-               .. tab:: Legacy (:code:`v1`) endpoint
+                        {
+                          "followInfo": {
+                            "followType": "PLAYLIST",
+                            "followed": <bool>,
+                            "nrOfFollowers": <int>,
+                            "tidalResourceName": <str>
+                          },
+                          "playlist": {
+                            "contentBehavior": <str>,
+                            "created": <str>,
+                            "creator": {
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": "USER"
+                            },
+                            "curators": [
+                              {
+                                "handle": <str>,
+                                "id": <int>,
+                                "name": <str>,
+                                "picture": <str>
+                              }
+                            ],
+                            "customImageUrl": <str>,
+                            "description": <str>,
+                            "duration": <int>,
+                            "image": <str>,
+                            "lastItemAddedAt": <str>,
+                            "lastUpdated": <str>,
+                            "numberOfTracks": <int>,
+                            "numberOfVideos": <int>,
+                            "promotedArtists": [
+                              {
+                                "contributionLinkUrl": <str>,
+                                "handle": <str>,
+                                "id": <int>,
+                                "name": <str>,
+                                "picture": <str>,
+                                "type": <str>,
+                                "userId": <int>
+                              }
+                            ],
+                            "sharingLevel": "PUBLIC",
+                            "source": <str>,
+                            "squareImage": <str>,
+                            "status": <str>,
+                            "title": <str>,
+                            "trn": <str>,
+                            "type": "USER",
+                            "url": <str>,
+                            "uuid": <str>
+                          },
+                          "profile": {
+                            "color": <list[str]>,
+                            "name": <str>,
+                            "userId": <int>
+                          }
+                        }
 
-                  .. code::
+                  .. tab-item:: Legacy (:code:`v1`) endpoint
 
-                     {
-                       "created": <str>,
-                       "creator": {
-                         "id": <int>
-                       },
-                       "customImageUrl": <str>,
-                       "description": <str>,
-                       "duration": <int>,
-                       "image": <str>,
-                       "lastItemAddedAt": <str>,
-                       "lastUpdated": <str>,
-                       "numberOfTracks": <int>,
-                       "numberOfVideos": <int>,
-                       "popularity": <int>,
-                       "promotedArtists": [
-                         {
-                           "handle": <str>,
-                           "id": <int>,
-                           "name": <str>,
-                           "picture": <str>,
-                           "type": <str>
-                         }
-                       ],
-                       "publicPlaylist": <bool>,
-                       "squareImage": <str>,
-                       "title": <str>,
-                       "type": <str>,
-                       "url": <str>,
-                       "uuid": <str>
-                     }
+                     .. code::
+
+                        {
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>
+                          },
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "popularity": <int>,
+                          "promotedArtists": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "publicPlaylist": <bool>,
+                          "squareImage": <str>,
+                          "title": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        }
         """
         self._validate_uuid(playlist_uuid)
         self._validate_number("version", api_version, int, 1, 2)
@@ -311,7 +313,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -474,12 +476,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         given playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -516,7 +520,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the recommended tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -618,12 +622,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Create a playlist folder.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -644,7 +650,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             folder.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -670,10 +676,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_folder")
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist folder name cannot be blank.")
-        params = {"name": name}
+        params = {"name": self._prepare_string("name", name)}
         if folder_uuid is not None:
             if folder_uuid != "root":
                 self._validate_uuid(folder_uuid)
@@ -689,12 +692,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Delete playlist folders.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -703,12 +708,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439"`
-               * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439,550e8400-e29b-41d4-a716-446655440000"`
-               * :code:`["trn:folder:618ff600-dce1-4326-8724-9f0a51f63439",
-                 "550e8400-e29b-41d4-a716-446655440000"]`
+            * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439"`
+            * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439,550e8400-e29b-41d4-a716-446655440000"`
+            * :code:`["trn:folder:618ff600-dce1-4326-8724-9f0a51f63439",
+              "550e8400-e29b-41d4-a716-446655440000"]`
         """
         self._client._require_authentication("users.delete_folders")
         self._client._request(
@@ -733,12 +736,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Create a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -766,7 +771,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the newly created playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -828,13 +833,11 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
-        params = {"name": name}
+        params = {"name": self._prepare_string("name", name)}
         if description is not None:
-            self._validate_type("description", description, str)
-            params["description"] = description
+            params["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             params["isPublic"] = public
@@ -858,12 +861,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Move playlists in the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -872,12 +877,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+            * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+              "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
 
         folder_uuid : str
             UUID of TIDAL playlist folder to move playlists to. Use
@@ -905,12 +908,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Set the visibility of a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -942,12 +947,18 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Update the details of a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
+
+        .. important::
+
+           Either :code:`name` or :code:`description` must be specified.
 
         Parameters
         ----------
@@ -968,13 +979,11 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         self._validate_uuid(playlist_uuid)
         payload = {}
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            payload["title"] = name
+            payload["title"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if not payload:
             raise ValueError("At least one change must be specified.")
         self._client._request(
@@ -986,12 +995,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Delete playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1000,12 +1011,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+            * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+              "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
         """
         self._client._require_authentication("users.delete_playlists")
         self._client._request(
@@ -1033,14 +1042,16 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Add items to a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
 
-        .. note::
+                 User authentication
+                    Access and manage the user's collection.
+
+        .. important::
 
            Exactly one of `item_ids`, `from_album_id`, or
            `from_playlist_uuid` must be provided.
@@ -1099,12 +1110,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         if item_ids is not None:
             if isinstance(item_ids, str) and "," in item_ids:
                 item_ids = item_ids.split(",")
-            self._client._validate_tidal_ids(item_ids)
+            self._validate_tidal_ids(item_ids)
             if isinstance(item_ids, tuple | list):
                 item_ids = ",".join(str(item_id) for item_id in item_ids)
             data["itemIds"] = str(item_ids)
         elif from_album_id is not None:
-            self._client._validate_tidal_ids(from_album_id, _recursive=False)
+            self._validate_tidal_ids(from_album_id, _recursive=False)
             data["fromAlbumId"] = from_album_id
         else:
             self._validate_uuid(from_playlist_uuid)
@@ -1140,12 +1151,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Reorder items in a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1177,7 +1190,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         )
         if isinstance(from_item_indices, str) and "," in from_item_indices:
             from_item_indices = from_item_indices.split(",")
-        self._client._validate_tidal_ids(from_item_indices)
+        self._validate_tidal_ids(from_item_indices)
         if isinstance(from_item_indices, tuple | list):
             from_item_indices = ",".join(
                 str(item_idx) for item_idx in from_item_indices
@@ -1206,12 +1219,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Replace an item in a playlist with another item.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1242,7 +1257,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             "playlists.replace_playlist_items"
         )
         self._validate_number("item_index", item_index, int, 0)
-        self._client._validate_tidal_ids(item_id)
+        self._validate_tidal_ids(item_id)
         self._client._request(
             "POST",
             f"v1/playlists/{playlist_uuid}/items/{item_index}/replace",
@@ -1265,12 +1280,14 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Remove items from a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1295,7 +1312,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication("playlists.remove_playlist_items")
         if isinstance(item_indices, str) and "," in item_indices:
             item_indices = item_indices.split(",")
-        self._client._validate_tidal_ids(item_indices)
+        self._validate_tidal_ids(item_indices)
         if isinstance(item_indices, tuple | list):
             item_indices = ",".join(str(item_idx) for item_idx in item_indices)
         self._client._request(

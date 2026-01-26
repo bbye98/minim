@@ -8,9 +8,9 @@ class GenresAPI(SpotifyResourceAPI):
     """
     Genres API endpoints for the Spotify Web API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -20,15 +20,17 @@ class GenresAPI(SpotifyResourceAPI):
         Available seed genres for track recommendations.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access the
-                  :code:`GET /recommendations/available-genre-seeds`
-                  endpoint. `Learn more. <https://developer.spotify.com
-                  /blog/2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Required
+
+                 Extended quota mode before November 27, 2024
+                     Access the :code:`GET /recommendations
+                     /available-genre-seeds` endpoint. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         .. note::
 
@@ -67,15 +69,17 @@ class GenresAPI(SpotifyResourceAPI):
         track recommendations.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access the
-                  :code:`recommendations/available-genre-seeds`
-                  endpoint. `Learn more. <https://developer.spotify.com
-                  /blog/2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Required
+
+                 Extended quota mode before November 27, 2024
+                     Access the :code:`recommendations
+                     /available-genre-seeds` endpoint. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Returns
         -------

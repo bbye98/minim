@@ -23,7 +23,7 @@ from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 
 
-class DeezerAPI(OAuth2APIClient):
+class DeezerAPIClient(OAuth2APIClient):
     """
     Deezer API client.
     """
@@ -72,11 +72,9 @@ class DeezerAPI(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`None` – No authentication.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
 
         app_id : str; keyword-only; optional
             Application ID. Required unless set as system environment
@@ -135,15 +133,12 @@ class DeezerAPI(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the user
+              manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept the
+              redirect after user authorization in any local browser.
+            * :code:`"playwright"` – Use a Playwright Firefox browser to
+              complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -154,8 +149,8 @@ class DeezerAPI(OAuth2APIClient):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 2 minutes to 1 day, depending on their expected
-            update frequency.
+            cached for one minute to one day, depending on their
+            expected update frequency.
 
             .. seealso::
 
@@ -403,10 +398,8 @@ class DeezerAPI(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
         """
         if not authorization_flow:
             authorization_flow = self._auth_flow
@@ -583,7 +576,7 @@ class DeezerAPI(OAuth2APIClient):
             Configuration and availability information.
 
             .. admonition:: Sample response
-               :class: dropdown:
+               :class: response dropdown:
 
                .. code::
 
@@ -713,11 +706,9 @@ class DeezerAPI(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`None` – No authentication.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
 
         app_id : str; keyword-only; optional
             Application ID. Required unless set as system environment
@@ -761,15 +752,12 @@ class DeezerAPI(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the user
+              manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept the
+              redirect after user authorization in any local browser.
+            * :code:`"playwright"` – Use a Playwright Firefox browser to
+              complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the

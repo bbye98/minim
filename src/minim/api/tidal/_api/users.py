@@ -11,7 +11,7 @@ class UsersAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPI`
+       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -42,7 +42,7 @@ class UsersAPI(TIDALResourceAPI):
         _recursive: bool = True,
     ) -> list[dict[str, str]]:
         """
-        Normalize, validate, and prepare a list of resource identifiers.
+        Validate, normalize, and prepare a list of resource identifiers.
 
         Parameters
         ----------
@@ -153,13 +153,12 @@ class UsersAPI(TIDALResourceAPI):
             Valid fields to sort by.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 
                This `dict` is mutated in-place.
-
         Returns
         -------
         resource : dict[str, Any]
@@ -170,7 +169,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         if sort_by is not None:
             self._process_sort(
                 sort_by,
@@ -238,7 +237,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         params = {}
         if country_code is not None:
             self._validate_country_code(country_code)
@@ -270,12 +269,14 @@ class UsersAPI(TIDALResourceAPI):
         collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -307,7 +308,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -747,7 +748,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         self._get_resources(
             "userCollections",
             user_id,
@@ -776,12 +777,14 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for albums in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -824,7 +827,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -954,12 +957,14 @@ class UsersAPI(TIDALResourceAPI):
         to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -969,12 +974,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`46369321`
-               * :code:`"251380836"`
-               * :code:`{"id": "46369321", "types": "albums"}`
-               * :code:`["251380836", {"id": "46369321", "types": "albums"}]`
+            * :code:`46369321`
+            * :code:`"251380836"`
+            * :code:`{"id": "46369321", "types": "albums"}`
+            * :code:`["251380836",
+              {"id": "46369321", "types": "albums"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1012,12 +1016,14 @@ class UsersAPI(TIDALResourceAPI):
         albums from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1027,12 +1033,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`46369321`
-               * :code:`"251380836"`
-               * :code:`{"id": "46369321", "types": "albums"}`
-               * :code:`["251380836", {"id": "46369321", "types": "albums"}]`
+            * :code:`46369321`
+            * :code:`"251380836"`
+            * :code:`{"id": "46369321", "types": "albums"}`
+            * :code:`["251380836",
+              {"id": "46369321", "types": "albums"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1069,12 +1074,14 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for artists in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -1116,7 +1123,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1255,12 +1262,14 @@ class UsersAPI(TIDALResourceAPI):
         to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1270,12 +1279,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`1566`
-               * :code:`"4676988"`
-               * :code:`{"id": "1566", "types": "artists"}`
-               * :code:`["4676988", {"id": "46369321", "types": "artists"}]`
+            * :code:`1566`
+            * :code:`"4676988"`
+            * :code:`{"id": "1566", "types": "artists"}`
+            * :code:`["4676988",
+              {"id": "46369321", "types": "artists"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1315,12 +1323,14 @@ class UsersAPI(TIDALResourceAPI):
         artists from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1330,12 +1340,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`1566`
-               * :code:`"4676988"`
-               * :code:`{"id": "1566", "types": "artists"}`
-               * :code:`["4676988", {"id": "46369321", "types": "artists"}]`
+            * :code:`1566`
+            * :code:`"4676988"`
+            * :code:`{"id": "1566", "types": "artists"}`
+            * :code:`["4676988",
+              {"id": "46369321", "types": "artists"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1368,18 +1377,20 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for owners in a user's collection.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
-              :code:`user.read` scope
-                 Read access to a user's account information, such as
-                 country and email address.
+              .. tab-item:: Optional
+
+                 :code:`user.read` scope
+                    Read access to a user's account information, such as
+                    country and email address.
 
         Parameters
         ----------
@@ -1403,7 +1414,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1465,12 +1476,14 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for playlists in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -1509,7 +1522,7 @@ class UsersAPI(TIDALResourceAPI):
             folders) in the user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1614,12 +1627,14 @@ class UsersAPI(TIDALResourceAPI):
         playlists to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1629,24 +1644,22 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
+            * .. code::
 
-               * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
-               * .. code::
+                 {
+                     "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                     "types": "playlists"
+                 }
+            * .. code::
 
-                    {
-                        "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
-                        "types": "playlists"
-                    }
-               * .. code::
-
-                    [
-                        "f0d6f5c4-081f-4348-9b65-ae677d92767b",
-                        {
-                            "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
-                            "types": "playlists"
-                        }
-                    ]
+                 [
+                     "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+                     {
+                         "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                         "types": "playlists"
+                     }
+                 ]
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1674,12 +1687,14 @@ class UsersAPI(TIDALResourceAPI):
         playlists from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1689,24 +1704,22 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
+            * .. code::
 
-               * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
-               * .. code::
+                 {
+                     "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                     "types": "playlists"
+                 }
+            * .. code::
 
-                    {
-                        "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
-                        "types": "playlists"
-                    }
-               * .. code::
-
-                    [
-                        "f0d6f5c4-081f-4348-9b65-ae677d92767b",
-                        {
-                            "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
-                            "types": "playlists"
-                        }
-                    ]
+                 [
+                     "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+                     {
+                         "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                         "types": "playlists"
+                     }
+                 ]
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1739,12 +1752,14 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for tracks in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -1787,7 +1802,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1940,12 +1955,14 @@ class UsersAPI(TIDALResourceAPI):
         to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1955,12 +1972,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`46369325`
-               * :code:`"75413016"`
-               * :code:`{"id": "46369325", "types": "tracks"}`
-               * :code:`["75413016", {"id": "46369325", "types": "tracks"}]`
+            * :code:`46369325`
+            * :code:`"75413016"`
+            * :code:`{"id": "46369325", "types": "tracks"}`
+            * :code:`["75413016",
+              {"id": "46369325", "types": "tracks"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1998,12 +2014,14 @@ class UsersAPI(TIDALResourceAPI):
         tracks from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -2013,12 +2031,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`46369325`
-               * :code:`"75413016"`
-               * :code:`{"id": "46369325", "types": "tracks"}`
-               * :code:`["75413016", {"id": "46369325", "types": "tracks"}]`
+            * :code:`46369325`
+            * :code:`"75413016"`
+            * :code:`{"id": "46369325", "types": "tracks"}`
+            * :code:`["75413016",
+              {"id": "46369325", "types": "tracks"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2055,12 +2072,14 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for videos in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -2103,7 +2122,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2207,12 +2226,14 @@ class UsersAPI(TIDALResourceAPI):
         to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -2222,12 +2243,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`53315642`
-               * :code:`"75623239"`
-               * :code:`{"id": "75623239", "types": "videos"}`
-               * :code:`["53315642", {"id": "75623239", "types": "videos"}]`
+            * :code:`53315642`
+            * :code:`"75623239"`
+            * :code:`{"id": "75623239", "types": "videos"}`
+            * :code:`["53315642",
+              {"id": "75623239", "types": "videos"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2264,12 +2284,14 @@ class UsersAPI(TIDALResourceAPI):
         videos from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -2279,12 +2301,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`53315642`
-               * :code:`"75623239"`
-               * :code:`{"id": "75623239", "types": "videos"}`
-               * :code:`["53315642", {"id": "75623239", "types": "videos"}]`
+            * :code:`53315642`
+            * :code:`"75623239"`
+            * :code:`{"id": "75623239", "types": "videos"}`
+            * :code:`["53315642",
+              {"id": "75623239", "types": "videos"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2315,13 +2336,15 @@ class UsersAPI(TIDALResourceAPI):
         functionalities a user is entitled to access on TIDAL.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`entitlements.read` scope
-                 Read functionalities a user is entitled to access on
-                 TIDAL.
+              .. tab-item:: Required
+
+                 :code:`entitlements.read` scope
+                    Read functionalities a user is entitled to access on
+                    TIDAL.
 
         Parameters
         ----------
@@ -2342,7 +2365,7 @@ class UsersAPI(TIDALResourceAPI):
             Functionalities a user is entitled to access on TIDAL.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2390,7 +2413,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         return self._get_resources(
             "userEntitlements",
             user_id,
@@ -2435,7 +2458,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL content metadata for the user entitlements' owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2457,7 +2480,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         return self._get_resource_relationship(
             "userEntitlements",
             user_id,
@@ -2484,12 +2507,14 @@ class UsersAPI(TIDALResourceAPI):
         mixes.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`recommendations.read` scope
-                 Read access to a user's personal recommendations.
+              .. tab-item:: Required
+
+                 :code:`recommendations.read` scope
+                    Read access to a user's personal recommendations.
 
         Parameters
         ----------
@@ -2512,7 +2537,7 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"myMixes"`, :code:`"newArrivalMixes"`.
 
             **Examples**: :code:`"myMixes"`,
-           :code:`["discoveryMixes", "newArrivalMixes"]`.
+            :code:`["discoveryMixes", "newArrivalMixes"]`.
 
         Returns
         -------
@@ -2520,7 +2545,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL content metadata for the items in the mixes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2562,7 +2587,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         return self._get_resources(
             "userRecommendations",
             user_id,
@@ -2590,12 +2615,14 @@ class UsersAPI(TIDALResourceAPI):
         Get TIDAL catalog information for the user's Discovery Mixes.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`recommendations.read` scope
-                 Read access to a user's personal recommendations.
+              .. tab-item:: Required
+
+                 :code:`recommendations.read` scope
+                    Read access to a user's personal recommendations.
 
         Parameters
         ----------
@@ -2626,7 +2653,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL catalog information for the user's Discovery Mixes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2673,12 +2700,14 @@ class UsersAPI(TIDALResourceAPI):
         Get TIDAL catalog information for the user's mixes.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`recommendations.read` scope
-                 Read access to a user's personal recommendations.
+              .. tab-item:: Required
+
+                 :code:`recommendations.read` scope
+                    Read access to a user's personal recommendations.
 
         Parameters
         ----------
@@ -2709,7 +2738,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL catalog information for the user's mixes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2754,12 +2783,14 @@ class UsersAPI(TIDALResourceAPI):
         Get TIDAL catalog information for the user's New Arrival Mixes.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`recommendations.read` scope
-                 Read access to a user's personal recommendations.
+              .. tab-item:: Required
+
+                 :code:`recommendations.read` scope
+                    Read access to a user's personal recommendations.
 
         Parameters
         ----------
@@ -2790,7 +2821,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL catalog information for the user's New Arrival Mixes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2827,13 +2858,15 @@ class UsersAPI(TIDALResourceAPI):
         /get_users_me>`_: Get profile information for the current user.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user.read` scope
-                 Read access to a user's account information, such as
-                 country and email address.
+              .. tab-item:: Required
+
+                 :code:`user.read` scope
+                    Read access to a user's account information, such as
+                    country and email address.
 
         Returns
         -------
@@ -2841,7 +2874,7 @@ class UsersAPI(TIDALResourceAPI):
             Current user's profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

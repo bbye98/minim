@@ -17,7 +17,7 @@ version = release = __version__
 extensions = [
     "numpydoc",
     "sphinx_copybutton",
-    "sphinx_inline_tabs",
+    "sphinx_design",
     "sphinx_togglebutton",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -45,9 +45,9 @@ html_favicon = "../../assets/favicon.ico"
 html_logo = "../../assets/icon.svg"
 html_show_sourcelink = False
 html_static_path = ["_static"]
-html_theme = "furo"
-html_theme_options = {"sidebar_hide_name": True}
+html_theme = "shibuya"
+html_theme_options = {"accent_color": "gray", "toctree_maxdepth": 5}
 
 
 def setup(app: "Sphinx") -> None:
-    app.add_css_file("authorization_scope_admonition.css")
+    app.add_css_file("custom.css")

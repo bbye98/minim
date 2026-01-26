@@ -4,7 +4,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
-from .search import PrivateSearchEndpoints
+from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
 
 
@@ -14,7 +14,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -42,326 +42,328 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single track
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single track
 
-                     {
-                       "album": {
-                         "area": None,
-                         "articles": [],
-                         "artist": {
-                           "albums_count": <int>,
-                           "id": <int>,
-                           "image": None,
-                           "name": <str>,
-                           "picture": None,
-                           "slug": <str>
-                         },
-                         "artists": [
-                           {
-                             "id": <int>,
-                             "name": <str>,
-                             "roles": <list[str]>
-                           }
-                         ],
-                         "awards": [
-                           {
-                             "award_id": <str>,
-                             "award_slug": <str>,
-                             "awarded_at": <int>,
-                             "name": <str>,
-                             "publication_id": <str>,
-                             "publication_name": <str>,
-                             "publication_slug": <str>,
-                             "slug": <str>
-                           }
-                         ],
-                         "catchline": <str>,
-                         "composer": {
-                           "albums_count": <int>,
-                           "id": <int>,
-                           "image": None,
-                           "name": <str>,
-                           "picture": None,
-                           "slug": <str>
-                         },
-                         "copyright": <str>,
-                         "created_at": <int>,
-                         "description": <str>,
-                         "description_language": <str>,
-                         "displayable": <bool>,
-                         "downloadable": <bool>,
-                         "duration": <int>,
-                         "genre": {
-                           "color": <int>,
-                           "id": <int>,
-                           "name": <int>,
-                           "path": <list[int]>,
-                           "slug": <str>
-                         },
-                         "genres_list": <list[str]>,
-                         "goodies": [],
-                         "hires": <bool>,
-                         "hires_streamable": <bool>,
-                         "id": <str>,
-                         "image": {
-                           "back": None,
-                           "large": <str>,
-                           "small": <str>,
-                           "thumbnail": <str>
-                         },
-                         "is_official": <bool>,
-                         "label": {
-                           "albums_count": <int>,
-                           "id": <int>,
-                           "name": <str>,
-                           "slug": <str>,
-                           "supplier_id": <int>
-                         },
-                         "maximum_bit_depth": <int>,
-                         "maximum_channel_count": <int>,
-                         "maximum_sampling_rate": <int>,
-                         "maximum_technical_specifications": <str>,
-                         "media_count": <int>,
-                         "parental_warning": <bool>,
-                         "period": None,
-                         "popularity": <int>,
-                         "previewable": <bool>,
-                         "product_sales_factors_monthly": <int>,
-                         "product_sales_factors_weekly": <int>,
-                         "product_sales_factors_yearly": <int>,
-                         "product_type": <str>,
-                         "product_url": <str>,
-                         "purchasable": <bool>,
-                         "purchasable_at": <int>,
-                         "qobuz_id": <int>,
-                         "recording_information": <str>,
-                         "relative_url": <str>,
-                         "release_date_download": <str>,
-                         "release_date_original": <str>,
-                         "release_date_stream": <str>,
-                         "release_tags": <list[str]>,
-                         "release_type": <str>,
-                         "released_at": <int>,
-                         "sampleable": <bool>,
-                         "slug": <str>,
-                         "streamable": <bool>,
-                         "streamable_at": <int>,
-                         "subtitle": <str>,
-                         "title": <str>,
-                         "tracks_count": <int>,
-                         "upc": <str>,
-                         "url": <str>,
-                         "version": <str>
-                       },
-                       "articles": [],
-                       "audio_info": {
-                         "replaygain_track_gain": <float>,
-                         "replaygain_track_peak": <float>
-                       },
-                       "composer": {
-                         "id": <int>,
-                         "name": <str>
-                       },
-                       "copyright": <str>,
-                       "created_at": <int>,
-                       "displayable": <bool>,
-                       "downloadable": <bool>,
-                       "duration": <int>,
-                       "hires": <bool>,
-                       "hires_streamable": <bool>,
-                       "id": <int>,
-                       "indexed_at": <int>,
-                       "isrc": <str>,
-                       "maximum_bit_depth": <int>,
-                       "maximum_channel_count": <int>,
-                       "maximum_sampling_rate": <float>,
-                       "media_number": <int>,
-                       "parental_warning": <bool>,
-                       "performer": {
-                         "id": <int>,
-                         "name": <str>
-                       },
-                       "performers": <str>,
-                       "previewable": <bool>,
-                       "purchasable": <bool>,
-                       "purchasable_at": <int>,
-                       "release_date_download": <str>,
-                       "release_date_original": <str>,
-                       "release_date_purchase": <str>,
-                       "release_date_stream": <str>,
-                       "sampleable":<bool>,
-                       "streamable": <bool>,
-                       "streamable_at": <int>,
-                       "title": <str>,
-                       "track_number": <int>,
-                       "version": <str>,
-                       "work": None
-                     }
+                     .. code::
 
-               .. tab:: Multiple tracks
+                        {
+                          "album": {
+                            "area": None,
+                            "articles": [],
+                            "artist": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "image": None,
+                              "name": <str>,
+                              "picture": None,
+                              "slug": <str>
+                            },
+                            "artists": [
+                              {
+                                "id": <int>,
+                                "name": <str>,
+                                "roles": <list[str]>
+                              }
+                            ],
+                            "awards": [
+                              {
+                                "award_id": <str>,
+                                "award_slug": <str>,
+                                "awarded_at": <int>,
+                                "name": <str>,
+                                "publication_id": <str>,
+                                "publication_name": <str>,
+                                "publication_slug": <str>,
+                                "slug": <str>
+                              }
+                            ],
+                            "catchline": <str>,
+                            "composer": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "image": None,
+                              "name": <str>,
+                              "picture": None,
+                              "slug": <str>
+                            },
+                            "copyright": <str>,
+                            "created_at": <int>,
+                            "description": <str>,
+                            "description_language": <str>,
+                            "displayable": <bool>,
+                            "downloadable": <bool>,
+                            "duration": <int>,
+                            "genre": {
+                              "color": <int>,
+                              "id": <int>,
+                              "name": <int>,
+                              "path": <list[int]>,
+                              "slug": <str>
+                            },
+                            "genres_list": <list[str]>,
+                            "goodies": [],
+                            "hires": <bool>,
+                            "hires_streamable": <bool>,
+                            "id": <str>,
+                            "image": {
+                              "back": None,
+                              "large": <str>,
+                              "small": <str>,
+                              "thumbnail": <str>
+                            },
+                            "is_official": <bool>,
+                            "label": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "name": <str>,
+                              "slug": <str>,
+                              "supplier_id": <int>
+                            },
+                            "maximum_bit_depth": <int>,
+                            "maximum_channel_count": <int>,
+                            "maximum_sampling_rate": <int>,
+                            "maximum_technical_specifications": <str>,
+                            "media_count": <int>,
+                            "parental_warning": <bool>,
+                            "period": None,
+                            "popularity": <int>,
+                            "previewable": <bool>,
+                            "product_sales_factors_monthly": <int>,
+                            "product_sales_factors_weekly": <int>,
+                            "product_sales_factors_yearly": <int>,
+                            "product_type": <str>,
+                            "product_url": <str>,
+                            "purchasable": <bool>,
+                            "purchasable_at": <int>,
+                            "qobuz_id": <int>,
+                            "recording_information": <str>,
+                            "relative_url": <str>,
+                            "release_date_download": <str>,
+                            "release_date_original": <str>,
+                            "release_date_stream": <str>,
+                            "release_tags": <list[str]>,
+                            "release_type": <str>,
+                            "released_at": <int>,
+                            "sampleable": <bool>,
+                            "slug": <str>,
+                            "streamable": <bool>,
+                            "streamable_at": <int>,
+                            "subtitle": <str>,
+                            "title": <str>,
+                            "tracks_count": <int>,
+                            "upc": <str>,
+                            "url": <str>,
+                            "version": <str>
+                          },
+                          "articles": [],
+                          "audio_info": {
+                            "replaygain_track_gain": <float>,
+                            "replaygain_track_peak": <float>
+                          },
+                          "composer": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "copyright": <str>,
+                          "created_at": <int>,
+                          "displayable": <bool>,
+                          "downloadable": <bool>,
+                          "duration": <int>,
+                          "hires": <bool>,
+                          "hires_streamable": <bool>,
+                          "id": <int>,
+                          "indexed_at": <int>,
+                          "isrc": <str>,
+                          "maximum_bit_depth": <int>,
+                          "maximum_channel_count": <int>,
+                          "maximum_sampling_rate": <float>,
+                          "media_number": <int>,
+                          "parental_warning": <bool>,
+                          "performer": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "performers": <str>,
+                          "previewable": <bool>,
+                          "purchasable": <bool>,
+                          "purchasable_at": <int>,
+                          "release_date_download": <str>,
+                          "release_date_original": <str>,
+                          "release_date_purchase": <str>,
+                          "release_date_stream": <str>,
+                          "sampleable":<bool>,
+                          "streamable": <bool>,
+                          "streamable_at": <int>,
+                          "title": <str>,
+                          "track_number": <int>,
+                          "version": <str>,
+                          "work": None
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple tracks
 
-                     {
-                       "items": {
-                         "album": {
-                           "area": None,
-                           "articles": [],
-                           "artist": {
-                             "albums_count": <int>,
-                             "id": <int>,
-                             "image": None,
-                             "name": <str>,
-                             "picture": None,
-                             "slug": <str>
-                           },
-                           "artists": [
-                             {
-                               "id": <int>,
-                               "name": <str>,
-                               "roles": <list[str]>
-                             }
-                           ],
-                           "awards": [
-                             {
-                               "award_id": <str>,
-                               "award_slug": <str>,
-                               "awarded_at": <int>,
-                               "name": <str>,
-                               "publication_id": <str>,
-                               "publication_name": <str>,
-                               "publication_slug": <str>,
-                               "slug": <str>
-                             }
-                           ],
-                           "catchline": <str>,
-                           "composer": {
-                             "albums_count": <int>,
-                             "id": <int>,
-                             "image": None,
-                             "name": <str>,
-                             "picture": None,
-                             "slug": <str>
-                           },
-                           "copyright": <str>,
-                           "created_at": <int>,
-                           "description": <str>,
-                           "description_language": <str>,
-                           "displayable": <bool>,
-                           "downloadable": <bool>,
-                           "duration": <int>,
-                           "genre": {
-                             "color": <int>,
-                             "id": <int>,
-                             "name": <int>,
-                             "path": <list[int]>,
-                             "slug": <str>
-                           },
-                           "genres_list": <list[str]>,
-                           "goodies": [],
-                           "hires": <bool>,
-                           "hires_streamable": <bool>,
-                           "id": <str>,
-                           "image": {
-                             "back": None,
-                             "large": <str>,
-                             "small": <str>,
-                             "thumbnail": <str>
-                           },
-                           "is_official": <bool>,
-                           "label": {
-                             "albums_count": <int>,
-                             "id": <int>,
-                             "name": <str>,
-                             "slug": <str>,
-                             "supplier_id": <int>
-                           },
-                           "maximum_bit_depth": <int>,
-                           "maximum_channel_count": <int>,
-                           "maximum_sampling_rate": <int>,
-                           "maximum_technical_specifications": <str>,
-                           "media_count": <int>,
-                           "parental_warning": <bool>,
-                           "period": None,
-                           "popularity": <int>,
-                           "previewable": <bool>,
-                           "product_sales_factors_monthly": <int>,
-                           "product_sales_factors_weekly": <int>,
-                           "product_sales_factors_yearly": <int>,
-                           "product_type": <str>,
-                           "product_url": <str>,
-                           "purchasable": <bool>,
-                           "purchasable_at": <int>,
-                           "qobuz_id": <int>,
-                           "recording_information": <str>,
-                           "relative_url": <str>,
-                           "release_date_download": <str>,
-                           "release_date_original": <str>,
-                           "release_date_stream": <str>,
-                           "release_tags": <list[str]>,
-                           "release_type": <str>,
-                           "released_at": <int>,
-                           "sampleable": <bool>,
-                           "slug": <str>,
-                           "streamable": <bool>,
-                           "streamable_at": <int>,
-                           "subtitle": <str>,
-                           "title": <str>,
-                           "tracks_count": <int>,
-                           "upc": <str>,
-                           "url": <str>,
-                           "version": <str>
-                         },
-                         "articles": [],
-                         "audio_info": {
-                           "replaygain_track_gain": <float>,
-                           "replaygain_track_peak": <float>
-                         },
-                         "composer": {
-                           "id": <int>,
-                           "name": <str>
-                         },
-                         "copyright": <str>,
-                         "created_at": <int>,
-                         "displayable": <bool>,
-                         "downloadable": <bool>,
-                         "duration": <int>,
-                         "hires": <bool>,
-                         "hires_streamable": <bool>,
-                         "id": <int>,
-                         "indexed_at": <int>,
-                         "isrc": <str>,
-                         "maximum_bit_depth": <int>,
-                         "maximum_channel_count": <int>,
-                         "maximum_sampling_rate": <int>,
-                         "media_number": <int>,
-                         "parental_warning": <bool>,
-                         "performer": {
-                           "id": <int>,
-                           "name": <str>
-                         },
-                         "performers": <str>,
-                         "previewable": <bool>,
-                         "purchasable": <bool>,
-                         "purchasable_at": <int>,
-                         "release_date_download": <str>,
-                         "release_date_original": <str>,
-                         "release_date_purchase": <str>,
-                         "release_date_stream": <str>,
-                         "sampleable":<bool>,
-                         "streamable": <bool>,
-                         "streamable_at": <int>,
-                         "title": <str>,
-                         "track_number": <int>,
-                         "version": <str>,
-                         "work": None
-                       },
-                       "total": <int>
-                     }
+                     .. code::
+
+                        {
+                          "items": {
+                            "album": {
+                              "area": None,
+                              "articles": [],
+                              "artist": {
+                                "albums_count": <int>,
+                                "id": <int>,
+                                "image": None,
+                                "name": <str>,
+                                "picture": None,
+                                "slug": <str>
+                              },
+                              "artists": [
+                                {
+                                  "id": <int>,
+                                  "name": <str>,
+                                  "roles": <list[str]>
+                                }
+                              ],
+                              "awards": [
+                                {
+                                  "award_id": <str>,
+                                  "award_slug": <str>,
+                                  "awarded_at": <int>,
+                                  "name": <str>,
+                                  "publication_id": <str>,
+                                  "publication_name": <str>,
+                                  "publication_slug": <str>,
+                                  "slug": <str>
+                                }
+                              ],
+                              "catchline": <str>,
+                              "composer": {
+                                "albums_count": <int>,
+                                "id": <int>,
+                                "image": None,
+                                "name": <str>,
+                                "picture": None,
+                                "slug": <str>
+                              },
+                              "copyright": <str>,
+                              "created_at": <int>,
+                              "description": <str>,
+                              "description_language": <str>,
+                              "displayable": <bool>,
+                              "downloadable": <bool>,
+                              "duration": <int>,
+                              "genre": {
+                                "color": <int>,
+                                "id": <int>,
+                                "name": <int>,
+                                "path": <list[int]>,
+                                "slug": <str>
+                              },
+                              "genres_list": <list[str]>,
+                              "goodies": [],
+                              "hires": <bool>,
+                              "hires_streamable": <bool>,
+                              "id": <str>,
+                              "image": {
+                                "back": None,
+                                "large": <str>,
+                                "small": <str>,
+                                "thumbnail": <str>
+                              },
+                              "is_official": <bool>,
+                              "label": {
+                                "albums_count": <int>,
+                                "id": <int>,
+                                "name": <str>,
+                                "slug": <str>,
+                                "supplier_id": <int>
+                              },
+                              "maximum_bit_depth": <int>,
+                              "maximum_channel_count": <int>,
+                              "maximum_sampling_rate": <int>,
+                              "maximum_technical_specifications": <str>,
+                              "media_count": <int>,
+                              "parental_warning": <bool>,
+                              "period": None,
+                              "popularity": <int>,
+                              "previewable": <bool>,
+                              "product_sales_factors_monthly": <int>,
+                              "product_sales_factors_weekly": <int>,
+                              "product_sales_factors_yearly": <int>,
+                              "product_type": <str>,
+                              "product_url": <str>,
+                              "purchasable": <bool>,
+                              "purchasable_at": <int>,
+                              "qobuz_id": <int>,
+                              "recording_information": <str>,
+                              "relative_url": <str>,
+                              "release_date_download": <str>,
+                              "release_date_original": <str>,
+                              "release_date_stream": <str>,
+                              "release_tags": <list[str]>,
+                              "release_type": <str>,
+                              "released_at": <int>,
+                              "sampleable": <bool>,
+                              "slug": <str>,
+                              "streamable": <bool>,
+                              "streamable_at": <int>,
+                              "subtitle": <str>,
+                              "title": <str>,
+                              "tracks_count": <int>,
+                              "upc": <str>,
+                              "url": <str>,
+                              "version": <str>
+                            },
+                            "articles": [],
+                            "audio_info": {
+                              "replaygain_track_gain": <float>,
+                              "replaygain_track_peak": <float>
+                            },
+                            "composer": {
+                              "id": <int>,
+                              "name": <str>
+                            },
+                            "copyright": <str>,
+                            "created_at": <int>,
+                            "displayable": <bool>,
+                            "downloadable": <bool>,
+                            "duration": <int>,
+                            "hires": <bool>,
+                            "hires_streamable": <bool>,
+                            "id": <int>,
+                            "indexed_at": <int>,
+                            "isrc": <str>,
+                            "maximum_bit_depth": <int>,
+                            "maximum_channel_count": <int>,
+                            "maximum_sampling_rate": <int>,
+                            "media_number": <int>,
+                            "parental_warning": <bool>,
+                            "performer": {
+                              "id": <int>,
+                              "name": <str>
+                            },
+                            "performers": <str>,
+                            "previewable": <bool>,
+                            "purchasable": <bool>,
+                            "purchasable_at": <int>,
+                            "release_date_download": <str>,
+                            "release_date_original": <str>,
+                            "release_date_purchase": <str>,
+                            "release_date_stream": <str>,
+                            "sampleable":<bool>,
+                            "streamable": <bool>,
+                            "streamable_at": <int>,
+                            "title": <str>,
+                            "track_number": <int>,
+                            "version": <str>,
+                            "work": None
+                          },
+                          "total": <int>
+                        }
         """
         self._validate_type("track_ids", track_ids, int | str | tuple | list)
         track_ids = self._prepare_qobuz_ids(track_ids, data_type=list)
@@ -389,14 +391,16 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Get playback information for a track.
 
         .. admonition:: Subscription
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Qobuz streaming plan
-                 Stream full-length and high-resolution audio.
-                 `Learn more. <https://www.qobuz.com/us-en/music
-                 /streaming/offers>`__
+              .. tab-item:: Optional
+
+                 Qobuz streaming plan
+                    Stream full-length and high-resolution audio.
+                    `Learn more. <https://www.qobuz.com/us-en/music
+                    /streaming/offers>`__
 
         Parameters
         ----------
@@ -408,25 +412,21 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         format_id : int or str; keyword-only; optional
             Audio format identifier.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
-
-               * :code:`5` – Constant 320 kbps bitrate MP3.
-               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         intent : str; keyword-only; optional
             Playback mode or intended use of the track.
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"download"` – Offline download.
-               * :code:`"import"` – Library import.
-               * :code:`"stream"` – Streaming playback.
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
 
             **API default**: :code:`"stream"`.
 
@@ -442,7 +442,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             Playback information for the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -474,8 +474,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                 )
             params["format_id"] = format_id
         if intent is not None:
-            self._validate_type("intent", intent, str)
-            intent = intent.lower()
+            intent = self._prepare_string("intent", intent).lower()
             if intent not in self._INTENTS:
                 intents_str = "', '".join(self._INTENTS)
                 raise ValueError(
@@ -514,12 +513,14 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Report the start of a streaming event.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Report streaming.
+              .. tab-item:: Required
+
+                 User authentication
+                    Report streaming.
 
         Parameters
         ----------
@@ -531,14 +532,12 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         format_id : int or str; keyword-only
             Audio format identifier.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
-
-               * :code:`5` – Constant 320 kbps bitrate MP3.
-               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -565,11 +564,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"download"` – Offline download.
-               * :code:`"import"` – Library import.
-               * :code:`"stream"` – Streaming playback.
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
 
             **API default**: :code:`"stream"`.
 
@@ -624,12 +621,14 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Report the end of a streaming event.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Report streaming.
+              .. tab-item:: Required
+
+                 User authentication
+                    Report streaming.
 
         Parameters
         ----------
@@ -641,14 +640,12 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         format_id : int or str; keyword-only
             Audio format identifier.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
-
-               * :code:`5` – Constant 320 kbps bitrate MP3.
-               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -678,11 +675,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"download"` – Offline download.
-               * :code:`"import"` – Library import.
-               * :code:`"stream"` – Streaming playback.
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
 
             **API default**: :code:`"stream"`.
 
@@ -723,12 +718,14 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Save one or more tracks to the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -755,12 +752,14 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Remove one or more tracks from the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -788,12 +787,14 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -819,7 +820,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -944,12 +945,14 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Check whether a track is in the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -973,12 +976,14 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Toggle the saved status of a track.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -997,7 +1002,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.toggle_item_saved("track", track_id)
 
-    @_copy_docstring(PrivateSearchEndpoints.search_tracks)
+    @_copy_docstring(PrivateSearchAPI.search_tracks)
     def search_tracks(
         self,
         query: str,
@@ -1053,14 +1058,12 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         format_id : int or str; keyword-only
             Audio format identifier.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
-
-               * :code:`5` – Constant 320 kbps bitrate MP3.
-               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -1087,11 +1090,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"download"` – Offline download.
-               * :code:`"import"` – Library import.
-               * :code:`"stream"` – Streaming playback.
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
 
             **API default**: :code:`"stream"`.
 
@@ -1137,8 +1138,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             self._validate_qobuz_ids(device_id, _recursive=False)
             event["device_id"] = device_id
         if intent is not None:
-            self._validate_type("intent", intent, str)
-            intent = intent.lower()
+            intent = self._prepare_string("intent", intent).lower()
             if intent not in self._INTENTS:
                 intents_str = "', '".join(self._INTENTS)
                 raise ValueError(

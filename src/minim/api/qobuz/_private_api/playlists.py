@@ -3,7 +3,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
-from .search import PrivateSearchEndpoints
+from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
 
 
@@ -13,7 +13,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -67,12 +67,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Add tracks to a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -99,7 +101,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the updated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -148,12 +150,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Create a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -196,7 +200,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the newly created playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -219,13 +223,11 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
-        payload = {"name": name}
+        payload = {"name": self._validate_type("name", name)}
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             payload["public"] = public
@@ -249,12 +251,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Delete a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -286,12 +290,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Remove tracks from a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -318,7 +324,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the updated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -370,12 +376,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Get Qobuz catalog information for a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Conditional
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -417,7 +425,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -672,12 +680,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"last-created"` – Most recently created
-                 playlists.
-               * :code:`"editor-picks"` – Most recently created
-                 playlists by Qobuz.
+            * :code:`"last-created"` – Most recently created playlists.
+            * :code:`"editor-picks"` – Most recently created playlists
+              by Qobuz.
 
         genre_ids : int, str, or list[int | str]; keyword-only; optional
             Qobuz IDs of the genres used to filter the playlists to
@@ -718,7 +723,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the featured playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -781,8 +786,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._validate_type("playlist_type", playlist_type, str)
-        playlist_type = playlist_type.strip().lower()
+        playlist_type = self._prepare_string(
+            "playlist_type", playlist_type
+        ).lower()
         if playlist_type not in {"last-created", "editor-picks"}:
             raise ValueError(
                 f"Invalid playlist type {playlist_type!r}. "
@@ -828,7 +834,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for playlist tags.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -863,12 +869,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         followed by the current user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -877,10 +885,8 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"owner"` – Playlists created by the user.
-               * :code:`"subscriber"` – Playlists followed by the user.
+            * :code:`"owner"` – Playlists created by the user.
+            * :code:`"subscriber"` – Playlists followed by the user.
 
             **Examples**: :code:`"owner"`, :code:`"owner,subscriber"`,
             :code:`["owner", "subscriber"]`.
@@ -921,7 +927,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1009,7 +1015,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "GET", "playlist/getUserPlaylists", params=params
         ).json()
 
-    @_copy_docstring(PrivateSearchEndpoints.search_playlists)
+    @_copy_docstring(PrivateSearchAPI.search_playlists)
     def search_playlists(
         self,
         query: str,
@@ -1045,12 +1051,20 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Update the details of a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
+
+        .. important::
+
+           At least one of :code:`name`, :code:`description`,
+           :code:`public`, :code:`collaborative`, or :code:`track_ids`
+           must be specified.
 
         Parameters
         ----------
@@ -1084,7 +1098,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the updated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1112,13 +1126,11 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._validate_qobuz_ids(playlist_id, _recursive=False)
         payload = {}
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            payload["name"] = name
+            payload["name"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             payload["is_public"] = public
@@ -1144,12 +1156,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Reorder playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -1188,12 +1202,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Reorder items in a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -1223,7 +1239,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the updated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

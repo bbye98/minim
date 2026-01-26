@@ -8,9 +8,9 @@ class ChartsAPI(DeezerResourceAPI):
     """
     Charts API endpoints for the Deezer API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPI` and
+       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
        should not be instantiated directly.
     """
 
@@ -46,7 +46,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -123,7 +123,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -185,7 +185,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -259,7 +259,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top podcasts.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -289,6 +289,45 @@ class ChartsAPI(DeezerResourceAPI):
         return self._request_resource_relationship(
             "GET", "chart", 0, "podcasts", limit=limit, offset=offset
         )
+
+    @TTLCache.cached_method(ttl="popularity")
+    def get_top_radios(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        """
+        `Radio > Top <https://developers.deezer.com/api/radio/top>`_:
+        Get Deezer catalog information for the top radios on Deezer.
+
+        Parameters
+        ----------
+        limit : int or None; keyword-only; optional
+            Maximum number of radios to return.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`25`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first radio to return. Use with `limit` to get
+            the next batch of radios.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        radios : dict[str, Any]
+            Page of Deezer content metadata for the top radios.
+        """
+        params = {}
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["index"] = offset
+        return self._client._request("GET", "radio/top", params=params)
 
     @TTLCache.cached_method(ttl="popularity")
     def get_top_tracks(
@@ -322,7 +361,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

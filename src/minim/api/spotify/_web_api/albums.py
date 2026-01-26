@@ -11,7 +11,7 @@ class AlbumsAPI(SpotifyResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -28,14 +28,16 @@ class AlbumsAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple albums.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -45,12 +47,10 @@ class AlbumsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"382ObEPsp2rxGrnsizN5TX"`
-               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
-               * :code:`["382ObEPsp2rxGrnsizN5TX",
-                 "1A2GTWGtFfWp7KSQTwWOyo"]`
+            * :code:`"382ObEPsp2rxGrnsizN5TX"`
+            * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+            * :code:`["382ObEPsp2rxGrnsizN5TX",
+              "1A2GTWGtFfWp7KSQTwWOyo"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -72,227 +72,229 @@ class AlbumsAPI(SpotifyResourceAPI):
             Spotify content metadata for the albums.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single album
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single album
 
-                     {
-                       "album_type": <str>,
-                       "artists": [
-                         {
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "href": <str>,
-                           "id": <str>,
-                           "name": <str>,
-                           "type": "artist",
-                           "uri": <str>
-                         }
-                       ],
-                       "available_markets": <list[str]>,
-                       "copyrights": [
-                         {
-                           "text": <str>,
-                           "type": <str>
-                         }
-                       ],
-                       "external_ids": {
-                         "ean": <str>,
-                         "isrc": <str>,
-                         "upc": <str>
-                       },
-                       "external_urls": {
-                         "spotify": <str>
-                       },
-                       "genres": <list[str]>,
-                       "href": <str>,
-                       "id": <str>,
-                       "images": [
-                         {
-                           "height": <int>,
-                           "url": <str>,
-                           "width": <int>
-                         }
-                       ],
-                       "label": <str>,
-                       "name": <str>,
-                       "popularity": <int>,
-                       "release_date": <str>,
-                       "release_date_precision": <str>,
-                       "restrictions": {
-                         "reason": <str>
-                       },
-                       "total_tracks": <int>,
-                       "tracks": {
-                         "href": <str>,
-                         "items": [
-                           {
-                             "artists": [
-                               {
-                                 "external_urls": {
-                                   "spotify": <str>
-                                 },
-                                 "href": <str>,
-                                 "id": <str>,
-                                 "name": <str>,
-                                 "type": "artist",
-                                 "uri": <str>
-                               }
-                             ],
-                             "available_markets": <list[str]>,
-                             "disc_number": <int>,
-                             "duration_ms": <int>,
-                             "explicit": <bool>,
-                             "external_urls": {
-                               "spotify": <str>
-                             },
-                             "href": <str>,
-                             "id": <str>,
-                             "is_local": <bool>,
-                             "is_playable": <bool>,
-                             "linked_from": {
-                               "external_urls": {
-                                 "spotify": <str>
-                               },
-                               "href": <str>,
-                               "id": <str>,
-                               "type": "track",
-                               "uri": <str>
-                             },
-                             "name": <str>,
-                             "preview_url": <str>,
-                             "restrictions": {
-                               "reason": <str>
-                             },
-                             "track_number": <int>,
-                             "type": "track",
-                             "uri": <str>
-                           }
-                         ],
-                         "limit": <int>,
-                         "next": <str>,
-                         "offset": <int>,
-                         "previous": <str>,
-                         "total": <int>
-                       },
-                       "type": "album",
-                       "uri": <str>
-                     }
+                     .. code::
 
-               .. tab:: Multiple albums
+                        {
+                          "album_type": <str>,
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": <list[str]>,
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "external_ids": {
+                            "ean": <str>,
+                            "isrc": <str>,
+                            "upc": <str>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "genres": <list[str]>,
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "label": <str>,
+                          "name": <str>,
+                          "popularity": <int>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "total_tracks": <int>,
+                          "tracks": {
+                            "href": <str>,
+                            "items": [
+                              {
+                                "artists": [
+                                  {
+                                    "external_urls": {
+                                      "spotify": <str>
+                                    },
+                                    "href": <str>,
+                                    "id": <str>,
+                                    "name": <str>,
+                                    "type": "artist",
+                                    "uri": <str>
+                                  }
+                                ],
+                                "available_markets": <list[str]>,
+                                "disc_number": <int>,
+                                "duration_ms": <int>,
+                                "explicit": <bool>,
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "is_local": <bool>,
+                                "is_playable": <bool>,
+                                "linked_from": {
+                                  "external_urls": {
+                                    "spotify": <str>
+                                  },
+                                  "href": <str>,
+                                  "id": <str>,
+                                  "type": "track",
+                                  "uri": <str>
+                                },
+                                "name": <str>,
+                                "preview_url": <str>,
+                                "restrictions": {
+                                  "reason": <str>
+                                },
+                                "track_number": <int>,
+                                "type": "track",
+                                "uri": <str>
+                              }
+                            ],
+                            "limit": <int>,
+                            "next": <str>,
+                            "offset": <int>,
+                            "previous": <str>,
+                            "total": <int>
+                          },
+                          "type": "album",
+                          "uri": <str>
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple albums
 
-                     {
-                       "albums": [
-                         {
-                           "album_type": <str>,
-                           "artists": [
-                             {
-                               "external_urls": {
-                                 "spotify": <str>
-                               },
-                               "href": <str>,
-                               "id": <str>,
-                               "name": <str>,
-                               "type": "artist",
-                               "uri": <str>
-                             }
-                           ],
-                           "available_markets": <list[str]>,
-                           "copyrights": [
-                             {
-                               "text": <str>,
-                               "type": <str>
-                             }
-                           ],
-                           "external_ids": {
-                             "ean": <str>,
-                             "isrc": <str>,
-                             "upc": <str>
-                           },
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "genres": <list[str]>,
-                           "href": <str>,
-                           "id": <str>,
-                           "images": [
-                             {
-                               "height": <int>,
-                               "url": <str>,
-                               "width": <int>
-                             }
-                           ],
-                           "label": <str>,
-                           "name": <str>,
-                           "popularity": <int>,
-                           "release_date": <str>,
-                           "release_date_precision": <str>,
-                           "restrictions": {
-                             "reason": <str>
-                           },
-                           "total_tracks": <int>,
-                           "tracks": {
-                             "href": <str>,
-                             "items": [
-                               {
-                                 "artists": [
-                                   {
-                                     "external_urls": {
-                                       "spotify": <str>
-                                     },
-                                     "href": <str>,
-                                     "id": <str>,
-                                     "name": <str>,
-                                     "type": "artist",
-                                     "uri": <str>
-                                   }
-                                 ],
-                                 "available_markets": <list[str]>,
-                                 "disc_number": <int>,
-                                 "duration_ms": <int>,
-                                 "explicit": <bool>,
-                                 "external_urls": {
-                                   "spotify": <str>
-                                 },
-                                 "href": <str>,
-                                 "id": <str>,
-                                 "is_local": <bool>,
-                                 "is_playable": <bool>,
-                                 "linked_from": {
-                                   "external_urls": {
-                                     "spotify": <str>
-                                   },
-                                   "href": <str>,
-                                   "id": <str>,
-                                   "type": "track",
-                                   "uri": <str>
-                                 },
-                                 "name": <str>,
-                                 "preview_url": <str>,
-                                 "restrictions": {
-                                   "reason": <str>
-                                 },
-                                 "track_number": <int>,
-                                 "type": "track",
-                                 "uri": <str>
-                               }
-                             ],
-                             "limit": <int>,
-                             "next": <str>,
-                             "offset": <int>,
-                             "previous": <str>,
-                             "total": <int>
-                           },
-                           "type": "album",
-                           "uri": <str>
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "albums": [
+                            {
+                              "album_type": <str>,
+                              "artists": [
+                                {
+                                  "external_urls": {
+                                    "spotify": <str>
+                                  },
+                                  "href": <str>,
+                                  "id": <str>,
+                                  "name": <str>,
+                                  "type": "artist",
+                                  "uri": <str>
+                                }
+                              ],
+                              "available_markets": <list[str]>,
+                              "copyrights": [
+                                {
+                                  "text": <str>,
+                                  "type": <str>
+                                }
+                              ],
+                              "external_ids": {
+                                "ean": <str>,
+                                "isrc": <str>,
+                                "upc": <str>
+                              },
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "genres": <list[str]>,
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                }
+                              ],
+                              "label": <str>,
+                              "name": <str>,
+                              "popularity": <int>,
+                              "release_date": <str>,
+                              "release_date_precision": <str>,
+                              "restrictions": {
+                                "reason": <str>
+                              },
+                              "total_tracks": <int>,
+                              "tracks": {
+                                "href": <str>,
+                                "items": [
+                                  {
+                                    "artists": [
+                                      {
+                                        "external_urls": {
+                                          "spotify": <str>
+                                        },
+                                        "href": <str>,
+                                        "id": <str>,
+                                        "name": <str>,
+                                        "type": "artist",
+                                        "uri": <str>
+                                      }
+                                    ],
+                                    "available_markets": <list[str]>,
+                                    "disc_number": <int>,
+                                    "duration_ms": <int>,
+                                    "explicit": <bool>,
+                                    "external_urls": {
+                                      "spotify": <str>
+                                    },
+                                    "href": <str>,
+                                    "id": <str>,
+                                    "is_local": <bool>,
+                                    "is_playable": <bool>,
+                                    "linked_from": {
+                                      "external_urls": {
+                                        "spotify": <str>
+                                      },
+                                      "href": <str>,
+                                      "id": <str>,
+                                      "type": "track",
+                                      "uri": <str>
+                                    },
+                                    "name": <str>,
+                                    "preview_url": <str>,
+                                    "restrictions": {
+                                      "reason": <str>
+                                    },
+                                    "track_number": <int>,
+                                    "type": "track",
+                                    "uri": <str>
+                                  }
+                                ],
+                                "limit": <int>,
+                                "next": <str>,
+                                "offset": <int>,
+                                "previous": <str>,
+                                "total": <int>
+                              },
+                              "type": "album",
+                              "uri": <str>
+                            }
+                          ]
+                        }
         """
         return self._get_resources(
             "albums", album_ids, country_code=country_code, limit=20
@@ -314,14 +316,16 @@ class AlbumsAPI(SpotifyResourceAPI):
         Spotify catalog information for tracks in an album.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -366,7 +370,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -489,7 +493,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             releases.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

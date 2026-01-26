@@ -12,7 +12,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -45,7 +45,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the artist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -129,7 +129,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the artist's albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -236,7 +236,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the artist's biography.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -301,7 +301,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             associated with an artist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -408,7 +408,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             radio.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -538,7 +538,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the artist's top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -668,7 +668,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the artist's videos.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -783,7 +783,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             Page of TIDAL catalog information for the similar artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

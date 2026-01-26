@@ -17,7 +17,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -26,15 +26,6 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
     def _get_track_stream(self, manifest: bytes | str, /) -> tuple[str, bytes]:
         """
         Get the audio stream data for a track.
-
-        .. admonition:: Subscription
-           :class: authorization-scope dropdown
-
-           .. tab:: Optional
-
-              TIDAL streaming plan
-                 Stream full-length and high-resolution audio.
-                 `Learn more. <https://tidal.com/pricing>`__
 
         Parameters
         ----------
@@ -140,7 +131,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -258,7 +249,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the track's contributors.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -310,7 +301,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the track's credits.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -338,12 +329,15 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for a track's lyrics.
 
         .. admonition:: Subscription
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              TIDAL streaming plan
-                 Access track and video playback information.
+              .. tab-item:: Required
+
+                 TIDAL streaming plan
+                    Access lyrics. `Learn more.
+                    <https://tidal.com/pricing>`__
 
         Parameters
         ----------
@@ -366,7 +360,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             time-synced lyrics.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -432,12 +426,14 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         given track.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -474,7 +470,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the recommended tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -578,13 +574,15 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Get playback information for a track.
 
         .. admonition:: Subscription
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              TIDAL streaming plan
-                 Stream full-length and high-resolution audio.
-                 `Learn more. <https://tidal.com/pricing>`__
+              .. tab-item:: Optional
+
+                 TIDAL streaming plan
+                    Stream full-length and high-resolution audio.
+                    `Learn more. <https://tidal.com/pricing>`__
 
         Parameters
         ----------
@@ -598,25 +596,21 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"LOW"` – 64 kbps (22.05 kHz) MP3 without user
-                 authentication or 96 kbps AAC with user authentication.
-               * :code:`"HIGH"` – 320 kbps AAC.
-               * :code:`"LOSSLESS"` – 1411 kbps (16-bit, 44.1 kHz) ALAC
-                 or FLAC.
-               * :code:`"HI_RES_LOSSLESS"` – Up to 9216 kbps (24-bit,
-                 192 kHz) FLAC.
+            * :code:`"LOW"` – 64 kbps (22.05 kHz) MP3 without user
+              authentication or 96 kbps AAC with user authentication.
+            * :code:`"HIGH"` – 320 kbps AAC.
+            * :code:`"LOSSLESS"` – 1411 kbps (16-bit, 44.1 kHz) ALAC or
+              FLAC.
+            * :code:`"HI_RES_LOSSLESS"` – Up to 9216 kbps (24-bit, 192
+              kHz) FLAC.
 
         intent : str; keyword-only; default: :code:`"STREAM"`
             Playback mode or intended use of the track.
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"OFFLINE"` – Offline download.
-               * :code:`"STREAM"` – Streaming playback.
+            * :code:`"OFFLINE"` – Offline download.
+            * :code:`"STREAM"` – Streaming playback.
 
         preview : bool; keyword-only; default: :code:`False`
             Whether to return a 30-second preview instead of the full
@@ -628,7 +622,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             Playback information for the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -649,17 +643,15 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                     "trackReplayGain": <float>
                   }
         """
-        self._client._validate_tidal_ids(track_id, _recursive=False)
-        self._validate_type("quality", quality, str)
-        quality = quality.strip().upper()
+        self._validate_tidal_ids(track_id, _recursive=False)
+        quality = self._prepare_string("quality", quality).upper()
         if quality not in self._AUDIO_QUALITIES:
             audio_qualities_str = "', '".join(self._AUDIO_QUALITIES)
             raise ValueError(
                 f"Invalid audio quality {quality!r}. "
                 f"Valid values: '{audio_qualities_str}'."
             )
-        self._validate_type("intent", intent, str)
-        intent = intent.strip().upper()
+        intent = self._prepare_string("intent", intent).upper()
         if intent not in self._PLAYBACK_MODES:
             playback_modes_str = "', '".join(self._PLAYBACK_MODES)
             raise ValueError(

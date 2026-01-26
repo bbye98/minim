@@ -456,16 +456,14 @@ class TTLCache:
 
             **Valid keys**:
 
-            .. container::
-
-               * :code:`"static"` – Cache indefinitely.
-               * :code:`"daily"` – 1 day.
-               * :code:`"hourly"` – 1 hour.
-               * :code:`"playback"` – 30 seconds.
-               * :code:`"popularity"` – 6 hours.
-               * :code:`"recommendation"` – 12 hours.
-               * :code:`"search"` – 10 minutes.
-               * :code:`"user"` – 1 minute.
+            * :code:`"static"` – Cache indefinitely.
+            * :code:`"daily"` – 1 day.
+            * :code:`"hourly"` – 1 hour.
+            * :code:`"playback"` – 30 seconds.
+            * :code:`"popularity"` – 6 hours.
+            * :code:`"recommendation"` – 12 hours.
+            * :code:`"search"` – 10 minutes.
+            * :code:`"user"` – 1 minute.
 
         Returns
         -------
@@ -540,16 +538,14 @@ class TTLCache:
 
             **Valid keys**:
 
-            .. container::
-
-               * :code:`"static"` – Cache indefinitely.
-               * :code:`"daily"` – 1 day.
-               * :code:`"hourly"` – 1 hour.
-               * :code:`"playback"` – 30 seconds.
-               * :code:`"popularity"` – 6 hours.
-               * :code:`"recommendation"` – 12 hours.
-               * :code:`"search"` – 10 minutes.
-               * :code:`"user"` – 1 minute.
+            * :code:`"static"` – Cache indefinitely.
+            * :code:`"daily"` – 1 day.
+            * :code:`"hourly"` – 1 hour.
+            * :code:`"playback"` – 30 seconds.
+            * :code:`"popularity"` – 6 hours.
+            * :code:`"recommendation"` – 12 hours.
+            * :code:`"search"` – 10 minutes.
+            * :code:`"user"` – 1 minute.
 
         Returns
         -------
@@ -682,8 +678,8 @@ class APIClient(ABC):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 2 minutes to 1 day, depending on their expected
-            update frequency.
+            cached for one minute to one day, depending on their
+            expected update frequency.
 
             .. seealso::
 
@@ -866,15 +862,13 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
-               * :code:`"device"` – Device Authorization Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`None` – No authentication.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"client_credentials"` – Client Credentials Flow.
+            * :code:`"device"` – Device Authorization Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as a system environment
@@ -937,15 +931,13 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the
+              user manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept
+              the redirect after user authorization in any local
+              browser.
+            * :code:`"playwright"` – Use a Playwright Firefox
+              browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -957,8 +949,8 @@ class OAuth2APIClient(APIClient):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 2 minutes to 1 day, depending on their expected
-            update frequency.
+            cached for one minute to one day, depending on their
+            expected update frequency.
 
             .. seealso::
 
@@ -1354,14 +1346,12 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
-               * :code:`"refresh_token"` – Refresh Token Flow.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"client_credentials"` – Client Credentials Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`"refresh_token"` – Refresh Token Flow.
         """
         if not authorization_flow:
             authorization_flow = self._auth_flow
@@ -1678,15 +1668,13 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
-               * :code:`"device"` – Device Authorization Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`None` – No authentication.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"client_credentials"` – Client Credentials Flow.
+            * :code:`"device"` – Device Authorization Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as a system environment
@@ -1730,15 +1718,13 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the
+              user manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept
+              the redirect after user authorization in any local
+              browser.
+            * :code:`"playwright"` – Use a Playwright Firefox
+              browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -1895,6 +1881,54 @@ class ResourceAPI:
         self._client = client
 
     @staticmethod
+    def _prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
+        """
+        Validate, normalize, and stringify a datetime.
+
+        Parameters
+        ----------
+        dt : datetime.datetime or str; positional-only
+            Datetime.
+
+        fmt : str; positional-only
+            Datetime format.
+
+        Returns
+        -------
+        dt : str
+            Datetime string.
+        """
+        if isinstance(dt, str):
+            dt = datetime.strptime(dt, fmt)
+        return dt.strftime(fmt)
+
+    @staticmethod
+    def _prepare_string(
+        name: str, string: str, /, *, allow_blank: bool = False
+    ) -> str:
+        """
+        Validate and trim a string.
+
+        Parameters
+        ----------
+        name : str; positional-only.
+            Parameter name for the string.
+
+        string : str; positional-only
+            Keyword string.
+
+        Returns
+        -------
+        string : str
+            Trimmed keyword string.
+        """
+        ResourceAPI._validate_type(name, string, str)
+        string = string.strip()
+        if not allow_blank and not len(string):
+            raise ValueError(f"`{name}` cannot be blank.")
+        return string
+
+    @staticmethod
     def _validate_barcode(barcode: int | str, /) -> None:
         """
         Validate a Universal Product Code (UPC) or European Article
@@ -1914,7 +1948,8 @@ class ResourceAPI:
     @staticmethod
     def _validate_country_code(country_code: str, /) -> None:
         """
-        Validate a ISO 3166-1 alpha-2 country code.
+        Validate an International Organization for Standardization
+        (ISO) 3166-1 alpha-2 country code.
 
         Parameters
         ----------
@@ -1927,8 +1962,28 @@ class ResourceAPI:
             or not country_code.isalpha()
         ):
             raise ValueError(
-                f"{country_code!r} is not a valid ISO 3166-1 "
-                "alpha-2 country code."
+                f"{country_code!r} is not a valid ISO 3166-1 alpha-2 "
+                "country code."
+            )
+
+    @staticmethod
+    def _validate_language_code(language_code: str, /) -> None:
+        """
+        Validate an International Organization for Standardization
+        (ISO) 639-1 language code.
+
+        Parameters
+        ----------
+        language_code : str; positional-only
+            ISO 639-1 language code.
+        """
+        if (
+            not isinstance(language_code, str)
+            or len(language_code) != 2
+            or not language_code.isalpha()
+        ):
+            raise ValueError(
+                f"{language_code!r} is not a valid ISO 639-1 language code."
             )
 
     @staticmethod

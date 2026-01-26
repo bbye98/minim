@@ -8,9 +8,9 @@ class SearchAPI(DeezerResourceAPI):
     """
     Search API endpoints for the Deezer API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPI` and
+       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
        should not be instantiated directly.
     """
 
@@ -26,7 +26,7 @@ class SearchAPI(DeezerResourceAPI):
     def _search_resource(
         self,
         resource_type: str | None,
-        query: str,
+        query: str | None,
         /,
         *,
         strict: bool | None = None,
@@ -89,11 +89,12 @@ class SearchAPI(DeezerResourceAPI):
         endpoint = "search"
         if resource_type is not None:
             endpoint += f"/{resource_type}"
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query) and resource_type != "history":
-            raise ValueError("No search query provided.")
-        params = {"q": query}
+        if query is not None:
+            params = {"q": self._prepare_string("query", query)}
+        elif resource_type == "history":
+            params = {}
+        else:
+            raise ValueError("`query` cannot be blank.")
         if strict is not None:
             self._validate_type("strict", strict, bool)
             if strict:
@@ -135,8 +136,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Album <https://developers.deezer.com/api/search
-        /album>`_: Get Deezer catalog information for albums that match
-        a keyword string.
+        /album>`_: Search for albums in the Deezer catalog.
 
         Parameters
         ----------
@@ -163,7 +163,7 @@ class SearchAPI(DeezerResourceAPI):
                  e.g., :code:`bpm_min:120 bpm_max:200`.
 
             **Example**: :code:`artist:"aloe blacc"
-            track:"i need a dollar" bpm_min:120 dur_min:300`
+            track:"i need a dollar" bpm_min:120 dur_min:300`.
 
         strict : bool; keyword-only; optional
             Whether to use strict matching instead of fuzzy search.
@@ -200,7 +200,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -265,8 +265,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Artist <https://developers.deezer.com/api/search
-        /artist>`_: Get Deezer catalog information for artists that
-        match a keyword string.
+        /artist>`_: Search for artists in the Deezer catalog.
 
         Parameters
         ----------
@@ -293,7 +292,7 @@ class SearchAPI(DeezerResourceAPI):
                  e.g., :code:`bpm_min:120 bpm_max:200`.
 
             **Example**: :code:`artist:"aloe blacc"
-            track:"i need a dollar" bpm_min:120 dur_min:300`
+            track:"i need a dollar" bpm_min:120 dur_min:300`.
 
         strict : bool; keyword-only; optional
             Whether to use strict matching instead of fuzzy search.
@@ -330,7 +329,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -381,8 +380,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Playlist <https://developers.deezer.com/api/search
-        /playlist>`_: Get Deezer catalog information for playlists that
-        match a keyword string.
+        /playlist>`_: Search for playlists in the Deezer catalog.
 
         Parameters
         ----------
@@ -424,7 +422,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -486,8 +484,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Podcast <https://developers.deezer.com/api/search
-        /podcast>`_: Get Deezer catalog information for podcasts that
-        match a keyword string.
+        /podcast>`_: Search for podcasts in the Deezer catalog.
 
         Parameters
         ----------
@@ -529,7 +526,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching podcasts.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -580,8 +577,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Radio <https://developers.deezer.com/api/search
-        /radio>`_: Get Deezer catalog information for radios that
-        match a keyword string.
+        /radio>`_: Search for radios in the Deezer catalog.
 
         Parameters
         ----------
@@ -623,7 +619,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching radios.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -671,8 +667,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Track <https://developers.deezer.com/api/search
-        /track>`_: Get Deezer catalog information for tracks that match
-        a keyword string.
+        /track>`_: Search for tracks in the Deezer catalog.
 
         Parameters
         ----------
@@ -699,7 +694,7 @@ class SearchAPI(DeezerResourceAPI):
                  e.g., :code:`bpm_min:120 bpm_max:200`.
 
             **Example**: :code:`artist:"aloe blacc"
-            track:"i need a dollar" bpm_min:120 dur_min:300`
+            track:"i need a dollar" bpm_min:120 dur_min:300`.
 
         strict : bool; keyword-only; optional
             Whether to use strict matching instead of fuzzy search.
@@ -738,7 +733,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -814,8 +809,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > User <https://developers.deezer.com/api/search
-        /user>`_: Get Deezer catalog information for users that match
-        a keyword string.
+        /user>`_: Search for users in the Deezer catalog.
 
         Parameters
         ----------
@@ -859,7 +853,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching users.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -909,12 +903,14 @@ class SearchAPI(DeezerResourceAPI):
         /history>`_: Get the current user's search history.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the :code:`GET /search/history` endpoint.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the :code:`GET /search/history` endpoint.
 
         Parameters
         ----------
@@ -956,7 +952,7 @@ class SearchAPI(DeezerResourceAPI):
             Current user's search history.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

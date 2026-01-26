@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import DeezerAPI
+    from .. import DeezerAPIClient
 
 
 class DeezerResourceAPI(ResourceAPI):
@@ -11,14 +11,14 @@ class DeezerResourceAPI(ResourceAPI):
     Base class for Deezer API resource endpoint groups.
     """
 
-    _client: "DeezerAPI"
+    _client: "DeezerAPIClient"
 
     @staticmethod
     def _prepare_deezer_ids(
         deezer_ids: int | str | list[int | str], /
     ) -> tuple[str, int]:
         """
-        Normalize, validate, and serialize Deezer IDs.
+        Validate, normalize, and serialize Deezer IDs.
 
         Parameters
         ----------
@@ -120,8 +120,8 @@ class DeezerResourceAPI(ResourceAPI):
             **Minimum value**: :code:`0`.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 

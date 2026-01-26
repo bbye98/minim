@@ -8,9 +8,9 @@ class CategoriesAPI(SpotifyResourceAPI):
     """
     Categories API endpoints for the Spotify Web API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -51,7 +51,7 @@ class CategoriesAPI(SpotifyResourceAPI):
             Spotify content metadata for the category.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -127,7 +127,7 @@ class CategoriesAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for available categories.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

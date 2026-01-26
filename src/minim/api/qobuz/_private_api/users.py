@@ -11,7 +11,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -21,12 +21,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Get detailed profile information for the current user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access private profile information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access private profile information.
 
         Returns
         -------
@@ -34,7 +36,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Current user's profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -124,12 +126,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         playlists, and purchases.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access private profile information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access private profile information.
 
         Returns
         -------
@@ -137,7 +141,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Current user's last update timestamps.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -207,7 +211,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             User authentication token and profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -297,21 +301,26 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                     "user_auth_token": <str>
                   }
         """
-        self._validate_type("username", username, str)
         self._validate_type("password", password, str)
-        params = {"username": username, "password": password}
+        params = {
+            "username": self._prepare_string("username", username),
+            "password": password,
+        }
         if device_uuid is not None:
             self._validate_uuid(device_uuid)
             params["device_manufacturer_id"] = device_uuid
         if device_model is not None:
-            self._validate_type("device_model", device_model, str)
-            params["device_model"] = device_model
+            params["device_model"] = self._prepare_string(
+                "device_model", device_model
+            )
         if device_os is not None:
-            self._validate_type("device_os", device_os, str)
-            params["device_os_version"] = device_os
+            params["device_os_version"] = self._prepare_string(
+                "device_os", device_os
+            )
         if device_platform is not None:
-            self._validate_type("device_platform", device_platform, str)
-            params["device_platform"] = device_platform
+            params["device_platform"] = self._prepare_string(
+                "device_platform", device_platform
+            )
         return self._client._request(
             "POST", "user/login", params=params
         ).json()
@@ -378,12 +387,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         the current user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access personal collection and favorites.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access personal collection and favorites.
 
         Parameters
         ----------
@@ -409,7 +420,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -624,12 +635,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access personal collection and favorites.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access personal collection and favorites.
 
         Returns
         -------
@@ -637,7 +650,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Qobuz IDs of purchased albums and tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -675,12 +688,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Follow a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -707,12 +722,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Unfollow a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -740,12 +757,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Get Qobuz catalog information for personally curated playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Returns
         -------
@@ -753,7 +772,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the personally curated playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -794,12 +813,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -837,7 +858,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             curated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -961,8 +982,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication(
             "dynamic.get_personalized_playlist_tracks"
         )
-        self._validate_type("playlist_type", playlist_type, str)
-        params = {"type": playlist_type.strip()}
+        params = {"type": self._prepare_string("playlist_type", playlist_type)}
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
@@ -986,12 +1006,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Get track recommendations based on seed tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the :code:`POST /dynamic/suggest` endpoint.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the :code:`POST /dynamic/suggest` endpoint.
 
         Parameters
         ----------
@@ -1023,7 +1045,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             generated from the provided seeds.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

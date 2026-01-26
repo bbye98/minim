@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
+    from .. import SpotifyWebAPIClient
 
 
 class SpotifyResourceAPI(ResourceAPI):
@@ -12,7 +12,7 @@ class SpotifyResourceAPI(ResourceAPI):
     """
 
     _AUDIO_TYPES = {"episode", "track"}
-    _client: "SpotifyWebAPI"
+    _client: "SpotifyWebAPIClient"
 
     @staticmethod
     def _prepare_spotify_ids(
@@ -23,7 +23,7 @@ class SpotifyResourceAPI(ResourceAPI):
         enforce_length: bool = True,
     ) -> tuple[str, int]:
         """
-        Normalize, validate, and serialize Spotify IDs.
+        Validate, normalize, and serialize Spotify IDs.
 
         Parameters
         ----------
@@ -79,7 +79,7 @@ class SpotifyResourceAPI(ResourceAPI):
         resource_types: set[str],
     ) -> list[str]:
         """
-        Normalize, validate, and prepare Spotify Uniform Resource
+        Validate, normalize, and prepare Spotify Uniform Resource
         Identifiers (URIs).
 
         Parameters
@@ -181,7 +181,7 @@ class SpotifyResourceAPI(ResourceAPI):
         type_prefix: str = "resource",
     ) -> str:
         """
-        Normalize, validate, and serialize types.
+        Validate, normalize, and serialize types.
 
         Parameters
         ----------
@@ -314,12 +314,10 @@ class SpotifyResourceAPI(ResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"albums"` for artists.
-               * :code:`"chapters"` for audiobooks.
-               * :code:`"episodes"` for shows.
-               * :code:`"tracks"` for albums and playlists.
+            * :code:`"albums"` for artists.
+            * :code:`"chapters"` for audiobooks.
+            * :code:`"episodes"` for shows.
+            * :code:`"tracks"` for albums and playlists.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -349,8 +347,8 @@ class SpotifyResourceAPI(ResourceAPI):
             **API default**: :code:`0`.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 

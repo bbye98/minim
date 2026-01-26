@@ -4,7 +4,7 @@ from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 
 
-class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
+class PrivateSearchAPI(PrivateQobuzResourceAPI):
     """
     Search-related endpoints for the private Qobuz API.
 
@@ -15,7 +15,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -64,11 +64,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         results : dict[str, Any]
             Page of Qobuz content metadata for the matching items.
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
-        params = {"query": query}
+        params = {"query": self._prepare_string("query", query)}
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
@@ -89,8 +85,8 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for albums, artists, playlists,
-        stories, and/or tracks that match a keyword string.
+        Search for albums, artists, playlists, stories, and/or tracks in
+        the Qobuz catalog.
 
         Parameters
         ----------
@@ -131,7 +127,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the matching items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -590,8 +586,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for albums that match a keyword
-        string.
+        Search for albums in the Qobuz catalog.
 
         Parameters
         ----------
@@ -632,7 +627,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the matching albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -728,8 +723,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for artists that match a keyword
-        string.
+        Search for artists in the Qobuz catalog.
 
         Parameters
         ----------
@@ -770,7 +764,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the matching artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -842,7 +836,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the most popular items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1061,8 +1055,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
                     "query": <str>
                   }
         """
-        self._validate_type("query", query, str)
-        params = {"query": query.strip()}
+        params = {"query": self._prepare_string("query", query)}
         if offset is not None:
             self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
@@ -1080,8 +1073,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for playlists that match a keyword
-        string.
+        Search for playlists in the Qobuz catalog.
 
         Parameters
         ----------
@@ -1122,7 +1114,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the matching playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1214,8 +1206,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for stories that match a keyword
-        string.
+        Search for stories in the Qobuz catalog.
 
         Parameters
         ----------
@@ -1256,7 +1247,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the matching stories.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1306,8 +1297,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for tracks that match a keyword
-        string.
+        Search for tracks in the Qobuz catalog.
 
         Parameters
         ----------
@@ -1348,7 +1338,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the matching tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

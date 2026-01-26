@@ -13,9 +13,9 @@ class ChaptersAPI(SpotifyResourceAPI):
        Audiobooks are only available in the US, UK, Canada, Ireland,
        New Zealand, and Australia markets.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -32,19 +32,22 @@ class ChaptersAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple audiobook chapters.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              :code:`user-read-playback-position` scope
-                 Read your position in content you have played. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-read-playback-position>`__
+              .. tab-item:: Optional
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+                 :code:`user-read-playback-position` scope
+                    Read your position in content you have played.
+                    `Learn more. <https://developer.spotify.com
+                    /documentation/web-api/concepts
+                    /scopes#user-read-playback-position>`__
+
+                 Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -54,12 +57,10 @@ class ChaptersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"0IsXVP0JmcB2adSE338GkK"`
-               * :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`
-               * :code:`["0IsXVP0JmcB2adSE338GkK",
-                 "3ZXb8FKZGU0EHALYX6uCzU"]`
+            * :code:`"0IsXVP0JmcB2adSE338GkK"`
+            * :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`
+            * :code:`["0IsXVP0JmcB2adSE338GkK",
+              "3ZXb8FKZGU0EHALYX6uCzU"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -81,175 +82,177 @@ class ChaptersAPI(SpotifyResourceAPI):
             Spotify content metadata for the audiobook chapters.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Single audiobook chapter
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single audiobook chapter
 
-                     {
-                       "audio_preview_url": <str>,
-                       "audiobook": {
-                         "authors": [
-                           {
-                             "name": <str>
-                           }
-                         ],
-                         "available_markets": <list[str]>,
-                         "copyrights": [
-                           {
-                             "text": <str>,
-                             "type": <str>
-                           }
-                         ],
-                         "description": <str>,
-                         "edition": <str>,
-                         "explicit": <bool>,
-                         "external_urls": {
-                           "spotify": <str>
-                         },
-                         "href": <str>,
-                         "html_description": <str>,
-                         "id": <str>,
-                         "images": [
-                           {
-                             "height": <int>,
-                             "url": <str>,
-                             "width": <int>
-                           }
-                         ],
-                         "languages": <list[str]>,
-                         "media_type": <str>,
-                         "name": <str>,
-                         "narrators": [
-                           {
-                             "name": <str>
-                           }
-                         ],
-                         "publisher": <str>,
-                         "total_chapters": <int>,
-                         "type": "audiobook",
-                         "uri": <str>
-                       },
-                       "available_markets": <list[str]>,
-                       "chapter_number": <int>,
-                       "description": <str>,
-                       "duration_ms": <int>,
-                       "explicit": <bool>,
-                       "external_urls": {
-                         "spotify": <str>
-                       },
-                       "href": <str>,
-                       "html_description": <str>,
-                       "id": <str>,
-                       "images": [
-                         {
-                           "height": <int>,
-                           "url": <str>,
-                           "width": <int>
-                         }
-                       ],
-                       "is_playable": <bool>,
-                       "languages": <list[str]>,
-                       "name": <str>,
-                       "release_date": <str>,
-                       "release_date_precision": <str>,
-                       "restrictions": {
-                         "reason": <str>
-                       },
-                       "resume_point": {
-                         "fully_played": <bool>,
-                         "resume_position_ms": <int>
-                       },
-                       "type": "chapter",
-                       "uri": <str>
-                     }
+                     .. code::
 
-               .. tab:: Multiple audiobook chapters
+                        {
+                          "audio_preview_url": <str>,
+                          "audiobook": {
+                            "authors": [
+                              {
+                                "name": <str>
+                              }
+                            ],
+                            "available_markets": <list[str]>,
+                            "copyrights": [
+                              {
+                                "text": <str>,
+                                "type": <str>
+                              }
+                            ],
+                            "description": <str>,
+                            "edition": <str>,
+                            "explicit": <bool>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "html_description": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "height": <int>,
+                                "url": <str>,
+                                "width": <int>
+                              }
+                            ],
+                            "languages": <list[str]>,
+                            "media_type": <str>,
+                            "name": <str>,
+                            "narrators": [
+                              {
+                                "name": <str>
+                              }
+                            ],
+                            "publisher": <str>,
+                            "total_chapters": <int>,
+                            "type": "audiobook",
+                            "uri": <str>
+                          },
+                          "available_markets": <list[str]>,
+                          "chapter_number": <int>,
+                          "description": <str>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "html_description": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_playable": <bool>,
+                          "languages": <list[str]>,
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "resume_point": {
+                            "fully_played": <bool>,
+                            "resume_position_ms": <int>
+                          },
+                          "type": "chapter",
+                          "uri": <str>
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple audiobook chapters
 
-                     {
-                       "chapters": [
-                         {
-                           "audio_preview_url": <str>,
-                           "audiobook": {
-                             "authors": [
-                               {
-                                 "name": <str>
-                               }
-                             ],
-                             "available_markets": <list[str]>,
-                             "copyrights": [
-                               {
-                                 "text": <str>,
-                                 "type": <str>
-                               }
-                             ],
-                             "description": <str>,
-                             "edition": <str>,
-                             "explicit": <bool>,
-                             "external_urls": {
-                               "spotify": <str>
-                             },
-                             "href": <str>,
-                             "html_description": <str>,
-                             "id": <str>,
-                             "images": [
-                               {
-                                 "height": <int>,
-                                 "url": <str>,
-                                 "width": <int>
-                               }
-                             ],
-                             "languages": <list[str]>,
-                             "media_type": <str>,
-                             "name": <str>,
-                             "narrators": [
-                               {
-                                 "name": <str>
-                               }
-                             ],
-                             "publisher": <str>,
-                             "total_chapters": <int>,
-                             "type": "audiobook",
-                             "uri": <str>
-                           },
-                           "available_markets": <list[str]>,
-                           "chapter_number": <int>,
-                           "description": <str>,
-                           "duration_ms": <int>,
-                           "explicit": <bool>,
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "href": <str>,
-                           "html_description": <str>,
-                           "id": <str>,
-                           "images": [
-                             {
-                               "height": <int>,
-                               "url": <str>,
-                               "width": <int>
-                             }
-                           ],
-                           "is_playable": <bool>,
-                           "languages": <list[str]>,
-                           "name": <str>,
-                           "release_date": <str>,
-                           "release_date_precision": <str>,
-                           "restrictions": {
-                             "reason": <str>
-                           },
-                           "resume_point": {
-                             "fully_played": <bool>,
-                             "resume_position_ms": <int>
-                           },
-                           "type": "chapter",
-                           "uri": <str>
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "chapters": [
+                            {
+                              "audio_preview_url": <str>,
+                              "audiobook": {
+                                "authors": [
+                                  {
+                                    "name": <str>
+                                  }
+                                ],
+                                "available_markets": <list[str]>,
+                                "copyrights": [
+                                  {
+                                    "text": <str>,
+                                    "type": <str>
+                                  }
+                                ],
+                                "description": <str>,
+                                "edition": <str>,
+                                "explicit": <bool>,
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "html_description": <str>,
+                                "id": <str>,
+                                "images": [
+                                  {
+                                    "height": <int>,
+                                    "url": <str>,
+                                    "width": <int>
+                                  }
+                                ],
+                                "languages": <list[str]>,
+                                "media_type": <str>,
+                                "name": <str>,
+                                "narrators": [
+                                  {
+                                    "name": <str>
+                                  }
+                                ],
+                                "publisher": <str>,
+                                "total_chapters": <int>,
+                                "type": "audiobook",
+                                "uri": <str>
+                              },
+                              "available_markets": <list[str]>,
+                              "chapter_number": <int>,
+                              "description": <str>,
+                              "duration_ms": <int>,
+                              "explicit": <bool>,
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "html_description": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                }
+                              ],
+                              "is_playable": <bool>,
+                              "languages": <list[str]>,
+                              "name": <str>,
+                              "release_date": <str>,
+                              "release_date_precision": <str>,
+                              "restrictions": {
+                                "reason": <str>
+                              },
+                              "resume_point": {
+                                "fully_played": <bool>,
+                                "resume_position_ms": <int>
+                              },
+                              "type": "chapter",
+                              "uri": <str>
+                            }
+                          ]
+                        }
         """
         return self._get_resources(
             "chapters", chapter_ids, country_code=country_code

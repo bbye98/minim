@@ -10,7 +10,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -21,7 +21,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         mix_ids: str | list[str], /, *, limit: int = 100
     ) -> str:
         """
-        Normalize, validate, and serialize TIDAL mix IDs.
+        Validate, normalize, and serialize TIDAL mix IDs.
 
         Parameters
         ----------
@@ -118,12 +118,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block or unblock a resource for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -203,10 +205,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Item name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Item name.
 
             **API default**: :code:`"DATE"`.
 
@@ -301,8 +301,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             )
         }
         if on_missing is not None:
-            self._validate_type("on_missing", on_missing, str)
-            on_missing = on_missing.strip().upper()
+            on_missing = self._prepare_string("on_missing", on_missing).upper()
             if on_missing not in {"FAIL", "SKIP"}:
                 raise ValueError(
                     f"Invalid behavior {on_missing!r} for missing "
@@ -390,8 +389,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user_id = self._client._resolve_user_identifier()
         params = {}
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["cursor"] = self._prepare_string("cursor", cursor)
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
@@ -434,12 +432,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
+            * :code:`"FOLDER"` – Playlist folders.
+            * :code:`"PLAYLIST"` – All playlists.
+            * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+            * :code:`"USER_PLAYLIST"` – User-created playlists.
 
             **Examples**: :code:`"USER_PLAYLIST"`,
             :code:`"FOLDER,USER_PLAYLIST"`,
@@ -450,10 +446,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -463,8 +457,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **API default**: :code:`False`.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 
@@ -482,8 +476,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         else:
             params["limit"] = limit
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["cursor"] = self._prepare_string("cursor", cursor)
         if playlist_types is not None:
             self._client.playlists._validate_types(playlist_types)
             params["includeOnly"] = playlist_types
@@ -554,10 +547,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -604,12 +595,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Follow or unfollow a TIDAL user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -621,7 +614,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id : int or str; positional-only
             TIDAL ID of the user.
         """
-        self._client._validate_tidal_ids(user_id, _recursive=False)
+        self._validate_tidal_ids(user_id, _recursive=False)
         self._client._request(
             method, "v2/follow", params={"trn": f"trn:user:{user_id}"}
         )
@@ -633,12 +626,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block or unblock a TIDAL user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -650,7 +645,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id : int or str; positional-only
             TIDAL ID of the user.
         """
-        self._client._validate_tidal_ids(user_id, _recursive=False)
+        self._validate_tidal_ids(user_id, _recursive=False)
         self._client._request(method, f"v2/profiles/block/{user_id}")
 
     @TTLCache.cached_method(ttl="static")
@@ -659,12 +654,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get profile information for the current user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Returns
         -------
@@ -672,7 +669,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Current user's profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -715,12 +712,15 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get information about the current private TIDAL API session.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access client, session, and user account information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access client, session, and user account
+                    information.
 
         Returns
         -------
@@ -728,7 +728,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Session information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -760,12 +760,15 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get information about a user's TIDAL clients.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access client, session, and user account information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access client, session, and user account
+                    information.
 
         Parameters
         ----------
@@ -786,7 +789,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Information about the user's TIDAL clients.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -834,12 +837,15 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get information about a user's TIDAL subscription status.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access client, session, and user account information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access client, session, and user account
+                    information.
 
         Parameters
         ----------
@@ -860,7 +866,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Information about the user's TIDAL subscription status.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -895,12 +901,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         tracks, and videos in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -914,7 +922,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             IDs or UUIDs of the items in the current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -945,12 +953,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for albums in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -985,10 +995,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Album name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Album name.
 
             **API default**: :code:`"DATE"`.
 
@@ -1004,7 +1012,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1091,12 +1099,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add albums to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1143,12 +1153,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove albums from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1181,12 +1193,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for artists blocked by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1216,7 +1230,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1267,12 +1281,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block an artist for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1297,12 +1313,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Unblock an artist for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1337,12 +1355,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1377,10 +1397,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Artist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Artist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -1396,7 +1414,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1455,12 +1473,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add artists to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1506,12 +1526,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove artists from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1544,12 +1566,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1566,10 +1590,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Mix name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Mix name.
 
             **API default**: :code:`"DATE"`.
 
@@ -1585,7 +1607,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1651,8 +1673,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._validate_number("limit", limit, int, 1, 50)
         params = {"limit": limit}
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["cursor"] = self._prepare_string("cursor", cursor)
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
                 sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
@@ -1676,12 +1697,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL IDs of the mixes in the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1705,8 +1728,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._validate_number("limit", limit, int, 1, 50)
         params = {"limit": limit}
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["cursor"] = self._prepare_string("cursor", cursor)
         return self._client._request(
             "GET", "v2/favorites/mixes/ids", params=params
         ).json()
@@ -1718,12 +1740,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add mixes to the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1732,12 +1756,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"000ec0b01da1ddd752ec5dee553d48"`
-               * :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`
-               * :code:`["000ec0b01da1ddd752ec5dee553d48",
-                 "000dd748ceabd5508947c6a5d3880a"]`
+            * :code:`"000ec0b01da1ddd752ec5dee553d48"`
+            * :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`
+            * :code:`["000ec0b01da1ddd752ec5dee553d48",
+              "000dd748ceabd5508947c6a5d3880a"]`
 
         on_missing : str; keyword-only; optional
             Behavior when the mixes to be favorited cannot be found in
@@ -1748,8 +1770,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication("users.follow_mixes")
         data = {"mixIds": self._prepare_mix_ids(mix_ids)}
         if on_missing is not None:
-            self._validate_type("on_missing", on_missing, str)
-            on_missing = on_missing.strip().upper()
+            on_missing = self._prepare_string("on_missing", on_missing).upper()
             if on_missing not in {"FAIL", "SKIP"}:
                 raise ValueError(
                     f"Invalid behavior {on_missing!r} for missing "
@@ -1763,12 +1784,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove mixes from the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1777,12 +1800,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"000ec0b01da1ddd752ec5dee553d48"`
-               * :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`
-               * :code:`["000ec0b01da1ddd752ec5dee553d48",
-                 "000dd748ceabd5508947c6a5d3880a"]`
+            * :code:`"000ec0b01da1ddd752ec5dee553d48"`
+            * :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`
+            * :code:`["000ec0b01da1ddd752ec5dee553d48",
+              "000dd748ceabd5508947c6a5d3880a"]`
         """
         self._client._require_authentication("users.unfollow_mixes")
         self._client._request(
@@ -1808,12 +1829,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1848,10 +1871,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -1867,7 +1888,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             the user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1940,13 +1961,15 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add playlists to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access user recommendations, and view and modify
+                    user's collection.
 
         Parameters
         ----------
@@ -1955,12 +1978,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * :code:`["0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
+            * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+            * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+            * :code:`["0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+              "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1980,14 +2001,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`1` – Legacy
-                 :code:`POST /v1/users/{user_id}/favorites/playlists`
-                 endpoint.
-               * :code:`2` – Current
-                 :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
-                 endpoint.
+            * :code:`1` – Legacy
+              :code:`POST /v1/users/{user_id}/favorites/playlists`
+              endpoint.
+            * :code:`2` – Current
+              :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
+              endpoint.
         """
         self._client._require_authentication("users.follow_playlists")
         params = {"uuids": self._prepare_uuids("playlist", playlist_uuids)}
@@ -2028,12 +2047,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove playlists from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2043,12 +2064,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * :code:["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+            * :code:["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+              "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2060,14 +2079,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`1` – Legacy
-                 :code:`POST /v1/users/{user_id}/favorites/playlists`
-                 endpoint.
-               * :code:`2` – Current
-                 :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
-                 endpoint.
+            * :code:`1` – Legacy
+              :code:`POST /v1/users/{user_id}/favorites/playlists`
+              endpoint.
+            * :code:`2` – Current
+              :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
+              endpoint.
         """
         self._client._require_authentication("users.unfollow_playlists")
         self._validate_number("api_version", api_version, int, 1, 2)
@@ -2105,12 +2122,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2128,12 +2147,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
+            * :code:`"FOLDER"` – Playlist folders.
+            * :code:`"PLAYLIST"` – All playlists.
+            * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+            * :code:`"USER_PLAYLIST"` – User-created playlists.
 
             **Examples**: :code:`"USER_PLAYLIST"`,
             :code:`"FOLDER,USER_PLAYLIST"`,
@@ -2144,10 +2161,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2163,7 +2178,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2275,12 +2290,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         in the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2303,12 +2320,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
+            * :code:`"FOLDER"` – Playlist folders.
+            * :code:`"PLAYLIST"` – All playlists.
+            * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+            * :code:`"USER_PLAYLIST"` – User-created playlists.
 
             **Examples**: :code:`"USER_PLAYLIST"`,
             :code:`"FOLDER,USER_PLAYLIST"`,
@@ -2319,10 +2334,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2338,7 +2351,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             specified playlist folder in the current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2455,12 +2468,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         playlists in the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2478,12 +2493,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
+            * :code:`"FOLDER"` – Playlist folders.
+            * :code:`"PLAYLIST"` – All playlists.
+            * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+            * :code:`"USER_PLAYLIST"` – User-created playlists.
 
             **Examples**: :code:`"USER_PLAYLIST"`,
             :code:`"FOLDER,USER_PLAYLIST"`,
@@ -2494,10 +2507,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2513,7 +2524,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             playlists in the current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2627,12 +2638,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         playlists in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2667,10 +2680,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2686,7 +2697,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user-created playlists in the user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2800,12 +2811,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2840,10 +2853,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2859,7 +2870,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             the user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2935,12 +2946,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2963,7 +2976,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3056,12 +3069,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for a user's followers.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3106,12 +3121,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for the people followed by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3152,12 +3169,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3175,12 +3194,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3202,12 +3223,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3256,12 +3279,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3279,12 +3304,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3309,12 +3336,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for tracks in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3349,10 +3378,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Track name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Track name.
 
             **API default**: :code:`"DATE"`.
 
@@ -3368,7 +3395,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3468,12 +3495,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add tracks to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3520,12 +3549,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove tracks from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3558,12 +3589,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for tracks blocked by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3593,7 +3626,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3682,12 +3715,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block a track for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3712,12 +3747,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Unblock a track for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3751,12 +3788,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for videos in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3791,10 +3830,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Video name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Video name.
 
             **API default**: :code:`"DATE"`.
 
@@ -3810,7 +3847,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3889,12 +3926,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add videos to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3940,12 +3979,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove videos from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3977,12 +4018,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for videos blocked by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -4012,7 +4055,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -4080,12 +4123,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block a video for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -4110,12 +4155,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Unblock a video for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------

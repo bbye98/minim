@@ -10,9 +10,9 @@ class PlaylistsAPI(SpotifyResourceAPI):
     """
     Playlists API endpoints for the Spotify Web API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -32,26 +32,28 @@ class PlaylistsAPI(SpotifyResourceAPI):
         catalog information for a playlist.
 
         .. admonition:: Authorization scopes and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              :code:`playlist-read-private` scope
-                 Access your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-read-private>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-read-collaborative` scope
-                 Access your collaborative playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-read-collaborative>`__
+                 :code:`playlist-read-private` scope
+                    Access your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-read-private>`__
 
-           .. tab:: Optional
+                 :code:`playlist-read-collaborative` scope
+                    Access your collaborative playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-read-collaborative>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -86,17 +88,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"description,uri"` – Returns only the playlist
-                 description and URI.
-               * :code:`"tracks.items(added_at,added_by.id)"` – Returns
-                 only the date added and the Spotify user ID of the user
-                 who added the track.
-               * :code:`"tracks.items(track(name,href,album(name,href)))"`
-                 – Drills down into the album details.
-               * :code:`"tracks.items(track(name,href,album(!name,href)))"`
-                 – Excludes the album name.
+            * :code:`"description,uri"` – Returns only the playlist
+              description and URI.
+            * :code:`"tracks.items(added_at,added_by.id)"` – Returns
+              only the date added and the Spotify user ID of the user
+              who added the track.
+            * :code:`"tracks.items(track(name,href,album(name,href)))"`
+              – Drills down into the album details.
+            * :code:`"tracks.items(track(name,href,album(!name,href)))"`
+              – Excludes the album name.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -118,7 +118,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -365,19 +365,26 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /change-playlist-details>`_: Update the details of a playlist.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
+
+        .. important::
+
+           At least one of :code:`name`, :code:`description`,
+           :code:`public`, or :code:`collaborative` must be specified.
 
         Parameters
         ----------
@@ -407,13 +414,11 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._validate_spotify_id(playlist_id)
         payload = {}
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            payload["name"] = name
+            payload["name"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             payload["public"] = public
@@ -449,26 +454,28 @@ class PlaylistsAPI(SpotifyResourceAPI):
         Spotify catalog information for items in a playlist.
 
         .. admonition:: Authorization scopes and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              :code:`playlist-read-private` scope
-                 Access your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-read-private>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-read-collaborative` scope
-                 Access your collaborative playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-read-collaborative>`__
+                 :code:`playlist-read-private` scope
+                    Access your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-read-private>`__
 
-           .. tab:: Optional
+                 :code:`playlist-read-collaborative` scope
+                    Access your collaborative playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-read-collaborative>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -503,17 +510,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"description,uri"` – Returns only the playlist
-                 description and URI.
-               * :code:`"tracks.items(added_at,added_by.id)"` – Returns
-                 only the date added and the Spotify user ID of the user
-                 who added the track.
-               * :code:`"tracks.items(track(name,href,album(name,href)))"`
-                 – Drills down into the album details.
-               * :code:`"tracks.items(track(name,href,album(!name,href)))"`
-                 – Excludes the album name.
+            * :code:`"description,uri"` – Returns only the playlist
+              description and URI.
+            * :code:`"tracks.items(added_at,added_by.id)"` – Returns
+              only the date added and the Spotify user ID of the user
+              who added the track.
+            * :code:`"tracks.items(track(name,href,album(name,href)))"`
+              – Drills down into the album details.
+            * :code:`"tracks.items(track(name,href,album(!name,href)))"`
+              – Excludes the album name.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -550,7 +555,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the playlist items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -778,24 +783,26 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /add-tracks-to-playlist>`_: Add items to a playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -810,17 +817,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+            * .. code::
 
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-               * .. code::
-
-                    [
-                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
-                        "spotify:track:1301WleyT98MSxVHPZCA6M",
-                        "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
-                    ]
+                 [
+                     "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                     "spotify:track:1301WleyT98MSxVHPZCA6M",
+                     "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
+                 ]
 
         to_index : int; keyword-only; optional
             Zero-based index at which to insert the tracks and/or shows.
@@ -829,10 +834,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`0` – Insert items in the first position.
-               * :code:`2` – Insert items in the third position.
+            * :code:`0` – Insert items in the first position.
+            * :code:`2` – Insert items in the third position.
 
         Returns
         -------
@@ -877,24 +880,26 @@ class PlaylistsAPI(SpotifyResourceAPI):
         playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -911,14 +916,12 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`0` – Move items selected by `range_start` and
-                 `range_length` before the current item in the first
-                 position.
-               * :code:`10` – Move items selected by `range_start` and
-                 `range_length` before the current item in the eleventh
-                 position.
+            * :code:`0` – Move items selected by `range_start` and
+              `range_length` before the current item in the first
+              position.
+            * :code:`10` – Move items selected by `range_start` and
+              `range_length` before the current item in the eleventh
+              position.
 
         from_count : int; keyword-only; optional
             Number of items, starting from `range_start`, to be
@@ -950,8 +953,9 @@ class PlaylistsAPI(SpotifyResourceAPI):
             self._validate_number("from_count", from_count, int, 1)
             payload["range_length"] = from_count
         if snapshot_id is not None:
-            self._validate_type("snapshot_id", snapshot_id, str)
-            payload["snapshot_id"] = snapshot_id
+            payload["snapshot_id"] = self._prepare_string(
+                "snapshot_id", snapshot_id
+            )
         return self._client._request(
             "PUT", f"playlists/{playlist_id}/tracks", json=payload
         ).json()
@@ -966,24 +970,26 @@ class PlaylistsAPI(SpotifyResourceAPI):
         items in a playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -998,17 +1004,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+            * .. code::
 
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-               * .. code::
-
-                    [
-                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
-                        "spotify:track:1301WleyT98MSxVHPZCA6M",
-                        "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
-                    ]
+                 [
+                     "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                     "spotify:track:1301WleyT98MSxVHPZCA6M",
+                     "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
+                 ]
 
         Returns
         -------
@@ -1049,24 +1053,26 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /remove-tracks-playlist>`_: Remove items from a playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -1081,17 +1087,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+            * .. code::
 
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-               * .. code::
-
-                    [
-                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
-                        "spotify:track:1301WleyT98MSxVHPZCA6M",
+                 [
+                     "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                     "spotify:track:1301WleyT98MSxVHPZCA6M",
                         "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
-                    ]
+                 ]
 
         snapshot_id : str; keyword-only; optional
             Version identifier for the playlist against which to make
@@ -1114,8 +1118,9 @@ class PlaylistsAPI(SpotifyResourceAPI):
             )
         }
         if snapshot_id is not None:
-            self._validate_type("snapshot_id", snapshot_id, str)
-            payload["snapshot_id"] = snapshot_id
+            payload["snapshot_id"] = self._prepare_string(
+                "snapshot_id", snapshot_id
+            )
         return self._client._request(
             "DELETE", f"playlists/{playlist_id}/tracks", json=payload
         ).json()
@@ -1153,24 +1158,26 @@ class PlaylistsAPI(SpotifyResourceAPI):
         playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -1205,7 +1212,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the newly created playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1250,13 +1257,11 @@ class PlaylistsAPI(SpotifyResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
-        payload = {"name": name}
+        payload = {"name": self._prepare_string("name", name)}
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             self._client._require_scopes(
@@ -1294,14 +1299,16 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /get-featured-playlists>`_: Get featured playlists.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -1340,7 +1347,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the featured playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1423,14 +1430,16 @@ class PlaylistsAPI(SpotifyResourceAPI):
         particular category.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -1466,7 +1475,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             specified category.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1579,26 +1588,28 @@ class PlaylistsAPI(SpotifyResourceAPI):
         playlist.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`ugc-image-upload` scope
-                 Upload images to Spotify on your behalf. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#ugc-image-upload>`__
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 :code:`ugc-image-upload` scope
+                    Upload images to Spotify on your behalf. `Learn
+                    more. <https://developer.spotify.com/documentation
+                    /web-api/concepts/scopes#ugc-image-upload>`__
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------

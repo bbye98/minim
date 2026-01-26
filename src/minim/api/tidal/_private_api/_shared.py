@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import ResourceAPI
+from .._api._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
+    from .. import PrivateTIDALAPIClient
 
 
 class PrivateTIDALResourceAPI(ResourceAPI):
@@ -12,14 +13,16 @@ class PrivateTIDALResourceAPI(ResourceAPI):
     """
 
     _PLAYBACK_MODES = {"STREAM", "OFFLINE"}
-    _client: "PrivateTIDALAPI"
+    _client: "PrivateTIDALAPIClient"
+
+    _validate_tidal_ids = TIDALResourceAPI._validate_tidal_ids
 
     @staticmethod
     def _prepare_tidal_ids(
         tidal_ids: str | list[str], /, *, limit: int = 500
     ) -> str:
         """
-        Normalize, validate, and serialize TIDAL IDs.
+        Validate, normalize, and serialize TIDAL IDs.
 
         Parameters
         ----------
@@ -71,7 +74,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         has_prefix: bool = False,
     ) -> str:
         """
-        Normalize, validate, and serialize UUIDs.
+        Validate, normalize, and serialize UUIDs.
 
         Parameters
         ----------
@@ -125,7 +128,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         country_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        Get Spotify catalog information for a resource.
+        Get TIDAL catalog information for a resource.
 
         Parameters
         ----------
@@ -202,8 +205,8 @@ class PrivateTIDALResourceAPI(ResourceAPI):
             **API default**: :code:`0`.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 

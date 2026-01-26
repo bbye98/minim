@@ -9,9 +9,9 @@ class UsersAPI(SpotifyResourceAPI):
     """
     Users API endpoints for the Spotify Web API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -45,14 +45,16 @@ class UsersAPI(SpotifyResourceAPI):
         Follow or unfollow one or more artists or Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-modify` scope
-                 Manage your saved content. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-follow-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
@@ -91,14 +93,17 @@ class UsersAPI(SpotifyResourceAPI):
         or Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-read` scope
-                 Access your followers and who you are following. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-follow-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-read` scope
+                    Access your followers and who you are following.
+                    `Learn more. <https://developer.spotify.com
+                    /documentation/web-api/concepts
+                    /scopes#user-follow-read>`__
 
         Parameters
         ----------
@@ -146,21 +151,23 @@ class UsersAPI(SpotifyResourceAPI):
         saved in the current user's library.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -231,14 +238,16 @@ class UsersAPI(SpotifyResourceAPI):
         the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -282,14 +291,16 @@ class UsersAPI(SpotifyResourceAPI):
         the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -330,24 +341,26 @@ class UsersAPI(SpotifyResourceAPI):
         for the current user.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access private profile information.
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 User authentication
+                    Access private profile information.
 
-              :code:`user-read-private`
-                 Access your subscription details. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-read-private>`__
+              .. tab-item:: Optional
 
-              :code:`user-read-email`
-                 Get your real email address. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-read-email>`__
+                 :code:`user-read-private`
+                    Access your subscription details. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-read-private>`__
+
+                 :code:`user-read-email`
+                    Get your real email address. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-read-email>`__
 
         Returns
         -------
@@ -355,7 +368,7 @@ class UsersAPI(SpotifyResourceAPI):
             Current user's profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -403,24 +416,26 @@ class UsersAPI(SpotifyResourceAPI):
         public profile information for a Spotify user.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              User authentication
-                 Access private profile information.
+              .. tab-item:: Conditional
 
-           .. tab:: Optional
+                 User authentication
+                    Access private profile information.
 
-              :code:`user-read-private`
-                 Access your subscription details. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-read-private>`__
+              .. tab-item:: Optional
 
-              :code:`user-read-email`
-                 Get your real email address. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-read-email>`__
+                 :code:`user-read-private`
+                    Access your subscription details. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-read-private>`__
+
+                 :code:`user-read-email`
+                    Get your real email address. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-read-email>`__
 
         Parameters
         ----------
@@ -436,71 +451,74 @@ class UsersAPI(SpotifyResourceAPI):
             User's profile information.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Current user
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Current user
 
-                     {
-                       "country": <str>,
-                       "display_name": <str>,
-                       "email": <str>,
-                       "explicit_content": {
-                         "filter_enabled": <bool>,
-                         "filter_locked": <bool>
-                       },
-                       "external_urls": {
-                         "spotify": <str>
-                       },
-                       "followers": {
-                         "href": <str>,
-                         "total": <int>
-                       },
-                       "href": <str>,
-                       "id": <str>,
-                       "images": [
-                         {
-                           "height": <int>,
-                           "url": <str>,
-                           "width": <int>
-                         }
-                       ],
-                       "product": <str>,
-                       "type": "user",
-                       "uri": <str>
-                     }
+                     .. code::
 
-               .. tab:: Public user
+                        {
+                          "country": <str>,
+                          "display_name": <str>,
+                          "email": <str>,
+                          "explicit_content": {
+                            "filter_enabled": <bool>,
+                            "filter_locked": <bool>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "product": <str>,
+                          "type": "user",
+                          "uri": <str>
+                        }
 
-                  .. code::
+                  .. tab-item:: Public user
 
-                     {
-                       "display_name": <str>,
-                       "external_urls": {
-                         "spotify": <str>
-                       },
-                       "followers": {
-                         "href": <str>,
-                         "total": <int>
-                       },
-                       "href": <str>,
-                       "id": <str>,
-                       "images": [
-                         {
-                           "height": <int>,
-                           "url": <str>,
-                           "width": <int>
-                         }
-                       ],
-                       "type": "user",
-                       "uri": <str>
-                     }
+                     .. code::
+
+                        {
+                          "display_name": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "type": "user",
+                          "uri": <str>
+                        }
         """
         if user_id is None:
             return self.get_me()
-        self._validate_type("user_id", user_id, str)
-        return self._client._request("GET", f"users/{user_id}").json()
+        return self._client._request(
+            "GET", f"users/{self._prepare_string('user_id', user_id)}"
+        ).json()
 
     @TTLCache.cached_method(ttl="hourly")
     def get_my_top_items(
@@ -519,21 +537,23 @@ class UsersAPI(SpotifyResourceAPI):
         information for the current user's top artists or tracks.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-top-read` scope
-                 Read your top artists and contents. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-top-read>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-top-read` scope
+                    Read your top artists and contents. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-top-read>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -548,14 +568,12 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"long_term"` – Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"` – Approximately the last six
-                 months of data.
-               * :code:`"short_term"` – Approximately the last four
-                 weeks of data.
+            * :code:`"long_term"` – Approximately one year of data,
+              including all new data as it becomes available.
+            * :code:`"medium_term"` – Approximately the last six months
+              of data.
+            * :code:`"short_term"` – Approximately the last four weeks
+              of data.
 
             **API default**: :code:`"medium_term"`.
 
@@ -581,132 +599,133 @@ class UsersAPI(SpotifyResourceAPI):
             artists or tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: :code:`resource_type="artists"`
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: :code:`resource_type="artists"`
 
-                     {
-                       "href": <str>,
-                       "items": [
-                         {
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "followers": {
-                             "href": <str>,
-                             "total": <int>
-                           },
-                           "genres": <list[str]>,
-                           "href": <str>,
-                           "id": <str>,
-                           "images": [
-                             {
-                               "height": <int>,
-                               "url": <str>,
-                               "width": <int>
-                             }
-                           ],
-                           "name": <str>,
-                           "type": "artist",
-                           "uri": <str>
-                         }
-                       ],
-                       "limit": <int>,
-                       "next": <str>,
-                       "offset": <int>,
-                       "previous": <str>,
-                       "total": <int>
-                     }
+                     .. code::
 
-               .. tab:: :code:`resource_type="tracks"`
+                        {
+                          "href": <str>,
+                          "items": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
+                                "href": <str>,
+                                "total": <int>
+                              },
+                              "genres": <list[str]>,
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                }
+                              ],
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "limit": <int>,
+                          "next": <str>,
+                          "offset": <int>,
+                          "previous": <str>,
+                          "total": <int>
+                        }
 
-                  .. code::
+                  .. tab-item:: :code:`resource_type="tracks"`
 
-                     {
-                       "href": <str>,
-                       "items": [
-                         {
-                           "album": {
-                             "album_type": <str>,
-                             "artists": [
-                               {
-                                 "external_urls": {
-                                   "spotify": <str>
-                                 },
-                                 "href": <str>,
-                                 "id": <str>,
-                                 "name": <str>,
-                                 "type": "artist",
-                                 "uri": <str>
-                               }
-                             ],
-                             "available_markets": <list[str]>,
-                             "external_urls": {
-                               "spotify": <str>
-                             },
-                             "href": <str>,
-                             "id": <str>,
-                             "images": [
-                               {
-                                 "height": <int>,
-                                 "url": <str>,
-                                 "width": <int>
-                               }
-                             ],
-                             "is_playable": <bool>,
-                             "name": <str>,
-                             "release_date": <str>,
-                             "release_date_precision": <str>,
-                             "total_tracks": <int>,
-                             "type": "album",
-                             "uri": <str>
-                           },
-                           "artists": [
-                             {
-                               "external_urls": {
-                                 "spotify": <str>
-                               },
-                               "href": <str>,
-                               "id": <str>,
-                               "name": <str>,
-                               "type": "artist",
-                               "uri": <str></str>
-                             }
-                           ],
-                           "available_markets": <list[str]>,
-                           "disc_number": <int>,
-                           "duration_ms": <int>,
-                           "explicit": <bool>,
-                           "external_ids": {
-                             "isrc": <str>
-                           },
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "href": <str>,
-                           "id": <str>,
-                           "is_local": <bool>,
-                           "is_playable": <bool>,
-                           "name": <str>,
-                           "popularity": <int>,
-                           "preview_url": <str>,
-                           "track_number": <int>,
-                           "type": "track",
-                           "uri": <str>
-                         }
-                       ],
-                       "limit": <int>,
-                       "next": <str>,
-                       "offset": <int>,
-                       "previous": <str>,
-                       "total": <int>
-                     }
+                     .. code::
+
+                        {
+                          "href": <str>,
+                          "items": [
+                            {
+                              "album": {
+                                "album_type": <str>,
+                                "artists": [
+                                  {
+                                    "external_urls": {
+                                      "spotify": <str>
+                                    },
+                                    "href": <str>,
+                                    "id": <str>,
+                                    "name": <str>,
+                                    "type": "artist",
+                                    "uri": <str>
+                                  }
+                                ],
+                                "available_markets": <list[str]>,
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "images": [
+                                  {
+                                    "height": <int>,
+                                    "url": <str>,
+                                    "width": <int>
+                                  }
+                                ],
+                                "is_playable": <bool>,
+                                "name": <str>,
+                                "release_date": <str>,
+                                "release_date_precision": <str>,
+                                "total_tracks": <int>,
+                                "type": "album",
+                                "uri": <str>
+                              },
+                              "artists": [
+                                {
+                                  "external_urls": {
+                                    "spotify": <str>
+                                  },
+                                  "href": <str>,
+                                  "id": <str>,
+                                  "name": <str>,
+                                  "type": "artist",
+                                  "uri": <str></str>
+                                }
+                              ],
+                              "available_markets": <list[str]>,
+                              "disc_number": <int>,
+                              "duration_ms": <int>,
+                              "explicit": <bool>,
+                              "external_ids": {
+                                "isrc": <str>
+                              },
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "is_local": <bool>,
+                              "is_playable": <bool>,
+                              "name": <str>,
+                              "popularity": <int>,
+                              "preview_url": <str>,
+                              "track_number": <int>,
+                              "type": "track",
+                              "uri": <str>
+                            }
+                          ],
+                          "limit": <int>,
+                          "next": <str>,
+                          "offset": <int>,
+                          "previous": <str>,
+                          "total": <int>
+                        }
         """
         self._client._require_scopes("users.get_my_top_items", "user-top-read")
-        self._validate_type("item_type", item_type, str)
-        item_type = item_type.strip().lower()
+        item_type = self._prepare_string("item_type", item_type).lower()
         if item_type not in {"artists", "tracks"}:
             raise ValueError(
                 f"Invalid item type {item_type!r}. "
@@ -735,24 +754,26 @@ class UsersAPI(SpotifyResourceAPI):
         playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -787,24 +808,26 @@ class UsersAPI(SpotifyResourceAPI):
         a playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-modify-public` scope
-                 Manage your public playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-public>`__
+              .. tab-item:: Conditional
 
-              :code:`playlist-modify-private` scope
-                 Manage your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-modify-private>`__
+                 :code:`playlist-modify-public` scope
+                    Manage your public playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-public>`__
+
+                 :code:`playlist-modify-private` scope
+                    Manage your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -827,14 +850,17 @@ class UsersAPI(SpotifyResourceAPI):
         catalog information for artists followed by the current user.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-read` scope
-                 Access your followers and who you are following. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-follow-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-read` scope
+                    Access your followers and who you are following.
+                    `Learn more. <https://developer.spotify.com
+                    /documentation/web-api/concepts
+                    /scopes#user-follow-read>`__
 
         Parameters
         ----------
@@ -858,7 +884,7 @@ class UsersAPI(SpotifyResourceAPI):
             current user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -921,14 +947,16 @@ class UsersAPI(SpotifyResourceAPI):
         one or more artists.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-modify` scope
-                 Manage your saved content. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-follow-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
@@ -938,12 +966,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["2CIMQHirSU0MQqyYHq0eOx",
-                 "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["2CIMQHirSU0MQqyYHq0eOx",
+              "57dN52uHvrHOxijzpIgu3E"]`
         """
         self._client._require_scopes(
             "users.follow_artists", "user-follow-modify"
@@ -957,14 +983,16 @@ class UsersAPI(SpotifyResourceAPI):
         one or more Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-modify` scope
-                 Manage your saved content. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-follow-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
@@ -987,14 +1015,16 @@ class UsersAPI(SpotifyResourceAPI):
         Unfollow one or more artists.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-modify` scope
-                 Manage your saved content. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-follow-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
@@ -1004,12 +1034,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["2CIMQHirSU0MQqyYHq0eOx",
-                 "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["2CIMQHirSU0MQqyYHq0eOx",
+              "57dN52uHvrHOxijzpIgu3E"]`
         """
         self._client._require_scopes(
             "users.unfollow_artists", "user-follow-modify"
@@ -1023,14 +1051,16 @@ class UsersAPI(SpotifyResourceAPI):
         Unfollow one or more Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-modify` scope
-                 Manage your saved content. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-follow-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
@@ -1057,14 +1087,17 @@ class UsersAPI(SpotifyResourceAPI):
         is following one or more artists.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-read` scope
-                 Access your followers and who you are following. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-follow-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-read` scope
+                    Access your followers and who you are following.
+                    `Learn more. <https://developer.spotify.com
+                    /documentation/web-api/concepts
+                    /scopes#user-follow-read>`__
 
         Parameters
         ----------
@@ -1074,12 +1107,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["2CIMQHirSU0MQqyYHq0eOx",
-                 "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["2CIMQHirSU0MQqyYHq0eOx",
+              "57dN52uHvrHOxijzpIgu3E"]`
 
         Returns
         -------
@@ -1102,14 +1133,17 @@ class UsersAPI(SpotifyResourceAPI):
         is following one or more Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-follow-read` scope
-                 Access your followers and who you are following. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-follow-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-follow-read` scope
+                    Access your followers and who you are following.
+                    `Learn more. <https://developer.spotify.com
+                    /documentation/web-api/concepts
+                    /scopes#user-follow-read>`__
 
         Parameters
         ----------
@@ -1141,19 +1175,21 @@ class UsersAPI(SpotifyResourceAPI):
         user is following a playlist.
 
         .. admonition:: Authorization scope and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
 
-           .. tab:: Conditional
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-read-private` scope
-                 Access your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-read-private>`__
+              .. tab-item:: Conditional
+
+                 :code:`playlist-read-private` scope
+                    Access your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-read-private>`__
 
         Parameters
         ----------
@@ -1190,21 +1226,23 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -1244,7 +1282,7 @@ class UsersAPI(SpotifyResourceAPI):
             albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1380,14 +1418,16 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -1397,12 +1437,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"382ObEPsp2rxGrnsizN5TX"`
-               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
-               * :code:`["382ObEPsp2rxGrnsizN5TX",
-                 "1A2GTWGtFfWp7KSQTwWOyo"]`
+            * :code:`"382ObEPsp2rxGrnsizN5TX"`
+            * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+            * :code:`["382ObEPsp2rxGrnsizN5TX",
+              "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
         self._client._require_scopes(
             "albums.save_albums", "user-library-modify"
@@ -1417,14 +1455,16 @@ class UsersAPI(SpotifyResourceAPI):
         current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -1434,12 +1474,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"382ObEPsp2rxGrnsizN5TX"`
-               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
-               * :code:`["382ObEPsp2rxGrnsizN5TX",
-                 "1A2GTWGtFfWp7KSQTwWOyo"]`
+            * :code:`"382ObEPsp2rxGrnsizN5TX"`
+            * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+            * :code:`["382ObEPsp2rxGrnsizN5TX",
+              "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
         self._client._require_scopes(
             "albums.remove_saved_albums", "user-library-modify"
@@ -1455,14 +1493,16 @@ class UsersAPI(SpotifyResourceAPI):
         are saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -1472,12 +1512,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"382ObEPsp2rxGrnsizN5TX"`
-               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
-               * :code:`["382ObEPsp2rxGrnsizN5TX",
-                 "1A2GTWGtFfWp7KSQTwWOyo"]`
+            * :code:`"382ObEPsp2rxGrnsizN5TX"`
+            * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+            * :code:`["382ObEPsp2rxGrnsizN5TX",
+              "1A2GTWGtFfWp7KSQTwWOyo"]`
 
         Returns
         -------
@@ -1505,14 +1543,16 @@ class UsersAPI(SpotifyResourceAPI):
         for the audiobooks saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -1552,7 +1592,7 @@ class UsersAPI(SpotifyResourceAPI):
             audiobooks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1624,14 +1664,16 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -1641,12 +1683,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci",
-                 "1HGw3J3NxZO1TP1BTtVhpZ"]`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+            * :code:`["18yVqkdbdRvS24c0Ilj2ci",
+              "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
         self._client._require_scopes(
             "audiobooks.save_audiobooks", "user-library-modify"
@@ -1663,14 +1703,16 @@ class UsersAPI(SpotifyResourceAPI):
         the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -1680,12 +1722,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci",
-                 "1HGw3J3NxZO1TP1BTtVhpZ"]`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+            * :code:`["18yVqkdbdRvS24c0Ilj2ci",
+              "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
         self._client._require_scopes(
             "audiobooks.remove_saved_audiobooks", "user-library-modify"
@@ -1703,14 +1743,16 @@ class UsersAPI(SpotifyResourceAPI):
         audiobooks are saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -1720,12 +1762,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci",
-                 "1HGw3J3NxZO1TP1BTtVhpZ"]`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+            * :code:`["18yVqkdbdRvS24c0Ilj2ci",
+              "1HGw3J3NxZO1TP1BTtVhpZ"]`
 
         Returns
         -------
@@ -1753,26 +1793,29 @@ class UsersAPI(SpotifyResourceAPI):
         the show episodes saved in the current user's library.
 
         .. admonition:: Authorization scopes and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
 
-              :code:`user-read-playback-position` scope
-                 Read your position in content you have played. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-read-playback-position>`__
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
-           .. tab:: Optional
+                 :code:`user-read-playback-position` scope
+                    Read your position in content you have played.
+                    `Learn more. <https://developer.spotify.com
+                    /documentation/web-api/concepts
+                    /scopes#user-read-playback-position>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -1812,7 +1855,7 @@ class UsersAPI(SpotifyResourceAPI):
             episodes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1916,14 +1959,16 @@ class UsersAPI(SpotifyResourceAPI):
         current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -1933,12 +1978,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH",
-                 "0Q86acNRm6V9GYx55SXKwf"]`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+            * :code:`["77o6BIVlYM3msb4MMIL1jH",
+              "0Q86acNRm6V9GYx55SXKwf"]`
         """
         self._client._require_scopes(
             "episodes.save_episodes", "user-library-modify"
@@ -1953,14 +1996,16 @@ class UsersAPI(SpotifyResourceAPI):
         the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -1970,12 +2015,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH",
-                 "0Q86acNRm6V9GYx55SXKwf"]`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+            * :code:`["77o6BIVlYM3msb4MMIL1jH",
+              "0Q86acNRm6V9GYx55SXKwf"]`
         """
         self._client._require_scopes(
             "episodes.remove_saved_episodes", "user-library-modify"
@@ -1993,14 +2036,16 @@ class UsersAPI(SpotifyResourceAPI):
         episodes are saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -2010,12 +2055,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH",
-                 "0Q86acNRm6V9GYx55SXKwf"]`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+            * :code:`["77o6BIVlYM3msb4MMIL1jH",
+              "0Q86acNRm6V9GYx55SXKwf"]`
 
         Returns
         -------
@@ -2039,14 +2082,16 @@ class UsersAPI(SpotifyResourceAPI):
         information for playlists owned or followed by the current user.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`playlist-read-private` scope
-                 Access your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-read-private>`__
+              .. tab-item:: Required
+
+                 :code:`playlist-read-private` scope
+                    Access your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-read-private>`__
 
         Parameters
         ----------
@@ -2072,7 +2117,7 @@ class UsersAPI(SpotifyResourceAPI):
             playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2156,22 +2201,24 @@ class UsersAPI(SpotifyResourceAPI):
         by a user.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Conditional
 
-              :code:`playlist-read-private` scope
-                 Access your private playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-read-private>`__
+                 User authentication
+                    Access and manage your library.
 
-              :code:`playlist-read-collaborative` scope
-                 Access your collaborative playlists. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#playlist-read-collaborative>`__
+                 :code:`playlist-read-private` scope
+                    Access your private playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-read-private>`__
+
+                 :code:`playlist-read-collaborative` scope
+                    Access your collaborative playlists. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#playlist-read-collaborative>`__
 
         Parameters
         ----------
@@ -2202,7 +2249,7 @@ class UsersAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the user's playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2276,14 +2323,16 @@ class UsersAPI(SpotifyResourceAPI):
         the shows saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -2308,7 +2357,7 @@ class UsersAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the user's saved shows.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2371,14 +2420,16 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -2388,12 +2439,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
-               * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
-                 "5as3aKmN2k11yfDDDSrvaZ"]`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+            * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
+              "5as3aKmN2k11yfDDDSrvaZ"]`
         """
         self._client._require_scopes("shows.save_shows", "user-library-modify")
         self._manage_saved_entities("PUT", "shows", show_ids)
@@ -2406,14 +2455,16 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -2423,12 +2474,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
-               * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
-                 "5as3aKmN2k11yfDDDSrvaZ"]`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+            * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
+              "5as3aKmN2k11yfDDDSrvaZ"]`
         """
         self._client._require_scopes(
             "shows.remove_saved_shows", "user-library-modify"
@@ -2444,14 +2493,16 @@ class UsersAPI(SpotifyResourceAPI):
         saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -2461,12 +2512,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
-               * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
-                 "5as3aKmN2k11yfDDDSrvaZ"]`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+            * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
+              "5as3aKmN2k11yfDDDSrvaZ"]`
 
         Returns
         -------
@@ -2493,21 +2542,23 @@ class UsersAPI(SpotifyResourceAPI):
         the tracks saved in the current user's library.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -2547,7 +2598,7 @@ class UsersAPI(SpotifyResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2664,14 +2715,16 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -2680,27 +2733,25 @@ class UsersAPI(SpotifyResourceAPI):
         list[str | tuple[str, str | datetime] | dict[str, str | datetime]]; \
         positional-only
             Spotify IDs of the tracks, optionally accompanied by
-            timestamps to maintain a chronological order in the user's 
+            timestamps to maintain a chronological order in the user's
             library. A maximum of 50 IDs can be sent in one request.
 
             **Examples**:
 
-            .. container::
+            * :code:`"4iV5W9uYEdYUVa79Axb7Rh"`
+            * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
+            * :code:`{"id": "4iV5W9uYEdYUVa79Axb7Rh",
+              "added_at": "2010-01-01T00:00:00Z"}`
+            * .. code::
 
-               * :code:`"4iV5W9uYEdYUVa79Axb7Rh"`
-               * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
-               * :code:`{"id": "4iV5W9uYEdYUVa79Axb7Rh",
-                 "added_at": "2010-01-01T00:00:00Z"}`
-               * .. code::
-
-                    [
-                        "4iV5W9uYEdYUVa79Axb7Rh",
-                        ("11dFghVXANMlKmJXsNCbNl", "2017-05-26T00:00:00Z"),
-                        {
-                            "id": "7ouMYWpwJ422jRcDASZB7P", 
-                            "added_at": "2006-06-28T00:00:00Z"
-                        }
-                    ]
+                 [
+                     "4iV5W9uYEdYUVa79Axb7Rh",
+                     ("11dFghVXANMlKmJXsNCbNl", "2017-05-26T00:00:00Z"),
+                     {
+                         "id": "7ouMYWpwJ422jRcDASZB7P",
+                         "added_at": "2006-06-28T00:00:00Z"
+                     }
+                 ]
         """
         self._client._require_scopes(
             "tracks.save_tracks", "user-library-modify"
@@ -2759,14 +2810,16 @@ class UsersAPI(SpotifyResourceAPI):
         current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-modify` scope
+                    Manage your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -2776,12 +2829,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P",
-                 "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
         """
         self._client._require_scopes(
             "tracks.remove_saved_tracks", "user-library-modify"
@@ -2797,14 +2848,16 @@ class UsersAPI(SpotifyResourceAPI):
         are saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
+              .. tab-item:: Required
+
+                 :code:`user-library-read` scope
+                    Access your saved content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -2814,12 +2867,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P",
-                 "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
 
         Returns
         -------

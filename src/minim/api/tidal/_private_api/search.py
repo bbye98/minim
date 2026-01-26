@@ -10,7 +10,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -69,11 +69,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         endpoint = "v1/search"
         if resource_type is not None:
             endpoint += f"/{resource_type}"
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
-        params = {"query": query}
+        params = {"query": self._prepare_string("query", query)}
         self._client._resolve_country_code(country_code, params=params)
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 100)
@@ -94,8 +90,8 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for albums, artists, playlists,
-        tracks, and videos that match a search query.
+        Search for albums, artists, playlists, tracks, and videos in the
+        TIDAL catalog.
 
         Parameters
         ----------
@@ -130,7 +126,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -402,8 +398,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for albums that match a search
-        query.
+        Search for albums in the TIDAL catalog.
 
         Parameters
         ----------
@@ -438,7 +433,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -518,8 +513,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for artists that match a search
-        query.
+        Search for artists in the TIDAL catalog.
 
         Parameters
         ----------
@@ -554,7 +548,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -606,8 +600,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for playlists that match a search
-        query.
+        Search for playlists in the TIDAL catalog.
 
         Parameters
         ----------
@@ -642,7 +635,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             TIDAL catalog information for the matching playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -707,8 +700,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for tracks that match a search
-        query.
+        Search for tracks in the TIDAL catalog.
 
         Parameters
         ----------
@@ -743,7 +735,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -835,8 +827,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for videos that match a search
-        query.
+        Search for videos in the TIDAL catalog.
 
         Parameters
         ----------
@@ -871,7 +862,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching videos.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -9,9 +9,9 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
     """
     Genres API endpoints for the private Qobuz API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -30,7 +30,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         # Use iterative depth-first search
         stack = [None]
         while stack:
-            subgenres = self.genres.get_genres(stack.pop())["genres"]
+            subgenres = self._client.genres.get_genres(stack.pop())["genres"]
             if subgenres["total"] > 0:
                 genres.extend(subgenres["items"])
                 stack.extend(genre["id"] for genre in subgenres["items"])
@@ -39,7 +39,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         # def get_genres(
         #     genre_id: str | None = None, /, *, genres: list[dict[str, Any]]
         # ) -> dict[str, Any]:
-        #     subgenres = self.genres.get_genres(genre_id)["genres"]
+        #     subgenres = self._client.genres.get_genres(genre_id)["genres"]
         #     if subgenres["total"] > 0:
         #         genres.extend(subgenres["items"])
         #         for subgenre in subgenres["items"]:
@@ -91,7 +91,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the genre.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -150,7 +150,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the genres.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

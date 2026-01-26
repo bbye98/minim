@@ -8,9 +8,9 @@ class SearchAPI(SpotifyResourceAPI):
     """
     Search API endpoints for the Spotify Web API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 
@@ -38,9 +38,9 @@ class SearchAPI(SpotifyResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Search for Item <https://developer.spotify.com
-        /documentation/web-api/reference/search>`_: Get Spotify catalog
-        information for albums, artists, playlists, tracks, shows,
-        episodes, and/or audiobooks that match a keyword string.
+        /documentation/web-api/reference/search>`_: Search for albums,
+        artists, playlists, tracks, shows, episodes, and/or audiobooks
+        in the Spotify catalog.
 
         .. important::
 
@@ -48,14 +48,16 @@ class SearchAPI(SpotifyResourceAPI):
            New Zealand, and Australia markets.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -145,7 +147,7 @@ class SearchAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the matching items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -477,12 +479,8 @@ class SearchAPI(SpotifyResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         params = {
-            "q": query,
+            "q": self._prepare_string("query", query),
             "type": self._prepare_types(
                 item_types,
                 allowed_types=self._RESOURCE_TYPES,

@@ -8,9 +8,9 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
     """
     Labels API endpoints for the private Qobuz API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -68,7 +68,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the label.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -199,7 +199,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the labels.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

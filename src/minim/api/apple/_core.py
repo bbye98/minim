@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     import httpx
 
 
-class iTunesSearchAPI(APIClient):
+class iTunesSearchAPIClient(APIClient):
     """
     iTunes Search API client.
     """
@@ -319,7 +319,7 @@ class iTunesSearchAPI(APIClient):
             Lookup results.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -625,9 +625,8 @@ class iTunesSearchAPI(APIClient):
         include_explicit: bool | str | None = None,
     ) -> dict[str, Any]:
         """
-        Get Apple catalog information for audiobooks, ebooks, movies,
-        music, music videos, podcasts, and television shows that match a
-        search query.
+        Search for audiobooks, ebooks, movies, music, music videos,
+        podcasts, and/or television shows in the Apple catalog.
 
         Parameters
         ----------
@@ -696,10 +695,8 @@ class iTunesSearchAPI(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"en_us"` – English.
-               * :code:`"ja_jp"` – Japanese.
+            * :code:`"en_us"` – English.
+            * :code:`"ja_jp"` – Japanese.
 
             **API default**: :code:`"en_us"`.
 
@@ -724,276 +721,277 @@ class iTunesSearchAPI(APIClient):
             Search results.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
-               .. tab:: Current (:code:`v2`) response
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Current (:code:`v2`) response
 
-                     {
-                       "resultCount": <int>,
-                       "results": [
-                         {
-                           "amgArtistId": <int>,
-                           "artistId": <int>,
-                           "artistName": <str>,
-                           "artistViewUrl": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl60": <str>,
-                           "collectionCensoredName": <str>,
-                           "collectionExplicitness": <str>,
-                           "collectionId": <int>,
-                           "collectionName": <str>,
-                           "collectionPrice": <float>,
-                           "collectionViewUrl": <str>,
-                           "copyright": <str>,
-                           "country": <str>,
-                           "currency": <str>,
-                           "description": <str>,
-                           "previewUrl": <str>,
-                           "primaryGenreName": <str>,
-                           "releaseDate": <str>,
-                           "trackCount": <int>,
-                           "wrapperType": "audiobook"
-                         },
-                         {
-                           "artistId": <int>,
-                           "artistIds": <list[int]>,
-                           "artistName": <str>,
-                           "artistViewUrl": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl60": <str>,
-                           "averageUserRating": <float>,
-                           "currency": <str>,
-                           "description": <str>,
-                           "formattedPrice": <str>,
-                           "genreIds": <list[str]>,
-                           "genres": <list[str]>,
-                           "kind": "ebook",
-                           "price": <float>,
-                           "releaseDate": <str>,
-                           "trackCensoredName": <str>,
-                           "trackId": <int>,
-                           "trackName": <str>,
-                           "trackViewUrl": <str>,
-                           "userRatingCount": <int>
-                         },
-                         {
-                           "artistName": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl30": <str>,
-                           "artworkUrl60": <str>,
-                           "artworkUrl600": <str>,
-                           "collectionCensoredName": <str>,
-                           "collectionExplicitness": <str>,
-                           "collectionHdPrice": <int>,
-                           "collectionId": <int>,
-                           "collectionName": <str>,
-                           "collectionPrice": <float>,
-                           "collectionViewUrl": <str>,
-                           "contentAdvisoryRating": <str>,
-                           "country": <str>,
-                           "currency": <str>,
-                           "feedUrl": <str>,
-                           "genreIds": <list[str]>,
-                           "genres": <list[str]>,
-                           "kind": "podcast",
-                           "primaryGenreName": <str>,
-                           "releaseDate": <str>,
-                           "trackCensoredName": <str>,
-                           "trackCount": <int>,
-                           "trackExplicitness": <str>,
-                           "trackId": <int>,
-                           "trackName": <str>,
-                           "trackPrice": <float>,
-                           "trackTimeMillis": <int>,
-                           "trackViewUrl": <str>,
-                           "wrapperType": "track"
-                         }
-                         {
-                           "artistId": <int>,
-                           "artistName": <str>,
-                           "artistViewUrl": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl30": <str>,
-                           "artworkUrl60": <str>,
-                           "collectionArtistId": <int>,
-                           "collectionArtistName": <str>,
-                           "collectionCensoredName": <str>,
-                           "collectionExplicitness": <str>,
-                           "collectionId": <int>,
-                           "collectionName": <str>,
-                           "collectionPrice": <float>,
-                           "collectionViewUrl": <str>,
-                           "country": <str>,
-                           "currency": <str>,
-                           "discCount": <int>,
-                           "discNumber": <int>,
-                           "isStreamable": <bool>,
-                           "kind": <str>,
-                           "previewUrl": <str>,
-                           "primaryGenreName": <str>,
-                           "releaseDate": <str>,
-                           "trackCensoredName": <str>,
-                           "trackCount": <int>,
-                           "trackExplicitness": <str>,
-                           "trackId": <int>,
-                           "trackName": <str>,
-                           "trackNumber": <int>,
-                           "trackPrice": <float>,
-                           "trackTimeMillis": <int>,
-                           "trackViewUrl": <str>,
-                           "wrapperType": "track"
-                         },
-                         {
-                           "artistId": <int>,
-                           "artistName": <str>,
-                           "artistViewUrl": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl30": <str>,
-                           "artworkUrl60": <str>,
-                           "collectionCensoredName": <str>,
-                           "collectionExplicitness": <str>,
-                           "collectionHdPrice": <float>,
-                           "collectionId": <int>,
-                           "collectionName": <str>,
-                           "collectionPrice": <float>,
-                           "collectionViewUrl": <str>,
-                           "contentAdvisoryRating": <str>,
-                           "country": <str>,
-                           "currency": <str>,
-                           "discCount": <int>,
-                           "discNumber": <int>,
-                           "kind": "tv-episode",
-                           "longDescription": <str>,
-                           "previewUrl": <str>,
-                           "primaryGenreName": <str>,
-                           "releaseDate": <str>,
-                           "shortDescription": <str>,
-                           "trackCensoredName": <str>,
-                           "trackCount": <int>,
-                           "trackExplicitness": <str>,
-                           "trackHdPrice": <float>,
-                           "trackId": <int>,
-                           "trackName": <str>,
-                           "trackNumber": <int>,
-                           "trackPrice": <float>,
-                           "trackTimeMillis": <int>,
-                           "trackViewUrl": <str>,
-                           "wrapperType": "track"
-                         },
-                         {
-                           "advisories": <list[str]>,
-                           "appletvScreenshotUrls": <list[str]>,
-                           "artistId": <int>,
-                           "artistName": <str>,
-                           "artistViewUrl": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl512": <str>,
-                           "artworkUrl60": <str>,
-                           "averageUserRating": <float>,
-                           "averageUserRatingForCurrentVersion": <float>,
-                           "bundleId": <str>,
-                           "contentAdvisoryRating": <str>,
-                           "currency": <str>,
-                           "currentVersionReleaseDate": <str>,
-                           "description": <str>,
-                           "features": <list[str]>,
-                           "fileSizeBytes": <str>,
-                           "formattedPrice": <str>,
-                           "genreIds": <list[str]>,
-                           "genres": <list[str]>,
-                           "ipadScreenshotUrls": <list[str]>,
-                           "isGameCenterEnabled": <bool>,
-                           "isVppDeviceBasedLicensingEnabled": <bool>,
-                           "kind": "software",
-                           "languageCodesISO2A": <list[str]>,
-                           "minimumOsVersion": <str>,
-                           "price": <float>,
-                           "primaryGenreId": <int>,
-                           "primaryGenreName": <str>,
-                           "releaseDate": <str>,
-                           "releaseNotes": <str>,
-                           "screenshotUrls": <list[str]>,
-                           "sellerName": <str>,
-                           "sellerUrl": <str>,
-                           "supportedDevices": <list[str]>,
-                           "trackCensoredName": <str>,
-                           "trackContentRating": <str>,
-                           "trackId": <int>,
-                           "trackName": <str>,
-                           "trackViewUrl": <str>,
-                           "userRatingCount": <int>,
-                           "userRatingCountForCurrentVersion": <int>,
-                           "version": <str>,
-                           "wrapperType": "software"
-                         }
-                       ]
-                     }
+                     .. code::
 
-               .. tab:: Legacy (:code:`v1`) response
+                        {
+                          "resultCount": <int>,
+                          "results": [
+                            {
+                              "amgArtistId": <int>,
+                              "artistId": <int>,
+                              "artistName": <str>,
+                              "artistViewUrl": <str>,
+                              "artworkUrl100": <str>,
+                              "artworkUrl60": <str>,
+                              "collectionCensoredName": <str>,
+                              "collectionExplicitness": <str>,
+                              "collectionId": <int>,
+                              "collectionName": <str>,
+                              "collectionPrice": <float>,
+                              "collectionViewUrl": <str>,
+                              "copyright": <str>,
+                              "country": <str>,
+                              "currency": <str>,
+                              "description": <str>,
+                              "previewUrl": <str>,
+                              "primaryGenreName": <str>,
+                              "releaseDate": <str>,
+                              "trackCount": <int>,
+                              "wrapperType": "audiobook"
+                            },
+                            {
+                              "artistId": <int>,
+                              "artistIds": <list[int]>,
+                              "artistName": <str>,
+                              "artistViewUrl": <str>,
+                              "artworkUrl100": <str>,
+                              "artworkUrl60": <str>,
+                              "averageUserRating": <float>,
+                              "currency": <str>,
+                              "description": <str>,
+                              "formattedPrice": <str>,
+                              "genreIds": <list[str]>,
+                              "genres": <list[str]>,
+                              "kind": "ebook",
+                              "price": <float>,
+                              "releaseDate": <str>,
+                              "trackCensoredName": <str>,
+                              "trackId": <int>,
+                              "trackName": <str>,
+                              "trackViewUrl": <str>,
+                              "userRatingCount": <int>
+                            },
+                            {
+                              "artistName": <str>,
+                              "artworkUrl100": <str>,
+                              "artworkUrl30": <str>,
+                              "artworkUrl60": <str>,
+                              "artworkUrl600": <str>,
+                              "collectionCensoredName": <str>,
+                              "collectionExplicitness": <str>,
+                              "collectionHdPrice": <int>,
+                              "collectionId": <int>,
+                              "collectionName": <str>,
+                              "collectionPrice": <float>,
+                              "collectionViewUrl": <str>,
+                              "contentAdvisoryRating": <str>,
+                              "country": <str>,
+                              "currency": <str>,
+                              "feedUrl": <str>,
+                              "genreIds": <list[str]>,
+                              "genres": <list[str]>,
+                              "kind": "podcast",
+                              "primaryGenreName": <str>,
+                              "releaseDate": <str>,
+                              "trackCensoredName": <str>,
+                              "trackCount": <int>,
+                              "trackExplicitness": <str>,
+                              "trackId": <int>,
+                              "trackName": <str>,
+                              "trackPrice": <float>,
+                              "trackTimeMillis": <int>,
+                              "trackViewUrl": <str>,
+                              "wrapperType": "track"
+                            }
+                            {
+                              "artistId": <int>,
+                              "artistName": <str>,
+                              "artistViewUrl": <str>,
+                              "artworkUrl100": <str>,
+                              "artworkUrl30": <str>,
+                              "artworkUrl60": <str>,
+                              "collectionArtistId": <int>,
+                              "collectionArtistName": <str>,
+                              "collectionCensoredName": <str>,
+                              "collectionExplicitness": <str>,
+                              "collectionId": <int>,
+                              "collectionName": <str>,
+                              "collectionPrice": <float>,
+                              "collectionViewUrl": <str>,
+                              "country": <str>,
+                              "currency": <str>,
+                              "discCount": <int>,
+                              "discNumber": <int>,
+                              "isStreamable": <bool>,
+                              "kind": <str>,
+                              "previewUrl": <str>,
+                              "primaryGenreName": <str>,
+                              "releaseDate": <str>,
+                              "trackCensoredName": <str>,
+                              "trackCount": <int>,
+                              "trackExplicitness": <str>,
+                              "trackId": <int>,
+                              "trackName": <str>,
+                              "trackNumber": <int>,
+                              "trackPrice": <float>,
+                              "trackTimeMillis": <int>,
+                              "trackViewUrl": <str>,
+                              "wrapperType": "track"
+                            },
+                            {
+                              "artistId": <int>,
+                              "artistName": <str>,
+                              "artistViewUrl": <str>,
+                              "artworkUrl100": <str>,
+                              "artworkUrl30": <str>,
+                              "artworkUrl60": <str>,
+                              "collectionCensoredName": <str>,
+                              "collectionExplicitness": <str>,
+                              "collectionHdPrice": <float>,
+                              "collectionId": <int>,
+                              "collectionName": <str>,
+                              "collectionPrice": <float>,
+                              "collectionViewUrl": <str>,
+                              "contentAdvisoryRating": <str>,
+                              "country": <str>,
+                              "currency": <str>,
+                              "discCount": <int>,
+                              "discNumber": <int>,
+                              "kind": "tv-episode",
+                              "longDescription": <str>,
+                              "previewUrl": <str>,
+                              "primaryGenreName": <str>,
+                              "releaseDate": <str>,
+                              "shortDescription": <str>,
+                              "trackCensoredName": <str>,
+                              "trackCount": <int>,
+                              "trackExplicitness": <str>,
+                              "trackHdPrice": <float>,
+                              "trackId": <int>,
+                              "trackName": <str>,
+                              "trackNumber": <int>,
+                              "trackPrice": <float>,
+                              "trackTimeMillis": <int>,
+                              "trackViewUrl": <str>,
+                              "wrapperType": "track"
+                            },
+                            {
+                              "advisories": <list[str]>,
+                              "appletvScreenshotUrls": <list[str]>,
+                              "artistId": <int>,
+                              "artistName": <str>,
+                              "artistViewUrl": <str>,
+                              "artworkUrl100": <str>,
+                              "artworkUrl512": <str>,
+                              "artworkUrl60": <str>,
+                              "averageUserRating": <float>,
+                              "averageUserRatingForCurrentVersion": <float>,
+                              "bundleId": <str>,
+                              "contentAdvisoryRating": <str>,
+                              "currency": <str>,
+                              "currentVersionReleaseDate": <str>,
+                              "description": <str>,
+                              "features": <list[str]>,
+                              "fileSizeBytes": <str>,
+                              "formattedPrice": <str>,
+                              "genreIds": <list[str]>,
+                              "genres": <list[str]>,
+                              "ipadScreenshotUrls": <list[str]>,
+                              "isGameCenterEnabled": <bool>,
+                              "isVppDeviceBasedLicensingEnabled": <bool>,
+                              "kind": "software",
+                              "languageCodesISO2A": <list[str]>,
+                              "minimumOsVersion": <str>,
+                              "price": <float>,
+                              "primaryGenreId": <int>,
+                              "primaryGenreName": <str>,
+                              "releaseDate": <str>,
+                              "releaseNotes": <str>,
+                              "screenshotUrls": <list[str]>,
+                              "sellerName": <str>,
+                              "sellerUrl": <str>,
+                              "supportedDevices": <list[str]>,
+                              "trackCensoredName": <str>,
+                              "trackContentRating": <str>,
+                              "trackId": <int>,
+                              "trackName": <str>,
+                              "trackViewUrl": <str>,
+                              "userRatingCount": <int>,
+                              "userRatingCountForCurrentVersion": <int>,
+                              "version": <str>,
+                              "wrapperType": "software"
+                            }
+                          ]
+                        }
 
-                  .. code::
+                  .. tab-item:: Legacy (:code:`v1`) response
 
-                     {
-                       "resultCount": <int>,
-                       "results": [
-                         {
-                           "amgArtistId": <int>,
-                           "artistId": <int>,
-                           "artistName": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl60": <str>,
-                           "collectionId": <int>,
-                           "copyright": <str>,
-                           "country": <str>,
-                           "currency": <str>,
-                           "itemExplicitness": <str>,
-                           "itemId": <int>,
-                           "itemLinkUrl": <str>,
-                           "itemPrice": <str>,
-                           "primaryGenreId": <int>,
-                           "primaryGenreName": <str>,
-                           "releaseDate": <str>,
-                           "wrapperType": "audiobook"
-                         },
-                         {
-                           "artistLinkUrl": <str>,
-                           "artistName": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl60": <str>,
-                           "country": <str>,
-                           "currency": <str>,
-                           "discCount": <int>,
-                           "discNumber": <int>,
-                           "itemCensoredName": <str>,
-                           "itemExplicitness": <str>,
-                           "itemLinkUrl": <str>,
-                           "itemName": <str>,
-                           "itemParentCensoredName": <str>,
-                           "itemParentExplicitness": <str>,
-                           "itemParentLinkUrl": <str>,
-                           "itemParentName": <str>,
-                           "itemParentPrice": <str>,
-                           "itemPrice": <str>,
-                           "kind": <str>,
-                           "mediaType": <str>,
-                           "previewUrl": <str>,
-                           "primaryGenreName": <str>,
-                           "trackCount": <int>,
-                           "trackNumber": <int>,
-                           "trackTime": <int>,
-                           "wrapperType": "track"
-                         },
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "resultCount": <int>,
+                          "results": [
+                            {
+                              "amgArtistId": <int>,
+                              "artistId": <int>,
+                              "artistName": <str>,
+                              "artworkUrl100": <str>,
+                              "artworkUrl60": <str>,
+                              "collectionId": <int>,
+                              "copyright": <str>,
+                              "country": <str>,
+                              "currency": <str>,
+                              "itemExplicitness": <str>,
+                              "itemId": <int>,
+                              "itemLinkUrl": <str>,
+                              "itemPrice": <str>,
+                              "primaryGenreId": <int>,
+                              "primaryGenreName": <str>,
+                              "releaseDate": <str>,
+                              "wrapperType": "audiobook"
+                            },
+                            {
+                              "artistLinkUrl": <str>,
+                              "artistName": <str>,
+                              "artworkUrl100": <str>,
+                              "artworkUrl60": <str>,
+                              "country": <str>,
+                              "currency": <str>,
+                              "discCount": <int>,
+                              "discNumber": <int>,
+                              "itemCensoredName": <str>,
+                              "itemExplicitness": <str>,
+                              "itemLinkUrl": <str>,
+                              "itemName": <str>,
+                              "itemParentCensoredName": <str>,
+                              "itemParentExplicitness": <str>,
+                              "itemParentLinkUrl": <str>,
+                              "itemParentName": <str>,
+                              "itemParentPrice": <str>,
+                              "itemPrice": <str>,
+                              "kind": <str>,
+                              "mediaType": <str>,
+                              "previewUrl": <str>,
+                              "primaryGenreName": <str>,
+                              "trackCount": <int>,
+                              "trackNumber": <int>,
+                              "trackTime": <int>,
+                              "wrapperType": "track"
+                            },
+                          ]
+                        }
         """
-        ResourceAPI._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         ResourceAPI._validate_country_code(country_code)
-        params = {"term": query, "country": country_code}
+        params = {
+            "term": ResourceAPI._prepare_string("query", query),
+            "country": country_code,
+        }
         if media_type is None:
             emsg_suffix = ""
         else:

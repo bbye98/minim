@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import PrivateQobuzAPI
+    from .. import PrivateQobuzAPIClient
 
 
 class PrivateQobuzResourceAPI(ResourceAPI):
@@ -12,12 +12,12 @@ class PrivateQobuzResourceAPI(ResourceAPI):
     """
 
     _RELATIONSHIPS: set[str]
-    _client: "PrivateQobuzAPI"
+    _client: "PrivateQobuzAPIClient"
 
     @staticmethod
     def _prepare_album_ids(album_ids: str | list[str], /) -> str:
         """
-        Normalize, validate, and serialize Qobuz album IDs.
+        Validate, normalize, and serialize Qobuz album IDs.
 
         Parameters
         ----------
@@ -47,7 +47,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         parameter: str, values: str | list[str], /, allowed_values: set[str]
     ) -> str:
         """
-        Normalize, validate, and serialize comma-separated values.
+        Validate, normalize, and serialize comma-separated values.
 
         Parameters
         ----------
@@ -81,7 +81,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         qobuz_ids: int | str | list[int | str], /, *, data_type: type
     ) -> list[int]:
         """
-        Normalize, validate, and serialize or prepare a list of Qobuz
+        Validate, normalize, and serialize or prepare a list of Qobuz
         IDs.
 
         Parameters
@@ -182,7 +182,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         relationships: set[str] | None = None,
     ) -> str:
         """
-        Normalize, validate, and serialize related resources.
+        Validate, normalize, and serialize related resources.
 
         Parameters
         ----------

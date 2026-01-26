@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     import httpx
 
 
-class _BaseTIDALAPI(OAuth2APIClient):
+class _BaseTIDALAPIClient(OAuth2APIClient):
     """
     Base class for TIDAL API clients.
     """
@@ -44,35 +44,6 @@ class _BaseTIDALAPI(OAuth2APIClient):
     _PROVIDER = "TIDAL"
     AUTH_URL = "https://login.tidal.com/authorize"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
-
-    @staticmethod
-    def _validate_tidal_ids(
-        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
-    ) -> None:
-        """
-        Validate one or more TIDAL IDs.
-
-        Parameters
-        ----------
-        tidal_ids : int, str, or list[int | str]; positional-only
-            TIDAL IDs.
-        """
-        if not isinstance(tidal_ids, int) and not tidal_ids:
-            raise ValueError("At least one TIDAL ID must be specified.")
-
-        if isinstance(tidal_ids, str):
-            if not tidal_ids.isdecimal():
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-        elif not isinstance(tidal_ids, int):
-            if _recursive:
-                if not isinstance(tidal_ids, tuple | list | str):
-                    raise ValueError("TIDAL IDs must be integers or strings.")
-                for tidal_id in tidal_ids:
-                    _BaseTIDALAPI._validate_tidal_ids(
-                        tidal_id, _recursive=False
-                    )
-            else:
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
 
     @classmethod
     def resolve_scopes(
@@ -185,7 +156,7 @@ class _BaseTIDALAPI(OAuth2APIClient):
             params["countryCode"] = country_code
 
 
-class TIDALAPI(_BaseTIDALAPI):
+class TIDALAPIClient(_BaseTIDALAPIClient):
     """
     TIDAL API client.
     """
@@ -204,7 +175,9 @@ class TIDALAPI(_BaseTIDALAPI):
         "search.write",
     }
     _ENV_VAR_PREFIX = "TIDAL_API"
-    _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
+    _QUAL_NAME = (
+        f"minim.api.{_BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
+    )
     _VERSION = "1.0.37"
     BASE_URL = "https://openapi.tidal.com/v2"
 
@@ -234,11 +207,9 @@ class TIDALAPI(_BaseTIDALAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"client_credentials"` – Client Credentials Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as system environment
@@ -304,15 +275,12 @@ class TIDALAPI(_BaseTIDALAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the user
+               manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept the
+              redirect after user authorization in any local browser.
+            * :code:`"playwright"` – Use a Playwright Firefox browser to
+              complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -323,8 +291,8 @@ class TIDALAPI(_BaseTIDALAPI):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 2 minutes to 1 day, depending on their expected
-            update frequency.
+            cached for one minute to one day, depending on their
+            expected update frequency.
 
             .. seealso::
 
@@ -498,7 +466,7 @@ class TIDALAPI(_BaseTIDALAPI):
         return self._my_profile.get("id")
 
 
-class PrivateTIDALAPI(_BaseTIDALAPI):
+class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
     """
     Private TIDAL API client.
     """
@@ -529,7 +497,9 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
     }
     _IS_TRUSTED_DEVICE = True
     _OPTIONAL_AUTH = True
-    _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
+    _QUAL_NAME = (
+        f"minim.api.{_BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
+    )
     _REDIRECT_HANDLERS = {}
     _REDIRECT_URIS = {"tidal://login/auth", "https://tidal.com/login/auth"}
     _VERSION = "2025.12.18"
@@ -564,12 +534,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"device"` – Device Authorization Flow.
+            * :code:`None` – No authentication.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"device"` – Device Authorization Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as system environment
@@ -648,8 +616,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 2 minutes to 1 day, depending on their expected
-            update frequency.
+            cached for one minute to one day, depending on their
+            expected update frequency.
 
             .. seealso::
 
@@ -800,7 +768,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
                     f"Valid values: '{_sizes}'."
                 )
         return (
-            f"{PrivateTIDALAPI.RESOURCE_URL}/{media_type}"
+            f"{PrivateTIDALAPIClient.RESOURCE_URL}/{media_type}"
             f"/{artwork_uuid.replace('-', '/')}/{dimensions}{extension}"
         )
 
@@ -984,12 +952,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"device"` – Device Authorization Flow.
+            * :code:`None` – No authentication.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"device"` – Device Authorization Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as system environment

@@ -12,7 +12,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -43,7 +43,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the tracks in the mix.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

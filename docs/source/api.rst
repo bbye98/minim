@@ -1,5 +1,5 @@
-minim
-=====
+API Reference
+=============
 
 .. autosummary::
    :recursive:

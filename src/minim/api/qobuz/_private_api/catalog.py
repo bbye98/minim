@@ -2,16 +2,16 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
-from .search import PrivateSearchEndpoints
+from .search import PrivateSearchAPI
 
 
 class PrivateCatalogAPI(PrivateQobuzResourceAPI):
     """
     Catalog API endpoints for the private Qobuz API.
 
-    .. note::
+    .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -33,7 +33,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             Counts of the search results.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -49,12 +49,10 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._client._request(
-            "GET", "catalog/count", params={"query": query.strip()}
+            "GET",
+            "catalog/count",
+            params={"query": self._prepare_string("query", query)},
         ).json()
 
     @TTLCache.cached_method(ttl="daily")
@@ -108,7 +106,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the featured items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -265,8 +263,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         """
         params = {}
         if item_type is not None:
-            self._validate_type("item_type", item_type, str)
-            item_type = item_type.strip().lower()
+            item_type = self._prepare_string("item_type", item_type).lower()
             if item_type not in self._FEATURED_TYPES:
                 featured_types_str = "', '".join(self._FEATURED_TYPES)
                 raise ValueError(
@@ -296,7 +293,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             "GET", "catalog/getFeatured", params=params
         ).json()
 
-    @_copy_docstring(PrivateSearchEndpoints.search)
+    @_copy_docstring(PrivateSearchAPI.search)
     def search(
         self,
         query: str,
