@@ -39,8 +39,8 @@ class PlayerAPI(SpotifyResourceAPI):
             device is the target.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 

@@ -125,7 +125,7 @@ class PrivateQobuzAPIClient(APIClient):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 2 minutes to 1 day, depending on their expected
+            cached for 1 minute to 1 day, depending on their expected
             update frequency.
 
             .. seealso::
@@ -226,7 +226,7 @@ class PrivateQobuzAPIClient(APIClient):
             authenticate=False,
         )
         if authorization_flow is None:
-            self._resolve_app_secret()
+            self._determine_app_secret()
         elif user_auth_token:
             self.set_user_auth_token(user_auth_token)
         else:
@@ -347,6 +347,24 @@ class PrivateQobuzAPIClient(APIClient):
             ],
         )
 
+    def _determine_app_secret(self) -> None:
+        """
+        Determine the working application secret from the possible
+        values.
+        """
+        if isinstance(self._app_secret, list):
+            for app_secret in self._app_secret:
+                try:
+                    self._app_secret = app_secret
+                    self.tracks.get_track_playback_info(344521217, format_id=5)
+                    break
+                except RuntimeError:
+                    continue
+            else:
+                raise RuntimeError(
+                    "No valid application secret was found in 'bundle.js'."
+                )
+
     def _login(
         self,
         username: str | None = None,
@@ -460,7 +478,7 @@ class PrivateQobuzAPIClient(APIClient):
 
         # Figure out the working application secret from the possible
         # values
-        self._resolve_app_secret()
+        self._determine_app_secret()
 
         if self._store_tokens:
             TokenDatabase.add_token(
@@ -503,7 +521,7 @@ class PrivateQobuzAPIClient(APIClient):
             Whether to sign the request.
 
         sig_params : dict[str, Any]; keyword-only; optional
-            Parameters to include in the signature.
+            Query parameters to include in the signature.
 
         **kwargs : dict[str, Any]
             Keyword parameters to pass to :meth:`httpx.Client.request`.
@@ -554,23 +572,6 @@ class PrivateQobuzAPIClient(APIClient):
                 f"{self._QUAL_NAME}.{endpoint_method}() requires user "
                 "authentication."
             )
-
-    def _resolve_app_secret(self) -> None:
-        """
-        Resolve the working application secret from the possible values.
-        """
-        if isinstance(self._app_secret, list):
-            for app_secret in self._app_secret:
-                try:
-                    self._app_secret = app_secret
-                    self.tracks.get_track_playback_info(344521217, format_id=5)
-                    break
-                except RuntimeError:
-                    continue
-            else:
-                raise RuntimeError(
-                    "No valid application secret was found in 'bundle.js'."
-                )
 
     def _resolve_user_identifier(self) -> str:
         """
@@ -745,5 +746,7 @@ class PrivateQobuzAPIClient(APIClient):
             if "X-User-Auth-Token" in self._client.headers:
                 del self._client.headers["X-User-Auth-Token"]
             return
-
-        self._client.headers["X-User-Auth-Token"] = user_auth_token
+        elif isinstance(user_auth_token, str):
+            self._client.headers["X-User-Auth-Token"] = user_auth_token
+        else:
+            raise TypeError("`user_auth_token` must be a string.")

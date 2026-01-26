@@ -8,6 +8,10 @@ from urllib.parse import urlencode
 
 from .._shared import APIClient
 from ._lyrics_api.albums import AlbumsAPI
+from ._lyrics_api.artists import ArtistsAPI
+from ._lyrics_api.charts import ChartsAPI
+from ._lyrics_api.matcher import MatcherAPI
+from ._lyrics_api.search import SearchAPI
 from ._lyrics_api.tracks import TracksAPI
 
 
@@ -31,25 +35,47 @@ class MusixmatchLyricsAPIClient(APIClient):
         enable_cache: bool = True,
         user_agent: str = "",
     ) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        api_key : bytes or str; keyword-only; optional
+            API key. If not provided, a client key with Musixmatch Basic
+            plan access is retrieved from the Musixmatch search page.
+
+        enable_cache : bool; keyword-only; default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
+            If :code:`True`, responses from semi-static endpoints are
+            cached for 1 minute to 1 day, depending on their expected
+            update frequency.
+
+            .. seealso::
+
+               :meth:`clear_cache` – Clear specific or all cache entries
+               for this client.
+
+        user_agent : str; keyword-only; default: :code:`""`
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
+        """
         super().__init__(enable_cache=enable_cache, user_agent=user_agent)
 
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the Musixmatch Lyrics API.
         self.albums: AlbumsAPI = AlbumsAPI(self)
+        #: Artists API endpoints for the Musixmatch Lyrics API.
+        self.artists: ArtistsAPI = ArtistsAPI(self)
+        #: Charts API endpoints for the Musixmatch Lyrics API.
+        self.charts: ChartsAPI = ChartsAPI(self)
+        #: Matcher API endpoints for the Musixmatch Lyrics API.
+        self.matcher: MatcherAPI = MatcherAPI(self)
+        #: Search API endpoints for the Musixmatch Lyrics API.
+        self.search: SearchAPI = SearchAPI(self)
         #: Tracks API endpoints for the Musixmatch Lyrics API.
         self.tracks: TracksAPI = TracksAPI(self)
 
         # Store API key
-        if isinstance(api_key, str):
-            self._api_key = api_key.encode()
-        elif isinstance(api_key, bytes):
-            self._api_key = api_key
-        elif api_key is None:
-            self._api_key = None
-            self._resolve_client_key()
-        else:
-            raise TypeError("...")
+        self.set_api_key(api_key)
 
     def _request(
         self,
@@ -60,7 +86,33 @@ class MusixmatchLyricsAPIClient(APIClient):
         params: dict[str, Any] | None = None,
         **kwargs: dict[str, Any],
     ) -> "httpx.Response":
-        """ """
+        """
+        Make an HTTP request to a Musixmatch Lyrics API endpoint.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+        endpoint : str; positional-only
+            Musixmatch Lyrics API endpoint.
+
+        params : dict[str, Any]; keyword-only; optional
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+
+        **kwargs : dict[str, Any]
+            Keyword parameters to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
         if params is None:
             params = {}
         if self._api_key is None:
@@ -82,14 +134,23 @@ class MusixmatchLyricsAPIClient(APIClient):
             params["apikey"] = self._api_key
 
         resp = self._client.request(method, endpoint, params=params, **kwargs)
-        status = resp.status_code
-        if 200 <= status < 300:
-            return resp  # TODO: Responses may have different status code
+        resp_json = resp.json()
+        status = resp_json["message"]["header"]["status_code"]
+        if status == 200:
+            return resp
+        raise RuntimeError(
+            f"{status} – {resp_json['message']['header']['hint']}"
+        )
 
-        raise RuntimeError("...")
+    def _resolve_client_key(self) -> bytes:
+        """
+        Resolve the client key using the Musixmatch search page.
 
-    def _resolve_client_key(self) -> None:
-        """ """
+        Returns
+        -------
+        client_key : bytes
+            Client key.
+        """
         with httpx.Client() as client:
             m = re.search(
                 r'http[^"]*/_app[^"]*\.js',
@@ -108,4 +169,24 @@ class MusixmatchLyricsAPIClient(APIClient):
         m = re.search(r'from\("(.*?)"', app)
         if m is None:
             raise RuntimeError("...")
-        self._client_key = base64.b64decode(m.group(1)[::-1])
+        return base64.b64decode(m.group(1)[::-1])
+
+    def set_api_key(self, api_key: bytes | str | None, /) -> None:
+        """
+        Set or update the API key.
+
+        Parameters
+        ----------
+        api_key : str or None; positional-only
+            API key.
+        """
+        if api_key is None:
+            self._api_key = None
+            if not hasattr(self, "_client_key"):
+                self._client_key = self._resolve_client_key()
+        elif isinstance(api_key, bytes):
+            self._api_key = api_key
+        elif isinstance(api_key, str):
+            self._api_key = api_key.encode()
+        else:
+            raise TypeError("`api_key` must be a string.")

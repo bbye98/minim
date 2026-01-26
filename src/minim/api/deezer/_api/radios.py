@@ -2,6 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
+from .charts import ChartsAPI
 from .users import UsersAPI
 
 
@@ -96,45 +97,6 @@ class RadiosAPI(DeezerResourceAPI):
                   }
         """
         return self._client._request("GET", "radio/genres").json()
-
-    @TTLCache.cached_method(ttl="popularity")
-    def get_top_radios(
-        self, *, limit: int | None = None, offset: int | None = None
-    ) -> dict[str, Any]:
-        """
-        `Radio > Top <https://developers.deezer.com/api/radio/top>`_:
-        Get Deezer catalog information for the top radios on Deezer.
-
-        Parameters
-        ----------
-        limit : int or None; keyword-only; optional
-            Maximum number of radios to return.
-
-            **Minimum value**: :code:`1`.
-
-            **API default**: :code:`25`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first radio to return. Use with `limit` to get
-            the next batch of radios.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        radios : dict[str, Any]
-            Page of Deezer content metadata for the top radios.
-        """
-        params = {}
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["index"] = offset
-        return self._client._request("GET", "radio/top", params=params)
 
     def get_radio_tracks(
         self,
@@ -296,6 +258,12 @@ class RadiosAPI(DeezerResourceAPI):
         return self._client._request(
             "GET", "radio/lists", params=params
         ).json()
+
+    @_copy_docstring(ChartsAPI.get_top_radios)
+    def get_top_radios(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        return self._client.charts.get_top_radios(limit=limit, offset=offset)
 
     @_copy_docstring(UsersAPI.get_followed_radios)
     def get_followed_radios(

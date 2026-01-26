@@ -2,6 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
+from .charts import ChartsAPI
 from .users import UsersAPI
 
 
@@ -110,6 +111,12 @@ class TracksAPI(DeezerResourceAPI):
                   }
         """
         return self._request_resource_relationship("GET", "track", track_id)
+
+    @_copy_docstring(ChartsAPI.get_top_tracks)
+    def get_top_tracks(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        return self._client.charts.get_top_tracks(limit=limit, offset=offset)
 
     @_copy_docstring(UsersAPI.get_user_tracks)
     def get_user_tracks(

@@ -42,8 +42,8 @@ class TIDALResourceAPI(ResourceAPI):
             Valid fields to sort by.
 
         params : dict[str, Any]; keyword-only
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 
@@ -209,8 +209,8 @@ class TIDALResourceAPI(ResourceAPI):
             :code:`"query"`.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 
@@ -322,8 +322,8 @@ class TIDALResourceAPI(ResourceAPI):
             :code:`"query"`.
 
         params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
 
             .. note::
 

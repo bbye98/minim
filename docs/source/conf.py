@@ -50,4 +50,4 @@ html_theme_options = {"accent_color": "gray", "toctree_maxdepth": 5}
 
 
 def setup(app: "Sphinx") -> None:
-    app.add_css_file("admonitions.css")
+    app.add_css_file("custom.css")

@@ -30,7 +30,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         # Use iterative depth-first search
         stack = [None]
         while stack:
-            subgenres = self.genres.get_genres(stack.pop())["genres"]
+            subgenres = self._client.genres.get_genres(stack.pop())["genres"]
             if subgenres["total"] > 0:
                 genres.extend(subgenres["items"])
                 stack.extend(genre["id"] for genre in subgenres["items"])
@@ -39,7 +39,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         # def get_genres(
         #     genre_id: str | None = None, /, *, genres: list[dict[str, Any]]
         # ) -> dict[str, Any]:
-        #     subgenres = self.genres.get_genres(genre_id)["genres"]
+        #     subgenres = self._client.genres.get_genres(genre_id)["genres"]
         #     if subgenres["total"] > 0:
         #         genres.extend(subgenres["items"])
         #         for subgenre in subgenres["items"]:
