@@ -13,7 +13,7 @@ class ChaptersAPI(SpotifyResourceAPI):
        Audiobooks are only available in the US, UK, Canada, Ireland,
        New Zealand, and Australia markets.
 
-    .. note::
+    .. important::
 
        This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.

@@ -8,7 +8,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
     """
     Favorites API endpoints for the private Qobuz API.
 
-    .. note::
+    .. important::
 
        This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.

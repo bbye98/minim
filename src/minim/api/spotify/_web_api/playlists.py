@@ -10,7 +10,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
     """
     Playlists API endpoints for the Spotify Web API.
 
-    .. note::
+    .. important::
 
        This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.

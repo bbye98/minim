@@ -173,8 +173,8 @@ class SpotifyWebAPIClient(OAuth2APIClient):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 1 minute to 1 day, depending on their expected
-            update frequency.
+            cached for one minute to one day, depending on their
+            expected update frequency.
 
             .. seealso::
 

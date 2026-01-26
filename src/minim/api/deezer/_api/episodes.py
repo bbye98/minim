@@ -9,7 +9,7 @@ class EpisodesAPI(DeezerResourceAPI):
     """
     Episodes API endpoints for the Deezer API.
 
-    .. note::
+    .. important::
 
        This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
        should not be instantiated directly.
