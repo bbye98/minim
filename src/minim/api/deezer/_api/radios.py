@@ -57,7 +57,7 @@ class RadiosAPI(DeezerResourceAPI):
         return self._request_resource_relationship("GET", "radio", radio_id)
 
     @TTLCache.cached_method(ttl="static")
-    def get_per_genre_radios(self) -> dict[str, Any]:
+    def get_radio_groups(self) -> dict[str, Any]:
         """
         `Radio > Genres <https://developers.deezer.com/api/radio
         /genres>`_: Get Deezer catalog information for radios,
@@ -193,7 +193,7 @@ class RadiosAPI(DeezerResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="static")
-    def get_genre_radios(
+    def get_radios(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         """

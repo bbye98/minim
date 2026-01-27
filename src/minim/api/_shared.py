@@ -492,7 +492,10 @@ class TTLCache:
 
     def clear(
         self,
-        funcs: Callable[..., Any] | list[Callable[..., Any]] | None = None,
+        funcs: str
+        | Callable[..., Any]
+        | list[str | Callable[..., Any]]
+        | None = None,
         /,
         *,
         _recursive: bool = True,
@@ -506,22 +509,31 @@ class TTLCache:
 
         Parameters
         ----------
-        funcs : Callable or list[Callable]; positional-only; optional
+        funcs : str, Callable, or list[str | Callable]; \
+        positional-only; optional
             Functions whose cache entries should be cleared.
         """
         if funcs is None:
+            if not _recursive:
+                raise ValueError(
+                    "Ambiguous behavior when None appears in a list "
+                    "provided via `funcs`."
+                )
             self._store.clear()
-        elif callable(funcs):
-            funcs = funcs.__qualname__
-            for key in [k for k in self._store if k[0] == funcs]:
-                del self._store[key]
         elif _recursive and isinstance(funcs, tuple | list | set):
             for func in funcs:
                 self.clear(func, _recursive=False)
         else:
-            raise ValueError(
-                "`funcs` must be methods from an API client class."
-            )
+            if callable(funcs):
+                funcs = funcs.__name__
+            elif isinstance(funcs, str):
+                funcs = funcs.rsplit(".", maxsplit=1)[-1]
+            else:
+                raise ValueError(
+                    "`funcs` must be methods from an API client class."
+                )
+            for key in [k for k in self._store if k[0] == funcs]:
+                del self._store[key]
 
     def wrapper(
         self, *, ttl: int | float | str
@@ -562,7 +574,7 @@ class TTLCache:
                 *args: tuple[Any, ...], **kwargs: dict[str, Any]
             ) -> Any:
                 key = (
-                    func.__qualname__,
+                    func.__name__,
                     tuple(self._make_hashable(a) for a in args[1:]),
                     frozenset(
                         (
@@ -759,8 +771,9 @@ class APIClient(ABC):
 
     def clear_cache(
         self,
-        endpoint_methods: Callable[..., Any]
-        | list[Callable[..., Any]]
+        endpoint_methods: str
+        | Callable[..., Any]
+        | list[str | Callable[..., Any]]
         | None = None,
         /,
     ) -> None:
@@ -774,13 +787,13 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        endpoint_methods : Callable or list[Callable]; positional-only; \
-        optional
+        endpoint_methods : str, Callable or list[str | Callable]; \
+        positional-only; optional
             Endpoint methods whose cache entries should be cleared.
 
-            **Examples**: :code:`minim.api.spotify.SearchAPI.search`,
-            :code:`[minim.api.spotify.SearchAPI.search,
-            minim.api.spotify.TracksAPI.get_tracks]`.
+            **Examples**: :code:`"search"`,
+            :code:`minim.api.spotify.TracksAPI.get_tracks`,
+            :code:`["search", minim.api.spotify.TracksAPI.get_tracks]`.
         """
         if self._cache is not None:
             self._cache.clear(endpoint_methods)
