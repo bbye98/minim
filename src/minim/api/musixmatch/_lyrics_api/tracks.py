@@ -383,6 +383,7 @@ class TracksAPI(MusixmatchResourceAPI):
                     }
                   }
         """
+        self._client._require_api_key("tracks.get_track_lyrics_moods")
         return self._get_track_resource(
             "track.lyrics.mood.get",
             track_id=track_id,
@@ -487,6 +488,7 @@ class TracksAPI(MusixmatchResourceAPI):
                     }
                   }
         """
+        self._client._require_api_key("tracks.get_track_subtitles")
         params = {}
         if format is not None:
             format = self._prepare_string("format", format).lower()
@@ -611,6 +613,7 @@ class TracksAPI(MusixmatchResourceAPI):
                     }
                   }
         """
+        self._client._require_api_key("tracks.get_track_rich_sync_lyrics")
         params = {}
         if duration is not None:
             self._validate_numeric("rich_durationync_length", duration, int, 0)
@@ -824,6 +827,7 @@ class TracksAPI(MusixmatchResourceAPI):
                     }
                   }
         """
+        self._client._require_api_key("tracks.get_track_lyrics_translation")
         params = {}
         if language is not None:
             self._validate_language_code(language)
@@ -958,6 +962,7 @@ class TracksAPI(MusixmatchResourceAPI):
                     }
                   }
         """
+        self._client._require_api_key("tracks.get_track_subtitles_translation")
         params = {}
         if language is not None:
             self._validate_language_code(language)

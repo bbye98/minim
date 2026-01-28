@@ -350,6 +350,7 @@ class MatcherAPI(MusixmatchResourceAPI):
                     }
                   }
         """
+        self._client._require_api_key("matcher.match_track_subtitles")
         params = {}
         if duration is not None:
             self._validate_numeric("duration", duration, int, 0)

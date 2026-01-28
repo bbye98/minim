@@ -154,6 +154,21 @@ class MusixmatchLyricsAPIClient(APIClient):
             emsg += f" – {hint}"
         raise RuntimeError(emsg)
 
+    def _require_api_key(self, endpoint_method: str, /) -> None:
+        """
+        Ensure that an API key has been provided for an endpoint method
+        that requires it.
+
+        Parameters
+        ----------
+        endpoint_method : str; positional-only
+            Name of the endpoint method.
+        """
+        if self._api_key is None:
+            raise RuntimeError(
+                f"{self._QUAL_NAME}.{endpoint_method}() requires an API key."
+            )
+
     def _resolve_client_key(self) -> bytes:
         """
         Resolve the client key using the Musixmatch search page.
