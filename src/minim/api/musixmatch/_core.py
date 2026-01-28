@@ -193,7 +193,7 @@ class MusixmatchLyricsAPIClient(APIClient):
 
         Parameters
         ----------
-        api_key : str or None; positional-only
+        api_key : bytes, str, or None; positional-only
             API key.
         """
         if api_key is None:
