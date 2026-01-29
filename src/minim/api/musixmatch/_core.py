@@ -11,6 +11,7 @@ from .._shared import APIClient
 from ._lyrics_api.albums import AlbumsAPI
 from ._lyrics_api.artists import ArtistsAPI
 from ._lyrics_api.charts import ChartsAPI
+from ._lyrics_api.enterprise import EnterpriseAPI
 from ._lyrics_api.matcher import MatcherAPI
 from ._lyrics_api.search import SearchAPI
 from ._lyrics_api.tracks import TracksAPI
@@ -68,6 +69,8 @@ class MusixmatchLyricsAPIClient(APIClient):
         self.artists: ArtistsAPI = ArtistsAPI(self)
         #: Charts API endpoints for the Musixmatch Lyrics API.
         self.charts: ChartsAPI = ChartsAPI(self)
+        #: Enterprise API endpoints for the Musixmatch Lyrics API.
+        self.enterprise: EnterpriseAPI = EnterpriseAPI(self)
         #: Matcher API endpoints for the Musixmatch Lyrics API.
         self.matcher: MatcherAPI = MatcherAPI(self)
         #: Search API endpoints for the Musixmatch Lyrics API.

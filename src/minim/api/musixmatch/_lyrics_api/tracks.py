@@ -518,7 +518,7 @@ class TracksAPI(MusixmatchResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="static")
-    def get_track_rich_sync_lyrics(
+    def get_track_word_synced_lyrics(
         self,
         *,
         track_id: int | str | None = None,
@@ -530,7 +530,7 @@ class TracksAPI(MusixmatchResourceAPI):
         """
         `Track > track.richsync.get <https://docs.musixmatch.com
         /lyrics-api/track/track-richsync-get>`_: Get Musixmatch catalog
-        information for a track's rich sync lyrics.
+        information for a track's Rich Sync (word-synchronized) lyrics.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -568,7 +568,7 @@ class TracksAPI(MusixmatchResourceAPI):
             **Example**: :code:`"USUM70905526"`.
 
         duration : int or str; keyword-only; optional
-            Target rich sync lyrics duration, in seconds.
+            Target Rich Sync lyrics duration, in seconds.
 
         max_duration_deviation : int or str; keyword-only; optional
             Maximum deviation allowed from the requested duration. Only
@@ -577,7 +577,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         lyrics : dict[str, Any]
-            Musixmatch content metadata for the track's rich sync
+            Musixmatch content metadata for the track's Rich Sync
             lyrics.
 
             .. admonition:: Sample response
@@ -1232,6 +1232,167 @@ class TracksAPI(MusixmatchResourceAPI):
         return self._client._request(
             "GET", "track.search", params=params
         ).json()
+
+    @TTLCache.cached_method(ttl="static")
+    def get_track_lyrics_analysis(
+        self,
+        *,
+        track_id: int | str | None = None,
+        common_track_id: int | str | None = None,
+        isrc: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Enterprise > track.lyricslens.get <https://docs.musixmatch.com
+        /enterprise-integration/api-reference/track-lyricslens-get>`_:
+        Get the Lyric Lens analysis of a track's lyrics.
+
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 Musixmatch Enterprise plan
+                    Access extended music metadata, advanced search,
+                    translations, song structure, and lyric analysis.
+                    `Learn more. <https://about.musixmatch.com
+                    /api-pricing>`__
+
+        .. seealso::
+
+           `Lyric Lens page in the Musixmatch Lyrics API documentation
+           <https://docs.musixmatch.com/enterprise-integration
+           /lyric-lens>`_ – Lyric Lens introduction and metadata
+           overview.
+
+        Parameters
+        ----------
+        track_id : int or str; keyword-only; optional
+            Musixmatch ID of the track.
+
+            **Examples**: :code:`84584600`, :code:`"359206419"`.
+
+        common_track_id : int or str; keyword-only; optional
+            Musixmatch common ID of the track.
+
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
+
+        isrc : str; keyword-only; optional
+            ISRC of the track.
+
+            **Example**: :code:`"USUM70905526"`.
+
+        Returns
+        -------
+        analysis : dict[str, Any]
+            Lyric Lens analysis of the track's lyrics.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "lens": {
+                          "entities": {
+                            "entity_list": [
+                              {
+                                "categories": <list[str]>,
+                                "entity_name": <str>,
+                                "matches": [
+                                  {
+                                    "end_char": <int>,
+                                    "matched_text": <str>,
+                                    "start_char": <int>
+                                  }
+                                ],
+                                "model_metadata": {
+                                  "description": <str>,
+                                  "type": <str>
+                                },
+                                "occurrencies": <int>,
+                                "wikidata": {
+                                  "description": <str>,
+                                  "id": <str>,
+                                  "rank": <int>,
+                                  "thumbnail": <str>,
+                                  "types": <list[str]>
+                                },
+                                "wikipedia": [
+                                  {
+                                    "language": <str>,
+                                    "url": <str>
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "language_detection": {
+                            "languages": [
+                              {
+                                "is_romanized": <bool>,
+                                "language_iso_code_1": <str>,
+                                "language_iso_code_3": <str>,
+                                "language_name": <str>,
+                                "percentage": <int>
+                              }
+                            ]
+                          },
+                          "meaning": {
+                            "description": <str>,
+                            "explanation": <str>
+                          },
+                          "moderation": {
+                            "categories": [
+                              {
+                                "category": <str>,
+                                "is_present": <bool>,
+                                "score": <float>
+                              }
+                            ],
+                            "description": <str>,
+                            "needs_moderation": <bool>
+                          },
+                          "moods": {
+                            "description": <str>,
+                            "main_moods": <list[str]>
+                          },
+                          "rating": {
+                            "audience":<str>,
+                            "description": <str>,
+                            "descriptor": <str>,
+                          },
+                          "religion": {
+                            "description": <str>,
+                            "has_references": <bool>
+                          },
+                          "themes": {
+                            "description": <str>,
+                            "main_themes": [
+                              {
+                                "quotes": <list[str]>,
+                                "theme": <str>
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "header": {
+                        "execute_time": <float>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
+        """
+        return self._get_track_resource(
+            "track.lyricslens.get",
+            track_id=track_id,
+            common_track_id=common_track_id,
+            isrc=isrc,
+        )
 
     @_copy_docstring(ChartsAPI.get_top_tracks)
     def get_top_tracks(

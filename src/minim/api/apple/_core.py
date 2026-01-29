@@ -292,8 +292,8 @@ class iTunesSearchAPIClient(APIClient):
 
             .. seealso::
 
-               `Table 2-1 in the iTunes Search API Documentation
-               (Archived) <https://developer.apple.com/library/archive
+               `Table 2-1 in the iTunes Search API documentation
+               (archived) <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
                /TP40017632-CH5-SW2>`__ – Available item (or entity)
@@ -653,8 +653,8 @@ class iTunesSearchAPIClient(APIClient):
 
             .. seealso::
 
-               `Table 2-1 in the iTunes Search API Documentation
-               (Archived) <https://developer.apple.com/library/archive
+               `Table 2-1 in the iTunes Search API documentation
+               (archived) <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
                /TP40017632-CH5-SW2>`__ – Available item (or entity)
@@ -671,7 +671,7 @@ class iTunesSearchAPIClient(APIClient):
 
             .. seealso::
 
-               `iTunes Search API Documentation (Apple Services
+               `iTunes Search API documentation (Apple Services
                Performance Partner Program)
                <https://performance-partners.apple.com/search-api>`__ –
                Available search fields (or attributes) for each media

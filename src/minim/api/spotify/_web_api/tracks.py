@@ -477,7 +477,7 @@ class TracksAPI(SpotifyResourceAPI):
         return self._client.users.are_tracks_saved(track_ids)
 
     @TTLCache.cached_method(ttl="static")
-    def get_audio_features(
+    def get_track_audio_features(
         self, track_ids: str | list[str], /
     ) -> dict[str, Any]:
         """
@@ -582,7 +582,7 @@ class TracksAPI(SpotifyResourceAPI):
         return self._get_resources("audio-features", track_ids, limit=100)
 
     @TTLCache.cached_method(ttl="static")
-    def get_audio_analysis(self, track_id: str, /) -> dict[str, Any]:
+    def get_track_audio_analysis(self, track_id: str, /) -> dict[str, Any]:
         """
         `Tracks > Get Track's Audio Analysis
         <https://developer.spotify.com/documentation/web-api/reference
