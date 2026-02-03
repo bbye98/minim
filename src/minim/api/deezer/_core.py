@@ -792,12 +792,9 @@ class DeezerAPIClient(OAuth2APIClient):
                authorization flow and/or scopes.
         """
         if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
-            flows_str = "', '".join(
-                sorted(f for f in self._ALLOWED_AUTH_FLOWS if f)
-            )
             raise ValueError(
                 f"Invalid authorization flow {authorization_flow!r}. "
-                f"Valid values: '{flows_str}'."
+                f"Valid values: {self._join_values(self._ALLOWED_AUTH_FLOWS)}."
             )
         self._auth_flow = authorization_flow
 
@@ -861,7 +858,7 @@ class DeezerAPIClient(OAuth2APIClient):
             self._redirect_uri = redirect_uri
             if redirect_handler is not None:
                 if redirect_handler not in self._REDIRECT_HANDLERS:
-                    handlers_str = "', '".join(sorted(self._REDIRECT_HANDLERS))
+                    handlers_str = self._join_values(self._REDIRECT_HANDLERS)
                     if handlers_str:
                         handlers_str = f", '{handlers_str}'"
                     raise ValueError(

@@ -11,8 +11,9 @@ class UsersAPI(SpotifyResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       instantiated directly.
     """
 
     _PEOPLE_TYPES = {"artists", "users"}
@@ -32,10 +33,9 @@ class UsersAPI(SpotifyResourceAPI):
             not isinstance(time_range, str)
             or time_range.lower() not in cls._TIME_RANGES
         ):
-            time_ranges_str = "', '".join(sorted(cls._TIME_RANGES))
             raise ValueError(
-                f"Invalid time range {time_range!r}. "
-                f"Valid values: '{time_ranges_str}'."
+                f"Invalid time range {time_range!r}. Valid "
+                f"values: {UsersAPI._join_values(cls._TIME_RANGES)}."
             )
 
     def _manage_followed_people(

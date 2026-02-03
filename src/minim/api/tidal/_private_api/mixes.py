@@ -12,8 +12,9 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       instantiated directly.
     """
 
     @TTLCache.cached_method(ttl="popularity")

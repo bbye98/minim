@@ -10,8 +10,9 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       instantiated directly.
     """
 
     def _get_resource_page(
@@ -67,11 +68,10 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         page : dict[str, Any]
             Layout for the specified resource page.
         """
-        if device_type not in self._client._DEVICE_TYPES:
-            device_types_str = "', '".join(self._client._DEVICE_TYPES)
+        if device_type not in (device_types := self._client._DEVICE_TYPES):
             raise ValueError(
                 f"Invalid device type {device_type!r}. "
-                f"Valid values: '{device_types_str}'."
+                f"Valid values: {self._join_values(device_types)}."
             )
         params = {"deviceType": device_type}
         self._client._resolve_country_code(country_code, params=params)

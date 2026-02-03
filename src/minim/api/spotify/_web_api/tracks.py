@@ -25,8 +25,9 @@ class TracksAPI(SpotifyResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       instantiated directly.
     """
 
     def _parse_attribute(

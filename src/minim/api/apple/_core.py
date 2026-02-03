@@ -14,6 +14,7 @@ class iTunesSearchAPIClient(APIClient):
     iTunes Search API client.
     """
 
+    _LOCALES = {"en_us", "ja_jp"}
     _MEDIA_TYPES = {
         "all": {
             "entities": {
@@ -292,8 +293,8 @@ class iTunesSearchAPIClient(APIClient):
 
             .. seealso::
 
-               `Table 2-1 in the iTunes Search API documentation
-               (archived) <https://developer.apple.com/library/archive
+               `iTunes Search API documentation (archived) 
+               <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
                /TP40017632-CH5-SW2>`__ – Available item (or entity)
@@ -593,10 +594,9 @@ class iTunesSearchAPIClient(APIClient):
             if item_type not in (
                 entities := self._MEDIA_TYPES["all"]["entities"]
             ):
-                entities_str = "', '".join(sorted(entities))
                 raise ValueError(
                     f"Invalid item type {item_type!r}. "
-                    f"Valid values: '{entities_str}'."
+                    f"Valid values: {self._join_values(entities)}."
                 )
         if limit is not None:
             ResourceAPI._validate_number("limit", limit, int, 1, 200)
@@ -653,8 +653,8 @@ class iTunesSearchAPIClient(APIClient):
 
             .. seealso::
 
-               `Table 2-1 in the iTunes Search API documentation
-               (archived) <https://developer.apple.com/library/archive
+               `iTunes Search API documentation (archived)
+               <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
                /TP40017632-CH5-SW2>`__ – Available item (or entity)
@@ -996,10 +996,9 @@ class iTunesSearchAPIClient(APIClient):
             emsg_suffix = ""
         else:
             if media_type not in self._MEDIA_TYPES:
-                media_types_str = "', '".join(sorted(self._MEDIA_TYPES))
                 raise ValueError(
                     f"Invalid media type {media_type!r}. "
-                    f"Valid values: '{media_types_str}'."
+                    f"Valid values: {self._join_values(self._MEDIA_TYPES)}."
                 )
             params["media"] = media_type
             emsg_suffix = f" for media type {media_type!r}"
@@ -1007,10 +1006,9 @@ class iTunesSearchAPIClient(APIClient):
             if item_type not in (
                 entities := self._MEDIA_TYPES[media_type or "all"]["entities"]
             ):
-                entities_str = "', '".join(sorted(entities))
                 raise ValueError(
                     f"Invalid item type {item_type!r}{emsg_suffix}."
-                    f"Valid values: '{entities_str}'."
+                    f"Valid values: {self._join_values(entities)}."
                 )
         if search_field is not None:
             if search_field not in (
@@ -1018,20 +1016,19 @@ class iTunesSearchAPIClient(APIClient):
                     "attributes"
                 ]
             ):
-                attributes_str = "', '".join(sorted(attributes))
                 raise ValueError(
                     f"Invalid search field {search_field!r}{emsg_suffix}. "
-                    f"Valid values: '{attributes_str}'."
+                    f"Valid values: {self._join_values(attributes)}."
                 )
         if limit is not None:
             ResourceAPI._validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
         if locale is not None:
             ResourceAPI._validate_locale(locale)
-            if locale.lower() not in {"en_us", "ja_jp"}:
+            if locale.lower() not in self._LOCALES:
                 raise ValueError(
                     f"Invalid language tag {locale!r}. "
-                    "Valid values: 'en_us', 'ja_jp'."
+                    f"Valid values: {self._join_values(self._LOCALES)}."
                 )
             params["lang"] = locale
         if api_version is not None:

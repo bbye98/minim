@@ -69,10 +69,9 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             values = values.strip().split(",")
         for value in values:
             if value not in allowed_values:
-                allowed_values_str = "', '".join(allowed_values)
                 raise ValueError(
-                    f"Invalid {parameter} {value!r}. "
-                    f"Valid values: '{allowed_values_str}'."
+                    f"Invalid {parameter} {value!r}. Valid values: "
+                    f"{ResourceAPI._join_values(allowed_values)}."
                 )
         return ",".join(values)
 
@@ -207,9 +206,8 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             raise ValueError("`expand` must be a string or a list of strings.")
         for resource in expand:
             if resource not in relationships:
-                relationships_str = "', '".join(sorted(relationships))
                 raise ValueError(
-                    f"Invalid related resource {resource!r}. "
-                    f"Valid values: '{relationships_str}'."
+                    f"Invalid related resource {resource!r}. Valid "
+                    f"values: {ResourceAPI._join_values(relationships)}."
                 )
         return ",".join(expand)

@@ -10,8 +10,9 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       instantiated directly.
     """
 
     _SORT_FIELDS = {"DATE", "NAME"}
@@ -233,10 +234,9 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             params["offset"] = offset
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
-                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
                 raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
+                    f"Invalid sort field {sort_by!r}. Valid values: "
+                    f"{self._join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
@@ -482,10 +482,9 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             params["includeOnly"] = playlist_types
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
-                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
                 raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
+                    f"Invalid sort field {sort_by!r}. Valid values: "
+                    f"{self._join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
@@ -575,10 +574,9 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             params["offset"] = offset
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
-                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
                 raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
+                    f"Invalid sort field {sort_by!r}. Valid values: "
+                    f"{self._join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
@@ -1676,10 +1674,9 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             params["cursor"] = self._prepare_string("cursor", cursor)
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
-                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
                 raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
+                    f"Invalid sort field {sort_by!r}. Valid values: "
+                    f"{self._join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:

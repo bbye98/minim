@@ -10,8 +10,9 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       instantiated directly.
     """
 
     _RELATIONSHIPS = {"albums", "focus", "focusAll"}

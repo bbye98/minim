@@ -10,8 +10,9 @@ class SearchAPI(DeezerResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
-       should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.deezer.DeezerAPIClient` and should not be
+       instantiated directly.
     """
 
     _SORT_FIELDS = {
@@ -111,10 +112,9 @@ class SearchAPI(DeezerResourceAPI):
                 params["order"] = sort_by
             else:
                 if sort_by not in self._SORT_FIELDS:
-                    sort_fields_str = "', '".join(self._SORT_FIELDS)
                     raise ValueError(
-                        f"Invalid sort field {sort_by!r}. "
-                        f"Valid values: '{sort_fields_str}'."
+                        f"Invalid sort field {sort_by!r}. Valid "
+                        f"values: {self._join_values(self._SORT_FIELDS)}."
                     )
                 self._validate_type("descending", descending, bool)
                 params["order"] = (

@@ -14,11 +14,13 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       instantiated directly.
     """
 
     _INTENTS = {"download", "import", "stream"}
+    _TRACK_FORMAT_IDS = {5, 6, 7, 27}
 
     @TTLCache.cached_method(ttl="popularity")
     def get_tracks(
@@ -467,19 +469,18 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         params = {"track_id": track_id}
         if format_id is not None:
             self._validate_numeric("format_id", format_id, int)
-            if int(format_id) not in {5, 6, 7, 27}:
+            if int(format_id) not in self._TRACK_FORMAT_IDS:
                 raise ValueError(
-                    f"Invalid format ID {format_id!r}. "
-                    "Valid values: 5, 6, 7, 27."
+                    f"Invalid format ID {format_id!r}. Valid values: "
+                    f"{self._join_values(self._TRACK_FORMAT_IDS)}."
                 )
             params["format_id"] = format_id
         if intent is not None:
             intent = self._prepare_string("intent", intent).lower()
             if intent not in self._INTENTS:
-                intents_str = "', '".join(self._INTENTS)
                 raise ValueError(
                     f"Invalid intent {intent!r}. "
-                    f"Valid values: '{intents_str}'."
+                    f"Valid values: {self._join_values(self._INTENTS)}."
                 )
             params["intent"] = intent
         if preview is not None:
@@ -1140,10 +1141,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         if intent is not None:
             intent = self._prepare_string("intent", intent).lower()
             if intent not in self._INTENTS:
-                intents_str = "', '".join(self._INTENTS)
                 raise ValueError(
                     f"Invalid intent {intent!r}. "
-                    f"Valid values: '{intents_str}'."
+                    f"Valid values: {self._join_values(self._INTENTS)}."
                 )
             event["intent"] = intent
         if purchased is not None:

@@ -11,8 +11,9 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       instantiated directly.
     """
 
     _PLAYLIST_TYPES = {
@@ -41,10 +42,9 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         elif isinstance(playlist_types, tuple | list):
             for playlist_type in playlist_types:
                 if playlist_type not in cls._PLAYLIST_TYPES:
-                    playlist_types_str = "', '".join(cls._PLAYLIST_TYPES)
                     raise ValueError(
-                        f"Invalid playlist type {playlist_type!r}. "
-                        f"Valid values: '{playlist_types_str}'."
+                        f"Invalid playlist type {playlist_type!r}. Valid "
+                        f"values: {cls._join_values(cls._PLAYLIST_TYPES)}."
                     )
         else:
             raise TypeError(

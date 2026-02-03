@@ -12,8 +12,9 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       instantiated directly.
     """
 
     @TTLCache.cached_method(ttl="user")

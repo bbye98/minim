@@ -12,8 +12,9 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       instantiated directly.
     """
 
     _ALBUM_TYPES = {"COMPILATIONS", "EPSANDSINGLES"}
@@ -193,10 +194,9 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         params = {}
         if album_type is not None:
             if album_type not in self._ALBUM_TYPES:
-                album_types_str = "', '".join(sorted(self._ALBUM_TYPES))
                 raise ValueError(
-                    f"Invalid album type {album_type!r}. "
-                    f"Valid values: '{album_types_str}'."
+                    f"Invalid album type {album_type!r}. Valid values: "
+                    f"{self._join_values(self._ALBUM_TYPES)}."
                 )
             params["filter"] = album_type
         return self._get_resource_relationship(

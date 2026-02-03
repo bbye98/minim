@@ -210,10 +210,9 @@ class SpotifyResourceAPI(ResourceAPI):
         for type_ in set(types):
             type_ = type_.strip().lower()
             if type_ not in allowed_types:
-                allowed_types_str = "', '".join(sorted(allowed_types))
                 raise ValueError(
-                    f"Invalid {type_prefix} type {type_!r}. "
-                    f"Valid values: '{allowed_types_str}'."
+                    f"Invalid {type_prefix} type {type_!r}. Valid "
+                    f"values: {ResourceAPI._join_values(allowed_types)}."
                 )
             types_.add(type_)
         return ",".join(sorted(types_))

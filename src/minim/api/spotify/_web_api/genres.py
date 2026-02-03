@@ -10,8 +10,9 @@ class GenresAPI(SpotifyResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       instantiated directly.
     """
 
     @cached_property
@@ -50,12 +51,9 @@ class GenresAPI(SpotifyResourceAPI):
         """
         if "available_seed_genres" in self.__dict__:
             if seed_genre not in self.available_seed_genres:
-                seed_genres_str = "', '".join(
-                    sorted(self.available_seed_genres)
-                )
                 raise ValueError(
-                    f"Invalid seed genre {seed_genre!r}. "
-                    f"Valid values: '{seed_genres_str}'."
+                    f"Invalid seed genre {seed_genre!r}. Valid values: "
+                    f"{self._join_values(self.available_seed_genres)}."
                 )
         else:
             self._validate_type("seed_genre", seed_genre, str)

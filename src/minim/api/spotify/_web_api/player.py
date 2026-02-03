@@ -10,8 +10,9 @@ class PlayerAPI(SpotifyResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       instantiated directly.
     """
 
     _CONTEXT_TYPES = {"album", "artist", "playlist"}
@@ -957,10 +958,9 @@ class PlayerAPI(SpotifyResourceAPI):
             "player.set_repeat", "user-modify-playback-state"
         )
         if repeat_mode not in self._REPEAT_MODES:
-            repeat_modes_str = "', '".join(sorted(self._REPEAT_MODES))
             raise ValueError(
-                f"Invalid repeat mode {repeat_mode!r}. "
-                f"Valid values: '{repeat_modes_str}'."
+                f"Invalid repeat mode {repeat_mode!r}. Valid "
+                f"values: {self._join_values(self._REPEAT_MODES)}."
             )
         self._control_playback(
             "repeat", device_id=device_id, params={"state": repeat_mode}

@@ -627,10 +627,9 @@ class VideosAPI(TIDALResourceAPI):
         params = {}
         if isrcs is not None:
             if isinstance(isrcs, str):
-                self._validate_isrc(isrcs)
+                isrcs = self._prepare_isrc(isrcs)
             elif isinstance(isrcs, list | tuple):
-                for isrc in isrcs:
-                    self._validate_isrc(isrc)
+                isrcs = [self._prepare_isrc(isrc) for isrc in isrcs]
             else:
                 raise ValueError(
                     "`isrcs` must be a string or a list of strings."

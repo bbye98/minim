@@ -172,10 +172,9 @@ class ChartsAPI(MusixmatchResourceAPI):
         if chart_name is not None:
             chart_name = self._prepare_string("chart_name", chart_name).lower()
             if chart_name not in self._CHART_NAMES:
-                chart_names_str = "', '".join(self._CHART_NAMES)
                 raise ValueError(
                     f"Invalid chart {chart_name}. "
-                    f"Valid values: '{chart_names_str}'."
+                    f"Valid values: {self._join_values(self._CHART_NAMES)}."
                 )
             params["chart_name"] = chart_name
         if country_code is not None:

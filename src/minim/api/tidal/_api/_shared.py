@@ -52,10 +52,9 @@ class TIDALResourceAPI(ResourceAPI):
         ResourceAPI._validate_type("sort_by", sort_by, str)
         sort_by = sort_by.removeprefix(prefix)
         if sort_by not in sort_fields:
-            sort_fields_str = f"', '{prefix}".join(sort_fields)
             raise ValueError(
-                f"Cannot sort by '{prefix}{sort_by}'. "
-                f"Valid values: '{prefix}{sort_fields_str}'."
+                f"Cannot sort by '{prefix}{sort_by}'. Valid values: "
+                f"{ResourceAPI._join_values(f'{prefix}{sort_field}' for sort_field in sort_fields)}."
             )
         params["sort"] = f"{'-' if descending else ''}{prefix}{sort_by}"
 
@@ -144,7 +143,7 @@ class TIDALResourceAPI(ResourceAPI):
                 relationships_str = "', '".join(sorted(relationships))
                 raise ValueError(
                     f"Invalid related resource {resource!r}. "
-                    f"Valid values: '{relationships_str}'."
+                    f"Valid values: {ResourceAPI._join_values(relationships)}."
                 )
         return expand
 

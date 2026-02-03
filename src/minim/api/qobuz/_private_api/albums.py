@@ -11,8 +11,9 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       instantiated directly.
     """
 
     _FEATURED_TYPES = {
@@ -449,10 +450,9 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         """
         featured_type = featured_type.strip().lower()
         if featured_type not in self._FEATURED_TYPES:
-            featured_types_str = "', '".join(sorted(self._FEATURED_TYPES))
             raise ValueError(
-                f"Invalid featured_type {featured_type!r}. "
-                f"Valid values: '{featured_types_str!r}'."
+                f"Invalid featured_type {featured_type!r}. Valid "
+                f"values: '{self._join_values(self._FEATURED_TYPES)}."
             )
         params = {"type": featured_type}
         if genre_ids is not None:

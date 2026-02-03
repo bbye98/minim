@@ -13,12 +13,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       instantiated directly.
     """
 
     _PLAYLIST_TYPES = {"owner", "subscriber"}
     _RELATIONSHIPS = {"tracks", "getSimilarPlaylists", "focus", "focusAll"}
+    _SORT_FIELDS = {"updated_at", "position"}
 
     @cached_property
     def available_playlist_tags(self) -> dict[str, dict[str, Any]]:
@@ -47,12 +49,10 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             raise ValueError("Qobuz playlist tag slugs must be strings.")
         if "available_playlist_tags" in self.__dict__:
             if playlist_tag_slug not in self.available_playlist_tags:
-                playlist_tag_slugs_str = "', '".join(
-                    self.available_playlist_tags
-                )
                 raise ValueError(
                     f"Invalid playlist tag slug {playlist_tag_slug!r}. "
-                    f"Valid values: {playlist_tag_slugs_str}."
+                    "Valid values: "
+                    f"{self._join_values(self.available_playlist_tags)}."
                 )
 
     def add_playlist_tracks(
@@ -1001,11 +1001,10 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if sort_by is not None:
-            if sort_by not in (sort_fields := {"updated_at", "position"}):
-                sort_fields_str = "', '".join(sorted(sort_fields))
+            if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
+                    f"Invalid sort field {sort_by!r}. Valid values: "
+                    f"{self._join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:

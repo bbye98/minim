@@ -17,8 +17,9 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       instantiated directly.
     """
 
     _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES", "HI_RES_LOSSLESS"}
@@ -646,17 +647,15 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         self._validate_tidal_ids(track_id, _recursive=False)
         quality = self._prepare_string("quality", quality).upper()
         if quality not in self._AUDIO_QUALITIES:
-            audio_qualities_str = "', '".join(self._AUDIO_QUALITIES)
             raise ValueError(
-                f"Invalid audio quality {quality!r}. "
-                f"Valid values: '{audio_qualities_str}'."
+                f"Invalid audio quality {quality!r}. Valid values: "
+                f"{self._join_values(self._AUDIO_QUALITIES)}."
             )
         intent = self._prepare_string("intent", intent).upper()
         if intent not in self._PLAYBACK_MODES:
-            playback_modes_str = "', '".join(self._PLAYBACK_MODES)
             raise ValueError(
-                f"Invalid playback mode {intent!r}. "
-                f"Valid values: '{playback_modes_str}'."
+                f"Invalid playback mode {intent!r}. Valid values: "
+                f"{self._join_values(self._PLAYBACK_MODES)}."
             )
         self._validate_type("preview", preview, bool)
         return self._client._request(

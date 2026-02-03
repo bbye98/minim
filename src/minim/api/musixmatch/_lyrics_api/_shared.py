@@ -30,5 +30,5 @@ class MusixmatchResourceAPI(ResourceAPI):
             raise ValueError(
                 f"Invalid {'' if sort_by is None else sort_by + ' '}"
                 f"sort order: {sort_order!r}. Valid values: "
-                f"{', '.join(allowed_sort_orders)}."
+                f"{ResourceAPI._join_values(allowed_sort_orders)}."
             )

@@ -11,8 +11,9 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       instantiated directly.
     """
 
     @cached_property
@@ -66,11 +67,10 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
                 "representations."
             )
         if "available_genres" in self.__dict__:
-            genre_ids_str = "', '".join(sorted(self.available_genres.keys()))
             if genre_id not in self.available_genres:
                 raise ValueError(
-                    f"Invalid genre ID {genre_id!r}. "
-                    f"Valid values: '{genre_ids_str}'."
+                    f"Invalid genre ID {genre_id!r}. Valid values: "
+                    f"{self._join_values(self.available_genres.keys())}."
                 )
 
     @TTLCache.cached_method(ttl="static")

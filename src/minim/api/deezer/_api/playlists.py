@@ -12,8 +12,9 @@ class PlaylistsAPI(DeezerResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
-       should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.deezer.DeezerAPIClient` and should not be
+       instantiated directly.
     """
 
     @TTLCache.cached_method(ttl="user")

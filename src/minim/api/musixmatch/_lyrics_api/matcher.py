@@ -68,14 +68,13 @@ class MatcherAPI(MusixmatchResourceAPI):
             params["q_artist"] = self._prepare_string("artist", artist)
             params["q_track"] = self._prepare_string("track", track)
         else:
-            self._validate_isrc(isrc)
             if artist or track:
                 warnings.warn(
                     "The track ISRC takes precedence over the artist "
                     "and track search queries, so the latter will be "
                     "omitted from the request."
                 )
-            params["track_isrc"] = isrc
+            params["track_isrc"] = self._prepare_isrc(isrc)
         return self._client._request("GET", endpoint, params=params).json()
 
     @TTLCache.cached_method(ttl="static")

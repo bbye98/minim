@@ -10,8 +10,9 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       instantiated directly.
     """
 
     _FAVORITE_TYPES = {
@@ -449,10 +450,9 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         if item_type is not None:
             item_type = self._prepare_string("item_type", item_type).lower()
             if item_type not in self._FAVORITE_TYPES:
-                favorite_types_str = "', '".join(self._FAVORITE_TYPES)
                 raise ValueError(
-                    f"Invalid item type {item_type!r}. "
-                    f"Valid values: '{favorite_types_str}'."
+                    f"Invalid item type {item_type!r}. Valid values: "
+                    f"{self._join_values(self._FAVORITE_TYPES)}."
                 )
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 500)
@@ -543,12 +543,9 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication("favorites.is_item_saved")
         item_type = self._prepare_string("item_type", item_type).lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
-            favorite_types_str = "', '".join(
-                ft[:-1] for ft in self._FAVORITE_TYPES
-            )
             raise ValueError(
-                f"Invalid item type {item_type!r}. "
-                f"Valid values: '{favorite_types_str}'."
+                f"Invalid item type {item_type!r}. Valid values: "
+                f"{self._join_values(ft[:-1] for ft in self._FAVORITE_TYPES)}."
             )
         if item_type == "album":
             self._validate_album_id(item_id)
@@ -599,12 +596,9 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication("favorites.toggle_item_saved")
         item_type = self._prepare_string("item_type", item_type).lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
-            favorite_types_str = "', '".join(
-                ft[:-1] for ft in self._FAVORITE_TYPES
-            )
             raise ValueError(
-                f"Invalid item type {item_type!r}. "
-                f"Valid values: '{favorite_types_str}'."
+                f"Invalid item type {item_type!r}. Valid values: "
+                f"{self._join_values(ft[:-1] for ft in self._FAVORITE_TYPES)}."
             )
         if item_type == "album":
             self._validate_album_id(item_id)

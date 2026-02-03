@@ -755,17 +755,15 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
             if item_type[-1] == "s":
                 item_type = item_type[:-1]
             if item_type not in cls._IMAGE_SIZES:
-                item_types_str = "', '".join(cls._IMAGE_SIZES)
                 raise ValueError(
-                    f"Invalid resource type {item_type!r}. "
-                    f"Valid values: '{item_types_str}'."
+                    f"Invalid resource type {item_type!r}. Valid "
+                    f"values: {cls._join_values(cls._IMAGE_SIZES)}."
                 )
             if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
-                _sizes = "', '".join(sorted(sizes))
                 raise ValueError(
                     f"Invalid dimensions {dimensions!r} for a(n) "
                     f"{item_type} {cls._IMAGE_TYPES[item_type]}. "
-                    f"Valid values: '{_sizes}'."
+                    f"Valid values: {cls._join_values(sizes)}."
                 )
         return (
             f"{PrivateTIDALAPIClient.RESOURCE_URL}/{media_type}"

@@ -11,8 +11,9 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       instantiated directly.
     """
 
     _FEATURED_TYPES = {"albums", "articles", "artists", "playlists"}
@@ -265,10 +266,9 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         if item_type is not None:
             item_type = self._prepare_string("item_type", item_type).lower()
             if item_type not in self._FEATURED_TYPES:
-                featured_types_str = "', '".join(self._FEATURED_TYPES)
                 raise ValueError(
-                    f"Invalid item type {item_type!r}. "
-                    f"Valid values: '{featured_types_str}'."
+                    f"Invalid item type {item_type!r}. Valid values: "
+                    f"{self._join_values(self._FEATURED_TYPES)}."
                 )
             params["type"] = item_type
         if genre_ids is not None:

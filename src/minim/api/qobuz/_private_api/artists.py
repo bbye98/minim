@@ -11,8 +11,9 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       instantiated directly.
     """
 
     _CONTENT_FILTERS = {"hires", "explicit"}
@@ -32,6 +33,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         "playlists",
         "tracks_appears_on",
     }
+    _SORT_FIELDS = {"relevant", "release_date"}
 
     @TTLCache.cached_method(ttl="popularity")
     def get_artist(
@@ -940,13 +942,10 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         params = {"artist_id": artist_id}
         if subresource == "page":
             if sort_by is not None:
-                if sort_by not in (
-                    sort_fields := {"relevant", "release_date"}
-                ):
-                    sort_fields_str = "', '".join(sorted(sort_fields))
+                if sort_by not in self._SORT_FIELDS:
                     raise ValueError(
-                        f"Invalid sort field {sort_by!r}. "
-                        f"Valid values: '{sort_fields_str}'."
+                        f"Invalid sort field {sort_by!r}. Valid "
+                        f"values: {self._join_values(self._SORT_FIELDS)}."
                     )
                 params["order"] = sort_by
             if descending is not None:
@@ -1180,11 +1179,10 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if sort_by is not None:
-            if sort_by not in (sort_fields := {"relevant", "release_date"}):
-                sort_fields_str = "', '".join(sorted(sort_fields))
+            if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
+                    f"Invalid sort field {sort_by!r}. Valid "
+                    f"values: {self._join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:

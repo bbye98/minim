@@ -17,6 +17,8 @@ class TracksAPI(MusixmatchResourceAPI):
        should not be instantiated directly.
     """
 
+    _SUBTITLE_FORMATS = {"lrc", "dfxp", "mxm"}
+
     def _get_track_resource(
         self,
         endpoint: str,
@@ -65,8 +67,7 @@ class TracksAPI(MusixmatchResourceAPI):
             self._validate_numeric("common_track_id", common_track_id, int)
             _params["commontrack_id"] = common_track_id
         if isrc is not None:
-            self._validate_isrc(isrc)
-            _params["track_isrc"] = isrc
+            _params["track_isrc"] = self._prepare_isrc(isrc)
         if not _params:
             raise ValueError(
                 "At least one of `track_id'`, `common_track_id`, or `isrc` "
@@ -492,11 +493,10 @@ class TracksAPI(MusixmatchResourceAPI):
         params = {}
         if format is not None:
             format = self._prepare_string("format", format).lower()
-            if format not in (SUBTITLE_FORMATS := {"lrc", "dfxp", "mxm"}):
-                subtitle_formats_str = "', '".join(sorted(SUBTITLE_FORMATS))
+            if format not in self._SUBTITLE_FORMATS:
                 raise ValueError(
-                    f"Invalid subtitle format {format!r}. "
-                    f"Valid values: '{subtitle_formats_str}'."
+                    f"Invalid subtitle format {format!r}. Valid "
+                    f"values: {self._join_values(self._SUBTITLE_FORMATS)}."
                 )
             params["subtitle_format"] = format
         if duration is not None:
@@ -616,7 +616,7 @@ class TracksAPI(MusixmatchResourceAPI):
         self._client._require_api_key("tracks.get_track_rich_sync_lyrics")
         params = {}
         if duration is not None:
-            self._validate_numeric("rich_durationync_length", duration, int, 0)
+            self._validate_numeric("duration", duration, int, 0)
             params["f_richsync_length"] = duration
         if max_duration_deviation is not None:
             self._validate_numeric(
@@ -1261,7 +1261,7 @@ class TracksAPI(MusixmatchResourceAPI):
 
         .. seealso::
 
-           `Lyric Lens page in the Musixmatch Lyrics API documentation
+           `Musixmatch Lyrics API documentation
            <https://docs.musixmatch.com/enterprise-integration
            /lyric-lens>`_ – Lyric Lens introduction and metadata
            overview.

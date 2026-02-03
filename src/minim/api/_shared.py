@@ -29,6 +29,7 @@ from cryptography.x509.oid import NameOID
 import httpx
 
 from .. import FOUND, MINIM_DIR
+from .._utility import join_values
 from . import db_connection, db_cursor
 
 if FOUND["playwright"]:
@@ -679,6 +680,8 @@ class APIClient(ABC):
     _QUAL_NAME: str
     #: Base URL for API endpoints.
     BASE_URL: str
+
+    _join_values = staticmethod(join_values)
 
     def __init__(
         self, *, enable_cache: bool = True, user_agent: str | None = None
@@ -1772,12 +1775,9 @@ class OAuth2APIClient(APIClient):
                authorization flow and/or scopes.
         """
         if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
-            flows_str = "', '".join(
-                sorted(f for f in self._ALLOWED_AUTH_FLOWS if f)
-            )
             raise ValueError(
                 f"Invalid authorization flow {authorization_flow!r}. "
-                f"Valid values: '{flows_str}'."
+                f"Valid values: {join_values(self._ALLOWED_AUTH_FLOWS)}."
             )
         self._auth_flow = authorization_flow
 
@@ -1843,7 +1843,7 @@ class OAuth2APIClient(APIClient):
             self._redirect_uri = redirect_uri
             if redirect_handler is not None:
                 if redirect_handler not in self._REDIRECT_HANDLERS:
-                    handlers_str = "', '".join(sorted(self._REDIRECT_HANDLERS))
+                    handlers_str = self._join_values(self._REDIRECT_HANDLERS)
                     if handlers_str:
                         handlers_str = f", '{handlers_str}'"
                     raise ValueError(
@@ -1884,6 +1884,10 @@ class ResourceAPI:
     Base class for API resource endpoint groups.
     """
 
+    _TRANSLATION_TABLES = {"separators": str.maketrans("", "", "-‐-‒–—―−")}
+
+    _join_values = staticmethod(join_values)
+
     def __init__(self, client: APIClient, /) -> None:
         """
         Parameters
@@ -1892,6 +1896,33 @@ class ResourceAPI:
             API client instance used to make HTTP requests.
         """
         self._client = client
+
+    @staticmethod
+    def _prepare_barcode(barcode: int | str, /) -> str:
+        """
+        Validate and normalize a Universal Product Code (UPC) or
+        European Article Number (EAN) barcode.
+
+        Parameters
+        ----------
+        barcode : int or str; positional-only
+            UPC or EAN barcode.
+
+        Returns
+        -------
+        barcode : str
+            Trimmed UPC or EAN barcode without hyphens or spaces.
+        """
+        barcode = (
+            str(barcode)
+            if isinstance(barcode, int)
+            else ResourceAPI._prepare_string(
+                barcode, remove_whitespace=True
+            ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
+        )
+        if not barcode.isdecimal() or len(barcode) not in {12, 13}:
+            raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
+        return barcode
 
     @staticmethod
     def _prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
@@ -1909,18 +1940,83 @@ class ResourceAPI:
         Returns
         -------
         dt : str
-            Datetime string.
+            Trimmed datetime string.
         """
         if isinstance(dt, str):
-            dt = datetime.strptime(dt, fmt)
+            dt = dt.strip()
+            datetime.strptime(dt.strip(), fmt)
+            return dt
         return dt.strftime(fmt)
 
     @staticmethod
+    def _prepare_isrc(isrc: str, /) -> str:
+        """
+        Validate and normalize an International Standard Recording Code
+        (ISRC).
+
+        Parameters
+        ----------
+        isrc : str; positional-only
+            ISRC.
+
+        Returns
+        -------
+        isrc : str
+            Trimmed ISRC string without hyphens or spaces.
+        """
+        isrc = ResourceAPI._prepare_string(
+            "isrc", isrc, remove_whitespace=True
+        ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
+        if len(isrc) != 12 or not (
+            isrc[:2].isalpha() and isrc[2:5].isalnum() and isrc[5:].isdecimal()
+        ):
+            raise ValueError(f"{isrc!r} is not a valid ISRC.")
+        return isrc
+
+    @staticmethod
+    def _prepare_iswc(iswc: str, /) -> str:
+        """
+        Validate and normalize an International Standard Musical Work
+        Code (ISWC).
+
+        Parameters
+        ----------
+        iswc : str; positional-only
+            ISWC.
+
+        Returns
+        -------
+        iswc : str
+            Trimmed ISWC string without hyphens or spaces.
+        """
+        iswc = ResourceAPI._prepare_string(
+            "iswc", iswc, remove_whitespace=True
+        ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
+        if (
+            len(iswc) != 11
+            or (
+                1
+                + sum(
+                    (index + 1) * int(digit)
+                    for index, digit in enumerate(iswc[1:-1])
+                )
+            )
+            % 10
+        ) != int(iswc[-1]):
+            raise ValueError(f"{iswc!r} is not a valid ISWC.")
+        return iswc
+
+    @staticmethod
     def _prepare_string(
-        name: str, string: str, /, *, allow_blank: bool = False
+        name: str,
+        string: str,
+        /,
+        *,
+        allow_blank: bool = False,
+        remove_whitespace: bool = False,
     ) -> str:
         """
-        Validate and trim a string.
+        Validate and strip a string.
 
         Parameters
         ----------
@@ -1928,35 +2024,26 @@ class ResourceAPI:
             Parameter name for the string.
 
         string : str; positional-only
-            Keyword string.
+            String.
+
+        allow_blank : bool; keyword-only; default: :code:`False`
+            Whether to allow empty strings.
+
+        remove_whitespace : bool; keyword-only; default: :code:`False`
+            Whether to remove whitespace throughout the string.
 
         Returns
         -------
         string : str
-            Trimmed keyword string.
+            Stripped string.
         """
         ResourceAPI._validate_type(name, string, str)
-        string = string.strip()
+        string = (
+            "".join(string.split()) if remove_whitespace else string.strip()
+        )
         if not allow_blank and not len(string):
             raise ValueError(f"`{name}` cannot be blank.")
         return string
-
-    @staticmethod
-    def _validate_barcode(barcode: int | str, /) -> None:
-        """
-        Validate a Universal Product Code (UPC) or European Article
-        Number (EAN) barcode.
-
-        Parameters
-        ----------
-        barcode : int or str; positional-only
-            UPC or EAN barcode.
-        """
-        if not (barcode_ := str(barcode)).isdecimal() or len(barcode_) not in {
-            12,
-            13,
-        }:
-            raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
 
     @staticmethod
     def _validate_country_code(country_code: str, /) -> None:
@@ -2023,27 +2110,6 @@ class ResourceAPI:
                 "consisting of an ISO 639-1 language code and an ISO "
                 "3166-1 alpha-2 country code joined by an underscore."
             )
-
-    @staticmethod
-    def _validate_isrc(isrc: str, /) -> None:
-        """
-        Validate an International Standard Recording Code (ISRC).
-
-        Parameters
-        ----------
-        isrc : str; positional-only
-            ISRC.
-        """
-        if (
-            not isinstance(isrc, str)
-            or len(isrc) != 12
-            or not (
-                isrc[:2].isalpha()
-                and isrc[2:5].isalnum()
-                and isrc[5:].isdecimal()
-            )
-        ):
-            raise ValueError(f"{isrc!r} is not a valid ISRC.")
 
     @staticmethod
     def _validate_number(

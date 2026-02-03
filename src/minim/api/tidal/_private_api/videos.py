@@ -17,8 +17,9 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
-       and should not be instantiated directly.
+       This class is managed by
+       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       instantiated directly.
     """
 
     _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
@@ -312,17 +313,15 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         self._validate_tidal_ids(video_id, _recursive=False)
         quality = self._prepare_string("quality", quality).upper()
         if quality not in self._VIDEO_QUALITIES:
-            video_qualities_str = "', '".join(self._VIDEO_QUALITIES)
             raise ValueError(
-                f"Invalid video quality {quality!r}. "
-                f"Valid values: '{video_qualities_str}'."
+                f"Invalid video quality {quality!r}. Valid values: "
+                f"{self._join_values(self._VIDEO_QUALITIES)}."
             )
         intent = intent.strip().upper()
         if intent not in self._PLAYBACK_MODES:
-            playback_modes_str = "', '".join(self._PLAYBACK_MODES)
             raise ValueError(
-                f"Invalid playback mode {intent!r}. "
-                f"Valid values: '{playback_modes_str}'."
+                f"Invalid playback mode {intent!r}. Valid values: "
+                f"{self._join_values(self._PLAYBACK_MODES)}."
             )
         self._validate_type("preview", preview, bool)
         return self._client._request(

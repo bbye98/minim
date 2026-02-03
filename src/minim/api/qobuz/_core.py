@@ -698,12 +698,9 @@ class PrivateQobuzAPIClient(APIClient):
             :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
         """
         if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
-            flows_str = "', '".join(
-                sorted(f for f in self._ALLOWED_AUTH_FLOWS if f)
-            )
             raise ValueError(
                 f"Invalid authorization flow {authorization_flow!r}. "
-                f"Valid values: '{flows_str}'."
+                f"Valid values: {self._join_values(self._ALLOWED_AUTH_FLOWS)}."
             )
         self._auth_flow = authorization_flow
         if app_id is None or app_secret is None:
