@@ -1,3 +1,4 @@
+from ... import __version__
 from .._shared import OAuthRedirectHandler, APIClient
 
 
@@ -40,7 +41,11 @@ class DiscogsAPIClient(APIClient):
         user_agent: str | None = None,
     ) -> None:
         """ """
-        super().__init__(enable_cache=enable_cache, user_agent=user_agent)
+        super().__init__(
+            enable_cache=enable_cache,
+            user_agent=user_agent
+            or f"minim/{__version__} +https://github.com/bbye98/minim",
+        )
 
         ...
 
