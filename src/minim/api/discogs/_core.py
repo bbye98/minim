@@ -17,9 +17,12 @@ class DiscogsAPIClient(APIClient):
     _PROVIDER = "Discogs"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
     BASE_URL = "https://api.discogs.com"
+    #: Authorization endpoint.
     AUTH_URL = "https://www.discogs.com/oauth/authorize"
+    #: Request token endpoint.
     REQUEST_TOKEN_URL = "https://api.discogs.com/oauth/request_token"
-    TOKEN_URL = "https://api.discogs.com/oauth/access_token"
+    #: Access token endpoint.
+    ACCESS_TOKEN_URL = "https://api.discogs.com/oauth/access_token"
 
     def __init__(
         self,
@@ -37,5 +40,10 @@ class DiscogsAPIClient(APIClient):
         user_agent: str | None = None,
     ) -> None:
         """ """
+        super().__init__(enable_cache=enable_cache, user_agent=user_agent)
 
-        # self._RATE_LIMIT_PER_SECOND = 1 or 5 / 12
+        ...
+
+        self._RATE_LIMIT_PER_SECOND = (
+            5 / 12 if authorization_flow is None else 1
+        )
