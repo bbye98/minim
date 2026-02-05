@@ -608,9 +608,9 @@ class TTLCache:
         return decorator
 
 
-class OAuth2RedirectHandler(BaseHTTPRequestHandler):
+class OAuthRedirectHandler(BaseHTTPRequestHandler):
     """
-    HTTP request handler for OAuth 2.0 redirect URIs.
+    HTTP request handler for OAuth 1.0a and 2.0 redirect URIs.
     """
 
     def do_GET(self) -> None:
@@ -1315,7 +1315,7 @@ class OAuth2APIClient(APIClient):
             if self._redirect_handler == "http.server":
                 httpd = HTTPServer(
                     (urlparse(self._redirect_uri).hostname, self._port),
-                    OAuth2RedirectHandler,
+                    OAuthRedirectHandler,
                 )
                 if urlparse(self._redirect_uri).scheme == "https":
                     certificate_file = MINIM_DIR / "cert.pem"
