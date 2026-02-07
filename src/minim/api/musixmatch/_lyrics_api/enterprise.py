@@ -591,7 +591,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         return self._client._request(
             "POST",
             "work.post",
-            headers={"Content-Type": "application/json"},
+            headers={"content-type": "application/json"},
             json=self._prepare_work_data(work_data),
         ).json()
 
@@ -660,7 +660,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         return self._client._request(
             "POST",
             "work.validity.post",
-            headers={"Content-Type": "application/json"},
+            headers={"content-type": "application/json"},
             json={
                 "data": {
                     "identifier": work_identifier,
@@ -795,7 +795,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         return self._client._request(
             "POST",
             "track.lyrics.fingerprint.post",
-            headers={"Content-Type": "application/json"},
+            headers={"content-type": "application/json"},
             json={"data": {"text": text}},
             params=params,
         )

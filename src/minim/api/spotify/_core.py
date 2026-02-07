@@ -64,7 +64,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
     def __init__(
         self,
         *,
-        authorization_flow: str,
+        auth_flow: str,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
@@ -82,7 +82,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
         """
         Parameters
         ----------
-        authorization_flow : str; keyword-only
+        auth_flow : str; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -237,7 +237,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
         self.users: UsersAPI = UsersAPI(self)
 
         super().__init__(
-            authorization_flow=authorization_flow,
+            auth_flow=auth_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
@@ -386,7 +386,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
             return self._request(method, endpoint, retry=False, **kwargs)
         if status == 429 and retry:
             try:
-                retry_after = float(resp.headers["Retry-After"]) + 1.0
+                retry_after = float(resp.headers["retry-after"]) + 1.0
             except (KeyError, ValueError):
                 retry_after = 1.0
             warnings.warn(

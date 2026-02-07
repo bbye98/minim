@@ -1,34 +1,28 @@
-from ... import __version__
-from .._shared import OAuthRedirectHandler, APIClient
+from ... import __version__, REPOSITORY_URL
+from .._shared import OAuth1APIClient
 
 
-class DiscogsAPIClient(APIClient):
+class DiscogsAPIClient(OAuth1APIClient):
     """
     Discogs API client.
     """
 
     _RATE_LIMIT_PER_SECOND: float
 
-    _ALLOWED_AUTH_FLOWS = {
-        None: "unauthenticated client",
-        "app_only": "Two-Legged Flow",
-        "user_auth": "Three-Legged Flow",
-    }
+    _ALLOWED_AUTH_FLOWS = {None, "three_legged", "two_legged"}
     _ENV_VAR_PREFIX = "DISCOGS_API"
+    _OPTIONAL_AUTH = True
     _PROVIDER = "Discogs"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
     BASE_URL = "https://api.discogs.com"
-    #: Authorization endpoint.
     AUTH_URL = "https://www.discogs.com/oauth/authorize"
-    #: Request token endpoint.
     REQUEST_TOKEN_URL = "https://api.discogs.com/oauth/request_token"
-    #: Access token endpoint.
     ACCESS_TOKEN_URL = "https://api.discogs.com/oauth/access_token"
 
     def __init__(
         self,
         *,
-        authorization_flow: str | None = None,
+        auth_flow: str | None = None,
         consumer_key: str | None = None,
         consumer_secret: str | None = None,
         user_identifier: str | None = None,
@@ -38,17 +32,29 @@ class DiscogsAPIClient(APIClient):
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
-        user_agent: str | None = None,
+        user_agent: str = f"minim/{__version__} +{REPOSITORY_URL}",
     ) -> None:
         """ """
         super().__init__(
+            auth_flow=auth_flow,
+            consumer_key=consumer_key,
+            consumer_secret=consumer_secret,
+            user_identifier=user_identifier,
+            redirect_uri=redirect_uri,
+            access_token=access_token,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
             enable_cache=enable_cache,
-            user_agent=user_agent
-            or f"minim/{__version__} +https://github.com/bbye98/minim",
+            store_tokens=store_tokens,
+            user_agent=user_agent,
         )
 
-        ...
+        debug = True
 
-        self._RATE_LIMIT_PER_SECOND = (
-            5 / 12 if authorization_flow is None else 1
-        )
+        self._RATE_LIMIT_PER_SECOND = 5 / 12 if auth_flow is None else 1
+
+    def _request(self):
+        pass
+
+    def _resolve_user_identifier(self):
+        pass

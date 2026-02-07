@@ -184,7 +184,7 @@ class TIDALAPIClient(_BaseTIDALAPIClient):
     def __init__(
         self,
         *,
-        authorization_flow: str,
+        auth_flow: str,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
@@ -202,7 +202,7 @@ class TIDALAPIClient(_BaseTIDALAPIClient):
         """
         Parameters
         ----------
-        authorization_flow : str; keyword-only
+        auth_flow : str; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -340,7 +340,7 @@ class TIDALAPIClient(_BaseTIDALAPIClient):
         self.videos: VideosAPI = VideosAPI(self)
 
         super().__init__(
-            authorization_flow=authorization_flow,
+            auth_flow=auth_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
@@ -439,7 +439,7 @@ class TIDALAPIClient(_BaseTIDALAPIClient):
             return self._request(method, endpoint, retry=False, **kwargs)
         if status == 429 and retry:
             try:
-                retry_after = float(resp.headers["Retry-After"]) + 1.0
+                retry_after = float(resp.headers["retry-after"]) + 1.0
             except (KeyError, ValueError):
                 retry_after = 1.0
             warnings.warn(
@@ -511,7 +511,7 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
     def __init__(
         self,
         *,
-        authorization_flow: str | None,
+        auth_flow: str | None,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
@@ -529,7 +529,7 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
         """
         Parameters
         ----------
-        authorization_flow : str or None; keyword-only
+        auth_flow : str or None; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -666,7 +666,7 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
         self.videos: PrivateVideosAPI = PrivateVideosAPI(self)
 
         super().__init__(
-            authorization_flow=authorization_flow,
+            auth_flow=auth_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
@@ -919,9 +919,9 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
         """
         return self._request("GET", "v1/country").json()
 
-    def set_authorization_flow(
+    def set_auth_flow(
         self,
-        authorization_flow: str | None,
+        auth_flow: str | None,
         /,
         *,
         client_id: str | None = None,
@@ -945,7 +945,7 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
 
         Parameters
         ----------
-        authorization_flow : str or None; keyword-only
+        auth_flow : str or None; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -1037,7 +1037,7 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
                client's existing token is compatible with the new
                authorization flow and/or scopes.
         """
-        if authorization_flow is None:
+        if auth_flow is None:
             self._client.headers["x-tidal-token"] = client_id
             if "Authorization" in self._client.headers:
                 del self._client.headers["Authorization"]
@@ -1046,8 +1046,8 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
             if "x-tidal-token" in self._client.headers:
                 del self._client.headers["x-tidal-token"]
 
-        super().set_authorization_flow(
-            authorization_flow,
+        super().set_auth_flow(
+            auth_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,

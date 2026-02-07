@@ -86,7 +86,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                 f"v1/playlists/{playlist_uuid}",
                 params={"countryCode": country_code},
             )
-            .headers["ETag"]
+            .headers["etag"]
             .replace('"', "")
         )
 
@@ -1133,7 +1133,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             f"v1/playlists/{playlist_uuid}/items",
             data=data,
             headers={
-                "If-None-Match": self._get_playlist_etag(
+                "if-none-match": self._get_playlist_etag(
                     playlist_uuid, country_code=country_code
                 )
             },
@@ -1201,7 +1201,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             f"v1/playlists/{playlist_uuid}/items/{from_item_indices}",
             params={"toIndex": to_index},
             headers={
-                "If-None-Match": self._get_playlist_etag(
+                "if-none-match": self._get_playlist_etag(
                     playlist_uuid, country_code=country_code
                 )
             },
@@ -1263,7 +1263,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             f"v1/playlists/{playlist_uuid}/items/{item_index}/replace",
             data={"itemId": item_id},
             headers={
-                "If-None-Match": self._get_playlist_etag(
+                "if-none-match": self._get_playlist_etag(
                     playlist_uuid, country_code=country_code
                 )
             },
@@ -1319,7 +1319,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             "DELETE",
             f"v1/playlists/{playlist_uuid}/items/{item_indices}",
             headers={
-                "If-None-Match": self._get_playlist_etag(
+                "if-none-match": self._get_playlist_etag(
                     playlist_uuid, country_code=country_code
                 )
             },

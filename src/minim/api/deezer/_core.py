@@ -50,7 +50,7 @@ class DeezerAPIClient(OAuth2APIClient):
     def __init__(
         self,
         *,
-        authorization_flow: str | None = None,
+        auth_flow: str | None = None,
         app_id: str | None = None,
         app_secret: str | None = None,
         user_identifier: str | None = None,
@@ -67,7 +67,7 @@ class DeezerAPIClient(OAuth2APIClient):
         """
         Parameters
         ----------
-        authorization_flow : str; keyword-only
+        auth_flow : str; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -212,13 +212,13 @@ class DeezerAPIClient(OAuth2APIClient):
             app_id = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_ID")
             app_secret = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_SECRET")
 
-        if authorization_flow is not None:
+        if auth_flow is not None:
             if user_identifier and user_identifier[0] == "~":
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
                     self.__class__.__name__,
-                    authorization_flow=authorization_flow,
+                    auth_flow=auth_flow,
                     client_id=app_id,
                     user_identifier=user_identifier,
                 )
@@ -236,8 +236,8 @@ class DeezerAPIClient(OAuth2APIClient):
                     else token_extras
                 )
 
-        self.set_authorization_flow(
-            authorization_flow,
+        self.set_auth_flow(
+            auth_flow,
             app_id=app_id,
             app_secret=app_secret,
             user_identifier=user_identifier,
@@ -248,7 +248,7 @@ class DeezerAPIClient(OAuth2APIClient):
             store_tokens=store_tokens,
             authenticate=False,
         )
-        if authorization_flow is None:
+        if auth_flow is None:
             self._access_token = self._refresh_token = self._expires_at = None
         elif access_token:
             self.set_access_token(access_token, expires_at=expires_at)
@@ -259,7 +259,7 @@ class DeezerAPIClient(OAuth2APIClient):
     def get_tokens(
         cls,
         *,
-        authorization_flows: str | list[str] | None = None,
+        auth_flows: str | list[str] | None = None,
         app_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
     ) -> list[dict[str, Any]] | None:
@@ -269,7 +269,7 @@ class DeezerAPIClient(OAuth2APIClient):
 
         Parameters
         ----------
-        authorization_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or list[str]; keyword-only; optional
             Authorization flows.
 
         app_ids : str or list[str]; keyword-only; optional
@@ -280,7 +280,7 @@ class DeezerAPIClient(OAuth2APIClient):
         """
         TokenDatabase.get_tokens(
             client_names=cls.__name__,
-            authorization_flows=authorization_flows,
+            auth_flows=auth_flows,
             client_ids=app_ids,
             user_identifiers=user_identifiers,
         )
@@ -289,7 +289,7 @@ class DeezerAPIClient(OAuth2APIClient):
     def remove_tokens(
         cls,
         *,
-        authorization_flows: str | list[str] | None = None,
+        auth_flows: str | list[str] | None = None,
         app_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
     ) -> None:
@@ -299,13 +299,13 @@ class DeezerAPIClient(OAuth2APIClient):
 
         .. warning::
 
-           If none of `authorization_flows`, `app_ids`, or
+           If none of `auth_flows`, `app_ids`, or
            `user_identifiers` are provided, all tokens for this client
            will be removed from local storage.
 
         Parameters
         ----------
-        authorization_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or list[str]; keyword-only; optional
             Authorization flows.
 
         app_ids : str or list[str]; keyword-only; optional
@@ -316,7 +316,7 @@ class DeezerAPIClient(OAuth2APIClient):
         """
         TokenDatabase.remove_tokens(
             client_names=cls.__name__,
-            authorization_flows=authorization_flows,
+            auth_flows=auth_flows,
             client_ids=app_ids,
             user_identifiers=user_identifiers,
         )
@@ -383,16 +383,14 @@ class DeezerAPIClient(OAuth2APIClient):
             raise RuntimeError("Authorization failed due to state mismatch.")
         return queries["code"]
 
-    def _obtain_access_token(
-        self, authorization_flow: str | None = None
-    ) -> None:
+    def _obtain_access_token(self, auth_flow: str | None = None) -> None:
         """
         Get and set a new access token via the provided or current
         authorization flow.
 
         Parameters
         ----------
-        authorization_flow : str; optional
+        auth_flow : str; optional
             Authorization flow. If not provided, the current
             authorization flow in :attr:`_auth_flow` is used.
 
@@ -401,13 +399,13 @@ class DeezerAPIClient(OAuth2APIClient):
             * :code:`"auth_code"` – Authorization Code Flow.
             * :code:`"implicit"` – Implicit Grant Flow.
         """
-        if not authorization_flow:
-            authorization_flow = self._auth_flow
+        if not auth_flow:
+            auth_flow = self._auth_flow
 
-        if authorization_flow is None:
+        if auth_flow is None:
             self.set_access_token(None)
 
-        if authorization_flow == "implicit":
+        if auth_flow == "implicit":
             params = {
                 "app_id": self._app_id,
                 "redirect_uri": self._redirect_uri,
@@ -423,7 +421,7 @@ class DeezerAPIClient(OAuth2APIClient):
                     f"Authorization failed. "
                     f"Error: {error} ({resp_json.get('error_reason')})"
                 )
-        else:  # authorization_flow == "auth_code"
+        else:  # auth_flow == "auth_code"
             resp_json = dict(
                 parse_qsl(
                     httpx.post(
@@ -449,7 +447,7 @@ class DeezerAPIClient(OAuth2APIClient):
         if self._store_tokens:
             TokenDatabase.add_token(
                 self.__class__.__name__,
-                authorization_flow=self._auth_flow,
+                auth_flow=self._auth_flow,
                 client_id=self._app_id,
                 client_secret=self._app_secret,
                 user_identifier=self._user_identifier or "",
@@ -654,7 +652,7 @@ class DeezerAPIClient(OAuth2APIClient):
 
                If the access token was acquired via a different
                authorization flow or client, call
-               :meth:`set_authorization_flow` first to ensure that all
+               :meth:`set_auth_flow` first to ensure that all
                other relevant authorization parameters are set
                correctly.
 
@@ -665,7 +663,7 @@ class DeezerAPIClient(OAuth2APIClient):
         if access_token is None and self._auth_flow is not None:
             raise ValueError(
                 "`access_token` cannot be None when using the "
-                f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]}."
+                f"{self._AUTH_FLOWS[self._auth_flow]}."
             )
         self._access_token = access_token
         self._refresh_token = None
@@ -675,9 +673,9 @@ class DeezerAPIClient(OAuth2APIClient):
             else expires_at
         )
 
-    def set_authorization_flow(
+    def set_auth_flow(
         self,
-        authorization_flow: str | None,
+        auth_flow: str | None,
         /,
         *,
         app_id: str | None = None,
@@ -701,7 +699,7 @@ class DeezerAPIClient(OAuth2APIClient):
 
         Parameters
         ----------
-        authorization_flow : str or None; keyword-only
+        auth_flow : str or None; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -791,14 +789,14 @@ class DeezerAPIClient(OAuth2APIClient):
                client's existing token is compatible with the new
                authorization flow and/or scopes.
         """
-        if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
+        if auth_flow not in self._ALLOWED_AUTH_FLOWS:
             raise ValueError(
-                f"Invalid authorization flow {authorization_flow!r}. "
+                f"Invalid authorization flow {auth_flow!r}. "
                 f"Valid values: {self._join_values(self._ALLOWED_AUTH_FLOWS)}."
             )
-        self._auth_flow = authorization_flow
+        self._auth_flow = auth_flow
 
-        if authorization_flow is None and permissions:
+        if auth_flow is None and permissions:
             warnings.warn(
                 "Permissions were specified in the `permissions` "
                 "parameter, but the unauthenticated client does not"
@@ -818,18 +816,18 @@ class DeezerAPIClient(OAuth2APIClient):
         if app_id is None or app_secret is None:
             app_id = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_ID")
             app_secret = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_SECRET")
-        if app_id is None and authorization_flow is not None:
+        if app_id is None and auth_flow is not None:
             raise ValueError(
                 "An application ID must be provided via the `app_id` "
                 "parameter for the "
-                f"{self._OAUTH_AUTH_FLOWS[authorization_flow]}."
+                f"{self._AUTH_FLOWS[auth_flow]}."
             )
         self._app_id = app_id
         if (
-            authorization_flow in {"auth_code", "client_credentials"}
+            auth_flow in {"auth_code", "client_credentials"}
         ) and not app_secret:
             raise ValueError(
-                f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                f"The {self._AUTH_FLOWS[auth_flow]} "
                 "requires an application secret to be provided via the "
                 "`app_secret` parameter."
             )
@@ -837,10 +835,10 @@ class DeezerAPIClient(OAuth2APIClient):
         self._user_identifier = user_identifier
 
         has_redirect = redirect_uri is not None
-        if authorization_flow is not None:
+        if auth_flow is not None:
             if not has_redirect:
                 raise ValueError(
-                    f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                    f"The {self._AUTH_FLOWS[auth_flow]} "
                     "requires a redirect URI to be provided via the "
                     "`redirect_uri` parameter."
                 )
@@ -889,5 +887,5 @@ class DeezerAPIClient(OAuth2APIClient):
         self._open_browser = open_browser
         self._store_tokens = store_tokens
 
-        if authenticate and authorization_flow is not None:
+        if authenticate and auth_flow is not None:
             self._obtain_access_token()

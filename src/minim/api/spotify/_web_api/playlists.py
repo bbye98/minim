@@ -1649,7 +1649,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "PUT",
             f"playlists/{playlist_id}/images",
             data=image,
-            headers={"Content-Type": "image/jpeg"},
+            headers={"content-type": "image/jpeg"},
         )
 
     @_copy_docstring(UsersAPI.follow_playlist)

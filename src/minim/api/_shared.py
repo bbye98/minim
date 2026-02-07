@@ -71,7 +71,7 @@ class TokenDatabase:
     def get_tokens(
         *,
         client_names: str | list[str] | None = None,
-        authorization_flows: str | list[str] | None = None,
+        auth_flows: str | list[str] | None = None,
         client_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
     ) -> list[dict[str, Any]] | None:
@@ -84,7 +84,7 @@ class TokenDatabase:
         client_names : str; keyword-only; optional
             Class names of the clients.
 
-        authorization_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or list[str]; keyword-only; optional
             Authorization flows.
 
         client_ids : str or list[str]; keyword-only; optional
@@ -106,7 +106,7 @@ class TokenDatabase:
         _locals = locals()
         for param in [
             "client_name",
-            "authorization_flow",
+            "auth_flow",
             "client_id",
             "user_identifier",
         ]:
@@ -130,16 +130,17 @@ class TokenDatabase:
     def add_token(
         client_name: str,
         *,
-        authorization_flow: str,
+        auth_flow: str,
         client_id: str,
-        client_secret: str | None,
+        client_secret: str | None = None,
         user_identifier: str,
-        redirect_uri: str | None,
-        scopes: str | set[str] | None,
-        token_type: str | None,
+        redirect_uri: str | None = None,
+        scopes: str | set[str] | None = None,
+        token_type: str | None = None,
         access_token: str,
-        expires_at: str | datetime | None,
-        refresh_token: str | None,
+        access_token_secret: str | None = None,
+        expires_at: str | datetime | None = None,
+        refresh_token: str | None = None,
         extras: dict[str, Any] | None = None,
         added_at: str | datetime | None = None,
     ) -> None:
@@ -151,13 +152,13 @@ class TokenDatabase:
         client_name : str
             Class name of the client.
 
-        authorization_flow : str; keyword-only
+        auth_flow : str; keyword-only
             Authorization flow.
 
         client_id : str; keyword-only
             Client ID.
 
-        client_secret : str or None; keyword-only
+        client_secret : str or None; keyword-only; optional
             Client secret.
 
         user_identifier : str; keyword-only
@@ -166,19 +167,23 @@ class TokenDatabase:
         redirect_uri : str; keyword-only; optional
             Redirect URI.
 
-        scopes : str, set[str], or None; keyword-only
+        scopes : str, set[str], or None; keyword-only; optional
             Authorization scopes.
 
-        token_type : str or None; keyword-only
+        token_type : str or None; keyword-only; optional
             Type of the access token.
 
         access_token : str; keyword-only
             Access token.
 
-        expires_at : str, datetime.datetime, or None; keyword-only
+        access_token_secret : str or None; keyword-only; optional
+            Access token secret.
+
+        expires_at : str, datetime.datetime, or None; keyword-only; \
+        optional
             Expiration time of the access token.
 
-        refresh_token : str or None; keyword-only
+        refresh_token : str or None; keyword-only; optional
             Refresh token for renewing the access token.
 
         extras : dict[str, Any]; keyword-only; optional
@@ -192,7 +197,7 @@ class TokenDatabase:
         db_cursor.execute(
             """
             INSERT OR REPLACE INTO tokens (
-                authorization_flow,
+                auth_flow,
                 client_name,
                 client_id,
                 client_secret,
@@ -201,14 +206,15 @@ class TokenDatabase:
                 scopes,
                 token_type,
                 access_token,
+                access_token_secret,
                 expires_at,
                 refresh_token,
                 extras,
                 added_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                authorization_flow,
+                auth_flow,
                 client_name,
                 client_id,
                 client_secret,
@@ -219,6 +225,7 @@ class TokenDatabase:
                 else scopes,
                 token_type,
                 access_token,
+                access_token_secret,
                 expires_at.strftime("%Y-%m-%dT%H:%M:%SZ")
                 if isinstance(expires_at, datetime)
                 else expires_at,
@@ -235,7 +242,7 @@ class TokenDatabase:
     def remove_tokens(
         *,
         client_names: str | list[str] | None = None,
-        authorization_flows: str | list[str] | None = None,
+        auth_flows: str | list[str] | None = None,
         client_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
     ) -> None:
@@ -245,7 +252,7 @@ class TokenDatabase:
 
         .. warning::
 
-           If none of `client_names`, `authorization_flows`,
+           If none of `client_names`, `auth_flows`,
            `client_ids`, or `user_identifiers` are provided, all tokens
            will be removed from local storage.
 
@@ -254,7 +261,7 @@ class TokenDatabase:
         client_names : str; keyword-only; optional
             Class names of the clients.
 
-        authorization_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or list[str]; keyword-only; optional
             Authorization flows.
 
         client_ids : str or list[str]; keyword-only; optional
@@ -270,7 +277,7 @@ class TokenDatabase:
         _locals = locals()
         for param in [
             "client_name",
-            "authorization_flow",
+            "auth_flow",
             "client_id",
             "user_identifier",
         ]:
@@ -292,7 +299,7 @@ class TokenDatabase:
     def _get_token(
         client_name: str,
         *,
-        authorization_flow: str | None,
+        auth_flow: str | None,
         client_id: str,
         user_identifier: str | None,
     ) -> dict[str, Any] | None:
@@ -304,7 +311,7 @@ class TokenDatabase:
         client_name : str
             Class name of the client.
 
-        authorization_flow : str or None; keyword-only
+        auth_flow : str or None; keyword-only
             Authorization flow.
 
         client_id : str; keyword-only
@@ -321,21 +328,16 @@ class TokenDatabase:
         """
         if user_identifier is None:
             clause = "ORDER BY added_at DESC"
-            params = client_name, authorization_flow, client_id
+            params = client_name, auth_flow, client_id
         else:
             clause = "AND user_identifier = ?"
-            params = (
-                client_name,
-                authorization_flow,
-                client_id,
-                user_identifier,
-            )
+            params = (client_name, auth_flow, client_id, user_identifier)
         db_cursor.execute(
             f"""
             SELECT *
             FROM tokens
             WHERE client_name = ?
-            AND authorization_flow = ?
+            AND auth_flow = ?
             AND client_id = ?
             {clause}
             LIMIT 1
@@ -692,14 +694,6 @@ class APIClient(ABC):
         enable_cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
-            If :code:`True`, responses from semi-static endpoints are
-            cached for one minute to one day, depending on their
-            expected update frequency.
-
-            .. seealso::
-
-               :meth:`clear_cache` – Clear specific or all cache entries
-               for this client.
 
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
@@ -708,7 +702,7 @@ class APIClient(ABC):
         self._cache = TTLCache() if enable_cache else None
         self._client = httpx.Client(base_url=self.BASE_URL)
         if user_agent is not None:
-            self._client.headers["User-Agent"] = user_agent
+            self._client.headers["user-agent"] = user_agent
 
     def __enter__(self) -> "APIClient":
         """
@@ -783,20 +777,11 @@ class APIClient(ABC):
         """
         Clear specific or all cache entries for this client.
 
-        .. warning::
-
-           If `endpoint_methods` is not provided, all cache entries for
-           this client are cleared.
-
         Parameters
         ----------
         endpoint_methods : str, Callable or list[str | Callable]; \
         positional-only; optional
             Endpoint methods whose cache entries should be cleared.
-
-            **Examples**: :code:`"search"`,
-            :code:`minim.api.spotify.TracksAPI.get_tracks`,
-            :code:`["search", minim.api.spotify.TracksAPI.get_tracks]`.
         """
         if self._cache is not None:
             self._cache.clear(endpoint_methods)
@@ -825,19 +810,871 @@ class APIClient(ABC):
             self._cache = None
 
 
-class OAuth2APIClient(APIClient):
+class OAuthAPIClient(APIClient):
+    """
+    Abstract base class for OAuth-based API clients.
+    """
+
+    _AUTH_FLOWS: dict[str | None, str]
+    _REDIRECT_FLOWS: set[str]
+    #: Authorization endpoint.
+    AUTH_URL: str
+
+    _OPTIONAL_AUTH: bool = False
+    _REDIRECT_HANDLERS = {None, "http.server", "playwright"}
+
+    @abstractmethod
+    def _obtain_access_token(self, auth_flow: str | None = None) -> None:
+        """
+        Get and set a new access token via the provided or current
+        authorization flow.
+
+        Parameters
+        ----------
+        auth_flow : str; optional
+            Authorization flow.
+        """
+        ...
+
+    @abstractmethod
+    def _require_authentication(self, endpoint_method: str, /) -> None:
+        """
+        Ensure that the user authentication has been performed for a
+        protected endpoint.
+
+        Parameters
+        ----------
+        endpoint_method : str; positional-only
+            Name of the endpoint method.
+        """
+        ...
+
+    @abstractmethod
+    def _resolve_user_identifier(self) -> str | None:
+        """
+        Resolve the best user identifier for the current account.
+        """
+        ...
+
+    @abstractmethod
+    def set_access_token(
+        self,
+        access_token: str | None,
+        *args: tuple[Any, ...],
+        **kwargs: dict[str, Any],
+    ) -> None:
+        """
+        Set or update the access token and its related metadata.
+
+        Parameters
+        ----------
+        access_token : str or None; positional-only
+            Access token.
+
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+        """
+        ...
+
+    @abstractmethod
+    def set_auth_flow(
+        self,
+        auth_flow: str | None,
+        *args: tuple[Any, ...],
+        user_identifier: str | None = None,
+        redirect_uri: str | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        store_tokens: bool = True,
+        authenticate: bool = True,
+        **kwargs: dict[str, Any],
+    ) -> None:
+        """
+        Set or update the authorization flow and related parameters.
+
+        Parameters
+        ----------
+        auth_flow : str or None; keyword-only
+            Authorization flow.
+
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same consumer key or client ID and
+            authorization flow.
+
+        redirect_uri : str; keyword-only; optional
+            Redirect URI.
+
+        redirect_handler : str or None; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow.
+
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser.
+
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+
+        authenticate : bool; keyword-only; default: :code:`True`
+            Whether to immediately initiate the authorization
+            flow to acquire an access token.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+        """
+        if auth_flow not in self._ALLOWED_AUTH_FLOWS:
+            raise ValueError(
+                f"Invalid authorization flow {auth_flow!r}. "
+                f"Valid values: {join_values(self._ALLOWED_AUTH_FLOWS)}."
+            )
+        self._auth_flow = auth_flow
+
+        has_redirect = redirect_uri is not None
+        if auth_flow in self._REDIRECT_FLOWS:
+            if not has_redirect:
+                raise ValueError(
+                    f"The {self._AUTH_FLOWS[auth_flow]} requires a "
+                    "redirect URI to be provided via the "
+                    "`redirect_uri` parameter."
+                )
+
+            parsed = urlparse(redirect_uri)
+            self._port = (
+                port
+                if (port := parsed.port)
+                else 80
+                if parsed.scheme == "http"
+                else 443
+                if parsed.scheme == "https"
+                else None
+            )
+            self._redirect_uri = redirect_uri
+            if redirect_handler is not None:
+                if redirect_handler not in self._REDIRECT_HANDLERS:
+                    raise ValueError(
+                        f"Invalid redirect handler {redirect_handler!r}. "
+                        "Valid values: "
+                        f"{self._join_values(self._REDIRECT_HANDLERS)}."
+                    )
+                if (hostname := parsed.hostname) not in {
+                    "localhost",
+                    "127.0.0.1",
+                    "::1",
+                }:
+                    warnings.warn(
+                        "Redirect handling is not available for host "
+                        f"{hostname!r}."
+                    )
+                    redirect_handler = None
+            self._redirect_handler = redirect_handler
+        else:
+            if has_redirect:
+                warnings.warn(
+                    "A redirect URI was provided via the "
+                    "`redirect_uri` parameter, but the "
+                    f"{self._AUTH_FLOWS[auth_flow]} does not use "
+                    "redirects."
+                )
+            self._redirect_uri = None
+            self._redirect_handler = None
+
+        self._user_identifier = user_identifier
+        self._open_browser = open_browser
+        self._store_tokens = store_tokens
+
+        if authenticate and auth_flow is not None:
+            self._obtain_access_token()
+
+    @classmethod
+    @abstractmethod
+    def get_tokens(
+        cls, **kwargs: dict[str, Any]
+    ) -> list[dict[str, Any]] | None:
+        """
+        Retrieve specific or all access tokens and their metadata for
+        this client from local storage.
+
+        Parameters
+        ----------
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+        """
+        ...
+
+    @classmethod
+    @abstractmethod
+    def remove_tokens(cls, **kwargs: dict[str, Any]) -> None:
+        """
+        Remove specific or all access tokens and their metadata for this
+        client from local storage.
+
+        Parameters
+        ----------
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+        """
+        ...
+
+    @staticmethod
+    def _generate_local_https_certificate() -> None:
+        """
+        Generate a self-signed certificate for handling local HTTPS
+        redirects.
+        """
+        subject = x509.Name(
+            [
+                x509.NameAttribute(NameOID.COMMON_NAME, "127.0.0.1"),
+                x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Minim"),
+            ]
+        )
+        key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+        cert = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(subject)
+            .public_key(key.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(
+                (now := datetime.now(timezone.utc)) - timedelta(minutes=5)
+            )
+            .not_valid_after(now + timedelta(days=365))
+            .add_extension(
+                x509.SubjectAlternativeName(
+                    [
+                        x509.DNSName("localhost"),
+                        x509.IPAddress(ipaddress.ip_address("127.0.0.1")),
+                        x509.IPAddress(ipaddress.ip_address("::1")),
+                    ]
+                ),
+                critical=False,
+            )
+            .sign(key, hashes.SHA256())
+        )
+
+        with open(MINIM_DIR / "key.pem", "wb") as f:
+            f.write(
+                key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            )
+
+        with open(MINIM_DIR / "cert.pem", "wb") as f:
+            f.write(cert.public_bytes(serialization.Encoding.PEM))
+
+    @staticmethod
+    def _is_certificate_valid(certificate_file: str | Path, /) -> bool:
+        """
+        Check whether a self-signed certificate is still valid.
+
+        Parameters
+        ----------
+        certificate_file : str or pathlib.Path; positional-only
+            Name of or path to the certificate file.
+
+        Returns
+        -------
+        is_valid : bool
+            Whether the certificate is valid.
+        """
+        try:
+            with open(certificate_file, "rb") as f:
+                certificate = x509.load_pem_x509_certificate(
+                    f.read(), default_backend()
+                )
+            return (
+                certificate.not_valid_before_utc
+                <= datetime.now(timezone.utc)
+                <= certificate.not_valid_after_utc
+            )
+        except Exception:
+            return False
+
+    def _handle_redirect(
+        self, auth_url: str, /, url_component: str
+    ) -> dict[str, int | str]:
+        """
+        Handle the redirect during an authorization flow.
+
+        Parameters
+        ----------
+        auth_url : str; positional-only
+            Authorization URL.
+
+        url_component : str
+            Part of the redirect URL to extract parameters from.
+
+            **Valid values**: :code:`"query"`, :code:`"fragment"`.
+
+        Returns
+        -------
+        queries : dict[str, int | str]
+            Key-value pairs parsed from the specified part of the
+            redirect URL.
+        """
+        if self._redirect_handler == "playwright":
+            if not FOUND["playwright"]:
+                raise RuntimeError(
+                    "The redirect in the "
+                    f"{self._AUTH_FLOWS[self._auth_flow]} uses "
+                    "the `playwright` library, but it could not be "
+                    "found or imported."
+                )
+
+            with sync_playwright() as playwright:
+                browser = playwright.firefox.launch(headless=False)
+                context = browser.new_context(
+                    color_scheme="dark",
+                    locale="en-US",
+                    timezone_id="America/Los_Angeles",
+                    **playwright.devices["Desktop Firefox HiDPI"],
+                )
+                page = context.new_page()
+                # TODO: Test and potentially fix logic for Discogs API.
+                with page.expect_request(f"{self._redirect_uri}*", timeout=0):
+                    page.goto(auth_url)
+                while True:
+                    redirect_url = page.evaluate("window.location.href")
+                    if redirect_url.startswith(self._redirect_uri):
+                        break
+                    time.sleep(0.1)
+                queries = dict(
+                    parse_qsl(getattr(urlparse(redirect_url), url_component))
+                )
+                context.close()
+                browser.close()
+        else:
+            if self._open_browser:
+                webbrowser.open(auth_url)
+            else:
+                print(
+                    f"To grant Minim access to {self._PROVIDER} data "
+                    "and features, open the following link in your web "
+                    f"browser:\n\n{auth_url}\n"
+                )
+
+            if self._redirect_handler == "http.server":
+                httpd = HTTPServer(
+                    (urlparse(self._redirect_uri).hostname, self._port),
+                    OAuthRedirectHandler,
+                )
+                if urlparse(self._redirect_uri).scheme == "https":
+                    certificate_file = MINIM_DIR / "cert.pem"
+                    private_key_file = MINIM_DIR / "key.pem"
+                    if (
+                        not certificate_file.exists()
+                        or not private_key_file.exists()
+                        or not self._is_certificate_valid(certificate_file)
+                    ):
+                        self._generate_local_https_certificate()
+                    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+                    context.load_cert_chain(
+                        certfile=certificate_file,
+                        keyfile=private_key_file,
+                    )
+                    httpd.socket = context.wrap_socket(
+                        httpd.socket, server_side=True
+                    )
+                httpd.serve_forever()
+                queries = httpd.response
+            else:
+                uri = input(
+                    "After authorizing Minim to access "
+                    f"{self._PROVIDER} on your behalf, copy and paste "
+                    f"the URI beginning with '{self._redirect_uri}' "
+                    "below.\n\nURI: "
+                )
+                queries = dict(parse_qsl(urlparse(uri).query))
+
+        return queries
+
+
+class OAuth1APIClient(OAuthAPIClient):
+    """
+    Abstract base class for OAuth 1.0a-based API clients.
+    """
+
+    #: Request token endpoint.
+    REQUEST_TOKEN_URL: str
+    #: Access token endpoint.
+    ACCESS_TOKEN_URL: str
+
+    _AUTH_FLOWS = {
+        None: "unauthenticated client",
+        "three_legged": "Three-Legged Flow",
+        "two_legged": "Two-Legged Flow",
+    }
+    _REDIRECT_FLOWS = {"three_legged"}
+
+    def __init__(
+        self,
+        *,
+        auth_flow: str | None,
+        consumer_key: str = None,
+        consumer_secret: str = None,
+        user_identifier: str | None = None,
+        redirect_uri: str | None = None,
+        access_token: str | None = None,
+        access_token_secret: str | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        enable_cache: bool = True,
+        store_tokens: bool = True,
+        user_agent: str | None = None,
+    ) -> None:
+        """ """
+        super().__init__(enable_cache=enable_cache, user_agent=user_agent)
+
+        # If a consumer key is not provided, try to retrieve it and its
+        # corresponding consumer secret from environment variables
+        if consumer_key is None:
+            consumer_key = os.environ.get(
+                f"{self._ENV_VAR_PREFIX}_CONSUMER_KEY"
+            )
+            consumer_secret = os.environ.get(
+                f"{self._ENV_VAR_PREFIX}_CONSUMER_SECRET"
+            )
+
+        # Ensure `consumer_key` and `auth_flow` are not empty/null when
+        # authorization is not optional
+        if not self._OPTIONAL_AUTH:
+            if auth_flow is None:
+                raise ValueError(
+                    "An authorization flow must be provided via the "
+                    "`auth_flow` parameter."
+                )
+            if consumer_key is None:
+                raise ValueError(
+                    "A consumer key must be provided via the "
+                    "`consumer_key` parameter."
+                )
+
+        if auth_flow is not None:
+            if user_identifier and user_identifier[0] == "~":
+                user_identifier = user_identifier[1:]
+            elif (
+                store_tokens
+                and consumer_key is not None
+                and (
+                    account := TokenDatabase._get_token(
+                        self.__class__.__name__,
+                        auth_flow=auth_flow,
+                        client_id=consumer_key,
+                        user_identifier=user_identifier,
+                    )
+                )
+            ):
+                # If an access token is not provided, try to retrieve it
+                # from local token storage
+                access_token = account["access_token"]
+                access_token_secret = account["access_token_secret"]
+                consumer_secret = account["client_secret"]
+                redirect_uri = account["redirect_uri"]
+                self._token_extras = (
+                    json.loads(token_extras)
+                    if isinstance(token_extras := account["extras"], str)
+                    else token_extras
+                )
+
+        self.set_auth_flow(
+            auth_flow,
+            consumer_key=consumer_key,
+            consumer_secret=consumer_secret,
+            user_identifier=user_identifier,
+            redirect_uri=redirect_uri,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            store_tokens=store_tokens,
+            authenticate=False,
+        )
+        if access_token:
+            self.set_access_token(access_token, access_token_secret)
+        else:
+            self._obtain_access_token()
+
+    @classmethod
+    def get_tokens(
+        cls,
+        *,
+        auth_flows: str | list[str] | None = None,
+        consumer_keys: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
+    ) -> list[dict[str, Any]] | None:
+        """
+        Retrieve specific or all access tokens and their metadata for
+        this client from local storage.
+
+        Parameters
+        ----------
+        auth_flows : str or list[str]; keyword-only; optional
+            Authorization flows.
+
+        consumer_keys : str or list[str]; keyword-only; optional
+            Consumer keys.
+
+        user_identifiers : str or list[str]; keyword-only; optional
+            Identifiers for the user accounts.
+        """
+        return TokenDatabase.get_tokens(
+            client_names=cls.__name__,
+            auth_flows=auth_flows,
+            client_ids=consumer_keys,
+            user_identifiers=user_identifiers,
+        )
+
+    @classmethod
+    def remove_tokens(
+        cls,
+        *,
+        auth_flows: str | list[str] | None = None,
+        consumer_keys: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
+    ) -> None:
+        """
+        Remove specific or all access tokens and their metadata for this
+        client from local storage.
+
+        .. warning::
+
+           If none of `auth_flows`, `consumer_keys`, or
+           `user_identifiers` are provided, all tokens for this client
+           will be removed from local storage.
+
+        Parameters
+        ----------
+        auth_flows : str or list[str]; keyword-only; optional
+            Authorization flows.
+
+        consumer_keys : str or list[str]; keyword-only; optional
+            Consumer keys.
+
+        user_identifiers : str or list[str]; keyword-only; optional
+            Identifiers for the user accounts.
+        """
+        TokenDatabase.remove_tokens(
+            client_names=cls.__name__,
+            auth_flows=auth_flows,
+            client_ids=consumer_keys,
+            user_identifiers=user_identifiers,
+        )
+
+    def _obtain_access_token(self, auth_flow: str | None = None) -> None:
+        """
+        Get and set a new access token via the provided or current
+        authorization flow.
+
+        Parameters
+        ----------
+        auth_flow : str; optional
+            Authorization flow. If not provided, the current
+            authorization flow in :attr:`_auth_flow` is used.
+
+            **Valid values**:
+
+            * :code:`None` – No authentication.
+            * :code:`"three_legged"` – Three-Legged Flow.
+            * :code:`"two_legged"` – Two-Legged Flow.
+        """
+        if not auth_flow:
+            auth_flow = self._auth_flow
+
+        if auth_flow != "three_legged":
+            self.set_access_token(None)
+            return
+
+        # TODO: Store shared OAuth keys in self._oauth.
+
+        oauth = dict(
+            parse_qsl(
+                self._client.request(
+                    "GET",
+                    self.REQUEST_TOKEN_URL,
+                    headers={
+                        "authorization": (
+                            f'OAuth oauth_callback="{self._redirect_uri}", '
+                            f'oauth_consumer_key="{self._consumer_key}", '
+                            f'oauth_nonce="{secrets.token_hex(32)}", '
+                            f'oauth_timestamp="{time.time():.0f}", '
+                            f'oauth_signature="{self._consumer_secret}&", '
+                            f'oauth_signature_method="PLAINTEXT"'
+                        ),
+                        "content-type": "application/x-www-form-urlencoded",
+                    },
+                ).text
+            )
+        )
+        oauth |= self._handle_redirect(
+            f"{self.AUTH_URL}?oauth_token={oauth['oauth_token']}",
+            url_component="query",
+        )
+        if "denied" in oauth:
+            raise RuntimeError("Authorization failed.")
+        oauth |= dict(
+            parse_qsl(
+                self._client.request(
+                    "POST",
+                    self.ACCESS_TOKEN_URL,
+                    headers={
+                        "authorization": (
+                            f'OAuth oauth_consumer_key="{self._consumer_key}", '
+                            f'oauth_nonce="{secrets.token_hex(32)}", '
+                            f'oauth_timestamp="{time.time():.0f}", '
+                            f'oauth_token="{oauth["oauth_token"]}", '
+                            f'oauth_signature="{self._consumer_secret}&{oauth["oauth_token_secret"]}", '
+                            f'oauth_signature_method="PLAINTEXT", '
+                            f'oauth_verifier="{oauth["oauth_verifier"]}"'
+                        ),
+                        "content-type": "application/x-www-form-urlencoded",
+                    },
+                ).text
+            )
+        )
+        access_token = oauth.pop("oauth_token")
+        access_token_secret = oauth.pop("oauth_token_secret")
+        self.set_access_token(access_token, access_token_secret)
+        self._token_extras = oauth
+        if self._user_identifier is None:
+            self._user_identifier = self._resolve_user_identifier()
+
+        if self._store_tokens:
+            TokenDatabase.add_token(
+                self.__class__.__name__,
+                auth_flow=self._auth_flow,
+                client_id=self._consumer_key,
+                client_secret=self._consumer_secret,
+                user_identifier=self._user_identifier or "",
+                redirect_uri=self._redirect_uri,
+                access_token=access_token,
+                access_token_secret=access_token_secret,
+                extras=oauth,
+            )
+
+    def _require_authentication(self, endpoint_method: str, /) -> None:
+        """
+        Ensure that the user authentication has been performed for a
+        protected endpoint.
+
+        Parameters
+        ----------
+        endpoint_method : str; positional-only
+            Name of the endpoint method.
+        """
+        if (
+            auth_header := self._client.headers.get("authorization")
+        ) is None or "token" not in auth_header:
+            raise RuntimeError(
+                f"{self._QUAL_NAME}.{endpoint_method}() requires user "
+                "authentication."
+            )
+
+    def set_access_token(
+        self,
+        access_token: str | None,
+        access_token_secret: str | None = None,
+        /,
+    ) -> None:
+        """
+        Set or update the access token and its related metadata.
+
+        .. warning::
+
+           Calling this method replaces all existing values with the
+           provided parameters. Parameters not provided explicitly
+           will be overwritten by their default values.
+
+        Parameters
+        ----------
+        access_token : str or None; positional-only
+            Access token.
+
+            .. important::
+
+               If the access token was acquired via a different
+               authorization flow or client, call :meth:`set_auth_flow`
+               first to ensure that all other relevant authorization
+               parameters are set correctly.
+
+        access_token_secret : str; positional-only; optional
+            Access token secret.
+        """
+        if access_token is None:
+            if self._auth_flow is not None:
+                self._client.headers["authorization"] = (
+                    f"Discogs key={self._consumer_key}, secret={self._consumer_secret}"
+                )
+            self.access_token_secret = None
+        else:
+            self._client.headers["authorization"] = (
+                f"Discogs token={access_token}"
+            )
+            self.access_token_secret = access_token_secret
+
+    def set_auth_flow(
+        self,
+        auth_flow: str | None,
+        /,
+        *,
+        consumer_key: str | None = None,
+        consumer_secret: str | None = None,
+        user_identifier: str | None = None,
+        redirect_uri: str | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        store_tokens: bool = True,
+        authenticate: bool = True,
+    ) -> None:
+        """
+        Set or update the authorization flow and related parameters.
+
+        .. warning::
+
+           Calling this method replaces all existing values with the
+           provided parameters. Parameters not provided explicitly
+           will be overwritten by their default values.
+
+        Parameters
+        ----------
+        auth_flow : str or None; keyword-only
+            Authorization flow.
+
+            **Valid values**:
+
+            * :code:`None` – No authentication.
+            * :code:`"three_legged"` – Three-Legged Flow.
+            * :code:`"two_legged"` – Two-Legged Flow.
+
+        consumer_key : str; keyword-only; optional
+            Consumer key. Required unless set as a system environment
+            variable.
+
+        consumer_secret : str; keyword-only; optional
+            Consumer secret. Required for the three-legged and
+            two-legged flows unless set as a system environment
+            variable.
+
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same consumer key and authorization flow.
+
+            If provided, it is used with the consumer key and
+            authorization flow to locate a matching stored token. If
+            none is found, a new token is obtained and stored under this
+            identifier.
+
+            If not provided, the most recently accessed token for the
+            consumer key and authorization flow is used. If none exists,
+            a new token is obtained and stored using a user identifier
+            (e.g., user ID) acquired from a successful authorization.
+
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
+
+        redirect_uri : str; keyword-only; optional
+            Redirect URI (or OAuth callback). Required for the
+            three-legged flow.
+
+        redirect_handler : str or None; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
+
+            **Valid values**:
+
+            * :code:`None` – Show authorization URL in and have the
+              user manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept
+              the redirect after user authorization in any local
+              browser.
+            * :code:`"playwright"` – Use a Playwright Firefox
+              browser to complete the user authorization.
+
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the three-legged flow. If
+            :code:`False`, the URL is printed to the terminal.
+
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
+
+            .. seealso::
+
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this client.
+
+        authenticate : bool; keyword-only; default: :code:`True`
+            Whether to immediately initiate the authorization
+            flow to acquire an access token.
+
+            .. important::
+
+               Unless :meth:`set_access_token` is called immediately
+               after, this should be left as :code:`True` to ensure the
+               client's existing token is compatible with the new
+               authorization flow and/or scopes.
+        """
+        if consumer_key is None:
+            consumer_key = os.environ.get(
+                f"{self._ENV_VAR_PREFIX}_CONSUMER_KEY"
+            )
+            consumer_secret = os.environ.get(
+                f"{self._ENV_VAR_PREFIX}_CONSUMER_SECRET"
+            )
+        if auth_flow is not None:
+            if consumer_key is None:
+                raise ValueError(
+                    "A consumer key must be provided via the "
+                    "`consumer_key` parameter for the "
+                    f"{self._AUTH_FLOWS[auth_flow]}."
+                )
+            if consumer_secret is None:
+                raise ValueError(
+                    "A consumer secret must be provided via the "
+                    "`consumer_secret` parameter for the "
+                    f"{self._AUTH_FLOWS[auth_flow]}."
+                )
+        self._consumer_key = consumer_key
+        self._consumer_secret = consumer_secret
+
+        super().set_auth_flow(
+            auth_flow,
+            user_identifier=user_identifier,
+            redirect_uri=redirect_uri,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            store_tokens=store_tokens,
+            authenticate=authenticate,
+        )
+
+
+class OAuth2APIClient(OAuthAPIClient):
     """
     Abstract base class for OAuth 2.0-based API clients.
     """
 
     _ALLOWED_SCOPES: Any
-    #: Authorization endpoint.
-    AUTH_URL: str
     #: Token endpoint.
     TOKEN_URL: str
 
     _IS_TRUSTED_DEVICE: bool = False
-    _OAUTH_AUTH_FLOWS = {
+    _AUTH_FLOWS = {
         None: "unauthenticated client",
         "auth_code": "Authorization Code Flow",
         "pkce": "Authorization Code Flow with Proof Key for Code Exchange (PKCE)",
@@ -846,15 +1683,14 @@ class OAuth2APIClient(APIClient):
         "implicit": "Implicit Grant Flow",
         # "password": "Resource Owner Password Credentials Flow"
     }
-    _OPTIONAL_AUTH: bool = False
-    _REDIRECT_HANDLERS = {"http.server", "playwright"}
+    _REDIRECT_FLOWS = {"auth_code", "pkce", "implicit"}
     #: Device authorization endpoint.
     DEVICE_AUTH_URL: str | None = None
 
     def __init__(
         self,
         *,
-        authorization_flow: str | None,
+        auth_flow: str | None,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
@@ -873,7 +1709,7 @@ class OAuth2APIClient(APIClient):
         """
         Parameters
         ----------
-        authorization_flow : str or None; keyword-only
+        auth_flow : str or None; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -1002,24 +1838,24 @@ class OAuth2APIClient(APIClient):
                 f"{self._ENV_VAR_PREFIX}_CLIENT_SECRET"
             )
 
-        # Ensure `client_id` and `authorization_flow` are not empty/null
+        # Ensure `client_id` and `auth_flow` are not empty/null
         if client_id is None:
             raise ValueError(
                 "A client ID must be provided via the `client_id` parameter."
             )
-        if not self._OPTIONAL_AUTH and authorization_flow is None:
+        if not self._OPTIONAL_AUTH and auth_flow is None:
             raise ValueError(
                 "An authorization flow must be provided via the "
-                "`authorization_flow` parameter."
+                "`auth_flow` parameter."
             )
 
-        if authorization_flow is not None:
+        if auth_flow is not None:
             if user_identifier and user_identifier[0] == "~":
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
                     self.__class__.__name__,
-                    authorization_flow=authorization_flow,
+                    auth_flow=auth_flow,
                     client_id=client_id,
                     user_identifier=user_identifier,
                 )
@@ -1039,8 +1875,8 @@ class OAuth2APIClient(APIClient):
                     else token_extras
                 )
 
-        self.set_authorization_flow(
-            authorization_flow,
+        self.set_auth_flow(
+            auth_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
@@ -1051,7 +1887,7 @@ class OAuth2APIClient(APIClient):
             store_tokens=store_tokens,
             authenticate=False,
         )
-        if authorization_flow is None:
+        if auth_flow is None:
             self._refresh_token = self._expires_at = None
         elif access_token:
             self.set_access_token(
@@ -1063,18 +1899,11 @@ class OAuth2APIClient(APIClient):
         else:
             self._obtain_access_token()
 
-    @abstractmethod
-    def _resolve_user_identifier(self) -> str | None:
-        """
-        Resolve the best user identifier for the current account.
-        """
-        ...
-
     @classmethod
     def get_tokens(
         cls,
         *,
-        authorization_flows: str | list[str] | None = None,
+        auth_flows: str | list[str] | None = None,
         client_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
     ) -> list[dict[str, Any]] | None:
@@ -1084,7 +1913,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        authorization_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or list[str]; keyword-only; optional
             Authorization flows.
 
         client_ids : str or list[str]; keyword-only; optional
@@ -1095,7 +1924,7 @@ class OAuth2APIClient(APIClient):
         """
         return TokenDatabase.get_tokens(
             client_names=cls.__name__,
-            authorization_flows=authorization_flows,
+            auth_flows=auth_flows,
             client_ids=client_ids,
             user_identifiers=user_identifiers,
         )
@@ -1104,7 +1933,7 @@ class OAuth2APIClient(APIClient):
     def remove_tokens(
         cls,
         *,
-        authorization_flows: str | list[str] | None = None,
+        auth_flows: str | list[str] | None = None,
         client_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
     ) -> None:
@@ -1114,13 +1943,13 @@ class OAuth2APIClient(APIClient):
 
         .. warning::
 
-           If none of `authorization_flows`, `client_ids`, or
+           If none of `auth_flows`, `client_ids`, or
            `user_identifiers` are provided, all tokens for this client
            will be removed from local storage.
 
         Parameters
         ----------
-        authorization_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or list[str]; keyword-only; optional
             Authorization flows.
 
         client_ids : str or list[str]; keyword-only; optional
@@ -1131,86 +1960,10 @@ class OAuth2APIClient(APIClient):
         """
         TokenDatabase.remove_tokens(
             client_names=cls.__name__,
-            authorization_flows=authorization_flows,
+            auth_flows=auth_flows,
             client_ids=client_ids,
             user_identifiers=user_identifiers,
         )
-
-    @staticmethod
-    def _generate_local_https_certificate() -> None:
-        """
-        Generate a self-signed certificate for handling local HTTPS
-        redirects.
-        """
-        subject = x509.Name(
-            [
-                x509.NameAttribute(NameOID.COMMON_NAME, "127.0.0.1"),
-                x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Minim"),
-            ]
-        )
-        key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
-        cert = (
-            x509.CertificateBuilder()
-            .subject_name(subject)
-            .issuer_name(subject)
-            .public_key(key.public_key())
-            .serial_number(x509.random_serial_number())
-            .not_valid_before(
-                (now := datetime.now(timezone.utc)) - timedelta(minutes=5)
-            )
-            .not_valid_after(now + timedelta(days=365))
-            .add_extension(
-                x509.SubjectAlternativeName(
-                    [
-                        x509.DNSName("localhost"),
-                        x509.IPAddress(ipaddress.ip_address("127.0.0.1")),
-                        x509.IPAddress(ipaddress.ip_address("::1")),
-                    ]
-                ),
-                critical=False,
-            )
-            .sign(key, hashes.SHA256())
-        )
-
-        with open(MINIM_DIR / "key.pem", "wb") as f:
-            f.write(
-                key.private_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PrivateFormat.TraditionalOpenSSL,
-                    encryption_algorithm=serialization.NoEncryption(),
-                )
-            )
-
-        with open(MINIM_DIR / "cert.pem", "wb") as f:
-            f.write(cert.public_bytes(serialization.Encoding.PEM))
-
-    @staticmethod
-    def _is_certificate_valid(certificate_file: str | Path, /) -> bool:
-        """
-        Check whether a self-signed certificate is still valid.
-
-        Parameters
-        ----------
-        certificate_file : str or pathlib.Path; positional-only
-            Name of or path to the certificate file.
-
-        Returns
-        -------
-        is_valid : bool
-            Whether the certificate is valid.
-        """
-        try:
-            with open(certificate_file, "rb") as f:
-                certificate = x509.load_pem_x509_certificate(
-                    f.read(), default_backend()
-                )
-            return (
-                certificate.not_valid_before_utc
-                <= datetime.now(timezone.utc)
-                <= certificate.not_valid_after_utc
-            )
-        except Exception:
-            return False
 
     def _get_authorization_code(
         self, code_challenge: str | None = None
@@ -1250,118 +2003,20 @@ class OAuth2APIClient(APIClient):
             raise RuntimeError("Authorization failed due to state mismatch.")
         return queries["code"]
 
-    def _handle_redirect(
-        self, auth_url: str, /, url_component: str
-    ) -> dict[str, int | str]:
-        """
-        Handle the redirect during an authorization flow.
-
-        Parameters
-        ----------
-        auth_url : str; positional-only
-            Authorization URL.
-
-        url_component : str
-            Part of the redirect URL to extract parameters from.
-
-            **Valid values**: :code:`"query"`, :code:`"fragment"`.
-
-        Returns
-        -------
-        queries : dict[str, int | str]
-            Key-value pairs parsed from the specified part of the
-            redirect URL.
-        """
-        if self._redirect_handler == "playwright":
-            if not FOUND["playwright"]:
-                raise RuntimeError(
-                    "The redirect in the "
-                    f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]} uses "
-                    "the `playwright` library, but it could not be "
-                    "found or imported."
-                )
-
-            with sync_playwright() as playwright:
-                browser = playwright.firefox.launch(headless=False)
-                context = browser.new_context(
-                    color_scheme="dark",
-                    locale="en-US",
-                    timezone_id="America/Los_Angeles",
-                    **playwright.devices["Desktop Firefox HiDPI"],
-                )
-                page = context.new_page()
-                with page.expect_request(f"{self._redirect_uri}*", timeout=0):
-                    page.goto(auth_url)
-                while True:
-                    redirect_url = page.evaluate("window.location.href")
-                    if redirect_url.startswith(self._redirect_uri):
-                        break
-                    time.sleep(0.1)
-                queries = dict(
-                    parse_qsl(getattr(urlparse(redirect_url), url_component))
-                )
-                context.close()
-                browser.close()
-        else:
-            if self._open_browser:
-                webbrowser.open(auth_url)
-            else:
-                print(
-                    f"To grant Minim access to {self._PROVIDER} data "
-                    "and features, open the following link in your web "
-                    f"browser:\n\n{auth_url}\n"
-                )
-
-            if self._redirect_handler == "http.server":
-                httpd = HTTPServer(
-                    (urlparse(self._redirect_uri).hostname, self._port),
-                    OAuthRedirectHandler,
-                )
-                if urlparse(self._redirect_uri).scheme == "https":
-                    certificate_file = MINIM_DIR / "cert.pem"
-                    private_key_file = MINIM_DIR / "key.pem"
-                    if (
-                        not certificate_file.exists()
-                        or not private_key_file.exists()
-                        or not self._is_certificate_valid(certificate_file)
-                    ):
-                        self._generate_local_https_certificate()
-                    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-                    context.load_cert_chain(
-                        certfile=certificate_file,
-                        keyfile=private_key_file,
-                    )
-                    httpd.socket = context.wrap_socket(
-                        httpd.socket, server_side=True
-                    )
-                httpd.serve_forever()
-                queries = httpd.response
-            else:
-                uri = input(
-                    "After authorizing Minim to access "
-                    f"{self._PROVIDER} on your behalf, copy and paste "
-                    f"the URI beginning with '{self._redirect_uri}' "
-                    "below.\n\nURI: "
-                )
-                queries = dict(parse_qsl(urlparse(uri).query))
-
-        return queries
-
-    def _obtain_access_token(
-        self, authorization_flow: str | None = None
-    ) -> None:
+    def _obtain_access_token(self, auth_flow: str | None = None) -> None:
         """
         Get and set a new access token via the provided or current
         authorization flow.
 
         Parameters
         ----------
-        authorization_flow : str; optional
+        auth_flow : str; optional
             Authorization flow. If not provided, the current
             authorization flow in :attr:`_auth_flow` is used.
 
             **Valid values**:
 
+            * :code:`None` – No authentication.
             * :code:`"auth_code"` – Authorization Code Flow.
             * :code:`"pkce"` – Authorization Code Flow with Proof Key
               for Code Exchange (PKCE).
@@ -1369,14 +2024,14 @@ class OAuth2APIClient(APIClient):
             * :code:`"implicit"` – Implicit Grant Flow.
             * :code:`"refresh_token"` – Refresh Token Flow.
         """
-        if not authorization_flow:
-            authorization_flow = self._auth_flow
+        if not auth_flow:
+            auth_flow = self._auth_flow
 
-        if authorization_flow is None:
+        if auth_flow is None:
             self.set_access_token(None)
             return
 
-        if authorization_flow == "refresh_token":
+        if auth_flow == "refresh_token":
             data = {
                 "grant_type": "refresh_token",
                 "refresh_token": self._refresh_token,
@@ -1388,20 +2043,20 @@ class OAuth2APIClient(APIClient):
                 resp_json = httpx.post(
                     self.TOKEN_URL,
                     data=data,
-                    headers={"Authorization": f"Basic {client_b64}"},
+                    headers={"authorization": f"Basic {client_b64}"},
                 ).json()
                 if error := resp_json.get("error"):
                     warnings.warn(
                         f"Encountered {error!r} error – "
                         f"{resp_json['error_description']}. "
                         "Reauthorizing via the "
-                        f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]}.",
+                        f"{self._AUTH_FLOWS[self._auth_flow]}.",
                     )
                     return self._obtain_access_token(self._auth_flow)
             else:
                 data["client_id"] = self._client_id
                 resp_json = httpx.post(self.TOKEN_URL, data=data).json()
-        elif authorization_flow == "client_credentials":
+        elif auth_flow == "client_credentials":
             b64_client_credentials = base64.urlsafe_b64encode(
                 f"{self._client_id}:{self._client_secret}".encode()
             ).decode()
@@ -1411,9 +2066,9 @@ class OAuth2APIClient(APIClient):
                     "grant_type": "client_credentials",
                     "scope": " ".join(self._scopes),
                 },
-                headers={"Authorization": f"Basic {b64_client_credentials}"},
+                headers={"authorization": f"Basic {b64_client_credentials}"},
             ).json()
-        elif authorization_flow == "implicit":
+        elif auth_flow == "implicit":
             params = {
                 "client_id": self._client_id,
                 "redirect_uri": self._redirect_uri,
@@ -1431,7 +2086,7 @@ class OAuth2APIClient(APIClient):
                 raise RuntimeError(
                     "Authorization failed due to state mismatch."
                 )
-        elif authorization_flow == "device":
+        elif auth_flow == "device":
             data = {
                 "client_id": self._client_id,
                 "scope": " ".join(self._scopes),
@@ -1466,12 +2121,12 @@ class OAuth2APIClient(APIClient):
                     break
                 elif error != "authorization_pending":
                     raise RuntimeError(f"Authorization failed. Error: {error}")
-        else:  # authorization_flow in {"auth_code", "pkce"}
+        else:  # auth_flow in {"auth_code", "pkce"}
             data = {
                 "grant_type": "authorization_code",
                 "redirect_uri": self._redirect_uri,
             }
-            if authorization_flow == "pkce":
+            if auth_flow == "pkce":
                 data["client_id"] = self._client_id
                 data["code_verifier"] = code_verifier = secrets.token_urlsafe(
                     96
@@ -1492,7 +2147,7 @@ class OAuth2APIClient(APIClient):
                 resp_json = httpx.post(
                     self.TOKEN_URL,
                     data=data,
-                    headers={"Authorization": f"Basic {client_b64}"},
+                    headers={"authorization": f"Basic {client_b64}"},
                 ).json()
             else:
                 resp_json = httpx.post(self.TOKEN_URL, data=data).json()
@@ -1520,7 +2175,7 @@ class OAuth2APIClient(APIClient):
         if self._store_tokens:
             TokenDatabase.add_token(
                 self.__class__.__name__,
-                authorization_flow=self._auth_flow,
+                auth_flow=self._auth_flow,
                 client_id=self._client_id,
                 client_secret=self._client_secret,
                 user_identifier=self._user_identifier or "",
@@ -1609,7 +2264,7 @@ class OAuth2APIClient(APIClient):
 
                If the access token was acquired via a different
                authorization flow or client, call
-               :meth:`set_authorization_flow` first to ensure that all
+               :meth:`set_auth_flow` first to ensure that all
                other relevant authorization parameters are set
                correctly.
 
@@ -1629,20 +2284,20 @@ class OAuth2APIClient(APIClient):
             if self._auth_flow is not None:
                 raise ValueError(
                     "`access_token` cannot be None when using the "
-                    f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]}."
+                    f"{self._AUTH_FLOWS[self._auth_flow]}."
                 )
-            if "Authorization" in self._client.headers:
-                del self._client.headers["Authorization"]
+            if "authorization" in self._client.headers:
+                del self._client.headers["authorization"]
             self._refresh_token = self._expires_at = None
             return
 
-        self._client.headers["Authorization"] = f"{token_type} {access_token}"
+        self._client.headers["authorization"] = f"{token_type} {access_token}"
         if refresh_token and self._auth_flow in {
             "client_credentials",
             "implicit",
         }:
             raise ValueError(
-                f"The {self._OAUTH_AUTH_FLOWS[self._auth_flow]} does "
+                f"The {self._AUTH_FLOWS[self._auth_flow]} does "
                 "not support refresh tokens, but one was provided via "
                 "the `refresh_token` parameter."
             )
@@ -1653,9 +2308,9 @@ class OAuth2APIClient(APIClient):
             else expires_at
         )
 
-    def set_authorization_flow(
+    def set_auth_flow(
         self,
-        authorization_flow: str | None,
+        auth_flow: str | None,
         /,
         *,
         client_id: str | None = None,
@@ -1679,7 +2334,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        authorization_flow : str or None; keyword-only
+        auth_flow : str or None; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -1774,18 +2429,11 @@ class OAuth2APIClient(APIClient):
                client's existing token is compatible with the new
                authorization flow and/or scopes.
         """
-        if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
-            raise ValueError(
-                f"Invalid authorization flow {authorization_flow!r}. "
-                f"Valid values: {join_values(self._ALLOWED_AUTH_FLOWS)}."
-            )
-        self._auth_flow = authorization_flow
-
-        if authorization_flow in {None, "client_credentials"} and scopes:
+        if auth_flow in {None, "client_credentials"} and scopes:
             warnings.warn(
                 "Scopes were specified in the `scopes` parameter, but "
-                f"the {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
-                "does not support scopes."
+                f"the {self._AUTH_FLOWS[auth_flow]} does not support "
+                "scopes."
             )
             scopes = ""
         self._scopes = (
@@ -1799,84 +2447,34 @@ class OAuth2APIClient(APIClient):
             client_secret = os.environ.get(
                 f"{self._ENV_VAR_PREFIX}_CLIENT_SECRET"
             )
-        if client_id is None and authorization_flow is not None:
+        if client_id is None and auth_flow is not None:
             raise ValueError(
                 "A client ID must be provided via the `client_id` "
-                "parameter for the "
-                f"{self._OAUTH_AUTH_FLOWS[authorization_flow]}."
+                f"parameter for the {self._AUTH_FLOWS[auth_flow]}."
             )
         self._client_id = client_id
 
-        if (
-            authorization_flow
-            in {"auth_code", "client_credentials", "password"}
-            or authorization_flow == "device"
+        if client_secret is None and (
+            auth_flow in {"auth_code", "client_credentials", "password"}
+            or auth_flow == "device"
             and self._IS_TRUSTED_DEVICE
-        ) and not client_secret:
+        ):
             raise ValueError(
-                f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
-                "requires a client secret to be provided via the "
-                "`client_secret` parameter."
+                "A client secret must be provided via the "
+                "`client_secret` parameter for the "
+                f"{self._AUTH_FLOWS[auth_flow]}."
             )
         self._client_secret = client_secret
-        self._user_identifier = user_identifier
 
-        has_redirect = redirect_uri is not None
-        if authorization_flow in {"auth_code", "pkce", "implicit"}:
-            if not has_redirect:
-                raise ValueError(
-                    f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
-                    "requires a redirect URI to be provided via the "
-                    "`redirect_uri` parameter."
-                )
-
-            parsed = urlparse(redirect_uri)
-            self._port = (
-                port
-                if (port := parsed.port)
-                else 80
-                if parsed.scheme == "http"
-                else 443
-                if parsed.scheme == "https"
-                else None
-            )
-            self._redirect_uri = redirect_uri
-            if redirect_handler is not None:
-                if redirect_handler not in self._REDIRECT_HANDLERS:
-                    handlers_str = self._join_values(self._REDIRECT_HANDLERS)
-                    if handlers_str:
-                        handlers_str = f", '{handlers_str}'"
-                    raise ValueError(
-                        f"Invalid redirect handler {redirect_handler!r}. "
-                        f"Valid value(s): None{handlers_str}."
-                    )
-                if (hostname := parsed.hostname) not in {
-                    "localhost",
-                    "127.0.0.1",
-                    "::1",
-                }:
-                    warnings.warn(
-                        "Redirect handling is not available for host "
-                        f"{hostname!r}."
-                    )
-                    redirect_handler = None
-            self._redirect_handler = redirect_handler
-        else:
-            if has_redirect:
-                warnings.warn(
-                    "A redirect URI was provided via the "
-                    "`redirect_uri` parameter, but the "
-                    f"{self._OAUTH_AUTH_FLOWS[authorization_flow]} "
-                    "does not use redirects."
-                )
-            self._redirect_uri = None
-            self._redirect_handler = None
-
-        self._open_browser = open_browser
-        self._store_tokens = store_tokens
-
-        if authenticate and authorization_flow is not None:
-            self._obtain_access_token()
+        super().set_auth_flow(
+            auth_flow,
+            user_identifier=user_identifier,
+            redirect_uri=redirect_uri,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            store_tokens=store_tokens,
+            authenticate=authenticate,
+        )
 
 
 class ResourceAPI:
