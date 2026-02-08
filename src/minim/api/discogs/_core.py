@@ -1,5 +1,12 @@
+from typing import TYPE_CHECKING, Any
+
 from ... import __version__, REPOSITORY_URL
 from .._shared import OAuth1APIClient
+
+from ._api.users import UsersAPI
+
+if TYPE_CHECKING:
+    import httpx
 
 
 class DiscogsAPIClient(OAuth1APIClient):
@@ -35,6 +42,9 @@ class DiscogsAPIClient(OAuth1APIClient):
         user_agent: str = f"minim/{__version__} +{REPOSITORY_URL}",
     ) -> None:
         """ """
+        #: Users API endpoints for the Discogs API.
+        self.users: UsersAPI = UsersAPI(self)
+
         super().__init__(
             auth_flow=auth_flow,
             consumer_key=consumer_key,
@@ -49,12 +59,17 @@ class DiscogsAPIClient(OAuth1APIClient):
             user_agent=user_agent,
         )
 
-        debug = True
-
         self._RATE_LIMIT_PER_SECOND = 5 / 12 if auth_flow is None else 1
 
-    def _request(self):
-        pass
+    def _request(
+        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+    ) -> "httpx.Response":
+        """ """
+        if self._auth_flow == "three_legged":
+            return super()._request(method, endpoint, **kwargs)
+        else:
+            raise NotImplementedError
 
-    def _resolve_user_identifier(self):
-        pass
+    def _resolve_user_identifier(self) -> str:
+        """ """
+        return self.users.get_my_identity()["id"]

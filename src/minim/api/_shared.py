@@ -1139,7 +1139,8 @@ class OAuthAPIClient(APIClient):
                     **playwright.devices["Desktop Firefox HiDPI"],
                 )
                 page = context.new_page()
-                # TODO: Test and potentially fix logic for Discogs API.
+                # TODO: Test and potentially fix logic for Discogs API
+                # and/or "oob".
                 with page.expect_request(f"{self._redirect_uri}*", timeout=0):
                     page.goto(auth_url)
                 while True:
@@ -1214,6 +1215,7 @@ class OAuth1APIClient(OAuthAPIClient):
         "two_legged": "Two-Legged Flow",
     }
     _REDIRECT_FLOWS = {"three_legged"}
+    _SIGNATURE_METHODS = {"HMAC-SHA1", "RSA-SHA1", "PLAINTEXT"}
 
     def __init__(
         self,
@@ -1223,6 +1225,7 @@ class OAuth1APIClient(OAuthAPIClient):
         consumer_secret: str = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
+        signature_method: str = "PLAINTEXT",
         access_token: str | None = None,
         access_token_secret: str | None = None,
         redirect_handler: str | None = None,
@@ -1285,6 +1288,7 @@ class OAuth1APIClient(OAuthAPIClient):
                     else token_extras
                 )
 
+        self._oauth = {}
         self.set_auth_flow(
             auth_flow,
             consumer_key=consumer_key,
@@ -1292,6 +1296,7 @@ class OAuth1APIClient(OAuthAPIClient):
             user_identifier=user_identifier,
             redirect_uri=redirect_uri,
             redirect_handler=redirect_handler,
+            signature_method=signature_method,
             open_browser=open_browser,
             store_tokens=store_tokens,
             authenticate=False,
@@ -1391,23 +1396,13 @@ class OAuth1APIClient(OAuthAPIClient):
             self.set_access_token(None)
             return
 
-        # TODO: Store shared OAuth keys in self._oauth.
-
         oauth = dict(
             parse_qsl(
-                self._client.request(
+                self._request(
                     "GET",
                     self.REQUEST_TOKEN_URL,
                     headers={
-                        "authorization": (
-                            f'OAuth oauth_callback="{self._redirect_uri}", '
-                            f'oauth_consumer_key="{self._consumer_key}", '
-                            f'oauth_nonce="{secrets.token_hex(32)}", '
-                            f'oauth_timestamp="{time.time():.0f}", '
-                            f'oauth_signature="{self._consumer_secret}&", '
-                            f'oauth_signature_method="PLAINTEXT"'
-                        ),
-                        "content-type": "application/x-www-form-urlencoded",
+                        "content-type": "application/x-www-form-urlencoded"
                     },
                 ).text
             )
@@ -1418,22 +1413,23 @@ class OAuth1APIClient(OAuthAPIClient):
         )
         if "denied" in oauth:
             raise RuntimeError("Authorization failed.")
-        oauth |= dict(
+        if oauth.pop("oauth_callback_confirmed") != "true":
+            raise RuntimeError(
+                "OAuth callback was not confirmed by the server."
+            )
+
+        self._signing_key = (
+            f"{self._consumer_secret}&{oauth.pop('oauth_token_secret')}"
+        )
+        self._oauth |= oauth
+
+        oauth = dict(
             parse_qsl(
-                self._client.request(
+                self._request(
                     "POST",
                     self.ACCESS_TOKEN_URL,
                     headers={
-                        "authorization": (
-                            f'OAuth oauth_consumer_key="{self._consumer_key}", '
-                            f'oauth_nonce="{secrets.token_hex(32)}", '
-                            f'oauth_timestamp="{time.time():.0f}", '
-                            f'oauth_token="{oauth["oauth_token"]}", '
-                            f'oauth_signature="{self._consumer_secret}&{oauth["oauth_token_secret"]}", '
-                            f'oauth_signature_method="PLAINTEXT", '
-                            f'oauth_verifier="{oauth["oauth_verifier"]}"'
-                        ),
-                        "content-type": "application/x-www-form-urlencoded",
+                        "content-type": "application/x-www-form-urlencoded"
                     },
                 ).text
             )
@@ -1458,6 +1454,53 @@ class OAuth1APIClient(OAuthAPIClient):
                 extras=oauth,
             )
 
+    def _prepare_authorization_header(self) -> dict[str, Any]:
+        """ """
+        oauth = self._oauth.copy()
+        oauth["oauth_nonce"] = secrets.token_hex(32)
+        oauth["oauth_timestamp"] = f"{time.time():.0f}"
+        match oauth["oauth_signature_method"]:
+            case "PLAINTEXT":
+                oauth["oauth_signature"] = self._signing_key
+            case "HMAC-SHA1":
+                raise NotImplementedError
+            case "RSA-SHA1":
+                raise NotImplementedError
+        return ", ".join(f'{key}="{value}"' for key, value in oauth.items())
+
+    def _request(
+        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+    ) -> httpx.Response:
+        """
+        Make an HTTP request to an API endpoint.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+        endpoint : str; positional-only
+            API endpoint.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
+        headers = kwargs.get("headers")
+        if headers is None:
+            headers = kwargs["headers"] = {
+                "authorization": f"OAuth {self._prepare_authorization_header()}"
+            }
+        else:
+            headers["authorization"] = (
+                f"OAuth {self._prepare_authorization_header()}"
+            )
+        return self._client.request(method, endpoint, **kwargs)
+
     def _require_authentication(self, endpoint_method: str, /) -> None:
         """
         Ensure that the user authentication has been performed for a
@@ -1468,9 +1511,12 @@ class OAuth1APIClient(OAuthAPIClient):
         endpoint_method : str; positional-only
             Name of the endpoint method.
         """
-        if (
-            auth_header := self._client.headers.get("authorization")
-        ) is None or "token" not in auth_header:
+        if "oauth_token" not in self._oauth and (
+            not (
+                (auth_header := self._client.headers.get("authorization"))
+                and "token" in auth_header
+            )
+        ):
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires user "
                 "authentication."
@@ -1478,7 +1524,7 @@ class OAuth1APIClient(OAuthAPIClient):
 
     def set_access_token(
         self,
-        access_token: str | None,
+        access_token: str | None = None,
         access_token_secret: str | None = None,
         /,
     ) -> None:
@@ -1493,7 +1539,7 @@ class OAuth1APIClient(OAuthAPIClient):
 
         Parameters
         ----------
-        access_token : str or None; positional-only
+        access_token : str or None; positional-only; optional
             Access token.
 
             .. important::
@@ -1507,16 +1553,26 @@ class OAuth1APIClient(OAuthAPIClient):
             Access token secret.
         """
         if access_token is None:
-            if self._auth_flow is not None:
-                self._client.headers["authorization"] = (
-                    f"Discogs key={self._consumer_key}, secret={self._consumer_secret}"
+            if self._auth_flow == "three_legged":
+                raise ValueError(
+                    "`access_token` cannot be None when using the "
+                    f"{self._AUTH_FLOWS[self._auth_flow]}."
                 )
-            self.access_token_secret = None
+
+            if "oauth_token" in self._oauth:
+                del self._oauth["oauth_token"]
+            self._signing_key = f"{self._consumer_secret}&"
         else:
-            self._client.headers["authorization"] = (
-                f"Discogs token={access_token}"
+            if access_token_secret is None:
+                raise ValueError(
+                    "An access token secret must be provided when an "
+                    "access token is."
+                )
+
+            self._oauth["oauth_token"] = access_token
+            self._signing_key = (
+                f"{self._consumer_secret}&{access_token_secret}"
             )
-            self.access_token_secret = access_token_secret
 
     def set_auth_flow(
         self,
@@ -1528,6 +1584,7 @@ class OAuth1APIClient(OAuthAPIClient):
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
         redirect_handler: str | None = None,
+        signature_method: str = "PLAINTEXT",
         open_browser: bool = False,
         store_tokens: bool = True,
         authenticate: bool = True,
@@ -1650,8 +1707,19 @@ class OAuth1APIClient(OAuthAPIClient):
                     "`consumer_secret` parameter for the "
                     f"{self._AUTH_FLOWS[auth_flow]}."
                 )
-        self._consumer_key = consumer_key
+
+        signature_method = ResourceAPI._prepare_string(
+            "signature_method", signature_method
+        )
+        if signature_method not in self._SIGNATURE_METHODS:
+            raise ValueError(
+                f"Invalid OAuth signature method {signature_method!r}. "
+                f"Valid values: {self._join_values(self._SIGNATURE_METHODS)}."
+            )
+        self._consumer_key = self._oauth["oauth_consumer_key"] = consumer_key
         self._consumer_secret = consumer_secret
+        self._oauth["oauth_signature_method"] = signature_method
+        self._signing_key = f"{consumer_secret}&"
 
         super().set_auth_flow(
             auth_flow,
@@ -1662,6 +1730,8 @@ class OAuth1APIClient(OAuthAPIClient):
             store_tokens=store_tokens,
             authenticate=authenticate,
         )
+
+        self._oauth["oauth_callback"] = self._redirect_uri
 
 
 class OAuth2APIClient(OAuthAPIClient):
