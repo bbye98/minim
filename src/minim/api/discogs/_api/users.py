@@ -19,6 +19,4 @@ class UsersAPI(DiscogsResourceAPI):
     def get_my_identity(self) -> dict[str, Any]:
         """ """
         self._client._require_authentication("users.get_my_identity")
-        return self._client._request(
-            "GET", "https://api.discogs.com/oauth/identity"
-        ).json()
+        return self._client._request("GET", "oauth/identity").json()

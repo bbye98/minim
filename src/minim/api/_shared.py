@@ -1580,39 +1580,6 @@ class OAuth1APIClient(OAuthAPIClient):
                 extras=oauth,
             )
 
-    def _prepare_base_string(
-        self, method: str, endpoint: str, /, *, params: dict[str, Any]
-    ) -> str:
-        """
-        Prepare the base string to be signed in an OAuth 1.0a request.
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-        endpoint : str; positional-only
-            API endpoint.
-
-        params : dict[str, Any]; keyword-only
-            OAuth and query parameters.
-
-        Returns
-        -------
-        base_string : str
-            Base string.
-        """
-        encoded_params = quote(
-            "&".join(
-                sorted(
-                    f"{quote(key, safe='')}={quote(str(value), safe='')}"
-                    for key, value in params.items()
-                )
-            ),
-            safe="",
-        )
-        return f"{method}&{quote(f'{self.BASE_URL}/{endpoint}', safe='')}&{encoded_params}"
-
     def _prepare_auth_header(
         self,
         method: str,
@@ -1682,7 +1649,39 @@ class OAuth1APIClient(OAuthAPIClient):
             for key, value in oauth.items()
         )
 
-    @abstractmethod
+    def _prepare_base_string(
+        self, method: str, endpoint: str, /, *, params: dict[str, Any]
+    ) -> str:
+        """
+        Prepare the base string to be signed in an OAuth 1.0a request.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+        endpoint : str; positional-only
+            API endpoint.
+
+        params : dict[str, Any]; keyword-only
+            OAuth and query parameters.
+
+        Returns
+        -------
+        base_string : str
+            Base string.
+        """
+        encoded_params = quote(
+            "&".join(
+                sorted(
+                    f"{quote(key, safe='')}={quote(str(value), safe='')}"
+                    for key, value in params.items()
+                )
+            ),
+            safe="",
+        )
+        return f"{method}&{quote(f'{self.BASE_URL}/{endpoint}', safe='')}&{encoded_params}"
+
     def _request(
         self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
     ) -> httpx.Response:

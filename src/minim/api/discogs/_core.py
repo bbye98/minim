@@ -1,3 +1,4 @@
+import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
@@ -177,16 +178,54 @@ class DiscogsAPIClient(OAuth1APIClient):
         self._RATE_LIMIT_PER_SECOND = 5 / 12 if auth_flow is None else 1
 
     def _request(
-        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+        self,
+        method: str,
+        endpoint: str,
+        /,
+        *,
+        retry: bool = True,
+        **kwargs: dict[str, Any],
     ) -> "httpx.Response":
-        """ """
+        """
+        Make an HTTP request to a Discogs API endpoint.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+        endpoint : str; positional-only
+            Discogs API endpoint.
+
+        retry : bool; keyword-only; default: :code:`True`
+            Whether to retry the request if it returns
+            :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
         resp = (
             super()._request
             if self._auth_flow == "three_legged"
             else self._client.request
         )(method, endpoint, **kwargs)
-        # TODO: Check status code.
-        return resp
+        status = resp.status_code
+        if 200 <= status < 300:
+            return resp
+
+        if status == 429 and retry:
+            retry_after = 60  # TODO
+            warnings.warn(
+                f"Rate limit exceeded. Retrying after {retry_after:.3f} second(s)."
+            )
+            time.sleep(retry_after)
+            return self._request(method, endpoint, retry=False, **kwargs)
+        raise RuntimeError(f"{status} – {resp.json()['message']}")
 
     def _require_authentication(self, endpoint_method: str, /) -> None:
         """
@@ -198,10 +237,9 @@ class DiscogsAPIClient(OAuth1APIClient):
         endpoint_method : str; positional-only
             Name of the endpoint method.
         """
-        if (
-            self._auth_flow != "three_legged"
-            and (auth_header := self._client.headers.get("authorization"))
-            and "token" not in auth_header
+        if self._auth_flow != "three_legged" and (
+            not (auth_header := self._client.headers.get("authorization"))
+            or "token" not in auth_header
         ):
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires user "
@@ -272,6 +310,12 @@ class DiscogsAPIClient(OAuth1APIClient):
         else:
             match self._auth_flow:
                 case None:
+                    if access_token_secret is not None:
+                        warnings.warn(
+                            "`access_token_secret` is ignored when "
+                            "`access_token` is a personal access token."
+                        )
+
                     self._client.headers["authorization"] = (
                         f"Discogs token={access_token}"
                     )
