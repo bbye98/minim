@@ -1589,26 +1589,27 @@ class OAuth1APIClient(OAuthAPIClient):
         response : httpx.Response
             HTTP response.
         """
-        headers = kwargs.get("headers")
-        if headers is None:
-            headers = kwargs["headers"] = {
-                "authorization": self._prepare_auth_header(
+        if self._auth_flow is not None:
+            headers = kwargs.get("headers")
+            if headers is None:
+                headers = kwargs["headers"] = {
+                    "authorization": self._prepare_auth_header(
+                        method,
+                        endpoint,
+                        params=kwargs.get("params", {}),
+                        data={},
+                    )
+                }
+            else:
+                headers["authorization"] = self._prepare_auth_header(
                     method,
                     endpoint,
                     params=kwargs.get("params", {}),
-                    data={},
+                    data=kwargs.get("data", {})
+                    if headers.get("content-type")
+                    == "application/x-www-form-urlencoded"
+                    else {},
                 )
-            }
-        else:
-            headers["authorization"] = self._prepare_auth_header(
-                method,
-                endpoint,
-                params=kwargs.get("params", {}),
-                data=kwargs.get("data", {})
-                if headers.get("content-type")
-                == "application/x-www-form-urlencoded"
-                else {},
-            )
         return self._client.request(method, endpoint, **kwargs)
 
     def _require_authentication(self, endpoint_method: str, /) -> None:
@@ -1666,8 +1667,14 @@ class OAuth1APIClient(OAuthAPIClient):
 
             if "oauth_token" in self._oauth:
                 del self._oauth["oauth_token"]
-            self._signing_key = None
+            self._signing_key = f"{self._consumer_secret}&"
         else:
+            if self._auth_flow != "three_legged":
+                raise ValueError(
+                    f"The {self._AUTH_FLOWS[self._auth_flow]} does not "
+                    "use or support access tokens."
+                )
+
             if access_token_secret is None:
                 raise ValueError(
                     "An access token secret must be provided when an "
@@ -1813,6 +1820,9 @@ class OAuth1APIClient(OAuthAPIClient):
                     f"{self._AUTH_FLOWS[auth_flow]}."
                 )
 
+        self._consumer_key = self._oauth["oauth_consumer_key"] = consumer_key
+        self._consumer_secret = consumer_secret
+        self._signing_key = f"{consumer_secret}&"
         signature_method = ResourceAPI._prepare_string(
             "signature_method", signature_method
         )
@@ -1821,10 +1831,7 @@ class OAuth1APIClient(OAuthAPIClient):
                 f"Invalid OAuth signature method {signature_method!r}. "
                 f"Valid values: {self._join_values(self._SIGNATURE_METHODS)}."
             )
-        self._consumer_key = self._oauth["oauth_consumer_key"] = consumer_key
-        self._consumer_secret = consumer_secret
         self._oauth["oauth_signature_method"] = signature_method
-        self._signing_key = f"{consumer_secret}&" if consumer_secret else None
 
         super().set_auth_flow(
             auth_flow,
@@ -2202,130 +2209,136 @@ class OAuth2APIClient(OAuthAPIClient):
         if not auth_flow:
             auth_flow = self._auth_flow
 
-        if auth_flow is None:
-            self.set_access_token(None)
-            return
-
-        if auth_flow == "refresh_token":
-            data = {
-                "grant_type": "refresh_token",
-                "refresh_token": self._refresh_token,
-            }
-            if self._client_secret:
-                client_b64 = base64.urlsafe_b64encode(
+        match auth_flow:
+            case None:
+                self.set_access_token(None)
+                return
+            case "refresh_token":
+                data = {
+                    "grant_type": "refresh_token",
+                    "refresh_token": self._refresh_token,
+                }
+                if self._client_secret:
+                    client_b64 = base64.urlsafe_b64encode(
+                        f"{self._client_id}:{self._client_secret}".encode()
+                    ).decode()
+                    resp_json = httpx.post(
+                        self.TOKEN_URL,
+                        data=data,
+                        headers={"authorization": f"Basic {client_b64}"},
+                    ).json()
+                    if error := resp_json.get("error"):
+                        warnings.warn(
+                            f"Encountered {error!r} error – "
+                            f"{resp_json['error_description']}. "
+                            "Reauthorizing via the "
+                            f"{self._AUTH_FLOWS[self._auth_flow]}.",
+                        )
+                        return self._obtain_access_token(self._auth_flow)
+                else:
+                    data["client_id"] = self._client_id
+                    resp_json = httpx.post(self.TOKEN_URL, data=data).json()
+            case "client_credentials":
+                b64_client_credentials = base64.urlsafe_b64encode(
                     f"{self._client_id}:{self._client_secret}".encode()
                 ).decode()
                 resp_json = httpx.post(
                     self.TOKEN_URL,
-                    data=data,
-                    headers={"authorization": f"Basic {client_b64}"},
+                    data={
+                        "grant_type": "client_credentials",
+                        "scope": " ".join(self._scopes),
+                    },
+                    headers={
+                        "authorization": f"Basic {b64_client_credentials}"
+                    },
                 ).json()
-                if error := resp_json.get("error"):
-                    warnings.warn(
-                        f"Encountered {error!r} error – "
-                        f"{resp_json['error_description']}. "
-                        "Reauthorizing via the "
-                        f"{self._AUTH_FLOWS[self._auth_flow]}.",
-                    )
-                    return self._obtain_access_token(self._auth_flow)
-            else:
-                data["client_id"] = self._client_id
-                resp_json = httpx.post(self.TOKEN_URL, data=data).json()
-        elif auth_flow == "client_credentials":
-            b64_client_credentials = base64.urlsafe_b64encode(
-                f"{self._client_id}:{self._client_secret}".encode()
-            ).decode()
-            resp_json = httpx.post(
-                self.TOKEN_URL,
-                data={
-                    "grant_type": "client_credentials",
+            case "implicit":
+                params = {
+                    "client_id": self._client_id,
+                    "redirect_uri": self._redirect_uri,
+                    "response_type": "token",
                     "scope": " ".join(self._scopes),
-                },
-                headers={"authorization": f"Basic {b64_client_credentials}"},
-            ).json()
-        elif auth_flow == "implicit":
-            params = {
-                "client_id": self._client_id,
-                "redirect_uri": self._redirect_uri,
-                "response_type": "token",
-                "scope": " ".join(self._scopes),
-                "state": secrets.token_urlsafe(),
-            }
-            resp_json = self._handle_redirect(
-                f"{self.AUTH_URL}?{urlencode(params)}",
-                url_component="fragment",
-            )
-            if error := resp_json.get("error"):
-                raise RuntimeError(f"Authorization failed. Error: {error}")
-            if params.get("state") != resp_json.get("state"):
-                raise RuntimeError(
-                    "Authorization failed due to state mismatch."
+                    "state": secrets.token_urlsafe(),
+                }
+                resp_json = self._handle_redirect(
+                    f"{self.AUTH_URL}?{urlencode(params)}",
+                    url_component="fragment",
                 )
-        elif auth_flow == "device":
-            data = {
-                "client_id": self._client_id,
-                "scope": " ".join(self._scopes),
-            }
-            resp_json = httpx.post(self.DEVICE_AUTH_URL, data=data).json()
-            if error := resp_json.get("error"):
-                raise RuntimeError(f"Authorization failed. Error: {error}")
-            data["device_code"] = resp_json["deviceCode"]
-            data["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code"
-            verification_uri = (
-                f"https://{resp_json['verificationUriComplete']}"
-            )
-            if self._open_browser:
-                webbrowser.open(verification_uri)
-            else:
-                print(
-                    f"To grant Minim access to {self._PROVIDER} data "
-                    "and features, open the following link in your web "
-                    f"browser:\n\n{verification_uri}\n"
-                )
-            polling_interval = resp_json.get("interval", 2)
-            while True:
-                time.sleep(polling_interval)
-                resp_json = httpx.post(
-                    self.TOKEN_URL,
-                    auth=(self._client_id, self._client_secret)
-                    if self._IS_TRUSTED_DEVICE
-                    else None,
-                    data=data,
-                ).json()
-                if not (error := resp_json.get("error")):
-                    break
-                elif error != "authorization_pending":
+                if error := resp_json.get("error"):
                     raise RuntimeError(f"Authorization failed. Error: {error}")
-        else:  # auth_flow in {"auth_code", "pkce"}
-            data = {
-                "grant_type": "authorization_code",
-                "redirect_uri": self._redirect_uri,
-            }
-            if auth_flow == "pkce":
-                data["client_id"] = self._client_id
-                data["code_verifier"] = code_verifier = secrets.token_urlsafe(
-                    96
-                )
-                data["code"] = self._get_authorization_code(
-                    code_challenge=base64.urlsafe_b64encode(
-                        hashlib.sha256(code_verifier.encode()).digest()
+                if params.get("state") != resp_json.get("state"):
+                    raise RuntimeError(
+                        "Authorization failed due to state mismatch."
                     )
-                    .decode()
-                    .rstrip("=")
+            case "device":
+                data = {
+                    "client_id": self._client_id,
+                    "scope": " ".join(self._scopes),
+                }
+                resp_json = httpx.post(self.DEVICE_AUTH_URL, data=data).json()
+                if error := resp_json.get("error"):
+                    raise RuntimeError(f"Authorization failed. Error: {error}")
+                data["device_code"] = resp_json["deviceCode"]
+                data["grant_type"] = (
+                    "urn:ietf:params:oauth:grant-type:device_code"
                 )
-            else:
-                data["code"] = self._get_authorization_code()
-            if self._client_secret:
-                client_b64 = base64.urlsafe_b64encode(
-                    f"{self._client_id}:{self._client_secret}".encode()
-                ).decode()
-                resp_json = httpx.post(
-                    self.TOKEN_URL,
-                    data=data,
-                    headers={"authorization": f"Basic {client_b64}"},
-                ).json()
-            else:
-                resp_json = httpx.post(self.TOKEN_URL, data=data).json()
+                verification_uri = (
+                    f"https://{resp_json['verificationUriComplete']}"
+                )
+                if self._open_browser:
+                    webbrowser.open(verification_uri)
+                else:
+                    print(
+                        f"To grant Minim access to {self._PROVIDER} data "
+                        "and features, open the following link in your web "
+                        f"browser:\n\n{verification_uri}\n"
+                    )
+                polling_interval = resp_json.get("interval", 2)
+                while True:
+                    time.sleep(polling_interval)
+                    resp_json = httpx.post(
+                        self.TOKEN_URL,
+                        auth=(self._client_id, self._client_secret)
+                        if self._IS_TRUSTED_DEVICE
+                        else None,
+                        data=data,
+                    ).json()
+                    if not (error := resp_json.get("error")):
+                        break
+                    elif error != "authorization_pending":
+                        raise RuntimeError(
+                            f"Authorization failed. Error: {error}"
+                        )
+            case "auth_code" | "pkce":
+                data = {
+                    "grant_type": "authorization_code",
+                    "redirect_uri": self._redirect_uri,
+                }
+                if auth_flow == "pkce":
+                    data["client_id"] = self._client_id
+                    data["code_verifier"] = code_verifier = (
+                        secrets.token_urlsafe(96)
+                    )
+                    data["code"] = self._get_authorization_code(
+                        code_challenge=base64.urlsafe_b64encode(
+                            hashlib.sha256(code_verifier.encode()).digest()
+                        )
+                        .decode()
+                        .rstrip("=")
+                    )
+                else:
+                    data["code"] = self._get_authorization_code()
+                if self._client_secret:
+                    client_b64 = base64.urlsafe_b64encode(
+                        f"{self._client_id}:{self._client_secret}".encode()
+                    ).decode()
+                    resp_json = httpx.post(
+                        self.TOKEN_URL,
+                        data=data,
+                        headers={"authorization": f"Basic {client_b64}"},
+                    ).json()
+                else:
+                    resp_json = httpx.post(self.TOKEN_URL, data=data).json()
 
         access_token = resp_json.pop("access_token")
         token_type = resp_json.pop("token_type").capitalize()

@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any
+import warnings
 
 from ... import __version__, REPOSITORY_URL
 from .._shared import OAuth1APIClient
@@ -71,10 +72,11 @@ class DiscogsAPIClient(OAuth1APIClient):
         self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
     ) -> "httpx.Response":
         """ """
-        if self._auth_flow == "three_legged":
-            resp = super()._request(method, endpoint, **kwargs)
-        else:
-            resp = self._client.request(method, endpoint, **kwargs)
+        resp = (
+            super()._request
+            if self._auth_flow == "three_legged"
+            else self._client.request
+        )(method, endpoint, **kwargs)
         return resp
 
     def _require_authentication(self, endpoint_method: str, /) -> None:
@@ -98,7 +100,16 @@ class DiscogsAPIClient(OAuth1APIClient):
             )
 
     def _resolve_user_identifier(self) -> str:
-        """ """
+        """
+        Return the Discogs user ID as the user identifier for the
+        current account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.discogs.UsersAPI.get_my_identity` and
+           make a request to the Discogs API.
+        """
         return self.users.get_my_identity()["id"]
 
     def set_access_token(
@@ -119,7 +130,7 @@ class DiscogsAPIClient(OAuth1APIClient):
         Parameters
         ----------
         access_token : str or None; positional-only; optional
-            Access token.
+            OAuth or personal access token.
 
             .. important::
 
@@ -129,17 +140,33 @@ class DiscogsAPIClient(OAuth1APIClient):
                parameters are set correctly.
 
         access_token_secret : str; positional-only; optional
-            Access token secret.
+            OAuth access token secret. Required when an OAuth access
+            token is provided in `access_token`.
         """
-        if access_token is not None and access_token_secret is None:
-            if self._auth_flow == "three_legged":
-                raise ValueError(
-                    "`access_token_secret` cannot be None when using "
-                    f"the {self._AUTH_FLOWS[self._auth_flow]}."
+        if access_token is None:
+            if access_token_secret is not None:
+                warnings.warn(
+                    "`access_token_secret` is ignored when "
+                    "`access_token` is None."
                 )
 
-            self._client.headers["authorization"] = (
-                f"Discogs token={access_token}"
-            )
+            match self._auth_flow:
+                case "two_legged":
+                    self._client.headers["authorization"] = (
+                        f"Discogs key={self._consumer_key}, "
+                        f"secret={self._consumer_secret}"
+                    )
+                case None | "three_legged":
+                    super().set_access_token()
+                    if "authorization" in self._client.headers:
+                        del self._client.headers["authorization"]
         else:
-            super().set_access_token(access_token, access_token_secret)
+            match self._auth_flow:
+                case None:
+                    self._client.headers["authorization"] = (
+                        f"Discogs token={access_token}"
+                    )
+                case "two_legged" | "three_legged":
+                    super().set_access_token(access_token, access_token_secret)
+                    if "authorization" in self._client.headers:
+                        del self._client.headers["authorization"]
