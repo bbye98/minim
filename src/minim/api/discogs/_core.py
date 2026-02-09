@@ -41,13 +41,121 @@ class DiscogsAPIClient(OAuth1APIClient):
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
         access_token: str | None = None,
+        access_token_secret: str | None = None,
         redirect_handler: str | None = None,
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
         user_agent: str = f"minim/{__version__} +{REPOSITORY_URL}",
     ) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        auth_flow : str or None; keyword-only
+            Authorization flow.
+
+            **Valid values**:
+
+            * :code:`None` – No authentication or authentication using a
+              personal access token.
+            * :code:`"two_legged"` – Discogs Auth (Two-Legged) Flow.
+            * :code:`"three_legged"` – OAuth (Three-Legged) Flow.
+
+        consumer_key : str; keyword-only; optional
+            Consumer key. Required for the two-legged and three-legged
+            flows unless set as system environment variable
+            :code:`DISCOGS_API_CONSUMER_KEY` or stored in the local
+            token storage.
+
+        consumer_secret : str; keyword-only; optional
+            Consumer secret. Required for the two-legged and
+            three-legged flows unless set as system environment
+            variable :code:`DISCOGS_API_CONSUMER_SECRET` or stored in
+            the local token storage.
+
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same consumer key and authorization flow.
+
+            If provided, it is used with the consumer key and
+            authorization flow to locate a matching stored token. If
+            none is found, a new token is obtained and stored under this
+            identifier.
+
+            If not provided, the most recently accessed token for the
+            consumer key and authorization flow is used. If none exists,
+            a new token is obtained and stored using a user identifier
+            (e.g., user ID) acquired from a successful authorization.
+
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
+
+        redirect_uri : str; keyword-only; optional
+            Redirect URI (or OAuth callback). Required for the
+            three-legged flow.
+
+        access_token : str; keyword-only; optional
+            OAuth or personal access token. If provided, the
+            authorization process is bypassed.
+
+        access_token_secret : str; positional-only; optional
+            Access token secret. Required for the three-legged flow when
+            an access token is provided in `access_token`.
+
+        redirect_handler : str or None; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
+
+            **Valid values**:
+
+            * :code:`None` – Show authorization URL in and have the
+              user manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept
+              the redirect after user authorization in any local
+              browser.
+            * :code:`"playwright"` – Use a Playwright Firefox
+              browser to complete the user authorization.
+
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the three-legged flow. If
+            :code:`False`, the URL is printed to the terminal.
+
+        enable_cache : bool; keyword-only; default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
+            If :code:`True`, responses from semi-static endpoints are
+            cached for one minute to one day, depending on their
+            expected update frequency.
+
+            .. seealso::
+
+               :meth:`clear_cache` – Clear specific or all cache entries
+               for this client.
+
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
+
+            .. seealso::
+
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this client.
+
+        user_agent : str; keyword-only;
+        default: :code:`"minim/x.y.z +https://github.com/bbye98/minim"`
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
+        """
         #: Users API endpoints for the Discogs API.
         self.users: UsersAPI = UsersAPI(self)
 
@@ -59,13 +167,13 @@ class DiscogsAPIClient(OAuth1APIClient):
             redirect_uri=redirect_uri,
             signature_method="PLAINTEXT",
             access_token=access_token,
+            access_token_secret=access_token_secret,
             redirect_handler=redirect_handler,
             open_browser=open_browser,
             enable_cache=enable_cache,
             store_tokens=store_tokens,
             user_agent=user_agent,
         )
-
         self._RATE_LIMIT_PER_SECOND = 5 / 12 if auth_flow is None else 1
 
     def _request(
@@ -77,6 +185,7 @@ class DiscogsAPIClient(OAuth1APIClient):
             if self._auth_flow == "three_legged"
             else self._client.request
         )(method, endpoint, **kwargs)
+        # TODO: Check status code.
         return resp
 
     def _require_authentication(self, endpoint_method: str, /) -> None:
