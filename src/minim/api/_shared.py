@@ -4,6 +4,7 @@ from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 import hashlib
+import hmac
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import ipaddress
 import json
@@ -16,7 +17,7 @@ import threading
 import time
 import types
 from typing import Any, Callable
-from urllib.parse import parse_qsl, urlencode, urlparse
+from urllib.parse import parse_qsl, quote, urlencode, urlparse
 import uuid
 import warnings
 import webbrowser
@@ -24,7 +25,7 @@ import webbrowser
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
 import httpx
 
@@ -1024,10 +1025,11 @@ class OAuthAPIClient(APIClient):
         ...
 
     @staticmethod
-    def _generate_local_https_certificate() -> None:
+    def _generate_crypto_assets() -> None:
         """
         Generate a self-signed certificate for handling local HTTPS
-        redirects.
+        redirects and store a public key for signing OAuth 1.0a requests
+        using RSA-SHA1.
         """
         subject = x509.Name(
             [
@@ -1059,17 +1061,25 @@ class OAuthAPIClient(APIClient):
             .sign(key, hashes.SHA256())
         )
 
-        with open(MINIM_DIR / "key.pem", "wb") as f:
+        with open(MINIM_DIR / "private_key.pem", "wb") as f:
             f.write(
                 key.private_bytes(
                     encoding=serialization.Encoding.PEM,
-                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    format=serialization.PrivateFormat.PKCS8,
                     encryption_algorithm=serialization.NoEncryption(),
                 )
             )
 
         with open(MINIM_DIR / "cert.pem", "wb") as f:
             f.write(cert.public_bytes(serialization.Encoding.PEM))
+
+        with open(MINIM_DIR / "public_key.pem", "wb") as f:
+            f.write(
+                key.public_key().public_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PublicFormat.SubjectPublicKeyInfo,
+                )
+            )
 
     @staticmethod
     def _is_certificate_valid(certificate_file: str | Path, /) -> bool:
@@ -1170,13 +1180,13 @@ class OAuthAPIClient(APIClient):
                 )
                 if urlparse(self._redirect_uri).scheme == "https":
                     certificate_file = MINIM_DIR / "cert.pem"
-                    private_key_file = MINIM_DIR / "key.pem"
+                    private_key_file = MINIM_DIR / "private_key.pem"
                     if (
                         not certificate_file.exists()
                         or not private_key_file.exists()
                         or not self._is_certificate_valid(certificate_file)
                     ):
-                        self._generate_local_https_certificate()
+                        self._generate_crypto_assets()
                     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
                     context.load_cert_chain(
                         certfile=certificate_file,
@@ -1396,6 +1406,7 @@ class OAuth1APIClient(OAuthAPIClient):
             self.set_access_token(None)
             return
 
+        # Get request token and involve user in authentication process
         oauth = dict(
             parse_qsl(
                 self._request(
@@ -1414,15 +1425,14 @@ class OAuth1APIClient(OAuthAPIClient):
         if "denied" in oauth:
             raise RuntimeError("Authorization failed.")
         if oauth.pop("oauth_callback_confirmed") != "true":
-            raise RuntimeError(
-                "OAuth callback was not confirmed by the server."
-            )
+            raise RuntimeError("Callback was not confirmed by the server.")
 
         self._signing_key = (
             f"{self._consumer_secret}&{oauth.pop('oauth_token_secret')}"
         )
         self._oauth |= oauth
 
+        # Get access token and secret
         oauth = dict(
             parse_qsl(
                 self._request(
@@ -1454,8 +1464,70 @@ class OAuth1APIClient(OAuthAPIClient):
                 extras=oauth,
             )
 
-    def _prepare_authorization_header(self) -> dict[str, Any]:
-        """ """
+    def _prepare_base_string(
+        self, method: str, endpoint: str, /, *, params: dict[str, Any]
+    ) -> str:
+        """
+        Prepare the base string to be signed in an OAuth 1.0a request.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+        endpoint : str; positional-only
+            API endpoint.
+
+        params : dict[str, Any]; keyword-only
+            OAuth and query parameters.
+
+        Returns
+        -------
+        base_string : str
+            Base string.
+        """
+        encoded_params = quote(
+            "&".join(
+                sorted(
+                    f"{quote(key, safe='')}={quote(str(value), safe='')}"
+                    for key, value in params.items()
+                )
+            ),
+            safe="",
+        )
+        return f"{method}&{quote(f'{self.BASE_URL}/{endpoint}', safe='')}&{encoded_params}"
+
+    def _prepare_auth_header(
+        self,
+        method: str,
+        endpoint: str,
+        /,
+        *,
+        params: dict[str, Any],
+        data: dict[str, Any],
+    ) -> str:
+        """
+        Prepare the base string to be signed in an OAuth 1.0a request.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+        endpoint : str; positional-only
+            API endpoint.
+
+        params : dict[str, Any]; keyword-only
+            Query parameters.
+
+        data : dict[str, Any]; keyword-only
+            Payload.
+
+        Returns
+        -------
+        auth_header : str
+            Authorization header.
+        """
         oauth = self._oauth.copy()
         oauth["oauth_nonce"] = secrets.token_hex(32)
         oauth["oauth_timestamp"] = f"{time.time():.0f}"
@@ -1463,11 +1535,38 @@ class OAuth1APIClient(OAuthAPIClient):
             case "PLAINTEXT":
                 oauth["oauth_signature"] = self._signing_key
             case "HMAC-SHA1":
-                raise NotImplementedError
+                oauth["oauth_signature"] = base64.b64encode(
+                    hmac.new(
+                        self._signing_key.encode(),
+                        self._prepare_base_string(
+                            method, endpoint, params=oauth | params | data
+                        ).encode(),
+                        hashlib.sha1,
+                    ).digest()
+                ).decode()
             case "RSA-SHA1":
-                raise NotImplementedError
-        return ", ".join(f'{key}="{value}"' for key, value in oauth.items())
+                private_key_file = MINIM_DIR / "private_key.pem"
+                if not private_key_file.exists():
+                    self._generate_crypto_assets()
+                with open(private_key_file, "rb") as f:
+                    private_key = serialization.load_pem_private_key(
+                        f.read(), password=None
+                    )
+                oauth["oauth_signature"] = base64.b64encode(
+                    private_key.sign(
+                        self._prepare_base_string(
+                            method, endpoint, params=oauth | params | data
+                        ).encode(),
+                        padding.PKCS1v15(),
+                        hashes.SHA1(),
+                    )
+                ).decode()
+        return "OAuth " + ", ".join(
+            f'{key}="{quote(str(value), safe="")}"'
+            for key, value in oauth.items()
+        )
 
+    @abstractmethod
     def _request(
         self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
     ) -> httpx.Response:
@@ -1493,11 +1592,22 @@ class OAuth1APIClient(OAuthAPIClient):
         headers = kwargs.get("headers")
         if headers is None:
             headers = kwargs["headers"] = {
-                "authorization": f"OAuth {self._prepare_authorization_header()}"
+                "authorization": self._prepare_auth_header(
+                    method,
+                    endpoint,
+                    params=kwargs.get("params", {}),
+                    data={},
+                )
             }
         else:
-            headers["authorization"] = (
-                f"OAuth {self._prepare_authorization_header()}"
+            headers["authorization"] = self._prepare_auth_header(
+                method,
+                endpoint,
+                params=kwargs.get("params", {}),
+                data=kwargs.get("data", {})
+                if headers.get("content-type")
+                == "application/x-www-form-urlencoded"
+                else {},
             )
         return self._client.request(method, endpoint, **kwargs)
 
@@ -1511,12 +1621,7 @@ class OAuth1APIClient(OAuthAPIClient):
         endpoint_method : str; positional-only
             Name of the endpoint method.
         """
-        if "oauth_token" not in self._oauth and (
-            not (
-                (auth_header := self._client.headers.get("authorization"))
-                and "token" in auth_header
-            )
-        ):
+        if self._auth_flow != "three_legged":
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires user "
                 "authentication."
@@ -1561,7 +1666,7 @@ class OAuth1APIClient(OAuthAPIClient):
 
             if "oauth_token" in self._oauth:
                 del self._oauth["oauth_token"]
-            self._signing_key = f"{self._consumer_secret}&"
+            self._signing_key = None
         else:
             if access_token_secret is None:
                 raise ValueError(
@@ -1719,7 +1824,7 @@ class OAuth1APIClient(OAuthAPIClient):
         self._consumer_key = self._oauth["oauth_consumer_key"] = consumer_key
         self._consumer_secret = consumer_secret
         self._oauth["oauth_signature_method"] = signature_method
-        self._signing_key = f"{consumer_secret}&"
+        self._signing_key = f"{consumer_secret}&" if consumer_secret else None
 
         super().set_auth_flow(
             auth_flow,
