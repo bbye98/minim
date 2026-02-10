@@ -958,23 +958,23 @@ class OAuthAPIClient(APIClient):
                 else None
             )
             self._redirect_uri = redirect_uri
-            # if redirect_handler is not None:
-            #     if redirect_handler not in self._REDIRECT_HANDLERS:
-            #         raise ValueError(
-            #             f"Invalid redirect handler {redirect_handler!r}. "
-            #             "Valid values: "
-            #             f"{self._join_values(self._REDIRECT_HANDLERS)}."
-            #         )
-            #     if (hostname := parsed.hostname) not in {
-            #         "localhost",
-            #         "127.0.0.1",
-            #         "::1",
-            #     }:
-            #         warnings.warn(
-            #             "Redirect handling is not available for host "
-            #             f"{hostname!r}."
-            #         )
-            #         redirect_handler = None
+            if redirect_handler is not None:
+                if redirect_handler not in self._REDIRECT_HANDLERS:
+                    raise ValueError(
+                        f"Invalid redirect handler {redirect_handler!r}. "
+                        "Valid values: "
+                        f"{self._join_values(self._REDIRECT_HANDLERS)}."
+                    )
+                if (hostname := parsed.hostname) not in {
+                    "localhost",
+                    "127.0.0.1",
+                    "::1",
+                }:
+                    warnings.warn(
+                        "Redirect handling is not available for host "
+                        f"{hostname!r}."
+                    )
+                    redirect_handler = None
             self._redirect_handler = redirect_handler
         else:
             if has_redirect:
