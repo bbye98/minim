@@ -958,23 +958,23 @@ class OAuthAPIClient(APIClient):
                 else None
             )
             self._redirect_uri = redirect_uri
-            if redirect_handler is not None:
-                if redirect_handler not in self._REDIRECT_HANDLERS:
-                    raise ValueError(
-                        f"Invalid redirect handler {redirect_handler!r}. "
-                        "Valid values: "
-                        f"{self._join_values(self._REDIRECT_HANDLERS)}."
-                    )
-                if (hostname := parsed.hostname) not in {
-                    "localhost",
-                    "127.0.0.1",
-                    "::1",
-                }:
-                    warnings.warn(
-                        "Redirect handling is not available for host "
-                        f"{hostname!r}."
-                    )
-                    redirect_handler = None
+            # if redirect_handler is not None:
+            #     if redirect_handler not in self._REDIRECT_HANDLERS:
+            #         raise ValueError(
+            #             f"Invalid redirect handler {redirect_handler!r}. "
+            #             "Valid values: "
+            #             f"{self._join_values(self._REDIRECT_HANDLERS)}."
+            #         )
+            #     if (hostname := parsed.hostname) not in {
+            #         "localhost",
+            #         "127.0.0.1",
+            #         "::1",
+            #     }:
+            #         warnings.warn(
+            #             "Redirect handling is not available for host "
+            #             f"{hostname!r}."
+            #         )
+            #         redirect_handler = None
             self._redirect_handler = redirect_handler
         else:
             if has_redirect:
@@ -1139,7 +1139,6 @@ class OAuthAPIClient(APIClient):
                     "the `playwright` library, but it could not be "
                     "found or imported."
                 )
-
             with sync_playwright() as playwright:
                 browser = playwright.firefox.launch(headless=False)
                 context = browser.new_context(
@@ -1149,17 +1148,13 @@ class OAuthAPIClient(APIClient):
                     **playwright.devices["Desktop Firefox HiDPI"],
                 )
                 page = context.new_page()
-                # TODO: Test and potentially fix logic for Discogs API
-                # and/or "oob".
-                with page.expect_request(f"{self._redirect_uri}*", timeout=0):
-                    page.goto(auth_url)
-                while True:
-                    redirect_url = page.evaluate("window.location.href")
-                    if redirect_url.startswith(self._redirect_uri):
-                        break
-                    time.sleep(0.1)
+                page.goto(auth_url)
+                page.wait_for_function(
+                    f"() => window.location.href.startsWith('{self._redirect_uri}')",
+                    timeout=0,
+                )
                 queries = dict(
-                    parse_qsl(getattr(urlparse(redirect_url), url_component))
+                    parse_qsl(getattr(urlparse(page.url), url_component))
                 )
                 context.close()
                 browser.close()
