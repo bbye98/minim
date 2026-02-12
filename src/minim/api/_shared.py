@@ -63,6 +63,67 @@ def _copy_docstring(
     return decorator
 
 
+class OAuthRedirectHandler(BaseHTTPRequestHandler):
+    """
+    HTTP request handler for OAuth 1.0a and 2.0 redirect URIs.
+    """
+
+    def do_GET(self) -> None:
+        """
+        Handle a GET request to the redirect URI.
+        """
+        parsed = urlparse(self.path)
+        if parsed.query:
+            self.server.response = dict(parse_qsl(parsed.query))
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            status = "denied" if "error" in self.server.response else "granted"
+            self.wfile.write(
+                f"Access {status}. You may close this page.".encode()
+            )
+            threading.Thread(target=self.server.shutdown).start()
+        else:
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(
+                dedent("""\\
+                    <html>
+                    <body>
+                        <script>
+                        const params = new URLSearchParams(window.location.hash.substring(1));
+                        const query = Array.from(params.entries())
+                            .map(e => e.join('='))
+                            .join('&');
+                        fetch('/callback?' + query)
+                            .then(response => response.text())
+                            .then(text => document.body.innerHTML = text);
+                        </script>
+                    </body>
+                    </html>
+                """).encode()
+            )
+
+    def log_message(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> None:
+        """
+        Suppress the HTTP server logging output.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Positional arguments to pass to
+            :meth:`http.server.BaseHTTPRequestHandler.log_message`.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to pass to
+            :meth:`http.server.BaseHTTPRequestHandler.log_message`.
+        """
+        pass
+
+
 class TokenDatabase:
     """
     API for storing and managing access tokens in local storage.
@@ -136,7 +197,7 @@ class TokenDatabase:
         client_secret: str | None = None,
         user_identifier: str,
         redirect_uri: str | None = None,
-        scopes: str | set[str] | None = None,
+        scopes: str | set[str] = "",
         token_type: str | None = None,
         access_token: str,
         access_token_secret: str | None = None,
@@ -168,7 +229,8 @@ class TokenDatabase:
         redirect_uri : str; keyword-only; optional
             Redirect URI.
 
-        scopes : str, set[str], or None; keyword-only; optional
+        scopes : str, set[str], or None; keyword-only; \
+        default: :code:`""`
             Authorization scopes.
 
         token_type : str or None; keyword-only; optional
@@ -392,6 +454,60 @@ class TokenDatabase:
         return f"{prefix}IN ({', '.join('?' for _ in values)})"
 
 
+class TokenBucketRateLimiter:
+    """
+    Rate limiter using the token bucket algorithm.
+    """
+
+    def __init__(
+        self,
+        rate_limit_per_second: float,
+        /,
+        *,
+        burst_fraction: float = 0.25,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        rate_limit_per_second : float; positional-only
+            Rate limit per second.
+
+        burst_fraction : float
+            Fraction of a 60-second window allowed as a burst.
+        """
+        self._rate_limit_per_second = rate_limit_per_second
+        self._num_tokens = self._max_tokens = max(
+            1, 60 * burst_fraction * rate_limit_per_second
+        )
+        self._last_check = time.monotonic()
+        self._lock = threading.Lock()
+
+    def _replenish(self) -> None:
+        """
+        Replenish tokens.
+        """
+        now = time.monotonic()
+        self._num_tokens = min(
+            self._num_tokens
+            + ((now - self._last_check) * self._rate_limit_per_second),
+            self._max_tokens,
+        )
+        self._last_check = now
+
+    def throttle(self) -> None:
+        """
+        Throttle requests, unless tokens are available.
+        """
+        with self._lock:
+            self._replenish()
+            while self._num_tokens < 1:
+                time.sleep(
+                    (1 - self._num_tokens) / self._rate_limit_per_second
+                )
+                self._replenish()
+            self._num_tokens -= 1
+
+
 class TTLCache:
     """
     Time-to-live (TTL) cache with least recently used (LRU) eviction
@@ -611,67 +727,6 @@ class TTLCache:
         return decorator
 
 
-class OAuthRedirectHandler(BaseHTTPRequestHandler):
-    """
-    HTTP request handler for OAuth 1.0a and 2.0 redirect URIs.
-    """
-
-    def do_GET(self) -> None:
-        """
-        Handle a GET request to the redirect URI.
-        """
-        parsed = urlparse(self.path)
-        if parsed.query:
-            self.server.response = dict(parse_qsl(parsed.query))
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            status = "denied" if "error" in self.server.response else "granted"
-            self.wfile.write(
-                f"Access {status}. You may close this page.".encode()
-            )
-            threading.Thread(target=self.server.shutdown).start()
-        else:
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            self.wfile.write(
-                dedent("""\\
-                    <html>
-                    <body>
-                        <script>
-                        const params = new URLSearchParams(window.location.hash.substring(1));
-                        const query = Array.from(params.entries())
-                            .map(e => e.join('='))
-                            .join('&');
-                        fetch('/callback?' + query)
-                            .then(response => response.text())
-                            .then(text => document.body.innerHTML = text);
-                        </script>
-                    </body>
-                    </html>
-                """).encode()
-            )
-
-    def log_message(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> None:
-        """
-        Suppress the HTTP server logging output.
-
-        Parameters
-        ----------
-        *args : tuple[Any, ...]
-            Positional arguments to pass to
-            :meth:`http.server.BaseHTTPRequestHandler.log_message`.
-
-        **kwargs : dict[str, Any]
-            Keyword arguments to pass to
-            :meth:`http.server.BaseHTTPRequestHandler.log_message`.
-        """
-        pass
-
-
 class APIClient(ABC):
     """
     Abstract base class for API clients.
@@ -684,10 +739,16 @@ class APIClient(ABC):
     #: Base URL for API endpoints.
     BASE_URL: str
 
+    _RATE_LIMIT_PER_SECOND = float("inf")
+
     _join_values = staticmethod(join_values)
 
     def __init__(
-        self, *, enable_cache: bool = True, user_agent: str | None = None
+        self,
+        *,
+        enable_cache: bool = True,
+        limit_rate: bool = False,
+        user_agent: str | None = None,
     ) -> None:
         """
         Parameters
@@ -696,12 +757,21 @@ class APIClient(ABC):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
 
+        limit_rate : bool; keyword-only; default: :code:`False`
+            Whether to enable a token bucket rate limiter for this
+            client.
+
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """
-        self._cache = TTLCache() if enable_cache else None
         self._client = httpx.Client(base_url=self.BASE_URL)
+        self._cache = TTLCache() if enable_cache else None
+        self._rate_limiter = (
+            TokenBucketRateLimiter(self._RATE_LIMIT_PER_SECOND)
+            if limit_rate
+            else None
+        )
         if user_agent is not None:
             self._client.headers["user-agent"] = user_agent
 
@@ -1236,6 +1306,7 @@ class OAuth1APIClient(OAuthAPIClient):
         redirect_handler: str | None = None,
         open_browser: bool = False,
         enable_cache: bool = True,
+        limit_rate: bool = False,
         store_tokens: bool = True,
         user_agent: str | None = None,
     ) -> None:
@@ -1337,6 +1408,10 @@ class OAuth1APIClient(OAuthAPIClient):
                :meth:`clear_cache` – Clear specific or all cache entries
                for this client.
 
+        limit_rate : bool; keyword-only; default: :code:`False`
+            Whether to enable a token bucket rate limiter for this
+            client.
+
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
             If :code:`True`, existing access tokens are retrieved when
@@ -1356,7 +1431,11 @@ class OAuth1APIClient(OAuthAPIClient):
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """
-        super().__init__(enable_cache=enable_cache, user_agent=user_agent)
+        super().__init__(
+            enable_cache=enable_cache,
+            limit_rate=limit_rate,
+            user_agent=user_agent,
+        )
 
         # If a consumer key is not provided, try to retrieve it and its
         # corresponding consumer secret from environment variables
@@ -1921,7 +2000,7 @@ class OAuth1APIClient(OAuthAPIClient):
                Unless :meth:`set_access_token` is called immediately
                after, this should be left as :code:`True` to ensure the
                client's existing token is compatible with the new
-               authorization flow and/or scopes.
+               authorization flow.
         """
         if consumer_key is None:
             consumer_key = os.environ.get(
@@ -2009,6 +2088,7 @@ class OAuth2APIClient(OAuthAPIClient):
         redirect_handler: str | None = None,
         open_browser: bool = False,
         enable_cache: bool = True,
+        limit_rate: bool = False,
         store_tokens: bool = True,
         user_agent: str | None = None,
     ) -> None:
@@ -2115,6 +2195,10 @@ class OAuth2APIClient(OAuthAPIClient):
                :meth:`clear_cache` – Clear specific or all cache entries
                for this client.
 
+        limit_rate : bool; keyword-only; default: :code:`False`
+            Whether to enable a token bucket rate limiter for this
+            client.
+
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
             If :code:`True`, existing access tokens are retrieved when
@@ -2134,7 +2218,11 @@ class OAuth2APIClient(OAuthAPIClient):
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """
-        super().__init__(enable_cache=enable_cache, user_agent=user_agent)
+        super().__init__(
+            enable_cache=enable_cache,
+            limit_rate=limit_rate,
+            user_agent=user_agent,
+        )
 
         # If a client ID is not provided, try to retrieve it and its
         # corresponding client secret from environment variables

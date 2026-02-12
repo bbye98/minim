@@ -61,6 +61,7 @@ class DeezerAPIClient(OAuth2APIClient):
         redirect_handler: str | None = None,
         open_browser: bool = False,
         enable_cache: bool = True,
+        limit_rate: bool = True,
         store_tokens: bool = True,
         user_agent: str | None = None,
     ) -> None:
@@ -157,6 +158,10 @@ class DeezerAPIClient(OAuth2APIClient):
                :meth:`clear_cache` – Clear specific or all cache entries
                for this client.
 
+        limit_rate : bool; keyword-only; default: :code:`True`
+            Whether to enable a token bucket rate limiter for this
+            client.
+
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
             If :code:`True`, existing access tokens are retrieved when
@@ -177,7 +182,10 @@ class DeezerAPIClient(OAuth2APIClient):
             requests.
         """
         APIClient.__init__(
-            self, enable_cache=enable_cache, user_agent=user_agent
+            self,
+            enable_cache=enable_cache,
+            limit_rate=limit_rate,
+            user_agent=user_agent,
         )
 
         # Initialize subclasses for endpoint groups

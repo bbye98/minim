@@ -3,7 +3,7 @@ import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import TTLCache, APIClient, ResourceAPI
+from .._shared import TTLCache, TokenBucketRateLimiter, APIClient, ResourceAPI
 
 if TYPE_CHECKING:
     import httpx
@@ -158,6 +158,35 @@ class iTunesSearchAPIClient(APIClient):
     _RATE_LIMIT_PER_SECOND = 1 / 3
     BASE_URL = "https://itunes.apple.com"
 
+    def __init__(
+        self,
+        *,
+        enable_cache: bool = True,
+        limit_rate: bool = True,
+        user_agent: str | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        enable_cache : bool; keyword-only; default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
+
+        limit_rate : bool; keyword-only; default: :code:`True`
+            Whether to enable a token bucket rate limiter for this
+            client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
+        """
+        super().__init__(enable_cache=enable_cache, user_agent=user_agent)
+        self._rate_limiter = (
+            TokenBucketRateLimiter(self._RATE_LIMIT_PER_SECOND)
+            if limit_rate
+            else None
+        )
+
     def _request(
         self,
         method: str,
@@ -189,13 +218,14 @@ class iTunesSearchAPIClient(APIClient):
         response : httpx.Response
             HTTP response.
         """
+        self._rate_limiter.throttle()
         resp = self._client.request(method, endpoint, **kwargs)
         status = resp.status_code
         if 200 <= status < 300:
             return resp
 
         if status == 403 and retry:
-            retry_after = self._RATE_LIMIT_PER_SECOND
+            retry_after = 2 / self._RATE_LIMIT_PER_SECOND
             warnings.warn(
                 "Rate limit possibly exceeded. Retrying after "
                 f"{retry_after:.3f} second(s)."
