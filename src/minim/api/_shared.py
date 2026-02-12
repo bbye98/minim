@@ -498,6 +498,9 @@ class TokenBucketRateLimiter:
         """
         Throttle requests, unless tokens are available.
         """
+        if self._rate_limit_per_second == float("inf"):
+            return
+
         with self._lock:
             self._replenish()
             while self._num_tokens < 1:
@@ -598,13 +601,18 @@ class TTLCache:
                 *args: tuple[Any, ...],
                 **kwargs: dict[str, Any],
             ) -> Any:
-                cache = getattr(
-                    self._client if isinstance(self, ResourceAPI) else self,
-                    "_cache",
+                return (
+                    func(self, *args, **kwargs)
+                    if (
+                        cache := (
+                            self._client
+                            if isinstance(self, ResourceAPI)
+                            else self
+                        )._cache
+                    )
+                    is None
+                    else cache.wrapper(ttl=ttl)(func)(self, *args, **kwargs)
                 )
-                if cache is None:
-                    return func(self, *args, **kwargs)
-                return cache.wrapper(ttl=ttl)(func)(self, *args, **kwargs)
 
             return wrapped
 
@@ -2559,9 +2567,7 @@ class OAuth2APIClient(OAuthAPIClient):
         self.set_access_token(
             access_token,
             token_type,
-            refresh_token=resp_json.pop(
-                "refresh_token", getattr(self, "_refresh_token", None)
-            ),
+            refresh_token=resp_json.pop("refresh_token", self._refresh_token),
             expires_at=datetime.now()
             + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )

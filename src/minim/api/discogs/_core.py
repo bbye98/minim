@@ -216,6 +216,8 @@ class DiscogsAPIClient(OAuth1APIClient):
         response : httpx.Response
             HTTP response.
         """
+        if (rate_limiter := self._rate_limiter) is not None:
+            rate_limiter.throttle()
         resp = (
             super()._request
             if self._auth_flow == "three_legged"
@@ -226,9 +228,10 @@ class DiscogsAPIClient(OAuth1APIClient):
             return resp
 
         if status == 429 and retry:
-            retry_after = 60  # TODO
+            retry_after = 1 / self._RATE_LIMIT_PER_SECOND
             warnings.warn(
-                f"Rate limit exceeded. Retrying after {retry_after:.3f} second(s)."
+                "Rate limit exceeded. Retrying after "
+                f"{retry_after:.3f} second(s)."
             )
             time.sleep(retry_after)
             return self._request(method, endpoint, retry=False, **kwargs)

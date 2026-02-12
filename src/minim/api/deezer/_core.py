@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import json
 import os
 import secrets
+import time
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse
 import warnings
@@ -508,6 +509,8 @@ class DeezerAPIClient(OAuth2APIClient):
             if params is None:
                 params = {}
             params["access_token"] = self._access_token
+        if (rate_limiter := self._rate_limiter) is not None:
+            rate_limiter.throttle()
         resp = self._client.request(method, endpoint, params=params, **kwargs)
         if "error" not in resp.text or not (error := resp.json().get("error")):
             return resp
@@ -515,6 +518,14 @@ class DeezerAPIClient(OAuth2APIClient):
         error_code = error.get("code")
         if error_code is None:
             raise RuntimeError(f"{error['type']} {error['message']}")
+        if error_code == 4 and retry:
+            retry_after = 2 / self._RATE_LIMIT_PER_SECOND
+            warnings.warn(
+                "Rate limit exceeded. Retrying after "
+                f"{retry_after:.3f} second(s)."
+            )
+            time.sleep(retry_after)
+            return self._request(method, endpoint, retry=False, **kwargs)
         if error_code == 300 and retry:
             self._obtain_access_token()
             return self._request(
