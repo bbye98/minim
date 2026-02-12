@@ -158,6 +158,34 @@ class iTunesSearchAPIClient(APIClient):
     _RATE_LIMIT_PER_SECOND = 1 / 3
     BASE_URL = "https://itunes.apple.com"
 
+    def __init__(
+        self,
+        *,
+        enable_cache: bool = True,
+        limit_rate: bool = True,
+        user_agent: str | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        enable_cache : bool; keyword-only; default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
+
+        limit_rate : bool; keyword-only; default: :code:`True`
+            Whether to enable a token bucket rate limiter for this
+            client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
+        """
+        super().__init__(
+            enable_cache=enable_cache,
+            limit_rate=limit_rate,
+            user_agent=user_agent,
+        )
+
     def _request(
         self,
         method: str,
