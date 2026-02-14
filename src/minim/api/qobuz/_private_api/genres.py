@@ -182,10 +182,6 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         if genre_id is not None:
             self._validate_qobuz_ids(genre_id, _recursive=False)
             params["parent_id"] = genre_id
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request("GET", "genre/list", params=params).json()
+        return self._get_paginated_resources(
+            "genre/list", limit=limit, offset=offset, params=params
+        )

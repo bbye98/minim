@@ -283,15 +283,9 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             params["genre_ids"] = self._prepare_qobuz_ids(
                 genre_ids, data_type=str
             )
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "catalog/getFeatured", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "catalog/getFeatured", limit=limit, offset=offset, params=params
+        )
 
     @_copy_docstring(PrivateSearchAPI.search)
     def search(

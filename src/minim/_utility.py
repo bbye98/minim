@@ -1,13 +1,14 @@
+from collections.abc import Collection
 from typing import Any
 
 
-def join_values(values: set[Any], /) -> str:
+def join_values(values: Collection[Any], /) -> str:
     """
     Concatenate values into a formatted string.
 
     Parameters
     ----------
-    values : set[str]; positional-only
+    values : Collection[str]; positional-only
         Values.
 
     Returns

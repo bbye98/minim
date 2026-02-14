@@ -618,16 +618,9 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication("purchases.get_my_purchases")
-        params = {}
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "purchase/getUserPurchases", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "purchase/getUserPurchases", limit=limit, offset=offset
+        )
 
     @TTLCache.cached_method(ttl="user")
     def get_my_purchased_item_ids(self) -> dict[str, Any]:
@@ -983,16 +976,14 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication(
             "dynamic.get_personalized_playlist_tracks"
         )
-        params = {"type": self._prepare_string("playlist_type", playlist_type)}
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "dynamic-tracks/get", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "dynamic-tracks/get",
+            limit=limit,
+            offset=offset,
+            params={
+                "type": self._prepare_string("playlist_type", playlist_type)
+            },
+        )
 
     @TTLCache.cached_method(ttl="popularity")
     def get_track_recommendations(

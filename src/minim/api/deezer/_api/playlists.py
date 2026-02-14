@@ -418,8 +418,8 @@ class PlaylistsAPI(DeezerResourceAPI):
     def create_playlist(self, name: str) -> dict[str, int]:
         return self._client.users.create_playlist(name)
 
-    @_copy_docstring(UsersAPI.update_playlist_details)
-    def update_playlist_details(
+    @_copy_docstring(UsersAPI.update_playlist_info)
+    def update_playlist_info(
         self,
         playlist_id: int | str,
         /,
@@ -429,7 +429,7 @@ class PlaylistsAPI(DeezerResourceAPI):
         public: bool | None = None,
         collaborative: bool | None = None,
     ) -> bool:
-        return self._client.users.update_playlist_details(
+        return self._client.users.update_playlist_info(
             playlist_id,
             name=name,
             description=description,

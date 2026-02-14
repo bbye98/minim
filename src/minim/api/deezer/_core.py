@@ -43,10 +43,10 @@ class DeezerAPIClient(OAuth2APIClient):
     _OPTIONAL_AUTH = True
     _PROVIDER = "Deezer"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    _RATE_LIMIT_PER_SECOND = 10
     AUTH_URL = "https://connect.deezer.com/oauth/auth.php"
     BASE_URL = "https://api.deezer.com"
     TOKEN_URL = "https://connect.deezer.com/oauth/access_token.php"
+    _rate_limit_per_second = 10
 
     def __init__(
         self,
@@ -519,7 +519,7 @@ class DeezerAPIClient(OAuth2APIClient):
         if error_code is None:
             raise RuntimeError(f"{error['type']} {error['message']}")
         if error_code == 4 and retry:
-            retry_after = 2 / self._RATE_LIMIT_PER_SECOND
+            retry_after = 2 / self._rate_limit_per_second
             warnings.warn(
                 "Rate limit exceeded. Retrying after "
                 f"{retry_after:.3f} second(s)."

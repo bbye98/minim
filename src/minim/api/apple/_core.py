@@ -155,8 +155,8 @@ class iTunesSearchAPIClient(APIClient):
     }
     _PROVIDER = "Apple"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    _RATE_LIMIT_PER_SECOND = 1 / 3
     BASE_URL = "https://itunes.apple.com"
+    _rate_limit_per_second = 1 / 3
 
     def __init__(
         self,
@@ -225,7 +225,7 @@ class iTunesSearchAPIClient(APIClient):
             return resp
 
         if status == 403 and retry:
-            retry_after = 2 / self._RATE_LIMIT_PER_SECOND
+            retry_after = 2 / self._rate_limit_per_second
             warnings.warn(
                 "Rate limit possibly exceeded. Retrying after "
                 f"{retry_after:.3f} second(s)."

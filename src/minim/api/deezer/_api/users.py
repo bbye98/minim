@@ -2117,7 +2117,7 @@ class UsersAPI(DeezerResourceAPI):
             params={"name": self._prepare_string("name", name)},
         )
 
-    def update_playlist_details(
+    def update_playlist_info(
         self,
         playlist_id: int | str,
         /,
@@ -2178,7 +2178,7 @@ class UsersAPI(DeezerResourceAPI):
             Whether the request completed successfully.
         """
         self._client._require_permissions(
-            "playlists.update_playlist_details", "manage_library"
+            "playlists.update_playlist_info", "manage_library"
         )
         params = {}
         if name is not None:
@@ -3116,7 +3116,7 @@ class UsersAPI(DeezerResourceAPI):
             "GET", "user", user_id, "tracks", limit=limit, offset=offset
         )
 
-    def update_user_track_details(
+    def update_user_track_metadata(
         self,
         track_id: int | str,
         /,
@@ -3167,7 +3167,7 @@ class UsersAPI(DeezerResourceAPI):
             Whether the request completed successfully.
         """
         self._client._require_permissions(
-            "tracks.update_user_track_details", "manage_library"
+            "tracks.update_user_track_metadata", "manage_library"
         )
         params = {}
         if album is not None:

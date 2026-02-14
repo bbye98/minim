@@ -747,8 +747,7 @@ class APIClient(ABC):
     #: Base URL for API endpoints.
     BASE_URL: str
 
-    _RATE_LIMIT_PER_SECOND = float("inf")
-
+    _rate_limit_per_second = float("inf")
     _join_values = staticmethod(join_values)
 
     def __init__(
@@ -776,7 +775,7 @@ class APIClient(ABC):
         self._client = httpx.Client(base_url=self.BASE_URL)
         self._cache = TTLCache() if enable_cache else None
         self._rate_limiter = (
-            TokenBucketRateLimiter(self._RATE_LIMIT_PER_SECOND)
+            TokenBucketRateLimiter(self._rate_limit_per_second)
             if limit_rate
             else None
         )
@@ -929,7 +928,7 @@ class OAuthAPIClient(APIClient):
         ...
 
     @abstractmethod
-    def _resolve_user_identifier(self) -> str | None:
+    def _resolve_user_identifier(self) -> str:
         """
         Resolve the best user identifier for the current account.
         """
@@ -1041,7 +1040,7 @@ class OAuthAPIClient(APIClient):
                     raise ValueError(
                         f"Invalid redirect handler {redirect_handler!r}. "
                         "Valid values: "
-                        f"{self._join_values(self._REDIRECT_HANDLERS)}."
+                        f"{join_values(self._REDIRECT_HANDLERS)}."
                     )
                 if (hostname := parsed.hostname) not in {
                     "localhost",
@@ -1489,6 +1488,7 @@ class OAuth1APIClient(OAuthAPIClient):
                 access_token = account["access_token"]
                 access_token_secret = account["access_token_secret"]
                 consumer_secret = account["client_secret"]
+                user_identifier = account["user_identifier"]
                 redirect_uri = account["redirect_uri"]
                 self._token_extras = (
                     json.loads(token_extras)
@@ -2266,8 +2266,9 @@ class OAuth2APIClient(OAuthAPIClient):
                 # from local token storage
                 access_token = account["access_token"]
                 client_secret = account["client_secret"]
-                scopes = account["scopes"]
+                user_identifier = account["user_identifier"]
                 redirect_uri = account["redirect_uri"]
+                scopes = account["scopes"]
                 token_type = account["token_type"]
                 refresh_token = account["refresh_token"]
                 expires_at = account["expires_at"]

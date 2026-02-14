@@ -132,8 +132,8 @@ class TracksAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.update_user_track_details)
-    def update_user_track_details(
+    @_copy_docstring(UsersAPI.update_user_track_metadata)
+    def update_user_track_metadata(
         self,
         track_id: int | str,
         /,
@@ -142,7 +142,7 @@ class TracksAPI(DeezerResourceAPI):
         artist: str | None = None,
         title: str | None = None,
     ) -> bool:
-        return self._client.users.update_user_track_details(
+        return self._client.users.update_user_track_metadata(
             track_id, album=album, artist=artist, title=title
         )
 

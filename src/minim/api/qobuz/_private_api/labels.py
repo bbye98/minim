@@ -162,13 +162,9 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
         params = {"label_id": label_id}
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request("GET", "label/get", params=params).json()
+        return self._get_paginated_resources(
+            "label/get", limit=limit, offset=offset, params=params
+        )
 
     @TTLCache.cached_method(ttl="daily")
     def get_labels(
@@ -221,11 +217,6 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        params = {}
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request("GET", "label/list", params=params).json()
+        return self._get_paginated_resources(
+            "label/list", limit=limit, offset=offset
+        )

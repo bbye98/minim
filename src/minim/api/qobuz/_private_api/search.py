@@ -65,16 +65,12 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         results : dict[str, Any]
             Page of Qobuz content metadata for the matching items.
         """
-        params = {"query": self._prepare_string("query", query)}
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"{resource_type}/search", params=params
-        ).json()
+        return self._get_paginated_resources(
+            f"{resource_type}/search",
+            limit=limit,
+            offset=offset,
+            params={"query": self._prepare_string("query", query)},
+        )
 
     @TTLCache.cached_method(ttl="search")
     def search(
@@ -1056,13 +1052,11 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
                     "query": <str>
                   }
         """
-        params = {"query": self._prepare_string("query", query)}
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "most-popular/get", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "most-popular/get",
+            offset=offset,
+            params={"query": self._prepare_string("query", query)},
+        )
 
     @TTLCache.cached_method(ttl="search")
     def search_playlists(

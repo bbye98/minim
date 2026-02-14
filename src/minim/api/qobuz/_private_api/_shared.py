@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ..._shared import ResourceAPI
 
@@ -211,3 +211,60 @@ class PrivateQobuzResourceAPI(ResourceAPI):
                     f"values: {ResourceAPI._join_values(relationships)}."
                 )
         return ",".join(expand)
+
+    def _get_paginated_resources(
+        self,
+        endpoint: str,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get paginated Qobuz catalog information for one or more items of
+        a resource type.
+
+        Parameters
+        ----------
+        endpoint : str; positional-only
+            API endpoint.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`20`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return. Use with `limit` to get
+            the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        params : dict[str, Any]; keyword-only; optional
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+
+        Returns
+        -------
+        items : dict[str, Any]
+            Page of Qobuz content metadata for the items in the
+            resource.
+        """
+        if params is None:
+            params = {}
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 500)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request("GET", endpoint, params=params).json()

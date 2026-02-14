@@ -817,7 +817,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             "POST", "playlists", params=params, json=payload
         ).json()
 
-    def update_playlist_details(
+    def update_playlist_info(
         self,
         playlist_uuid: str,
         /,
@@ -869,7 +869,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **API default**: :code:`False`.
         """
         self._client._require_scopes(
-            "playlists.update_playlist_details", "playlists.write"
+            "playlists.update_playlist_info", "playlists.write"
         )
         params = {}
         if country_code is not None:

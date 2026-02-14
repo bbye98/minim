@@ -1,3 +1,4 @@
+from functools import cached_property
 import time
 from typing import TYPE_CHECKING, Any
 import warnings
@@ -16,7 +17,7 @@ class DiscogsAPIClient(OAuth1APIClient):
     Discogs API client.
     """
 
-    _RATE_LIMIT_PER_SECOND: float
+    _rate_limit_per_second: float
 
     _ALLOWED_AUTH_FLOWS = {None, "three_legged", "two_legged"}
     _AUTH_FLOWS = {
@@ -166,7 +167,7 @@ class DiscogsAPIClient(OAuth1APIClient):
         #: Users API endpoints for the Discogs API.
         self.users: UsersAPI = UsersAPI(self)
 
-        self._RATE_LIMIT_PER_SECOND = 5 / 12 if auth_flow is None else 1
+        self._rate_limit_per_second = 5 / 12 if auth_flow is None else 1
         super().__init__(
             auth_flow=auth_flow,
             consumer_key=consumer_key,
@@ -183,6 +184,13 @@ class DiscogsAPIClient(OAuth1APIClient):
             store_tokens=store_tokens,
             user_agent=user_agent,
         )
+
+    @cached_property
+    def _identity(self) -> dict[str, Any]:
+        """
+        Identity of the current user.
+        """
+        return self.users.get_my_identity()
 
     def _request(
         self,
@@ -216,19 +224,25 @@ class DiscogsAPIClient(OAuth1APIClient):
         response : httpx.Response
             HTTP response.
         """
-        if (rate_limiter := self._rate_limiter) is not None:
+        rate_limiter = self._rate_limiter
+        has_rate_limiter = rate_limiter is not None
+        if has_rate_limiter:
             rate_limiter.throttle()
         resp = (
             super()._request
             if self._auth_flow == "three_legged"
             else self._client.request
         )(method, endpoint, **kwargs)
+        if has_rate_limiter:
+            rate_limiter._num_tokens = int(
+                resp.headers["x-discogs-ratelimit-remaining"]
+            )
         status = resp.status_code
         if 200 <= status < 300:
             return resp
 
         if status == 429 and retry:
-            retry_after = 1 / self._RATE_LIMIT_PER_SECOND
+            retry_after = 1 / self._rate_limit_per_second
             warnings.warn(
                 "Rate limit exceeded. Retrying after "
                 f"{retry_after:.3f} second(s)."
@@ -267,7 +281,7 @@ class DiscogsAPIClient(OAuth1APIClient):
            :meth:`~minim.api.discogs.UsersAPI.get_my_identity` and
            make a request to the Discogs API.
         """
-        return self.users.get_my_identity()["id"]
+        return self._identity["id"]
 
     def set_access_token(
         self,
@@ -460,7 +474,7 @@ class DiscogsAPIClient(OAuth1APIClient):
                client's existing token is compatible with the new
                authorization flow.
         """
-        self._RATE_LIMIT_PER_SECOND = 5 / 12 if auth_flow is None else 1
+        self._rate_limit_per_second = 5 / 12 if auth_flow is None else 1
         super().set_auth_flow(
             auth_flow,
             consumer_key=consumer_key,
