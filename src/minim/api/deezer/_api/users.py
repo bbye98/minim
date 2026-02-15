@@ -3127,7 +3127,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `Track <https://developers.deezer.com/api/actions-post>`__:
-        Update the details of a user-uploaded track.
+        Update the metadata for a user-uploaded track.
 
         .. admonition:: Permission
            :class: entitlement

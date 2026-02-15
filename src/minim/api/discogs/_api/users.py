@@ -76,7 +76,7 @@ class UsersAPI(DiscogsResourceAPI):
 
            .. tab-set::
 
-              .. tab-item:: Optional
+              .. tab-item:: Conditional
 
                  User authentication
                     Access the :code:`email`, :code:`num_list`,
@@ -86,8 +86,8 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; positional-only; optional
-            Username. If not provided, the username of the current user
-            is used. Only optional when authenticated.
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
 
@@ -146,9 +146,8 @@ class UsersAPI(DiscogsResourceAPI):
 
     def update_user_profile(
         self,
-        username: str | None = None,
-        /,
         *,
+        username: str | None = None,
         name: str | None = None,
         website: str | None = None,
         location: str | None = None,
@@ -179,9 +178,9 @@ class UsersAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        username : str; positional-only; optional
-            Username. If not provided, the username of the current user
-            is used. Only optional when authenticated.
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
 
             **Example**: :code:`"vreon"`.
 
@@ -262,6 +261,7 @@ class UsersAPI(DiscogsResourceAPI):
                     "wantlist_url": <str>
                   }
         """
+        self._client._require_authentication("users.update_user_profile")
         payload = {}
         if name is not None:
             payload["name"] = self._prepare_string(
@@ -296,7 +296,6 @@ class UsersAPI(DiscogsResourceAPI):
     def get_user_edits(
         self,
         username: str | None = None,
-        /,
         *,
         limit: int | None = None,
         page: int | None = None,
@@ -310,9 +309,9 @@ class UsersAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        username : str; positional-only; optional
-            Username. If not provided, the username of the current user
-            is used. Only optional when authenticated.
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
 
             **Example**: :code:`"shooezgirl"`.
 
@@ -347,10 +346,10 @@ class UsersAPI(DiscogsResourceAPI):
                       "pages": <int>,
                       "per_page": <int>,
                       "urls": {
-                          "first": <str>,
-                          "last": <str>,
-                          "next": <str>,
-                          "prev": <str>
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
                       }
                     },
                     "submissions": {
@@ -468,10 +467,9 @@ class UsersAPI(DiscogsResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_creations(
+    def get_user_contributions(
         self,
         username: str | None = None,
-        /,
         *,
         limit: int | None = None,
         page: int | None = None,
@@ -487,9 +485,9 @@ class UsersAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        username : str; positional-only; optional
-            Username. If not provided, the username of the current user
-            is used. Only optional when authenticated.
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
 
             **Example**: :code:`"shooezgirl"`.
 
@@ -534,3 +532,531 @@ class UsersAPI(DiscogsResourceAPI):
             page=page,
             params=params,
         )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_collection_folders(
+        self, username: str | None = None
+    ) -> dict[str, Any]:
+        """
+        `User Collection > Collection > Get Collection Folders
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-collection-get>`_: Get Discogs catalog
+        information for a user's collection folders.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access private collections.
+
+        Parameters
+        ----------
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        folders : dict[str, Any]
+            Discogs content metadata for the user's collection folders.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "folders": [
+                      {
+                        "count": <int>,
+                        "id": <int>,
+                        "name": <str>,
+                        "resource_url": <str>
+                      }
+                    ]
+                  }
+        """
+        return self._client._request(
+            "GET",
+            f"users/{self._resolve_username(username)}/collection/folders",
+        ).json()
+
+    def create_user_collection_folder(
+        self, folder_name: str, *, username: str | None = None
+    ) -> dict[str, Any]:
+        """
+        `User Collection > Collection > Create Folder
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-collection-post>`_: Create a collection
+        folder.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        folder_name : str
+            Folder name.
+
+            **Example**: :code:`"My favorites"`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        folder : dict[str, Any]
+            Discogs content metadata for the newly created collection
+            folder.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "count": <int>,
+                    "id": <int>,
+                    "name": <str>,
+                    "resource_url": <str>
+                  }
+        """
+        self._client._require_authentication(
+            "users.create_user_collection_folder"
+        )
+        return self._client._request(
+            "POST",
+            f"users/{self._resolve_username(username)}/collection/folder",
+            params={"name": self._prepare_string("folder_name", folder_name)},
+        ).json()
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_collection_folder(
+        self, folder_id: int | str, /, username: str | None = None
+    ) -> dict[str, Any]:
+        """
+        `User Collection > Collection Folder > Get Folders
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-collection-folder-get>`_: Get Discogs
+        catalog information for a user's collection folder.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Conditional
+
+                 User authentication
+                    Access collection folders that do not have a
+                    `folder_id` of :code:`0`.
+
+        Parameters
+        ----------
+        folder_id : int or str; positional-only
+            Deezer ID of the collection folder.
+
+            **Examples**: :code:`0`, :code:`"3"`.
+
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        folder : dict[str, Any]
+            Discogs content metadata for the user's collection folder.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "count": <int>,
+                    "id": <int>,
+                    "name": <str>,
+                    "resource_url": <str>
+                  }
+        """
+        self._validate_numeric("folder_id", folder_id, int, 0)
+        if int(folder_id) == 0:
+            self._client._require_authentication(
+                "users.get_user_collection_folder"
+            )
+        return self._client._request(
+            "GET",
+            f"users/{self._resolve_username(username)}/collection/folders/{folder_id}",
+        ).json()
+
+    def rename_user_collection_folder(
+        self,
+        folder_id: int | str,
+        /,
+        folder_name: str,
+        *,
+        username: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collection > Collection Folder > Edit Folder
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-collection-folder-post>`_: Rename a
+        user's collection folder.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        folder_id : int or str; positional-only
+            Deezer ID of the collection folder. The "All"
+            (:code:`folder_id=0`) and "Uncategorized"
+            (:code:`folder_id=1`) folders cannot be renamed.
+
+            **Examples**: :code:`2`, :code:`"3"`.
+
+        folder_name : str
+            New folder name.
+
+            **Example**: :code:`"My favorites"`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+        self._client._require_authentication(
+            "users.rename_user_collection_folder"
+        )
+        self._validate_numeric("folder_id", folder_id, int, 2)
+        return self._client._request(
+            "POST",
+            f"users/{self._resolve_username(username)}/collection/folders/{folder_id}",
+            json={"name": self._prepare_string("folder_name", folder_name)},
+        ).json()
+
+    def delete_user_collection_folder(
+        self, folder_id: int | str, /, username: str | None = None
+    ) -> None:
+        """
+        `User Collection > Collection Folder > Delete Folder
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-collection-folder-delete>`_: Delete a
+        user's collection folder.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        folder_id : int or str; positional-only
+            Deezer ID of the collection folder.
+
+            **Examples**: :code:`2`, :code:`"3"`. The "All"
+            (:code:`folder_id=0`) and "Uncategorized"
+            (:code:`folder_id=1`) folders cannot be deleted.
+
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+        self._validate_numeric("folder_id", folder_id, int, 2)
+        self._client._request(
+            "DELETE",
+            f"users/{self._resolve_username(username)}"
+            f"/collection/folders/{folder_id}",
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_collection_release_items(
+        self, release_id: int | str, /, username: str | None = None
+    ) -> dict[str, Any]:
+        """
+        `User Collection > Collection Items By Release
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-collection-items-by-release>`_: Get
+        Discogs catalog information for instances of a release in a
+        user's collection.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access private collections.
+
+        Parameters
+        ----------
+        release_id : int or str; positional-only
+            Discogs ID of the release.
+
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        items : dict[str, Any]
+            Discogs content metadata for the items in the collection
+            folder.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    },
+                    "releases": [
+                      {
+                        "basic_information": {
+                          "artists": [
+                            {
+                              "anv": <str>,
+                              "id": <int>,
+                              "join": <str>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                              "role": <str>,
+                              "tracks": <str>
+                            }
+                          ],
+                          "formats": [
+                            {
+                              "descriptions": <list[str]>,
+                              "name": <str>,
+                              "qty": <str>
+                            }
+                          ],
+                          "genres": <list[str]>,
+                          "id": <int>,
+                          "labels": [
+                            {
+                              "catno": <str>,
+                              "entity_type": <str>,
+                              "entity_type_name": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                            }
+                          ],
+                          "resource_url": <str>,
+                          "styles": <list[str]>,
+                          "thumb": <str>,
+                          "title": <str>,
+                          "year": <int>,
+                        },
+                        "date_added": <str>,
+                        "folder_id": <int>,
+                        "id": <int>,
+                        "instance_id": <int>,
+                        "notes": [
+                          {
+                            "field_id": <int>,
+                            "value": <str>
+                          }
+                        ]
+                        "rating": <int>
+                      },
+                    ]
+                  }
+        """
+        self._validate_numeric("release_id", release_id, int, 1)
+        return self._client._request(
+            "GET",
+            f"users/{self._resolve_username(username)}"
+            f"/collection/releases/{release_id}",
+        ).json()
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_collection_folder_items(
+        self, folder_id: int | str, /, username: str | None = None
+    ) -> dict[str, Any]:
+        """
+        `User Collection > Collection Items By Folder
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-collection-items-by-folder>`_: Get
+        Discogs catalog information for releases in a user's collection
+        folder.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Conditional
+
+                 User authentication
+                    Access collection folders that do not have a
+                    `folder_id` of :code:`0`.
+
+        Parameters
+        ----------
+        folder_id : int or str; positional-only
+            Deezer ID of the collection folder.
+
+            **Examples**: :code:`0`, :code:`"3"`.
+
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        items : dict[str, Any]
+            Discogs content metadata for the items in the collection
+            folder.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    },
+                    "releases": [
+                      {
+                        "basic_information": {
+                          "artists": [
+                            {
+                              "anv": <str>,
+                              "id": <int>,
+                              "join": <str>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                              "role": <str>,
+                              "tracks": <str>
+                            }
+                          ],
+                          "formats": [
+                            {
+                              "descriptions": <list[str]>,
+                              "name": <str>,
+                              "qty": <str>
+                            }
+                          ],
+                          "genres": <list[str]>,
+                          "id": <int>,
+                          "labels": [
+                            {
+                              "catno": <str>,
+                              "entity_type": <str>,
+                              "entity_type_name": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                            }
+                          ],
+                          "resource_url": <str>,
+                          "styles": <list[str]>,
+                          "thumb": <str>,
+                          "title": <str>,
+                          "year": <int>,
+                        },
+                        "date_added": <str>,
+                        "folder_id": <int>,
+                        "id": <int>,
+                        "instance_id": <int>,
+                        "notes": [
+                          {
+                            "field_id": <int>,
+                            "value": <str>
+                          }
+                        ]
+                        "rating": <int>
+                      },
+                    ]
+                  }
+        """
+        self._validate_numeric("folder_id", folder_id, int, 0)
+        if int(folder_id) == 0:
+            self._client._require_authentication(
+                "users.get_user_collection_items_by_folder"
+            )
+        return self._client._request(
+            "GET",
+            f"users/{self._resolve_username(username)}"
+            f"/collection/{folder_id}/releases",
+        ).json()
+
+    # def add_user_collection_item(self) -> dict[str, Any]:
+    #     """ """
+
+    # def update_user_collection_item(self) -> dict[str, Any]:
+    #     """ """
+
+    # def delete_user_collection_item(self) -> dict[str, Any]:
+    #     """ """
+
+    # def get_user_collection_fields(self) -> dict[str, Any]:
+    #     """ """
+
+    # def update_user_collection_item_field(self) -> dict[str, Any]:
+    #     """ """
+
+    # def get_user_collection_value(self) -> dict[str, Any]:
+    #     """ """

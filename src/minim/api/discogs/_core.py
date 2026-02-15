@@ -249,7 +249,15 @@ class DiscogsAPIClient(OAuth1APIClient):
             )
             time.sleep(retry_after)
             return self._request(method, endpoint, retry=False, **kwargs)
-        raise RuntimeError(f"{status} – {resp.json()['message']}")
+
+        resp_json = resp.json()
+        if detail := resp_json.get("detail"):
+            detail = detail[0]
+            raise RuntimeError(
+                f"{status} – {detail['msg']}: {detail['type']} {detail['loc']}"
+            )
+        else:
+            raise RuntimeError(f"{status} – {resp_json['message']}")
 
     def _require_authentication(self, endpoint_method: str, /) -> None:
         """
