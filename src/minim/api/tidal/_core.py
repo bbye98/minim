@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     import httpx
 
 
-class _BaseTIDALAPIClient(OAuth2APIClient):
+class BaseTIDALAPIClient(OAuth2APIClient):
     """
     Base class for TIDAL API clients.
     """
@@ -156,7 +156,7 @@ class _BaseTIDALAPIClient(OAuth2APIClient):
             params["countryCode"] = country_code
 
 
-class TIDALAPIClient(_BaseTIDALAPIClient):
+class TIDALAPIClient(BaseTIDALAPIClient):
     """
     TIDAL API client.
     """
@@ -176,7 +176,7 @@ class TIDALAPIClient(_BaseTIDALAPIClient):
     }
     _ENV_VAR_PREFIX = "TIDAL_API"
     _QUAL_NAME = (
-        f"minim.api.{_BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
+        f"minim.api.{BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
     )
     _VERSION = "1.0.37"
     BASE_URL = "https://openapi.tidal.com/v2"
@@ -466,7 +466,7 @@ class TIDALAPIClient(_BaseTIDALAPIClient):
         return self._my_profile.get("id")
 
 
-class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
+class PrivateTIDALAPIClient(BaseTIDALAPIClient):
     """
     Private TIDAL API client.
     """
@@ -498,7 +498,7 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
     _IS_TRUSTED_DEVICE = True
     _OPTIONAL_AUTH = True
     _QUAL_NAME = (
-        f"minim.api.{_BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
+        f"minim.api.{BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
     )
     _REDIRECT_HANDLERS = {}
     _REDIRECT_URIS = {"tidal://login/auth", "https://tidal.com/login/auth"}

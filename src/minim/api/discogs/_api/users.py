@@ -147,12 +147,12 @@ class UsersAPI(DiscogsResourceAPI):
     def update_user_profile(
         self,
         *,
-        username: str | None = None,
         name: str | None = None,
         website: str | None = None,
         location: str | None = None,
         bio: str | None = None,
         currency: str | None = None,
+        username: str | None = None,
     ) -> dict[str, Any]:
         """
         `User Identity > Profile > Edit Profile <https://www.discogs.com
@@ -178,12 +178,6 @@ class UsersAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
-            current user is used.
-
-            **Example**: :code:`"vreon"`.
-
         name : str; keyword-only; optional
             Full name.
 
@@ -211,6 +205,12 @@ class UsersAPI(DiscogsResourceAPI):
             :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`,
             :code:`"CHF"`, :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`,
             :code:`"SEK"`, :code:`"ZAR"`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"vreon"`.
 
         Returns
         -------
@@ -670,7 +670,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         folder_id : int or str; positional-only
-            Deezer ID of the collection folder.
+            Discogs ID of the collection folder.
 
             **Examples**: :code:`0`, :code:`"3"`.
 
@@ -734,7 +734,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         folder_id : int or str; positional-only
-            Deezer ID of the collection folder. The "All"
+            Discogs ID of the collection folder. The "All"
             (:code:`folder_id=0`) and "Uncategorized"
             (:code:`folder_id=1`) folders cannot be renamed.
 
@@ -771,7 +771,7 @@ class UsersAPI(DiscogsResourceAPI):
         user's collection folder.
 
         .. admonition:: User authentication
-           :class: entitlement dropdown
+           :class: entitlement
 
            .. tab-set::
 
@@ -783,7 +783,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         folder_id : int or str; positional-only
-            Deezer ID of the collection folder.
+            Discogs ID of the collection folder.
 
             **Examples**: :code:`2`, :code:`"3"`. The "All"
             (:code:`folder_id=0`) and "Uncategorized"
@@ -795,6 +795,9 @@ class UsersAPI(DiscogsResourceAPI):
 
             **Example**: :code:`"rodneyfool"`.
         """
+        self._client._require_authentication(
+            "users.delete_user_collection_folder"
+        )
         self._validate_numeric("folder_id", folder_id, int, 2)
         self._client._request(
             "DELETE",
@@ -803,7 +806,7 @@ class UsersAPI(DiscogsResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_collection_release_items(
+    def get_user_collection_release_instances(
         self, release_id: int | str, /, username: str | None = None
     ) -> dict[str, Any]:
         """
@@ -828,6 +831,8 @@ class UsersAPI(DiscogsResourceAPI):
         release_id : int or str; positional-only
             Discogs ID of the release.
 
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
         username : str; optional
             Username of the user. If not provided, the username of the
             current user is used. Only optional when authenticated.
@@ -836,9 +841,9 @@ class UsersAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        items : dict[str, Any]
-            Discogs content metadata for the items in the collection
-            folder.
+        instances : dict[str, Any]
+            Discogs content metadata for the release instances in the
+            user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -920,7 +925,7 @@ class UsersAPI(DiscogsResourceAPI):
         ).json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_collection_folder_items(
+    def get_user_collection_folder_releases(
         self, folder_id: int | str, /, username: str | None = None
     ) -> dict[str, Any]:
         """
@@ -944,7 +949,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         folder_id : int or str; positional-only
-            Deezer ID of the collection folder.
+            Discogs ID of the collection folder.
 
             **Examples**: :code:`0`, :code:`"3"`.
 
@@ -956,8 +961,8 @@ class UsersAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        items : dict[str, Any]
-            Discogs content metadata for the items in the collection
+        releases : dict[str, Any]
+            Discogs content metadata for the releases in the collection
             folder.
 
             .. admonition:: Sample response
@@ -1040,23 +1045,399 @@ class UsersAPI(DiscogsResourceAPI):
         return self._client._request(
             "GET",
             f"users/{self._resolve_username(username)}"
-            f"/collection/{folder_id}/releases",
+            f"/collection/folders/{folder_id}/releases",
         ).json()
 
-    # def add_user_collection_item(self) -> dict[str, Any]:
-    #     """ """
+    def add_user_collection_release(
+        self,
+        folder_id: int | str,
+        release_id: int | str,
+        *,
+        username: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collection > Add To Collection Folder
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-add-to-collection-folder>`_: Add a
+        release to a user's collection folder.
 
-    # def update_user_collection_item(self) -> dict[str, Any]:
-    #     """ """
+        .. admonition:: User authentication
+           :class: entitlement
 
-    # def delete_user_collection_item(self) -> dict[str, Any]:
-    #     """ """
+           .. tab-set::
 
-    # def get_user_collection_fields(self) -> dict[str, Any]:
-    #     """ """
+              .. tab-item:: Required
 
-    # def update_user_collection_item_field(self) -> dict[str, Any]:
-    #     """ """
+                 User authentication
+                    Access protected endpoints.
 
-    # def get_user_collection_value(self) -> dict[str, Any]:
-    #     """ """
+        Parameters
+        ----------
+        folder_id : int or str
+            Discogs ID of the collection folder. The "All" folder
+            (:code:`folder_id=0`) is not allowed, but the
+            "Uncategorized" folder (:code:`folder_id=1`) is.
+
+            **Examples**: :code:`1`, :code:`"3"`.
+
+        release_id : int or str
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        instance : dict[str, Any]
+            Discogs content metadata for the newly added release
+            instance.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "instance_id": <int>,
+                    "resource_url": <str>
+                  }
+        """
+        self._client._require_authentication(
+            "users.add_user_collection_release"
+        )
+        self._validate_numeric("folder_id", folder_id, int, 0)
+        self._validate_numeric("release_id", release_id, int, 1)
+        return self._client._request(
+            "POST",
+            f"users/{self._resolve_username(username)}"
+            f"/collection/folders/{folder_id}/releases/{release_id}",
+        ).json()
+
+    def update_user_collection_release(
+        self,
+        from_folder_id: int | str,
+        release_id: int | str,
+        instance_id: int | str,
+        *,
+        to_folder_id: int | str | None = None,
+        rating: int | None = None,
+        username: str | None = None,
+    ) -> None:
+        """
+        `User Collection > Change Rating Of Release
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-change-rating-of-release>`_: Change the
+        rating on a release and/or move an instance to another
+        collection folder.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        .. important::
+
+           Either :code:`to_folder_id` or :code:`rating` must be
+           specified.
+
+        Parameters
+        ----------
+        from_folder_id : int or str
+            Discogs ID of the collection folder the release instance is
+            currently in.
+
+            **Examples**: :code:`0`, :code:`"3"`.
+
+        release_id : int or str
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        instance_id : int or str
+            Discogs ID of the release instance.
+
+            **Examples**: :code:`130076`, :code:`"130077"`.
+
+        to_folder_id : int or str; keyword-only; optional
+            Discogs ID of the collection folder to move the release
+            instance to.
+
+            **Examples**: :code:`0`, :code:`"3"`.
+
+        rating : int; keyword-only; optional
+            Star rating for the release. Use :code:`0` to reset the
+            rating.
+
+            **Valid range**: :code:`0` to :code:`5`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+        self._client._require_authentication(
+            "users.update_user_collection_release"
+        )
+        self._validate_numeric("from_folder_id", from_folder_id, int, 0)
+        self._validate_numeric("release_id", release_id, int, 1)
+        self._validate_numeric("instance_id", instance_id, int, 1)
+        payload = {}
+        if to_folder_id is not None:
+            self._validate_numeric("to_folder_id", to_folder_id, int, 0)
+            payload["folder_id"] = to_folder_id
+        if rating is not None:
+            self._validate_number("rating", rating, int, 0, 5)
+            payload["rating"] = rating
+        if not payload:
+            raise RuntimeError("At least one change must be specified.")
+        return self._client._request(
+            "POST",
+            f"users/{self._resolve_username(username)}"
+            f"/collection/folders/{from_folder_id}"
+            f"/releases/{release_id}/instances/{instance_id}",
+            json=payload,
+        ).json()
+
+    def remove_user_collection_release(
+        self,
+        folder_id: int | str,
+        release_id: int | str,
+        instance_id: int | str,
+        *,
+        username: str | None = None,
+    ) -> None:
+        """
+        `User Collection > Delete Instance From Folder
+        <https://www.discogs.com/developers/#page:user-collection,
+        header:user-collection-delete-instance-from-folder>`_: Remove a
+        release from a user's collection folder.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        folder_id : int or str
+            Discogs ID of the collection folder.
+
+            **Examples**: :code:`0`, :code:`"3"`.
+
+        release_id : int or str
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        instance_id : int or str
+            Discogs ID of the release instance.
+
+            **Examples**: :code:`130076`, :code:`"130077"`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+        self._client._require_authentication(
+            "users.delete_user_collection_release"
+        )
+        self._validate_numeric("folder_id", folder_id, int, 0)
+        self._validate_numeric("release_id", release_id, int, 1)
+        self._validate_numeric("instance_id", instance_id, int, 1)
+        return self._client._request(
+            "DELETE",
+            f"users/{self._resolve_username(username)}"
+            f"/collection/folders/{folder_id}/releases/{release_id}"
+            f"/instances/{instance_id}",
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_collection_fields(
+        self, username: str | None = None, /
+    ) -> dict[str, Any]:
+        """
+        `User Collection > List Custom Fields <https://www.discogs.com
+        /developers/#page:user-collection,
+        header:user-collection-delete-instance-from-folder>`_: Get
+        Discogs catalog information for user-defined collection note
+        fields.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access private collections.
+
+        Parameters
+        ----------
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        fields : dict[str, Any]
+            Discogs content metadata for the collection note fields.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "fields": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "options": <list[str]>,
+                        "position": <int>,
+                        "public": <bool>,
+                        "type": <str>
+                      }
+                    ]
+                  }
+        """
+        return self._client._request(
+            "GET",
+            f"users/{self._resolve_username(username)}/collection/fields",
+        ).json()
+
+    def update_user_collection_release_field(
+        self,
+        folder_id: int | str,
+        release_id: int | str,
+        instance_id: int | str,
+        field_id: int | str,
+        value: str,
+        *,
+        username: str | None = None,
+    ) -> None:
+        """
+        `User Collection > Edit Fields Instance <https://www.discogs.com
+        /developers/#page:user-collection,
+        header:user-collection-edit-fields-instance>`_: Update the value
+        of a note field for a release instance in a user's collection.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        folder_id : int or str
+            Discogs ID of the collection folder.
+
+            **Examples**: :code:`0`, :code:`"3"`.
+
+        release_id : int or str
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        instance_id : int or str
+            Discogs ID of the release instance.
+
+            **Examples**: :code:`130076`, :code:`"130077"`.
+
+        field_id : int or str
+            Discogs ID of the note field.
+
+            **Examples**: :code:`1`, :code:`"2"`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+        self._validate_numeric("folder_id", folder_id, int, 0)
+        self._validate_numeric("release_id", release_id, int, 1)
+        self._validate_numeric("instance_id", instance_id, int, 1)
+        self._validate_numeric("field_id", field_id, int, 1)
+        self._validate_type("value", value, str)
+        self._client._request(
+            "POST",
+            f"users/{self._resolve_username(username)}/collection"
+            f"/folders/{folder_id}/releases/{release_id}"
+            f"/instances/{instance_id}/fields/{field_id}",
+            params={"value": value},
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_collection_value(
+        self, username: str | None = None, /
+    ) -> dict[str, Any]:
+        """
+        `User Collection > Collection Value <https://www.discogs.com
+        /developers/#page:user-collection,
+        header:user-collection-collection-value>`_: Get the estimated
+        monetary value of a user's collection.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access private endpoints.
+
+        Parameters
+        ----------
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        value : dict[str, Any]
+            Estimated monetary value of the user's collection.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "maximum": <str>,
+                    "median": <str>,
+                    "minimum": <str>
+                  }
+        """
+        return self._client._request(
+            "GET",
+            f"users/{self._resolve_username(username)}/collection/value",
+        ).json()
