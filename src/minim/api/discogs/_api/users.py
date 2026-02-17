@@ -881,7 +881,8 @@ class UsersAPI(DiscogsResourceAPI):
                             {
                               "descriptions": <list[str]>,
                               "name": <str>,
-                              "qty": <str>
+                              "qty": <str>,
+                              "text": <str>
                             }
                           ],
                           "genres": <list[str]>,
@@ -1001,7 +1002,8 @@ class UsersAPI(DiscogsResourceAPI):
                             {
                               "descriptions": <list[str]>,
                               "name": <str>,
-                              "qty": <str>
+                              "qty": <str>,
+                              "text": <str>
                             }
                           ],
                           "genres": <list[str]>,
@@ -1257,7 +1259,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Example**: :code:`"rodneyfool"`.
         """
         self._client._require_authentication(
-            "users.delete_user_collection_release"
+            "users.remove_user_collection_release"
         )
         self._validate_numeric("folder_id", folder_id, int, 0)
         self._validate_numeric("release_id", release_id, int, 1)
@@ -1380,6 +1382,9 @@ class UsersAPI(DiscogsResourceAPI):
 
             **Example**: :code:`"rodneyfool"`.
         """
+        self._client._require_authentication(
+            "users.update_user_collection_release_field"
+        )
         self._validate_numeric("folder_id", folder_id, int, 0)
         self._validate_numeric("release_id", release_id, int, 1)
         self._validate_numeric("instance_id", instance_id, int, 1)
@@ -1441,3 +1446,365 @@ class UsersAPI(DiscogsResourceAPI):
             "GET",
             f"users/{self._resolve_username(username)}/collection/value",
         ).json()
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_wantlist(
+        self, username: str | None = None, /
+    ) -> dict[str, Any]:
+        """
+        `User Wantlist > Wantlist <https://www.discogs.com/developers
+        /#page:user-wantlist,header:user-wantlist-wantlist>`_: Get
+        Discogs catalog information for the releases in a user's
+        wantlist.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access private collections.
+
+        Parameters
+        ----------
+        username : str; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        wantlist : dict[str, Any]
+            Discogs content metadata for the releases in the user's
+            wantlist.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    },
+                    "wants": [
+                      {
+                        "basic_information": {
+                          "artists": [
+                            {
+                              "anv": <str>,
+                              "id": <int>,
+                              "join": <str>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                              "role": <str>,
+                              "tracks": <str>
+                            }
+                          ],
+                          "formats": [
+                            {
+                              "descriptions": <list[str]>,
+                              "name": <str>,
+                              "qty": <str>,
+                              "text": <str>
+                            }
+                          ],
+                          "genres": <list[str]>,
+                          "id": <int>,
+                          "labels": [
+                            {
+                              "catno": <str>,
+                              "entity_type": <str>,
+                              "entity_type_name": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                            }
+                          ],
+                          "resource_url": <str>,
+                          "styles": <list[str]>,
+                          "thumb": <str>,
+                          "title": <str>,
+                          "year": <int>,
+                        },
+                        "id": <int>,
+                        "notes": <str>,
+                        "rating": <int>
+                      }
+                    ]
+                  }
+        """
+        return self._client._request(
+            "GET", f"users/{self._resolve_username(username)}/wants"
+        ).json()
+
+    def add_user_wantlist_release(
+        self,
+        release_id: int | str,
+        /,
+        *,
+        username: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Wantlist > Add To Wantlist > Add to Wantlist
+        <https://www.discogs.com/developers/#page:user-wantlist,
+        header:user-wantlist-add-to-wantlist-put>`_: Add a release to a
+        user's wantlist.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        release_id : int or str; positional-only
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        release : dict[str, Any]
+            Discogs content metadata for the newly added release.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "basic_information": {
+                      "artists": [
+                        {
+                          "anv": <str>,
+                          "id": <int>,
+                          "join": <str>,
+                          "name": <str>,
+                          "resource_url": <str>,
+                          "role": <str>,
+                          "tracks": <str>
+                        }
+                      ],
+                      "formats": [
+                        {
+                          "descriptions": <list[str]>,
+                          "name": <str>,
+                          "qty": <str>,
+                          "text": <str>
+                        }
+                      ],
+                      "genres": <list[str]>,
+                      "id": <int>,
+                      "labels": [
+                        {
+                          "catno": <str>,
+                          "entity_type": <str>,
+                          "entity_type_name": <str>,
+                          "id": <int>,
+                          "name": <str>,
+                          "resource_url": <str>,
+                        }
+                      ],
+                      "resource_url": <str>,
+                      "styles": <list[str]>,
+                      "thumb": <str>,
+                      "title": <str>,
+                      "year": <int>,
+                    },
+                    "id": <int>,
+                    "notes": <str>,
+                    "rating": <int>
+                  }
+        """
+        self._client._require_authentication("users.add_user_wantlist_release")
+        self._validate_number("release_id", release_id, int, 1)
+        return self._client._request(
+            "PUT",
+            f"users/{self._resolve_username(username)}/wants/{release_id}",
+        ).json()
+
+    def update_user_wantlist_release(
+        self,
+        release_id: int | str,
+        /,
+        *,
+        notes: str | None = None,
+        rating: int | None = None,
+        username: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Wantlist > Add To Wantlist > Edit Release In Wantlist
+        <https://www.discogs.com/developers/#page:user-wantlist,
+        header:user-wantlist-add-to-wantlist-post>`_: Update the user
+        notes for or the rating on a release in a user's wantlist.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        release_id : int or str; positional-only
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        notes : str; keyword-only; optional
+            User notes to associate with the release.
+
+            **Example**: :code:`"My favorite release"`.
+
+        rating : int; keyword-only; optional
+            Star rating for the release.
+
+            **Valid range**: :code:`0` to :code:`5`.
+
+            **API default**: :code:`0`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        release : dict[str, Any]
+            Discogs content metadata for the updated release.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "basic_information": {
+                      "artists": [
+                        {
+                          "anv": <str>,
+                          "id": <int>,
+                          "join": <str>,
+                          "name": <str>,
+                          "resource_url": <str>,
+                          "role": <str>,
+                          "tracks": <str>
+                        }
+                      ],
+                      "formats": [
+                        {
+                          "descriptions": <list[str]>,
+                          "name": <str>,
+                          "qty": <str>,
+                          "text": <str>
+                        }
+                      ],
+                      "genres": <list[str]>,
+                      "id": <int>,
+                      "labels": [
+                        {
+                          "catno": <str>,
+                          "entity_type": <str>,
+                          "entity_type_name": <str>,
+                          "id": <int>,
+                          "name": <str>,
+                          "resource_url": <str>,
+                        }
+                      ],
+                      "resource_url": <str>,
+                      "styles": <list[str]>,
+                      "thumb": <str>,
+                      "title": <str>,
+                      "year": <int>,
+                    },
+                    "id": <int>,
+                    "notes": <str>,
+                    "rating": <int>
+                  }
+        """
+        self._client._require_authentication(
+            "users.update_user_wantlist_release"
+        )
+        self._validate_number("release_id", release_id, int, 1)
+        payload = {}
+        if notes is not None:
+            payload["notes"] = self._prepare_string(
+                "notes", notes, allow_blank=True
+            )
+        if rating is not None:
+            self._validate_number("rating", rating, int, 0, 5)
+            payload["rating"] = rating
+        return self._client._request(
+            "POST",
+            f"users/{self._resolve_username(username)}/wants/{release_id}",
+            json=payload,
+        ).json()
+
+    def remove_user_wantlist_release(
+        self, release_id: int | str, /, *, username: str | None = None
+    ) -> None:
+        """
+        `User Wantlist > Add To Wantlist > Delete Release From Wantlist
+        <https://www.discogs.com/developers/#page:user-wantlist,
+        header:user-wantlist-add-to-wantlist-delete>`_: Remove a release
+        from a user's wantlist.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        release_id : int or str; positional-only
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        username : str; keyword-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+        self._client._require_authentication(
+            "users.remove_user_wantlist_release"
+        )
+        self._client._request(
+            "DELETE",
+            f"users/{self._resolve_username(username)}/wants/{release_id}",
+        )
