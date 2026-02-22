@@ -6,8 +6,8 @@ from ._shared import DiscogsResourceAPI
 
 class UsersAPI(DiscogsResourceAPI):
     """
-    User Identity, User Collection, and User Wantlist API endpoints for
-    the Discogs API.
+    User Identity, User Collection, User Wantlist, and User Lists API
+    endpoints for the Discogs API.
 
     .. important::
 
@@ -927,7 +927,13 @@ class UsersAPI(DiscogsResourceAPI):
 
     @TTLCache.cached_method(ttl="user")
     def get_user_collection_folder_releases(
-        self, folder_id: int | str, /, username: str | None = None
+        self,
+        folder_id: int | str,
+        /,
+        username: str | None = None,
+        *,
+        limit: int | None = None,
+        page: int | None = None,
     ) -> dict[str, Any]:
         """
         `User Collection > Collection Items By Folder
@@ -959,6 +965,21 @@ class UsersAPI(DiscogsResourceAPI):
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of releases to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`50`.
+
+        page : int; keyword-only; optional
+            Page number. Use with `limit` to get the next page of
+            releases.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`1`.
 
         Returns
         -------
@@ -1044,11 +1065,12 @@ class UsersAPI(DiscogsResourceAPI):
             self._client._require_authentication(
                 "users.get_user_collection_items_by_folder"
             )
-        return self._client._request(
-            "GET",
+        return self._get_paginated_resources(
             f"users/{self._resolve_username(username)}"
             f"/collection/folders/{folder_id}/releases",
-        ).json()
+            limit=limit,
+            page=page,
+        )
 
     def add_user_collection_release(
         self,
@@ -1448,8 +1470,13 @@ class UsersAPI(DiscogsResourceAPI):
         ).json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_wantlist(
-        self, username: str | None = None, /
+    def get_user_wantlist_releases(
+        self,
+        username: str | None = None,
+        /,
+        *,
+        limit: int | None = None,
+        page: int | None = None,
     ) -> dict[str, Any]:
         """
         `User Wantlist > Wantlist <https://www.discogs.com/developers
@@ -1469,15 +1496,30 @@ class UsersAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        username : str; optional
+        username : str; positional-only; optional
             Username of the user. If not provided, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
 
+        limit : int; keyword-only; optional
+            Maximum number of releases to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`50`.
+
+        page : int; keyword-only; optional
+            Page number. Use with `limit` to get the next page of
+            releases.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`1`.
+
         Returns
         -------
-        wantlist : dict[str, Any]
+        releases : dict[str, Any]
             Discogs content metadata for the releases in the user's
             wantlist.
 
@@ -1546,9 +1588,11 @@ class UsersAPI(DiscogsResourceAPI):
                     ]
                   }
         """
-        return self._client._request(
-            "GET", f"users/{self._resolve_username(username)}/wants"
-        ).json()
+        return self._get_paginated_resources(
+            f"users/{self._resolve_username(username)}/wants",
+            limit=limit,
+            page=page,
+        )
 
     def add_user_wantlist_release(
         self,
@@ -1808,3 +1852,175 @@ class UsersAPI(DiscogsResourceAPI):
             "DELETE",
             f"users/{self._resolve_username(username)}/wants/{release_id}",
         )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_lists(
+        self,
+        username: str | None = None,
+        /,
+        *,
+        limit: int | None = None,
+        page: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Lists > User Lists <https://www.discogs.com/developers
+        /#page:user-lists,header:user-lists-user-lists>`_: Get
+        Discogs catalog information for a user's lists.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access private collections.
+
+        Parameters
+        ----------
+        username : str; positional-only; optional
+            Username of the user. If not provided, the username of the
+            current user is used. Only optional when authenticated.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of lists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`50`.
+
+        page : int; keyword-only; optional
+            Page number. Use with `limit` to get the next page of lists.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`1`.
+
+        Returns
+        -------
+        lists : dict[str, Any]
+            Discogs content metadata for the user's lists.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "lists": [
+                      {
+                        "date_added": <str>,
+                        "date_changed": <str>,
+                        "description": <str>,
+                        "id": <int>,
+                        "image_url": <str>,
+                        "name": <str>,
+                        "public": <bool>,
+                        "resource_url": <str>,
+                        "uri": <str>,
+                        "user": {
+                          "avatar_url": <str>,
+                          "id": <int>,
+                          "resource_url": <str>,
+                          "username": <str>
+                        }
+                      }
+                    ],
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    }
+                  }
+        """
+        return self._get_paginated_resources(
+            f"users/{self._resolve_username(username)}/lists",
+            limit=limit,
+            page=page,
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_list(self, list_id: int | str, /) -> dict[str, Any]:
+        """
+        `User Lists > List <https://www.discogs.com/developers
+        /#page:user-lists,header:user-lists-list>`_: Get Discogs catalog
+        information for a user's list and the releases in it.
+
+        .. admonition:: User authentication
+           :class: entitlement dropdown
+
+           .. tab-set::
+
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access private collections.
+
+        Parameters
+        ----------
+        list_id : int or str; positional-only
+            Discogs ID of the list.
+
+            **Examples**: :code:`123`, :code:`"321"`.
+
+        Returns
+        -------
+        list : dict[str, Any]
+            Discogs content metadata for the user's list.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "date_added": <str>,
+                    "date_changed": <str>,
+                    "description": <str>,
+                    "id": <int>,
+                    "image_url": <str>,
+                    "items": [
+                      {
+                        "comment": <str>,
+                        "display_title": <str>,
+                        "id": <int>,
+                        "image_url": <str>,
+                        "resource_url": <str>,
+                        "stats": {
+                          "community": {
+                            "in_collection": <int>,
+                            "in_wantlist": <int>
+                          },
+                          "user": {
+                            "in_collection": <int>,
+                            "in_wantlist": <int>
+                          }
+                        },
+                        "type": "release",
+                        "uri": <str>
+                      }
+                    ],
+                    "name": <str>,
+                    "public": <bool>,
+                    "resource_url": <str>,
+                    "uri": <str>,
+                    "user": {
+                      "avatar_url": <str>,
+                      "id": <int>,
+                      "resource_url": <str>,
+                      "username": <str>
+                    }
+                  }
+        """
+        self._validate_number("list_id", list_id, int, 1)
+        return self._client._request("GET", f"lists/{list_id}").json()
