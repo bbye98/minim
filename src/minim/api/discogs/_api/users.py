@@ -17,14 +17,14 @@ class UsersAPI(DiscogsResourceAPI):
     """
 
     _SORT_FIELDS = {
-        "label",
+        "added",
         "artist",
-        "title",
         "catno",
         "format",
+        "label",
         "rating",
+        "title",
         "year",
-        "added",
     }
 
     @TTLCache.cached_method(ttl="static")
@@ -76,7 +76,7 @@ class UsersAPI(DiscogsResourceAPI):
 
            .. tab-set::
 
-              .. tab-item:: Conditional
+              .. tab-item:: Optional
 
                  User authentication
                     Access the :code:`email`, :code:`num_list`,
@@ -332,7 +332,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         edits : dict[str, Any]
-            Discogs content metadata for edits made by the user.
+            Page of Discogs content metadata for edits made by the user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -514,6 +514,124 @@ class UsersAPI(DiscogsResourceAPI):
 
         descending : bool; keyword-only; optional
             Whether to sort in descending order.
+
+        Returns
+        -------
+        contributions : dict[str, Any]
+            Page of Discogs content metadata for the user's
+            contributions.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "contributions": [
+                      {
+                        "artists": [
+                          {
+                            "anv": <str>,
+                            "id": <int>,
+                            "join": <str>,
+                            "name": <str>,
+                            "resource_url": <str>,
+                            "role": <str>,
+                            "tracks": <str>
+                          }
+                        ],
+                        "community": {
+                          "contributors": [
+                            {
+                              "resource_url": <str>,
+                              "username": <str>
+                            }
+                          ],
+                          "data_quality": <str>,
+                          "have": <int>,
+                          "rating": {
+                            "average": <int>,
+                            "count": <int>
+                          },
+                          "status": <str>,
+                          "submitter": {
+                            "resource_url": <str>,
+                            "username": <str>
+                          },
+                          "want": <int>
+                        },
+                        "companies": [],
+                        "country": <str>,
+                        "data_quality": <str>,
+                        "date_added": <str>,
+                        "date_changed": <str>,
+                        "estimated_weight": <int>,
+                        "format_quantity": <int>,
+                        "formats": [
+                          {
+                            "descriptions": <list[str]>,
+                            "name": <str>,
+                            "qty": <str>
+                          }
+                        ],
+                        "genres": <list[str]>,
+                        "id": <int>,
+                        "images": [
+                          {
+                            "height": <int>,
+                            "resource_url": <str>,
+                            "type": <str>,
+                            "uri": <str>,
+                            "uri150": <str>,
+                            "width": <int>
+                          }
+                        ],
+                        "labels": [
+                          {
+                            "catno": <str>,
+                            "entity_type": <str>,
+                            "id": <int>,
+                            "name": <str>,
+                            "resource_url": <str>
+                          }
+                        ],
+                        "master_id": <int>,
+                        "master_url": <str>,
+                        "notes": <str>,
+                        "released": <str>,
+                        "released_formatted": <str>,
+                        "resource_url": <str>,
+                        "series": [],
+                        "status": <str>,
+                        "styles": <list[str]>,
+                        "thumb": <str>,
+                        "title": <str>,
+                        "uri": <str>,
+                        "videos": [
+                          {
+                            "description": <str>,
+                            "duration": <int>,
+                            "embed": <bool>,
+                            "title": <str>,
+                            "uri": <str>
+                          }
+                        ],
+                        "year": <int>
+                      }
+                    ],
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    }
+                  }
         """
         params = {}
         if sort_by is not None:
@@ -551,7 +669,8 @@ class UsersAPI(DiscogsResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access private collections.
+                    Access private collections if authenticated as the
+                    requested user.
 
         Parameters
         ----------
@@ -665,7 +784,8 @@ class UsersAPI(DiscogsResourceAPI):
 
                  User authentication
                     Access collection folders that do not have a
-                    `folder_id` of :code:`0`.
+                    `folder_id` of :code:`0` if authenticated as the
+                    requested user.
 
         Parameters
         ----------
@@ -824,7 +944,8 @@ class UsersAPI(DiscogsResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access private collections.
+                    Access private collections if authenticated as the
+                    requested user.
 
         Parameters
         ----------
@@ -951,7 +1072,8 @@ class UsersAPI(DiscogsResourceAPI):
 
                  User authentication
                     Access collection folders that do not have a
-                    `folder_id` of :code:`0`.
+                    `folder_id` of :code:`0` if authenticated as the
+                    requested user.
 
         Parameters
         ----------
@@ -984,8 +1106,8 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Discogs content metadata for the releases in the collection
-            folder.
+            Page of Discogs content metadata for the releases in the
+            collection folder.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1312,7 +1434,8 @@ class UsersAPI(DiscogsResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access private collections.
+                    Access private collections if authenticated as the
+                    requested user.
 
         Parameters
         ----------
@@ -1492,7 +1615,8 @@ class UsersAPI(DiscogsResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access private collections.
+                    Access private collections if authenticated as the
+                    requested user.
 
         Parameters
         ----------
@@ -1520,8 +1644,8 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Discogs content metadata for the releases in the user's
-            wantlist.
+            Page of Discogs content metadata for the releases in the
+            user's wantlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1875,7 +1999,8 @@ class UsersAPI(DiscogsResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access private collections.
+                    Access private collections if authenticated as the
+                    requested user.
 
         Parameters
         ----------
@@ -1902,7 +2027,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         lists : dict[str, Any]
-            Discogs content metadata for the user's lists.
+            Page of Discogs content metadata for the user's lists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1964,7 +2089,8 @@ class UsersAPI(DiscogsResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access private collections.
+                    Access private collections if authenticated as the
+                    list's owner.
 
         Parameters
         ----------

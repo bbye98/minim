@@ -6,6 +6,7 @@ import warnings
 from ... import __version__, REPOSITORY_URL
 from .._shared import OAuth1APIClient
 
+from ._api.marketplace import MarketplaceAPI
 from ._api.users import UsersAPI
 
 if TYPE_CHECKING:
@@ -164,6 +165,8 @@ class DiscogsAPIClient(OAuth1APIClient):
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """
+        #: Marketplace API endpoints for the Discogs API.
+        self.marketplace: MarketplaceAPI = MarketplaceAPI(self)
         #: Users API endpoints for the Discogs API.
         self.users: UsersAPI = UsersAPI(self)
 
