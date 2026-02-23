@@ -1882,7 +1882,7 @@ class TracksAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="static")
-    def get_track_statistics(
+    def get_track_stats(
         self,
         track_id: str,
         /,

@@ -5,5 +5,5 @@
 .ruff_cache/
 dist/
 docs/build/
-docs/source/**/autosummary/
+docs/source/**/api-ref/
 jupyter_execute/

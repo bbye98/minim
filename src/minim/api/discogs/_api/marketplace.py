@@ -25,7 +25,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Fair (F)",
         "Poor (P)",
     }
-    _IMMUTABLE_STATUSES = {
+    _USER_LISTING_STATUSES = {"Draft", "For Sale"}
+    _FILTER_LISTING_STATUSES = {
         "All",
         "Deleted",
         "Expired",
@@ -33,7 +34,26 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Suspended",
         "Violation",
     }
-    _MUTABLE_STATUSES = {"Draft", "For Sale"}
+    _USER_ORDER_STATUSES = {
+        "New Order",
+        "Buyer Contacted",
+        "Invoice Sent",
+        "Payment Pending",
+        "Payment Received",
+        "In Progress",
+        "Shipped",
+        "Refund Sent",
+        "Cancelled (Non-Paying Buyer)",
+        "Cancelled (Item Unavailable)",
+        "Cancelled (Per Buyer's Request)",
+    }
+    _FILTER_ORDER_STATUSES = {
+        "All",
+        "Merged",
+        "Order Changed",
+        "Cancelled",
+        "Cancelled (Refund Received)",
+    }
     _SORT_FIELDS = {
         "artist",
         "audio",
@@ -170,10 +190,10 @@ class MarketplaceAPI(DiscogsResourceAPI):
             payload["comments"] = public_notes
         if status is not None:
             status = self._prepare_string("status", status).capitalize()
-            if status not in self._MUTABLE_STATUSES:
+            if status not in self._USER_LISTING_STATUSES:
                 raise ValueError(
                     f"Invalid status {status!r}. Valid values: "
-                    f"{self._join_values(self._MUTABLE_STATUSES)}."
+                    f"{self._join_values(self._USER_LISTING_STATUSES)}."
                 )
             payload["status"] = status
         if shipping_count is not None:
@@ -209,7 +229,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             return resp.json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_inventory(
+    def get_user_listings(
         self,
         username: str | None = None,
         /,
@@ -281,7 +301,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        inventory : dict[str, Any]
+        listings : dict[str, Any]
             Page of Discogs content metadata for the seller's inventory.
 
             .. admonition:: Sample responses
@@ -343,7 +363,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         if status is not None:
             status = self._prepare_string("status", status).capitalize()
             if status not in (
-                statuses := self._IMMUTABLE_STATUSES | self._MUTABLE_STATUSES
+                statuses := self._FILTER_LISTING_STATUSES
+                | self._USER_LISTING_STATUSES
             ):
                 raise ValueError(
                     f"Invalid status {status!r}. "
@@ -444,7 +465,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
                     "posted": <str>,
                     "price": {
                       "currency": <str>,
-                      "value": <int>
+                      "value": <float>
                     },
                     "release": {
                       "catalog_number": <str>,
@@ -757,3 +778,369 @@ class MarketplaceAPI(DiscogsResourceAPI):
         self._client._require_authentication("marketplace.delete_listing")
         self._validate_number("listing_id", listing_id, int, 1)
         self._client._request("DELETE", f"marketplace/listings/{listing_id}")
+
+    @TTLCache.cached_method(ttl="user")
+    def get_order(self, order_id: str, /) -> dict[str, Any]:
+        """
+        `Marketplace > Order > Get Order <https://www.discogs.com
+        /developers/#page:marketplace,header:marketplace-order>`_: Get
+        Discogs catalog information for a marketplace order.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        order_id : str; positional-only
+            Discogs ID of the order.
+
+            **Example**: :code:`"1-1"`.
+
+        Returns
+        -------
+        order : dict[str, Any]
+            Discogs content metadata for the order.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "additional_instructions": <str>,
+                    "archived": <bool>,
+                    "buyer": {
+                      "id": <int>,
+                      "resource_url": <str>,
+                      "username": <str>
+                    },
+                    "created": <str>,
+                    "fee": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "id": <str>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "media_condition": <str>,
+                        "price": {
+                          "currency": <str>,
+                          "value": <float>
+                        },
+                        "release": {
+                          "description": <str>,
+                          "id": <int>
+                        },
+                        "sleeve_condition": <str>
+                      }
+                    ],
+                    "last_activity": <str>,
+                    "messages_url": <str>,
+                    "next_status": <list[str]>,
+                    "resource_url": <str>,
+                    "seller": {
+                      "id": <int>,
+                      "resource_url": <str>,
+                      "username": <str>
+                    },
+                    "shipping": {
+                      "currency": <str>,
+                      "method": <str>,
+                      "value": <float>
+                    },
+                    "shipping_address": <str>,
+                    "status": <str>,
+                    "total": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "uri": <str>
+                  }
+        """
+        self._client._require_authentication("marketplace.get_order")
+        return self._client._request(
+            "GET",
+            f"marketplace/orders/{self._prepare_string('order_id', order_id)}",
+        ).json()
+
+    def update_order(
+        self,
+        order_id: str,
+        /,
+        *,
+        status: str | None = None,
+        shipping_fee: float | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Marketplace > Order > Edit An Order <https://www.discogs.com
+        /developers/#page:marketplace,header:marketplace-order-post>`_:
+        Update a marketplace order.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        .. important::
+
+           Exactly one of `status` or `shipping_fee` must be provided.
+
+        .. note::
+
+           Calling this method will send the buyer a message with the
+           following content:
+
+           .. code:: none
+
+              Seller changed status from {old_status} to {new_status}
+
+        .. seealso::
+
+           :meth:`add_order_message` – Simultaneously add an order
+           message and change the order status.
+
+        Parameters
+        ----------
+        order_id : str; positional-only
+            Discogs ID of the order.
+
+            **Example**: :code:`"1-1"`.
+
+        status : str; keyword-only; optional
+            Order status.
+
+            **Valid values**: :code:`"New Order"`,
+            :code:`"Buyer Contacted"`, :code:`"Invoice Sent"`,
+            :code:`"Payment Pending"`, :code:`"Payment Received"`,
+            :code:`"In Progress"`, :code:`"Shipped"`,
+            :code:`"Refund Sent"`,
+            :code:`"Cancelled (Non-Paying Buyer)"`,
+            :code:`"Cancelled (Item Unavailable)"`,
+            :code:`"Cancelled (Per Buyer's Request)"`.
+
+        shipping_fee : float; keyword-only; optional
+            Shipping fee. If specified, the buyer is invoiced and the
+            order status is set to :code:`Invoice Sent`.
+
+        Returns
+        -------
+        order : dict[str, Any]
+            Discogs content metadata for the updated order.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "additional_instructions": <str>,
+                    "archived": <bool>,
+                    "buyer": {
+                      "id": <int>,
+                      "resource_url": <str>,
+                      "username": <str>
+                    },
+                    "created": <str>,
+                    "fee": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "id": <str>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "media_condition": <str>,
+                        "price": {
+                          "currency": <str>,
+                          "value": <float>
+                        },
+                        "release": {
+                          "description": <str>,
+                          "id": <int>
+                        },
+                        "sleeve_condition": <str>
+                      }
+                    ],
+                    "last_activity": <str>,
+                    "messages_url": <str>,
+                    "next_status": <list[str]>,
+                    "resource_url": <str>,
+                    "seller": {
+                      "id": <int>,
+                      "resource_url": <str>,
+                      "username": <str>
+                    },
+                    "shipping": {
+                      "currency": <str>,
+                      "method": <str>,
+                      "value": <float>
+                    },
+                    "shipping_address": <str>,
+                    "status": <str>,
+                    "total": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "uri": <str>
+                  }
+        """
+        self._client._require_authentication("marketplace.update_order")
+        payload = {}
+        if status is not None:
+            status = self._prepare_string("status", status).capitalize()
+            if status not in self._USER_ORDER_STATUSES:
+                raise ValueError(
+                    f"Invalid order status {status!r}. Valid values: "
+                    f"{self._join_values(self._USER_ORDER_STATUSES)}."
+                )
+            payload["status"] = status
+        if shipping_fee is not None:
+            self._validate_number("shipping_fee", shipping_fee, int | float, 0)
+            payload["shipping"] = shipping_fee
+        if len(payload) != 1:
+            raise ValueError(
+                "Exactly one of `status` or `shipping_fee` must be provided."
+            )
+        return self._client._request(
+            "POST",
+            f"marketplace/orders/{self._prepare_string('order_id', order_id)}",
+            json=payload,
+        )
+
+    # def get_my_orders(self) -> dict[str, Any]:
+    #     """ """
+
+    # def get_order_messages(self, order_id: str, /) -> dict[str, Any]:
+    #     """ """
+
+    def add_order_message(
+        self,
+        order_id: str,
+        message: str | None = None,
+        /,
+        *,
+        status: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Marketplace > List Order Messages > Add New Message
+        <https://www.discogs.com/developers/#page:marketplace,
+        header:marketplace-list-order-messages-post>`_: Add an order
+        message.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        .. important::
+
+           At least one of `message` or `status` must be provided.
+
+        Parameters
+        ----------
+        order_id : str; positional-only
+            Discogs ID of the order.
+
+            **Example**: :code:`"1-1"`.
+
+        message : str; positional-only; optional
+            Order message.
+
+        status : str; keyword-only; optional
+            Order status.
+
+            .. note::
+
+               If specified, `message` will be prepended with:
+
+               .. code:: none
+
+                  Seller changed status from {old_status} to {new_status}
+
+            **Valid values**: :code:`"New Order"`,
+            :code:`"Buyer Contacted"`, :code:`"Invoice Sent"`,
+            :code:`"Payment Pending"`, :code:`"Payment Received"`,
+            :code:`"In Progress"`, :code:`"Shipped"`,
+            :code:`"Refund Sent"`,
+            :code:`"Cancelled (Non-Paying Buyer)"`,
+            :code:`"Cancelled (Item Unavailable)"`,
+            :code:`"Cancelled (Per Buyer's Request)"`.
+
+        Returns
+        -------
+        message : dict[str, Any]
+            Discogs content metadata for the order message.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "from": {
+                      "resource_url": <str>,
+                      "username": <str>
+                    },
+                    "message": <str>,
+                    "order": {
+                      "id": <str>,
+                      "resource_url": <str>
+                    },
+                    "subject": <str>,
+                    "timestamp": <str>
+                  }
+        """
+        payload = {}
+        if message is not None:
+            self._validate_type("message", message, str)
+            payload["message"] = message
+        if status is not None:
+            status = self._prepare_string("status", status).capitalize()
+            if status not in self._USER_ORDER_STATUSES:
+                raise ValueError(
+                    f"Invalid order status {status!r}. Valid values: "
+                    f"{self._join_values(self._USER_ORDER_STATUSES)}."
+                )
+            payload["status"] = status
+        if not payload:
+            raise RuntimeError(
+                "At least one of `message` or `status` must be provided."
+            )
+        return self._client._request(
+            "POST",
+            f"marketplace/order/{self._prepare_string('order_id', order_id)}/messages",
+            json=payload,
+        ).json()
+
+    # def get_selling_fee(
+    #     self, price: float, /, currency: str | None = None
+    # ) -> dict[str, Any]:
+    #     """ """
+
+    # def get_price_suggestions(
+    #     self, release_id: int | str, /
+    # ) -> dict[str, Any]:
+    #     """ """
+
+    # def get_release_stats(
+    #     self, release_id: int | str, /
+    # ) -> dict[str, Any]:
+    #     """ """
