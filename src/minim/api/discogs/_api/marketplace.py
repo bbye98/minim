@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from ..._shared import TTLCache
@@ -25,6 +26,17 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Fair (F)",
         "Poor (P)",
     }
+    _LISTING_SORT_FIELDS = {
+        "artist",
+        "audio",
+        "catno",
+        "item",
+        "label",
+        "listed",
+        "location",
+        "price",
+        "status",
+    }
     _USER_LISTING_STATUSES = {"Draft", "For Sale"}
     _FILTER_LISTING_STATUSES = {
         "All",
@@ -34,6 +46,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Suspended",
         "Violation",
     }
+    _ORDER_SORT_FIELDS = {"id", "buyer", "created", "status", "last_activity"}
     _USER_ORDER_STATUSES = {
         "New Order",
         "Buyer Contacted",
@@ -53,17 +66,6 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Order Changed",
         "Cancelled",
         "Cancelled (Refund Received)",
-    }
-    _SORT_FIELDS = {
-        "artist",
-        "audio",
-        "catno",
-        "item",
-        "label",
-        "listed",
-        "location",
-        "price",
-        "status",
     }
 
     def _upsert_listing(
@@ -192,7 +194,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             status = self._prepare_string("status", status).capitalize()
             if status not in self._USER_LISTING_STATUSES:
                 raise ValueError(
-                    f"Invalid status {status!r}. Valid values: "
+                    f"Invalid listing status {status!r}. Valid values: "
                     f"{self._join_values(self._USER_LISTING_STATUSES)}."
                 )
             payload["status"] = status
@@ -243,7 +245,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > Inventory <https://www.discogs.com/developers
         /#page:marketplace,header:marketplace-inventory>`_: Get Discogs
-        catalog information for a seller's inventory.
+        catalog information for a user's marketplace listings.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -367,21 +369,22 @@ class MarketplaceAPI(DiscogsResourceAPI):
                 | self._USER_LISTING_STATUSES
             ):
                 raise ValueError(
-                    f"Invalid status {status!r}. "
+                    f"Invalid listing status {status!r}. "
                     f"Valid values: {self._join_values(statuses)}."
                 )
         if sort_by is not None:
             sort_by = self._prepare_string("sort_by", sort_by).lower()
-            if sort_by not in self._SORT_FIELDS:
+            if sort_by not in self._LISTING_SORT_FIELDS:
                 raise ValueError(
-                    f"Invalid sort field {sort_by!r}. Valid "
-                    f"values: {self._join_values(self._SORT_FIELDS)}."
+                    f"Invalid sort field {sort_by!r}. Valid values: "
+                    f"{self._join_values(self._LISTING_SORT_FIELDS)}."
                 )
 
             if sort_by in {"status", "location"}:
                 self._client._require_authentication(
                     "marketplace.get_user_inventory"
                 )
+            params["sort"] = sort_by
         if descending is not None:
             self._validate_type("descending", descending, bool)
             params["sort_order"] = "desc" if descending else "asc"
@@ -659,7 +662,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         weight: float | str | None = None,
     ) -> None:
         """
-        `Marketplace > Listing > Edit A Listing <https://www.discogs.com
+        `Marketplace > Listing > Edit a Listing <https://www.discogs.com
         /developers/#page:marketplace,
         header:marketplace-listing-post>`_: Update a marketplace
         listing.
@@ -753,7 +756,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
     def delete_listing(self, listing_id: int | str, /) -> None:
         """
-        `Marketplace > Listing > Delete A Listing
+        `Marketplace > Listing > Delete a Listing
         <https://www.discogs.com/developers/#page:marketplace,
         header:marketplace-listing-delete>`_: Delete a marketplace
         listing.
@@ -880,7 +883,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         shipping_fee: float | None = None,
     ) -> dict[str, Any]:
         """
-        `Marketplace > Order > Edit An Order <https://www.discogs.com
+        `Marketplace > Order > Edit an Order <https://www.discogs.com
         /developers/#page:marketplace,header:marketplace-order-post>`_:
         Update a marketplace order.
 
@@ -1018,13 +1021,285 @@ class MarketplaceAPI(DiscogsResourceAPI):
             "POST",
             f"marketplace/orders/{self._prepare_string('order_id', order_id)}",
             json=payload,
+        ).json()
+
+    @TTLCache.cached_method(ttl="user")
+    def get_my_orders(
+        self,
+        *,
+        status: str | None = None,
+        created_after: str | datetime | None = None,
+        created_before: str | datetime | None = None,
+        archived: bool | None = None,
+        limit: int | None = None,
+        page: int | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Marketplace > List Orders <https://www.discogs.com/developers
+        /#page:marketplace,header:marketplace-list-orders>`_: Get
+        Discogs catalog information for the current user's marketplace 
+        orders.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        status : str; keyword-only; optional
+            Order status to filter by.
+
+            **Valid values**: :code:`"All"`, :code:`"New Order"`,
+            :code:`"Buyer Contacted"`, :code:`"Invoice Sent"`,
+            :code:`"Payment Pending"`, :code:`"Payment Received"`,
+            :code:`"In Progress"`, :code:`"Shipped"`, :code:`"Merged"`,
+            :code:`"Order Changed"`, :code:`"Refund Sent"`,
+            :code:`"Cancelled (Non-Paying Buyer)"`,
+            :code:`"Cancelled (Item Unavailable)"`,
+            :code:`"Cancelled (Per Buyer's Request)"`,
+            :code:`"Cancelled (Refund Received)"`.
+
+        created_after : str or datetime.datetime; keyword-only; optional
+            Only return orders created after this date, in 
+            :code:`YYYY-MM-DDTHH:MM:SSZ` format.
+
+        created_before : str or datetime.datetime; keyword-only; \
+        optional
+            Only return orders created before this date, in 
+            :code:`YYYY-MM-DDTHH:MM:SSZ` format.
+
+        archived : bool; keyword-only; optional
+            Whether to only include archived orders.
+
+        limit : int; keyword-only; optional
+            Maximum number of orders to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`50`.
+
+        page : int; keyword-only; optional
+            Page number. Use with `limit` to get the next page of 
+            orders.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`1`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the returned orders by.
+
+            **Valid values**: :code:`"id"`, :code:`"buyer"`,
+            :code:`"created"`, :code:`"status"`, 
+            :code:`"last_activity"`.
+
+        descending : bool; keyword-only; optional
+            Whether to sort in descending order.
+
+        Returns
+        -------
+        orders : dict[str, Any]
+            Page of Discogs content metadata for the current user's 
+            orders.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "orders": [
+                      {
+                        "additional_instructions": <str>,
+                        "archived": <bool>,
+                        "buyer": {
+                          "id": <int>,
+                          "resource_url": <str>,
+                          "username": <str>
+                        },
+                        "created": <str>,
+                        "fee": {
+                          "currency": <str>,
+                          "value": <float>
+                        },
+                        "id": <str>,
+                        "items": [
+                          {
+                            "id": <int>,
+                            "media_condition": <str>,
+                            "price": {
+                              "currency": <str>,
+                              "value": <float>
+                            },
+                            "release": {
+                              "description": <str>,
+                              "id": <int>
+                            },
+                            "sleeve_condition": <str>
+                          }
+                        ],
+                        "last_activity": <str>,
+                        "messages_url": <str>,
+                        "next_status": <list[str]>,
+                        "resource_url": <str>,
+                        "seller": {
+                          "id": <int>,
+                          "resource_url": <str>,
+                          "username": <str>
+                        },
+                        "shipping": {
+                          "currency": <str>,
+                          "method": <str>,
+                          "value": <float>
+                        },
+                        "shipping_address": <str>,
+                        "status": <str>,
+                        "total": {
+                          "currency": <str>,
+                          "value": <float>
+                        },
+                        "uri": <str>
+                      }
+                    ],
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    }
+                  }
+        """
+        self._client._require_authentication("marketplace.get_my_orders")
+        params = {}
+        if status is not None:
+            status = self._prepare_string("status", status).capitalize()
+            if status not in (
+                order_statuses := self._USER_ORDER_STATUSES
+                | self._FILTER_ORDER_STATUSES
+            ):
+                raise ValueError(
+                    f"Invalid order status {status!r}. Valid values: "
+                    f"{self._join_values(order_statuses)}."
+                )
+            params["status"] = status
+        if created_after is not None:
+            params["created_after"] = self._prepare_datetime(
+                created_after, "%Y-%m-%dT%H:%M:%SZ"
+            )
+        if created_before is not None:
+            params["created_before"] = self._prepare_datetime(
+                created_before, "%Y-%m-%dT%H:%M:%SZ"
+            )
+        if archived is not None:
+            self._validate_type("archived", archived, bool)
+            params["archived"] = archived
+        if sort_by is not None:
+            sort_by = self._prepare_string("sort_by", sort_by).lower()
+            if sort_by not in self._ORDER_SORT_FIELDS:
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. Valid values: "
+                    f"{self._join_values(self._ORDER_SORT_FIELDS)}."
+                )
+            params["sort"] = sort_by
+        if descending is not None:
+            self._validate_type("descending", descending, bool)
+            params["sort_order"] = "desc" if descending else "asc"
+        return self._get_paginated_resources(
+            "marketplace/orders", limit=limit, page=page, params=params
         )
 
-    # def get_my_orders(self) -> dict[str, Any]:
-    #     """ """
+    @TTLCache.cached_method(ttl="user")
+    def get_order_messages(
+        self,
+        order_id: str,
+        /,
+        *,
+        limit: int | None = None,
+        page: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Marketplace > List Order Messages > List Order Messages
+        <https://www.discogs.com/developers/#page:marketplace,
+        header:marketplace-list-order-messages-get>`_: Get Discogs
+        content metadata for a marketplace order's messages.
 
-    # def get_order_messages(self, order_id: str, /) -> dict[str, Any]:
-    #     """ """
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        order_id : str; positional-only
+            Discogs ID of the order.
+
+            **Example**: :code:`"1-1"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of messages to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`50`.
+
+        page : int; keyword-only; optional
+            Page number. Use with `limit` to get the next page of
+            messages.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`1`.
+
+        Returns
+        -------
+        messages : dict[str, Any]
+            Page of Discogs content metadata for the order's messages.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "from": {
+                      "resource_url": <str>,
+                      "username": <str>
+                    },
+                    "message": <str>,
+                    "order": {
+                      "id": <str>,
+                      "resource_url": <str>
+                    },
+                    "subject": <str>,
+                    "timestamp": <str>
+                  }
+        """
+        self._client._require_authentication("marketplace.get_order_messages")
+        return self._get_paginated_resources(
+            "marketplace/orders"
+            f"/{self._prepare_string('order_id', order_id)}/messages",
+            limit=limit,
+            page=page,
+        )
 
     def add_order_message(
         self,
@@ -1037,8 +1312,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > List Order Messages > Add New Message
         <https://www.discogs.com/developers/#page:marketplace,
-        header:marketplace-list-order-messages-post>`_: Add an order
-        message.
+        header:marketplace-list-order-messages-post>`_: Add a
+        marketplace order message.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1108,6 +1383,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
                     "timestamp": <str>
                   }
         """
+        self._client._require_authentication("marketplace.add_order_message")
         payload = {}
         if message is not None:
             self._validate_type("message", message, str)
@@ -1130,17 +1406,188 @@ class MarketplaceAPI(DiscogsResourceAPI):
             json=payload,
         ).json()
 
-    # def get_selling_fee(
-    #     self, price: float, /, currency: str | None = None
-    # ) -> dict[str, Any]:
-    #     """ """
+    @TTLCache.cached_method(ttl="static")
+    def get_selling_fee(
+        self, price: float, /, currency: str | None = None
+    ) -> dict[str, Any]:
+        """
+        `Marketplace > Fee <https://www.discogs.com/developers
+        /#page:marketplace,header:marketplace-fee>`_: Get the fee for
+        selling an item on the marketplace at a given price․
+        `Marketplace > Fee with Currency <https://www.discogs.com
+        /developers/#page:marketplace,
+        header:marketplace-fee-with-currency>`_: Get the fee in a
+        particular currency for selling an item on the marketplace at a
+        given price.
 
-    # def get_price_suggestions(
-    #     self, release_id: int | str, /
-    # ) -> dict[str, Any]:
-    #     """ """
+        Parameters
+        ----------
+        price : float; positional-only
+            Item price.
 
-    # def get_release_stats(
-    #     self, release_id: int | str, /
-    # ) -> dict[str, Any]:
-    #     """ """
+        currency : str; optional
+            Fee currency.
+
+            **Valid values**: :code:`"USD"`, :code:`"GBP"`,
+            :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`,
+            :code:`"CHF"`, :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`,
+            :code:`"SEK"`, :code:`"ZAR"`.
+
+        Returns
+        -------
+        fee : dict[str, Any]
+            Fee.
+
+            **Sample response**:
+            :code:`{"currency": <str>, "value": <float>}`.
+        """
+        self._validate_number("price", price, int | float, 0)
+        if currency is None:
+            return self._client._request(f"marketplace/fee/{price}").json()
+        currency = self._prepare_string("currency", currency).upper()
+        if currency not in self._CURRENCIES:
+            raise ValueError(
+                f"Invalid currency {currency!r}. "
+                f"Valid values: {self._join_values(self._CURRENCIES)}."
+            )
+        return self._client._request(
+            f"marketplace/fee/{price}/{currency}"
+        ).json()
+
+    @TTLCache.cached_method(ttl="popularity")
+    def get_release_price_suggestions(
+        self, release_id: int | str, /
+    ) -> dict[str, Any]:
+        """
+        `Marketplace > Price Suggestions <https://www.discogs.com
+        /developers/#page:marketplace,
+        header:marketplace-price-suggestions>`_: Get suggested pricing
+        information for a release.
+
+        .. admonition:: User authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access protected endpoints.
+
+        Parameters
+        ----------
+        release_id : int or str; positional-only
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        Returns
+        -------
+        price_suggestions : dict[str, Any]
+            Suggested prices for the release.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "Very Good (VG)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Good Plus (G+)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Near Mint (NM or M-)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Good (G)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Very Good Plus (VG+)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Mint (M)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Fair (F)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Poor (P)": {
+                      "currency": <str>,
+                      "value": <float>
+                    }
+                  }
+        """
+        self._client._require_authentication(
+            "marketplace.get_release_price_suggestions"
+        )
+        self._validate_number("release_id", release_id, int, 1)
+        return self._client._request(
+            "GET", f"marketplace/price_suggestions/{release_id}"
+        ).json()
+
+    @TTLCache.cached_method(ttl="popularity")
+    def get_release_marketplace_stats(
+        self, release_id: int | str, /, *, currency: str | None = None
+    ) -> dict[str, Any]:
+        """
+        `Marketplace > Release Statistics <https://www.discogs.com
+        /developers/#page:marketplace,
+        header:marketplace-release-statistics>`_: Get Discogs catalog
+        information for a release's marketplace statistics.
+
+        Parameters
+        ----------
+        release_id : int or str; positional-only
+            Discogs ID of the release.
+
+            **Examples**: :code:`772347`, :code:`"7781525"`.
+
+        currency : str; keyword-only; optional
+            Currency.
+
+            **Valid values**: :code:`"USD"`, :code:`"GBP"`,
+            :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`,
+            :code:`"CHF"`, :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`,
+            :code:`"SEK"`, :code:`"ZAR"`.
+
+        Returns
+        -------
+        marketplace_stats : dict[str, Any]
+            Discogs content metadata for the release's marketplace
+            statistics.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "blocked_from_sale": <bool>,
+                    "lowest_price": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "num_for_sale": <int>
+                  }
+        """
+        params = {}
+        if currency is not None:
+            currency = self._prepare_string("currency", currency).upper()
+            if currency not in self._CURRENCIES:
+                raise ValueError(
+                    f"Invalid currency {currency!r}. "
+                    f"Valid values: {self._join_values(self._CURRENCIES)}."
+                )
+            params["curr_abbr"] = currency
+        return self._client._request(
+            f"marketplace/stats/{release_id}", params=params
+        ).json()

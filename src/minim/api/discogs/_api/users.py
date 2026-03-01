@@ -930,7 +930,7 @@ class UsersAPI(DiscogsResourceAPI):
         self, release_id: int | str, /, username: str | None = None
     ) -> dict[str, Any]:
         """
-        `User Collection > Collection Items By Release
+        `User Collection > Collection Items by Release
         <https://www.discogs.com/developers/#page:user-collection,
         header:user-collection-collection-items-by-release>`_: Get
         Discogs catalog information for instances of a release in a
@@ -1057,7 +1057,7 @@ class UsersAPI(DiscogsResourceAPI):
         page: int | None = None,
     ) -> dict[str, Any]:
         """
-        `User Collection > Collection Items By Folder
+        `User Collection > Collection Items by Folder
         <https://www.discogs.com/developers/#page:user-collection,
         header:user-collection-collection-items-by-folder>`_: Get
         Discogs catalog information for releases in a user's collection
@@ -1202,7 +1202,7 @@ class UsersAPI(DiscogsResourceAPI):
         username: str | None = None,
     ) -> dict[str, Any]:
         """
-        `User Collection > Add To Collection Folder
+        `User Collection > Add to Collection Folder
         <https://www.discogs.com/developers/#page:user-collection,
         header:user-collection-add-to-collection-folder>`_: Add a
         release to a user's collection folder.
@@ -1275,7 +1275,7 @@ class UsersAPI(DiscogsResourceAPI):
         username: str | None = None,
     ) -> None:
         """
-        `User Collection > Change Rating Of Release
+        `User Collection > Change Rating of Release
         <https://www.discogs.com/developers/#page:user-collection,
         header:user-collection-change-rating-of-release>`_: Change the
         rating on a release and/or move an instance to another
@@ -1364,7 +1364,7 @@ class UsersAPI(DiscogsResourceAPI):
         username: str | None = None,
     ) -> None:
         """
-        `User Collection > Delete Instance From Folder
+        `User Collection > Delete Instance from Folder
         <https://www.discogs.com/developers/#page:user-collection,
         header:user-collection-delete-instance-from-folder>`_: Remove a
         release from a user's collection folder.
@@ -1726,7 +1726,7 @@ class UsersAPI(DiscogsResourceAPI):
         username: str | None = None,
     ) -> dict[str, Any]:
         """
-        `User Wantlist > Add To Wantlist > Add to Wantlist
+        `User Wantlist > Add to Wantlist > Add to Wantlist
         <https://www.discogs.com/developers/#page:user-wantlist,
         header:user-wantlist-add-to-wantlist-put>`_: Add a release to a
         user's wantlist.
@@ -1825,7 +1825,7 @@ class UsersAPI(DiscogsResourceAPI):
         username: str | None = None,
     ) -> dict[str, Any]:
         """
-        `User Wantlist > Add To Wantlist > Edit Release In Wantlist
+        `User Wantlist > Add to Wantlist > Edit Release in Wantlist
         <https://www.discogs.com/developers/#page:user-wantlist,
         header:user-wantlist-add-to-wantlist-post>`_: Update the user
         notes for or the rating on a release in a user's wantlist.
@@ -1941,7 +1941,7 @@ class UsersAPI(DiscogsResourceAPI):
         self, release_id: int | str, /, *, username: str | None = None
     ) -> None:
         """
-        `User Wantlist > Add To Wantlist > Delete Release From Wantlist
+        `User Wantlist > Add to Wantlist > Delete Release from Wantlist
         <https://www.discogs.com/developers/#page:user-wantlist,
         header:user-wantlist-add-to-wantlist-delete>`_: Remove a release
         from a user's wantlist.
