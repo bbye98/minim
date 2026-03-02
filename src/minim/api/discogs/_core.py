@@ -6,6 +6,7 @@ import warnings
 from ... import __version__, REPOSITORY_URL
 from .._shared import OAuth1APIClient
 
+from ._api.inventory import InventoryAPI
 from ._api.marketplace import MarketplaceAPI
 from ._api.users import UsersAPI
 
@@ -165,9 +166,14 @@ class DiscogsAPIClient(OAuth1APIClient):
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """
+
+        #: Inventory Export and Inventory Upload API endpoints for the
+        # Discogs API.
+        self.inventory: InventoryAPI = InventoryAPI(self)
         #: Marketplace API endpoints for the Discogs API.
         self.marketplace: MarketplaceAPI = MarketplaceAPI(self)
-        #: Users API endpoints for the Discogs API.
+        #: User Identity, User Collection, User Wantlist, and User Lists
+        # API endpoints for the Discogs API.
         self.users: UsersAPI = UsersAPI(self)
 
         self._rate_limit_per_second = 5 / 12 if auth_flow is None else 1
