@@ -168,12 +168,12 @@ class DiscogsAPIClient(OAuth1APIClient):
         """
 
         #: Inventory Export and Inventory Upload API endpoints for the
-        # Discogs API.
+        #: Discogs API.
         self.inventory: InventoryAPI = InventoryAPI(self)
         #: Marketplace API endpoints for the Discogs API.
         self.marketplace: MarketplaceAPI = MarketplaceAPI(self)
         #: User Identity, User Collection, User Wantlist, and User Lists
-        # API endpoints for the Discogs API.
+        #: API endpoints for the Discogs API.
         self.users: UsersAPI = UsersAPI(self)
 
         self._rate_limit_per_second = 5 / 12 if auth_flow is None else 1
