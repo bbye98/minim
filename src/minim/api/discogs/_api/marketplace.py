@@ -26,6 +26,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Fair (F)",
         "Poor (P)",
     }
+    _ADDITIONAL_SLEEVE_CONDITIONS = {"Generic", "Not Graded", "No Cover"}
     _LISTING_SORT_FIELDS = {
         "artist",
         "audio",
@@ -213,7 +214,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             )
             if sleeve_condition not in (
                 conditions := self._CONDITIONS
-                | {"Generic", "Not Graded", "No Cover"}
+                | self._ADDITIONAL_SLEEVE_CONDITIONS
             ):
                 raise ValueError(
                     f"Invalid sleeve condition {sleeve_condition!r}. "

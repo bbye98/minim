@@ -250,3 +250,18 @@ class InventoryAPI(DiscogsResourceAPI):
         with open(target, "w") as f:
             f.write(resp.content)
         return target
+
+    # def upload_inventory():
+    #     pass
+
+    # def update_inventory():
+    #     pass
+
+    # def delete_inventory():
+    #     pass
+
+    # def get_my_recent_inventory_uploads():
+    #     pass
+
+    # def get_inventory_upload():
+    #     pass
