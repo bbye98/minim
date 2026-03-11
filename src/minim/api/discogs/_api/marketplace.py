@@ -16,17 +16,6 @@ class MarketplaceAPI(DiscogsResourceAPI):
        instantiated directly.
     """
 
-    _CONDITIONS = {
-        "Mint (M)",
-        "Near Mint (NM or M-)",
-        "Very Good Plus (VG+)",
-        "Very Good (VG)",
-        "Good Plus (G+)",
-        "Good (G)",
-        "Fair (F)",
-        "Poor (P)",
-    }
-    _ADDITIONAL_SLEEVE_CONDITIONS = {"Generic", "Not Graded", "No Cover"}
     _LISTING_SORT_FIELDS = {
         "artist",
         "audio",
@@ -80,10 +69,10 @@ class MarketplaceAPI(DiscogsResourceAPI):
         private_notes: str | None = None,
         public_notes: str | None = None,
         status: str | None = None,
-        shipping_count: float | str | None = None,
+        shipping_count: int | str | None = None,
         storage_location: str | None = None,
         sleeve_condition: str | None = None,
-        weight: float | str | None = None,
+        weight: int | str | None = None,
         payload: dict[str, Any] | None = None,
     ) -> dict[str, Any] | None:
         """
@@ -124,7 +113,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
             **Valid values**: :code:`"Draft"`, :code:`"For Sale"`.
 
-        shipping_count : float or str; keyword-only; optional
+        shipping_count : int or str; keyword-only; optional
             Number of items the listing counts as for the purpose of
             calculating the shipping cost. Use :code:`"auto"` to
             automatically estimate the quantity.
@@ -143,7 +132,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             :code:`"Fair (F)"`, :code:`"Poor (P)"`, :code:`"Generic"`,
             :code:`"Not Graded"`, :code:`"No Cover"`.
 
-        weight : float or str; keyword-only; optional
+        weight : int or str; keyword-only; optional
             Weight of the item in grams for the purpose of calculating
             the shipping cost. Use :code:`"auto"` to automatically
             estimate the value.
@@ -201,9 +190,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             payload["status"] = status
         if shipping_count is not None:
             if shipping_count != "auto":
-                self._validate_number(
-                    "shipping_count", shipping_count, int | float, 0
-                )
+                self._validate_number("shipping_count", shipping_count, int, 0)
             payload["format_quantity"] = shipping_count
         if storage_location is not None:
             self._validate_type("storage_location", storage_location, str)
@@ -223,7 +210,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             payload["sleeve_condition"] = sleeve_condition
         if weight is not None:
             if weight != "auto":
-                self._validate_number("weight", weight, int | float, 0)
+                self._validate_number("weight", weight, int, 0)
             payload["weight"] = weight
         resp = self._client._request(
             "POST", f"marketplace/listings{endpoint_suffix}", json=payload
@@ -232,7 +219,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             return resp.json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_listings(
+    def get_user_inventory(
         self,
         username: str | None = None,
         /,
@@ -528,10 +515,10 @@ class MarketplaceAPI(DiscogsResourceAPI):
         private_notes: str | None = None,
         public_notes: str | None = None,
         status: str | None = None,
-        shipping_count: float | str | None = None,
+        shipping_count: int | str | None = None,
         storage_location: str | None = None,
         sleeve_condition: str | None = None,
-        weight: float | str | None = None,
+        weight: int | str | None = None,
     ) -> dict[str, Any]:
         """
         `Marketplace > New Listing <https://www.discogs.com/developers
@@ -587,7 +574,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
             **API default**: :code:`"For Sale"`.
 
-        shipping_count : float or str; keyword-only; optional
+        shipping_count : int or str; keyword-only; optional
             Number of items the listing counts as for the purpose of
             calculating the shipping cost. Use :code:`"auto"` to
             automatically estimate the quantity.
@@ -608,7 +595,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             :code:`"Fair (F)"`, :code:`"Poor (P)"`, :code:`"Generic"`,
             :code:`"Not Graded"`, :code:`"No Cover"`.
 
-        weight : float or str; keyword-only; optional
+        weight : int or str; keyword-only; optional
             Weight of the item in grams for the purpose of calculating
             the shipping cost. Use :code:`"auto"` to automatically
             estimate the value.
@@ -657,10 +644,10 @@ class MarketplaceAPI(DiscogsResourceAPI):
         private_notes: str | None = None,
         public_notes: str | None = None,
         status: str | None = None,
-        shipping_count: float | str | None = None,
+        shipping_count: int | str | None = None,
         storage_location: str | None = None,
         sleeve_condition: str | None = None,
-        weight: float | str | None = None,
+        weight: int | str | None = None,
     ) -> None:
         """
         `Marketplace > Listing > Edit a Listing <https://www.discogs.com
@@ -715,7 +702,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
             **Valid values**: :code:`"Draft"`, :code:`"For Sale"`.
 
-        shipping_count : float or str; keyword-only; optional
+        shipping_count : int or str; keyword-only; optional
             Number of items the listing counts as for the purpose of
             calculating the shipping cost. Use :code:`"auto"` to
             automatically estimate the quantity.
@@ -734,7 +721,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             :code:`"Fair (F)"`, :code:`"Poor (P)"`, :code:`"Generic"`,
             :code:`"Not Graded"`, :code:`"No Cover"`.
 
-        weight : float or str; keyword-only; optional
+        weight : int or str; keyword-only; optional
             Weight of the item in grams for the purpose of calculating
             the shipping cost. Use :code:`"auto"` to automatically
             estimate the value.

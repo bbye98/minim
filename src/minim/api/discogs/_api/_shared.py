@@ -14,6 +14,17 @@ class DiscogsResourceAPI(ResourceAPI):
     _RELATIONSHIPS: set[str]
     _client: "DiscogsAPIClient"
 
+    _CONDITIONS = {
+        "Mint (M)",
+        "Near Mint (NM or M-)",
+        "Very Good Plus (VG+)",
+        "Very Good (VG)",
+        "Good Plus (G+)",
+        "Good (G)",
+        "Fair (F)",
+        "Poor (P)",
+    }
+    _ADDITIONAL_SLEEVE_CONDITIONS = {"Generic", "Not Graded", "No Cover"}
     _CURRENCIES = {
         "USD",
         "GBP",

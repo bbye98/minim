@@ -1,6 +1,8 @@
+import csv
 from email.message import Message
+import io
 from pathlib import Path
-from typing import Any
+from typing import Any, IO
 
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
@@ -251,14 +253,197 @@ class InventoryAPI(DiscogsResourceAPI):
             f.write(resp.content)
         return target
 
-    # def upload_inventory():
-    #     pass
+    def _prepare_inventory_csv(
+        self,
+        inventory_csv: bytes | str | Path,
+        /,
+        *,
+        required_fields: set[str],
+        optional_fields: set[str],
+    ) -> tuple[str, IO[bytes], str]:
+        """
+        Validate and prepare the inventory CSV payload.
 
-    # def update_inventory():
-    #     pass
+        Parameters
+        ----------
+        inventory_csv : bytes, str, or pathlib.Path; positional-only
+            Path to, name of, or contents of an inventory CSV file.
 
-    # def delete_inventory():
-    #     pass
+        required_fields : set[str]; keyword-only
+            Required fields.
+
+        optional_fields : set[str]; keyword-only
+            Optional or other allowable fields.
+
+        Returns
+        -------
+        filename : str
+            CSV filename or :code:`"inventory.csv"` if a byte string is
+            provided instead.
+
+        obj : io.BufferedReader or io.BytesIO
+            Binary stream of the CSV file or the user-provided byte
+            string.
+
+        content_type : str
+            Content type (:code:`"text/csv"`).
+        """
+        self._validate_type("inventory_csv", inventory_csv, bytes | str | Path)
+        if (is_str := isinstance(inventory_csv, str)) or isinstance(
+            inventory_csv, bytes
+        ):
+            inventory_csv = self._prepare_string(
+                "inventory_csv", inventory_csv
+            )
+            if is_str:
+                try:
+                    inventory_csv = (
+                        Path(inventory_csv).expanduser().resolve(True)
+                    )
+                except (FileNotFoundError, OSError):
+                    pass
+
+        if isinstance(inventory_csv, Path):
+            csv_filename = inventory_csv.name
+            csv_obj = inventory_csv.open("rb")
+        else:
+            csv_filename = "inventory.csv"
+            csv_obj = io.BytesIO(
+                inventory_csv.encode("utf-8")
+                if isinstance(inventory_csv, str)
+                else inventory_csv
+            )
+
+        csv_stream = io.TextIOWrapper(csv_obj)
+        try:
+            csv_reader = csv.DictReader(csv_stream)
+            csv_headers = set(csv_reader.fieldnames or [])
+            if missing_fields := required_fields - csv_headers:
+                raise ValueError(
+                    "`inventory_csv` is missing the following required "
+                    f"field(s): {self._join_values(missing_fields)}."
+                )
+            if extra_fields := csv_headers - (
+                required_fields | optional_fields
+            ):
+                raise ValueError(
+                    "`inventory_csv` has the following extra or unsupported "
+                    f"field(s): {self._join_values(extra_fields)}."
+                )
+
+            all_conditions = (
+                self._CONDITIONS | self._ADDITIONAL_SLEEVE_CONDITIONS
+            )
+            for row in csv_reader:
+                for key, value in row.items():
+                    if value is not None or key in required_fields:
+                        match key:
+                            case "release_id" | "weight" | "format_quantity":
+                                self._validate_numeric(key, value, int, 0)
+                            case "price":
+                                self._validate_numeric(key, value, float, 0)
+                            case "media_condition":
+                                self._validate_type(key, value, str)
+                                if value not in self._CONDITIONS:
+                                    raise ValueError(
+                                        f"Invalid media condition {value!r}. "
+                                        f"Valid values: {self._join_values(self._CONDITIONS)}."
+                                    )
+                            case "sleeve_condition":
+                                self._validate_type(key, value, str)
+                                if value not in all_conditions:
+                                    raise ValueError(
+                                        f"Invalid media condition {value!r}. "
+                                        f"Valid values: {self._join_values(all_conditions)}."
+                                    )
+                            case "comments" | "external_id" | "location":
+                                self._validate_type(key, value, str)
+                            case "accept_offer":
+                                self._validate_type(key, value, str)
+                                if value not in {"N", "Y"}:
+                                    raise ValueError(
+                                        "Invalid `accept_offer` value "
+                                        f"{value!r}. Valid values: 'N', 'Y'."
+                                    )
+        finally:
+            csv_stream.detach()
+            csv_obj.seek(0)
+
+        return csv_filename, csv_obj, "text/csv"
+
+    def upload_inventory_additions(self, inventory_csv: str | Path, /) -> str:
+        """
+        `Inventory Upload > Add Inventory <https://www.discogs.com
+        /developers/#page:inventory-upload,
+        header:inventory-upload-add-inventory>`_: Add marketplace
+        listings by uploading comma-separated values (CSV).
+        """
+        self._client._require_authentication(
+            "inventory.upload_inventory_additions"
+        )
+        return self._client._request(
+            "POST",
+            "inventory/upload/add",
+            files={
+                "upload": self._prepare_inventory_csv(
+                    inventory_csv,
+                    required_fields={"release_id", "price", "media_condition"},
+                    optional_fields={
+                        "sleeve_condition",
+                        "comments",
+                        "accept_offer",
+                        "location",
+                        "external_id",
+                        "weight",
+                        "format_quantity",
+                    },
+                )
+            },
+        ).headers["Location"]
+
+    def upload_inventory_updates(self, inventory_csv: str | Path, /) -> str:
+        """ """
+        self._client._require_authentication(
+            "inventory.upload_inventory_updates"
+        )
+        return self._client._request(
+            "POST",
+            "inventory/upload/change",
+            files={
+                "upload": self._prepare_inventory_csv(
+                    inventory_csv,
+                    required_fields={"release_id"},
+                    optional_fields={
+                        "price",
+                        "media_condition",
+                        "sleeve_condition",
+                        "comments",
+                        "accept_offer",
+                        "location",
+                        "external_id",
+                        "weight",
+                        "format_quantity",
+                    },
+                )
+            },
+        ).headers["Location"]
+
+    def upload_inventory_deletions(self, inventory_csv: str | Path, /) -> str:
+        """ """
+        self._client._require_authentication(
+            "inventory.upload_inventory_deletions"
+        )
+        return self._client._request(
+            "POST",
+            "inventory/upload/delete",
+            files={
+                "upload": self._prepare_inventory_csv(
+                    inventory_csv,
+                    required_fields={"listing_id"},
+                    optional_fields={},
+                )
+            },
+        ).headers["Location"]
 
     # def get_my_recent_inventory_uploads():
     #     pass

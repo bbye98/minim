@@ -3014,12 +3014,12 @@ class ResourceAPI:
     @staticmethod
     def _prepare_string(
         name: str,
-        string: str,
+        string: bytes | str,
         /,
         *,
         allow_blank: bool = False,
         remove_whitespace: bool = False,
-    ) -> str:
+    ) -> bytes | str:
         """
         Validate and strip a string.
 
@@ -3028,7 +3028,7 @@ class ResourceAPI:
         name : str; positional-only.
             Parameter name for the string.
 
-        string : str; positional-only
+        string : bytes or str; positional-only
             String.
 
         allow_blank : bool; keyword-only; default: :code:`False`
@@ -3039,10 +3039,10 @@ class ResourceAPI:
 
         Returns
         -------
-        string : str
+        string : bytes or str
             Stripped string.
         """
-        ResourceAPI._validate_type(name, string, str)
+        ResourceAPI._validate_type(name, string, bytes | str)
         string = (
             "".join(string.split()) if remove_whitespace else string.strip()
         )

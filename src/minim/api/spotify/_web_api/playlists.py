@@ -1627,7 +1627,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         )
         self._validate_spotify_id(playlist_id)
         if isinstance(image, str | Path):
-            image = Path(image).resolve(True)
+            image = Path(image).expanduser().resolve(True)
             with open(image, "rb") as f:
                 image = f.read()
         if not isinstance(image, bytes) or not (
