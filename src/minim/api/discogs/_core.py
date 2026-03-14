@@ -6,6 +6,7 @@ import warnings
 from ... import __version__, REPOSITORY_URL
 from .._shared import OAuth1APIClient
 
+from ._api.database import DatabaseAPI
 from ._api.inventory import InventoryAPI
 from ._api.marketplace import MarketplaceAPI
 from ._api.users import UsersAPI
@@ -107,7 +108,7 @@ class DiscogsAPIClient(OAuth1APIClient):
             authorization process is bypassed.
 
         access_token_secret : str; positional-only; optional
-            OAuth access token secret. Required for the three-legged 
+            OAuth access token secret. Required for the three-legged
             flow when an access token is provided in `access_token`.
 
         redirect_handler : str or None; keyword-only; optional
@@ -144,7 +145,7 @@ class DiscogsAPIClient(OAuth1APIClient):
 
         limit_rate : bool; keyword-only; default: :code:`True`
             Whether to enable a token bucket rate limiter for this
-            client.  
+            client.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
@@ -166,7 +167,8 @@ class DiscogsAPIClient(OAuth1APIClient):
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """
-
+        #: Database API endpoints for the Discogs API.
+        self.database: DatabaseAPI = DatabaseAPI(self)
         #: Inventory Export and Inventory Upload API endpoints for the
         #: Discogs API.
         self.inventory: InventoryAPI = InventoryAPI(self)

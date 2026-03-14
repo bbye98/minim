@@ -1809,7 +1809,7 @@ class UsersAPI(DiscogsResourceAPI):
                   }
         """
         self._client._require_authentication("users.add_user_wantlist_release")
-        self._validate_number("release_id", release_id, int, 1)
+        self._validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "PUT",
             f"users/{self._resolve_username(username)}/wants/{release_id}",
@@ -1922,7 +1922,7 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "users.update_user_wantlist_release"
         )
-        self._validate_number("release_id", release_id, int, 1)
+        self._validate_numeric("release_id", release_id, int, 1)
         payload = {}
         if notes is not None:
             payload["notes"] = self._prepare_string(
@@ -2148,5 +2148,5 @@ class UsersAPI(DiscogsResourceAPI):
                     }
                   }
         """
-        self._validate_number("list_id", list_id, int, 1)
+        self._validate_numeric("list_id", list_id, int, 1)
         return self._client._request("GET", f"lists/{list_id}").json()

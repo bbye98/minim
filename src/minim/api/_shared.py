@@ -1370,9 +1370,9 @@ class OAuth1APIClient(OAuthAPIClient):
 
             * :code:`"PLAINTEXT"` – Uses the consumer secret and
               the access token secret directly as the signature.
-            * :code:`"HMAC-SHA1"` – Signs requests using a hashing 
+            * :code:`"HMAC-SHA1"` – Signs requests using a hashing
               algorithm.
-            * :code:`"RSA-SHA1"` – Signs requests using an asymmetric 
+            * :code:`"RSA-SHA1"` – Signs requests using an asymmetric
               private key.
 
         access_token : str; keyword-only; optional
@@ -1974,9 +1974,9 @@ class OAuth1APIClient(OAuthAPIClient):
 
             * :code:`"PLAINTEXT"` – Uses the consumer secret and
               the access token secret directly as the signature.
-            * :code:`"HMAC-SHA1"` – Signs requests using a hashing 
+            * :code:`"HMAC-SHA1"` – Signs requests using a hashing
               algorithm.
-            * :code:`"RSA-SHA1"` – Signs requests using an asymmetric 
+            * :code:`"RSA-SHA1"` – Signs requests using an asymmetric
               private key.
 
         open_browser : bool; keyword-only; default: :code:`False`

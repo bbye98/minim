@@ -593,7 +593,7 @@ class DeezerAPIClient(OAuth2APIClient):
             Configuration and availability information.
 
             .. admonition:: Sample response
-               :class: response dropdown:
+               :class: response dropdown
 
                .. code::
 

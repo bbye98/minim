@@ -490,7 +490,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
                     "uri": <str>
                   }
         """
-        self._validate_number("listing_id", listing_id, int, 1)
+        self._validate_numeric("listing_id", listing_id, int, 1)
         params = {}
         if currency is not None:
             currency = self._prepare_string("currency", currency).upper()
@@ -618,7 +618,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
                   }
         """
         self._client._require_authentication("marketplace.create_listing")
-        self._validate_number("release_id", release_id, int, 1)
+        self._validate_numeric("release_id", release_id, int, 1)
         return self._upsert_listing(
             allow_offers=allow_offers,
             media_condition=media_condition,
@@ -727,7 +727,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             estimate the value.
         """
         self._client._require_authentication("marketplace.update_listing")
-        self._validate_number("listing_id", listing_id, int, 1)
+        self._validate_numeric("listing_id", listing_id, int, 1)
         return self._upsert_listing(
             f"/{listing_id}",
             allow_offers=allow_offers,
@@ -767,7 +767,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             **Examples**: :code:`172723812`, :code:`"2983532888"`.
         """
         self._client._require_authentication("marketplace.delete_listing")
-        self._validate_number("listing_id", listing_id, int, 1)
+        self._validate_numeric("listing_id", listing_id, int, 1)
         self._client._request("DELETE", f"marketplace/listings/{listing_id}")
 
     @TTLCache.cached_method(ttl="user")
@@ -1027,7 +1027,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > List Orders <https://www.discogs.com/developers
         /#page:marketplace,header:marketplace-list-orders>`_: Get
-        Discogs catalog information for the current user's marketplace 
+        Discogs catalog information for the current user's marketplace
         orders.
 
         .. admonition:: User authentication
@@ -1056,12 +1056,12 @@ class MarketplaceAPI(DiscogsResourceAPI):
             :code:`"Cancelled (Refund Received)"`.
 
         created_after : str or datetime.datetime; keyword-only; optional
-            Only return orders created after this date, in 
+            Only return orders created after this date, in
             :code:`YYYY-MM-DDTHH:MM:SSZ` format.
 
         created_before : str or datetime.datetime; keyword-only; \
         optional
-            Only return orders created before this date, in 
+            Only return orders created before this date, in
             :code:`YYYY-MM-DDTHH:MM:SSZ` format.
 
         archived : bool; keyword-only; optional
@@ -1075,7 +1075,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             **API default**: :code:`50`.
 
         page : int; keyword-only; optional
-            Page number. Use with `limit` to get the next page of 
+            Page number. Use with `limit` to get the next page of
             orders.
 
             **Minimum value**: :code:`1`.
@@ -1086,7 +1086,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             Field to sort the returned orders by.
 
             **Valid values**: :code:`"id"`, :code:`"buyer"`,
-            :code:`"created"`, :code:`"status"`, 
+            :code:`"created"`, :code:`"status"`,
             :code:`"last_activity"`.
 
         descending : bool; keyword-only; optional
@@ -1095,7 +1095,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         orders : dict[str, Any]
-            Page of Discogs content metadata for the current user's 
+            Page of Discogs content metadata for the current user's
             orders.
 
             .. admonition:: Sample response
@@ -1517,7 +1517,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "marketplace.get_release_price_suggestions"
         )
-        self._validate_number("release_id", release_id, int, 1)
+        self._validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "GET", f"marketplace/price_suggestions/{release_id}"
         ).json()

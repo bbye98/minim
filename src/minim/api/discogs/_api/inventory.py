@@ -409,12 +409,12 @@ class InventoryAPI(DiscogsResourceAPI):
             Path to or name of a CSV file containing the listings to
             add.
 
-            **Required fields**: :code:`release_id`, :code:`price`, and
+            **Required fields**: :code:`release_id`, :code:`price`,
             :code:`media_condition`.
 
             **Optional fields**: :code:`sleeve_condition`,
             :code:`comments`, :code:`accept_offer`, :code:`location`,
-            :code:`external_id`, :code:`weight`, and
+            :code:`external_id`, :code:`weight`,
             :code:`format_quantity`.
 
         Returns
@@ -484,7 +484,7 @@ class InventoryAPI(DiscogsResourceAPI):
             **Optional fields**: :code:`price`, :code:`media_condition`,
             :code:`sleeve_condition`, :code:`comments`,
             :code:`accept_offer`, :code:`location`, :code:`external_id`,
-            :code:`weight`, and :code:`format_quantity`.
+            :code:`weight`, :code:`format_quantity`.
 
         Returns
         -------
