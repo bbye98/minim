@@ -1529,8 +1529,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > Release Statistics <https://www.discogs.com
         /developers/#page:marketplace,
-        header:marketplace-release-statistics>`_: Get Discogs catalog
-        information for a release's marketplace statistics.
+        header:marketplace-release-statistics>`_: Get a release's
+        marketplace statistics.
 
         Parameters
         ----------
@@ -1550,8 +1550,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         marketplace_stats : dict[str, Any]
-            Discogs content metadata for the release's marketplace
-            statistics.
+            Release's marketplace statistics.
 
             .. admonition:: Sample response
                :class: response dropdown
