@@ -127,7 +127,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             "GET", "artist.get", params={"artist_id": artist_id}
         ).json()
 
-    @TTLCache.cached_method(ttl="static")
+    @TTLCache.cached_method(ttl="daily")
     def get_artist_albums(
         self,
         artist_id: int | str,

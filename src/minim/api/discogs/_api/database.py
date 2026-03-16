@@ -15,6 +15,7 @@ class DatabaseAPI(DiscogsResourceAPI):
        instantiated directly.
     """
 
+    _ARTIST_SORT_FIELDS = {"year", "title", "format"}
     _RELEASE_SORT_FIELDS = {
         "released",
         "title",
@@ -545,7 +546,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         """
         `Database > Master Release Versions <https://www.discogs.com
         /developers/#page:database,
-        header:database-master-release-versions`_: Get Discogs catalog
+        header:database-master-release-versions>`_: Get Discogs catalog
         information for a master's release versions.
 
         Parameters
@@ -705,3 +706,271 @@ class DatabaseAPI(DiscogsResourceAPI):
             page=page,
             params=params,
         )
+
+    @TTLCache.cached_method(ttl="static")
+    def get_artist(self, artist_id: int | str, /) -> dict[str, Any]:
+        """
+        `Database > Artist <https://www.discogs.com/developers
+        /#page:database,header:database-artist>`_: Get Discogs catalog
+        information for an artist.
+
+        Parameters
+        ----------
+        artist_id : int or str; positional-only
+            Discogs ID of the artist.
+
+            **Examples**: :code:`108713`, :code:`"3042550"`.
+
+        Returns
+        -------
+        artist : dict[str, Any]
+            Discogs content metadata for the artist.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "data_quality": <str>,
+                    "id": <int>,
+                    "images": [
+                      {
+                        "height": <int>,
+                        "resource_url": <str>,
+                        "type": <str>,
+                        "uri": <str>,
+                        "uri150": <str>,
+                        "width": <int>
+                      }
+                    ],
+                    "members": [
+                      {
+                        "active": <bool>,
+                        "id": <int>,
+                        "name": <str>,
+                        "resource_url": <str>,
+                        "thumbnail_url": <str>
+                      }
+                    ],
+                    "name": <str>,
+                    "profile": <str>,
+                    "releases_url": <str>,
+                    "resource_url": <str>,
+                    "uri": <str>,
+                    "urls": <list[str]>
+                  }
+        """
+        self._validate_numeric("artist_id", artist_id, int, 1)
+        return self._client._request("GET", f"artists/{artist_id}").json()
+
+    @TTLCache.cached_method(ttl="daily")
+    def get_artist_releases(
+        self,
+        artist_id: int | str,
+        /,
+        *,
+        limit: int | None = None,
+        page: int | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Database > Artist Releases <https://www.discogs.com/developers
+        /#page:database,header:database-artist-releases>`_: Get Discogs
+        catalog information for an artist's releases.
+
+        Parameters
+        ----------
+        artist_id : int or str; positional-only
+            Discogs ID of the artist.
+
+            **Examples**: :code:`108713`, :code:`"3042550"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of releases to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`50`.
+
+        page : int; keyword-only; optional
+            Page number. Use with `limit` to get the next page of
+            releases.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`1`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort releases by.
+
+            **Valid values**: :code:`"year"`, :code:`"title"`,
+            :code:`"format"`.
+
+        descending : bool; keyword-only; optional
+            Whether to sort in descending order.
+
+        Returns
+        -------
+        releases : dict[str, Any]
+            Discogs content metadata for the artist's releases.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    },
+                    "releases": [
+                      {
+                        "artist": <str>,
+                        "id": <int>,
+                        "main_release": <int>,
+                        "resource_url": <str>,
+                        "role": <str>,
+                        "stats": {
+                          "community": {
+                            "in_collection": <int>,
+                            "in_wantlist": <int>
+                          },
+                          "user": {
+                            "in_collection": <int>,
+                            "in_wantlist": <int>
+                          }
+                        },
+                        "thumb": <str>,
+                        "title": <str>,
+                        "type": <str>,
+                        "year": <int>
+                      }
+                    ]
+                  }
+        """
+        self._validate_numeric("artist_id", artist_id, int, 1)
+        params = {}
+        if sort_by is not None:
+            sort_by = self._prepare_string("sort_by", sort_by).lower()
+            if sort_by not in self._ARTIST_SORT_FIELDS:
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. Valid values: "
+                    f"{self._join_values(self._ARTIST_SORT_FIELDS)}."
+                )
+            params["sort"] = sort_by
+        if descending is not None:
+            self._validate_type("descending", descending, bool)
+            params["sort_order"] = "desc" if descending else "asc"
+        return self._get_paginated_resources(
+            f"artists/{artist_id}/releases",
+            limit=limit,
+            page=page,
+            params=params,
+        )
+
+    @TTLCache.cached_method(ttl="static")
+    def get_label(self, label_id: int | str, /) -> dict[str, Any]:
+        """
+        `Database > Label <https://www.discogs.com/developers
+        /#page:database,header:database-label>`_: Get Discogs catalog
+        information for a label.
+
+        Parameters
+        ----------
+        label_id : int or str; positional-only
+            Discogs ID of the label.
+
+            **Examples**: :code:`1`, :code:`"681"`.
+
+        Returns
+        -------
+        label : dict[str, Any]
+            Discogs content metadata for the label.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code::
+
+                  {
+                    "contact_info": <str>,
+                    "data_quality": <str>,
+                    "id": <int>,
+                    "images": [
+                      {
+                        "height": <int>,
+                        "resource_url": <str>,
+                        "type": <str>,
+                        "uri": <str>,
+                        "uri150": <str>,
+                        "width": <int>
+                      }
+                    ],
+                    "name": <str>,
+                    "parent_label": {
+                      "id": <int>,
+                      "name": <str>,
+                      "resource_url": <str>
+                    },
+                    "profile": <str>,
+                    "releases_url": <str>,
+                    "resource_url": <str>,
+                    "sublabels": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "resource_url": <str>
+                      }
+                    ],
+                    "uri": <str>,
+                    "urls": <list[str]>
+                  }
+        """
+        self._validate_number("label_id", label_id, int, 1)
+        return self._client._request("GET", f"labels/{label_id}").json()
+
+    # def get_label_releases(
+    #     self,
+    #     label_id: int | str,
+    #     /,
+    #     *,
+    #     limit: int | None = None,
+    #     page: int | None = None,
+    # ) -> dict[str, Any]: ...
+
+    # def search(
+    #     self,
+    #     query: str,
+    #     /,
+    #     *,
+    #     type_: str | None = None,
+    #     title: str | None = None,
+    #     release_title: str | None = None,
+    #     credit: str | None = None,
+    #     artist: str | None = None,
+    #     anv: str | None = None,
+    #     label: str | None = None,
+    #     genre: str | None = None,
+    #     style: str | None = None,
+    #     country: str | None = None,
+    #     year: int | str | None = None,
+    #     format_: str | None = None,
+    #     catno: str | None = None,
+    #     barcode: str | None = None,
+    #     track: str | None = None,
+    #     submitter: str | None = None,
+    #     contributor: str | None = None,
+    #     limit: int | None = None,
+    #     page: int | None = None,
+    # ) -> dict[str, Any]: ...

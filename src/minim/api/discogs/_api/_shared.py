@@ -115,7 +115,7 @@ class DiscogsResourceAPI(ResourceAPI):
             params = {}
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
+            params["per_page"] = limit
         if page is not None:
             self._validate_number("page", page, int, 0)
             params["page"] = page
