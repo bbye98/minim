@@ -14,7 +14,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
 
@@ -103,7 +103,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -202,7 +202,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -326,7 +326,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -427,7 +427,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -719,7 +719,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "playlists": {
@@ -824,7 +824,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "tags": [
@@ -917,7 +917,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "playlists": {
@@ -1084,7 +1084,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -1223,7 +1223,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,

@@ -595,7 +595,7 @@ class DeezerAPIClient(OAuth2APIClient):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "ads": {

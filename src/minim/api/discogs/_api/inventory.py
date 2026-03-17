@@ -16,7 +16,7 @@ class InventoryAPI(DiscogsResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.discogs.DiscogsAPIClient` and should not be
+       :class:`~minim.api.discogs.DiscogsAPIClient` and should not be
        instantiated directly.
     """
 
@@ -231,7 +231,7 @@ class InventoryAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -298,7 +298,7 @@ class InventoryAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <int>,
@@ -621,7 +621,7 @@ class InventoryAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -689,7 +689,7 @@ class InventoryAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_ts": <str>,

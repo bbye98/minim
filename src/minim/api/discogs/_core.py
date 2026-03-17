@@ -9,6 +9,7 @@ from .._shared import OAuth1APIClient
 from ._api.database import DatabaseAPI
 from ._api.inventory import InventoryAPI
 from ._api.marketplace import MarketplaceAPI
+from ._api.search import SearchAPI
 from ._api.users import UsersAPI
 
 if TYPE_CHECKING:
@@ -174,6 +175,8 @@ class DiscogsAPIClient(OAuth1APIClient):
         self.inventory: InventoryAPI = InventoryAPI(self)
         #: Marketplace API endpoints for the Discogs API.
         self.marketplace: MarketplaceAPI = MarketplaceAPI(self)
+        #: Search API endpoints for the Discogs API.
+        self.search: SearchAPI = SearchAPI(self)
         #: User Identity, User Collection, User Wantlist, and User Lists
         #: API endpoints for the Discogs API.
         self.users: UsersAPI = UsersAPI(self)

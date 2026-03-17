@@ -17,7 +17,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -94,7 +94,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Single audiobook
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "authors": [
@@ -188,7 +188,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Multiple audiobooks
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "audiobooks": [
@@ -365,7 +365,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,

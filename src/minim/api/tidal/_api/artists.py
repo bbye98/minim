@@ -12,7 +12,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
+       This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -64,7 +64,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
                   .. tab-item:: Single artist role
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": {
@@ -81,7 +81,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
                   .. tab-item:: Multiple artist roles
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -177,7 +177,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
                   .. tab-item:: Single artist
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": {
@@ -575,7 +575,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
                   .. tab-item:: Multiple artists
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -1042,7 +1042,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1181,7 +1181,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": {
@@ -1251,7 +1251,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],
@@ -1318,7 +1318,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1415,7 +1415,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1521,7 +1521,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1603,7 +1603,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1756,7 +1756,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1850,7 +1850,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -2019,7 +2019,7 @@ class ArtistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [

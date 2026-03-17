@@ -12,7 +12,7 @@ class EpisodesAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -91,7 +91,7 @@ class EpisodesAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Single show episode
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "audio_preview_url": <str>,
@@ -163,7 +163,7 @@ class EpisodesAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Multiple show episodes
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "episodes": [

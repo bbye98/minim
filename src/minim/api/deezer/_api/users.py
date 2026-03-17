@@ -11,7 +11,7 @@ class UsersAPI(DeezerResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.deezer.DeezerAPIClient` and should not be
+       :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
 
@@ -54,7 +54,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "birthday": <str>,
@@ -119,7 +119,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "permissions": {
@@ -171,7 +171,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "ads_audio": <bool>,
@@ -275,7 +275,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -381,7 +381,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -491,7 +491,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -591,7 +591,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -683,7 +683,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -789,7 +789,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -897,7 +897,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1002,7 +1002,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1109,7 +1109,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1200,7 +1200,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1307,7 +1307,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1389,7 +1389,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1499,7 +1499,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -1705,7 +1705,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -1901,7 +1901,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -2402,7 +2402,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -2686,7 +2686,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -2849,7 +2849,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "checksum": <str>,
@@ -3063,7 +3063,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -3270,7 +3270,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -3351,7 +3351,7 @@ class UsersAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [

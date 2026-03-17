@@ -11,7 +11,7 @@ class DatabaseAPI(DiscogsResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.discogs.DiscogsAPIClient` and should not be
+       :class:`~minim.api.discogs.DiscogsAPIClient` and should not be
        instantiated directly.
     """
 
@@ -62,7 +62,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": [
@@ -254,7 +254,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "rating": <int>,
@@ -320,7 +320,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "rating": <int>,
@@ -401,7 +401,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "rating": {
@@ -467,7 +467,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": [
@@ -610,7 +610,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "filter_facets": [
@@ -730,7 +730,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data_quality": <str>,
@@ -820,7 +820,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "pagination": {
@@ -902,7 +902,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "contact_info": <str>,
@@ -986,7 +986,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "pagination": {
@@ -1029,6 +1029,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             f"labels/{label_id}/releases", limit=limit, page=page
         )
 
+    @TTLCache.cached_method(ttl="search")
     def search(
         self,
         query: str | None = None,
@@ -1188,7 +1189,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "pagination": {

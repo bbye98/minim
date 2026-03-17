@@ -12,7 +12,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.discogs.DiscogsAPIClient` and should not be
+       :class:`~minim.api.discogs.DiscogsAPIClient` and should not be
        instantiated directly.
     """
 
@@ -149,7 +149,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "listing_id": <int>,
@@ -297,7 +297,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample responses
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "listings": [
@@ -433,7 +433,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "allow_offers": <bool>,
@@ -610,7 +610,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "listing_id": <int>,
@@ -802,7 +802,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "additional_instructions": <str>,
@@ -894,7 +894,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
            Calling this method will send the buyer a message with the
            following content:
 
-           .. code:: none
+           .. code-block:: none
 
               Seller changed status from {old_status} to {new_status}
 
@@ -934,7 +934,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "additional_instructions": <str>,
@@ -1101,7 +1101,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "orders": [
@@ -1265,7 +1265,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "from": {
@@ -1334,7 +1334,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
                If specified, `message` will be prepended with:
 
-               .. code:: none
+               .. code-block:: none
 
                   Seller changed status from {old_status} to {new_status}
 
@@ -1355,7 +1355,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "from": {
@@ -1477,7 +1477,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "Very Good (VG)": {
@@ -1555,7 +1555,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "blocked_from_sale": <bool>,

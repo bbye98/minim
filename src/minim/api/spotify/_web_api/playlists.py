@@ -13,7 +13,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -121,7 +121,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "collaborative": <bool>,
@@ -558,7 +558,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -816,7 +816,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-            * .. code::
+            * .. code-block::
 
                  [
                      "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
@@ -1003,7 +1003,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-            * .. code::
+            * .. code-block::
 
                  [
                      "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
@@ -1086,7 +1086,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-            * .. code::
+            * .. code-block::
 
                  [
                      "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
@@ -1211,7 +1211,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "collaborative": <bool>,
@@ -1346,7 +1346,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": <str>,
@@ -1474,7 +1474,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": <str>,
@@ -1560,7 +1560,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Sample response**:
 
-            .. code::
+            .. code-block::
 
                [
                  {

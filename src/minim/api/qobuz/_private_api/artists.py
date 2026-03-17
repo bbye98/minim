@@ -12,7 +12,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
 
@@ -121,7 +121,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
                   .. tab-item:: Current (:code:`subresource="page"`) endpoint
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "artist_category": <str>,
@@ -485,7 +485,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
                   .. tab-item:: Legacy (:code:`subresource="get"`) endpoint
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "albums": {
@@ -1051,7 +1051,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "has_more": <bool>,
@@ -1234,7 +1234,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": {
@@ -1310,7 +1310,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": {
@@ -1448,7 +1448,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": {

@@ -11,7 +11,7 @@ class GenresAPI(DeezerResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.deezer.DeezerAPIClient` and should not be
+       :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
 
@@ -43,7 +43,7 @@ class GenresAPI(DeezerResourceAPI):
 
                   .. tab-item:: Single genre
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "id": <int>,
@@ -58,7 +58,7 @@ class GenresAPI(DeezerResourceAPI):
 
                   .. tab-item:: Available genres
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -101,7 +101,7 @@ class GenresAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -166,7 +166,7 @@ class GenresAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],
@@ -200,7 +200,7 @@ class GenresAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [

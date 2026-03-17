@@ -12,7 +12,7 @@ class UsersAPI(DiscogsResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.discogs.DiscogsAPIClient` and should not be
+       :class:`~minim.api.discogs.DiscogsAPIClient` and should not be
        instantiated directly.
     """
 
@@ -52,7 +52,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "consumer_name": <str>,
@@ -99,7 +99,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "activated": <bool>,
@@ -220,7 +220,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample resposne
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "activated": <bool>,
@@ -337,7 +337,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "pagination": {
@@ -524,7 +524,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "contributions": [
@@ -688,7 +688,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "folders": [
@@ -747,7 +747,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "count": <int>,
@@ -808,7 +808,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "count": <int>,
@@ -969,7 +969,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "pagination": {
@@ -1112,7 +1112,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "pagination": {
@@ -1246,7 +1246,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "instance_id": <int>,
@@ -1453,7 +1453,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "fields": [
@@ -1579,7 +1579,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "maximum": <str>,
@@ -1650,7 +1650,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "pagination": {
@@ -1762,7 +1762,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "basic_information": {
@@ -1873,7 +1873,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "basic_information": {
@@ -2032,7 +2032,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "lists": [
@@ -2107,7 +2107,7 @@ class UsersAPI(DiscogsResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "date_added": <str>,

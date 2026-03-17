@@ -12,7 +12,7 @@ class VideosAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
+       This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -94,7 +94,7 @@ class VideosAPI(TIDALResourceAPI):
 
                   .. tab-item:: Single video
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": {
@@ -357,7 +357,7 @@ class VideosAPI(TIDALResourceAPI):
 
                   .. tab-item:: Multiple videos
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -687,7 +687,7 @@ class VideosAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -832,7 +832,7 @@ class VideosAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -986,7 +986,7 @@ class VideosAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1067,7 +1067,7 @@ class VideosAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [

@@ -12,7 +12,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       :class:`~minim.api.tidal.PrivateTIDALAPIClient` and should not be
        instantiated directly.
     """
 
@@ -149,7 +149,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
                   .. tab-item:: Current (:code:`v2`) endpoint
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "followInfo": {
@@ -213,7 +213,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
                   .. tab-item:: Legacy (:code:`v1`) endpoint
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "created": <str>,
@@ -315,7 +315,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -522,7 +522,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -652,7 +652,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "addedAt": <str>,
@@ -773,7 +773,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "addedAt": <str>,

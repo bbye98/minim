@@ -12,7 +12,7 @@ class ArtistsAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -53,7 +53,7 @@ class ArtistsAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Single artist
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "external_urls": {
@@ -81,7 +81,7 @@ class ArtistsAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Multiple artists
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "artists": [
@@ -183,7 +183,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -303,7 +303,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "tracks": [
@@ -427,7 +427,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": [
@@ -535,7 +535,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-              .. code::
+              .. code-block::
 
                   {
                     "href": <str>,

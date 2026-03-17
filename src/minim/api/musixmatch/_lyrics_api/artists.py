@@ -12,7 +12,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.musixmatch.MusixmatchLyricsAPIClient` and
+       :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
 
@@ -49,7 +49,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -190,7 +190,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -299,7 +299,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {

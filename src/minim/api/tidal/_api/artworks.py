@@ -10,7 +10,7 @@ class ArtworksAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
+       This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -76,7 +76,7 @@ class ArtworksAPI(TIDALResourceAPI):
 
                   .. tab-item:: Single artwork
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": {
@@ -111,7 +111,7 @@ class ArtworksAPI(TIDALResourceAPI):
 
                   .. tab-item:: Multiple artworks
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -199,7 +199,7 @@ class ArtworksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],

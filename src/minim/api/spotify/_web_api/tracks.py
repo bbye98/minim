@@ -26,7 +26,7 @@ class TracksAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -276,7 +276,7 @@ class TracksAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Single track
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "album": {
@@ -358,7 +358,7 @@ class TracksAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Multiple tracks
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "tracks": [
@@ -528,7 +528,7 @@ class TracksAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Single track
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "acousticness": <float>,
@@ -553,7 +553,7 @@ class TracksAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Multiple tracks
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "audio_features": [
@@ -618,7 +618,7 @@ class TracksAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "bars": [
@@ -974,7 +974,7 @@ class TracksAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "seeds": [
@@ -1191,7 +1191,7 @@ class TracksAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,

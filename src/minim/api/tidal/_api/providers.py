@@ -10,7 +10,7 @@ class ProvidersAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
+       This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -47,7 +47,7 @@ class ProvidersAPI(TIDALResourceAPI):
 
                   .. tab-item:: Single provider
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": {
@@ -64,7 +64,7 @@ class ProvidersAPI(TIDALResourceAPI):
 
                   .. tab-item:: Multiple providers
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [

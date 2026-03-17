@@ -352,7 +352,7 @@ class iTunesSearchAPIClient(APIClient):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                      {
                        "resultCount": <int>,
@@ -757,7 +757,7 @@ class iTunesSearchAPIClient(APIClient):
 
                   .. tab-item:: Current (:code:`v2`) response
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "resultCount": <int>,
@@ -962,7 +962,7 @@ class iTunesSearchAPIClient(APIClient):
 
                   .. tab-item:: Legacy (:code:`v1`) response
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "resultCount": <int>,

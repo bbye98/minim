@@ -11,7 +11,7 @@ class UsersAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
+       This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -310,7 +310,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": {
@@ -829,7 +829,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1125,7 +1125,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1416,7 +1416,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1524,7 +1524,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1645,13 +1645,13 @@ class UsersAPI(TIDALResourceAPI):
             **Examples**:
 
             * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
-            * .. code::
+            * .. code-block::
 
                  {
                      "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
                      "types": "playlists"
                  }
-            * .. code::
+            * .. code-block::
 
                  [
                      "f0d6f5c4-081f-4348-9b65-ae677d92767b",
@@ -1705,13 +1705,13 @@ class UsersAPI(TIDALResourceAPI):
             **Examples**:
 
             * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
-            * .. code::
+            * .. code-block::
 
                  {
                      "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
                      "types": "playlists"
                  }
-            * .. code::
+            * .. code-block::
 
                  [
                      "f0d6f5c4-081f-4348-9b65-ae677d92767b",
@@ -1804,7 +1804,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -2124,7 +2124,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -2367,7 +2367,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": {
@@ -2460,7 +2460,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -2547,7 +2547,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": {
@@ -2655,7 +2655,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],
@@ -2740,7 +2740,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],
@@ -2823,7 +2823,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],
@@ -2876,7 +2876,7 @@ class UsersAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": {
