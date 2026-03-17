@@ -11,7 +11,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
 
@@ -235,7 +235,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "albums": {
@@ -454,15 +454,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
                     f"Invalid item type {item_type!r}. Valid values: "
                     f"{self._join_values(self._FAVORITE_TYPES)}."
                 )
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "favorite/getUserFavorites", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "favorite/getUserFavorites",
+            limit=limit,
+            offset=offset,
+            params=params,
+        )
 
     @TTLCache.cached_method(ttl="user")
     def get_my_saved_item_ids(self) -> dict[str, Any]:
@@ -487,7 +484,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "albums": <list[str]>,

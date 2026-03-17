@@ -11,7 +11,7 @@ class EditorialAPI(DeezerResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.deezer.DeezerAPIClient` and should not be
+       :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
 
@@ -64,7 +64,7 @@ class EditorialAPI(DeezerResourceAPI):
 
                   .. tab-item:: Single editorial
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "id": <int>,
@@ -79,7 +79,7 @@ class EditorialAPI(DeezerResourceAPI):
 
                   .. tab-item:: Available editorials
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -129,7 +129,7 @@ class EditorialAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -206,7 +206,7 @@ class EditorialAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "albums": {
@@ -414,7 +414,7 @@ class EditorialAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [

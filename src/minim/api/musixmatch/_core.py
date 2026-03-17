@@ -187,8 +187,8 @@ class MusixmatchLyricsAPIClient(APIClient):
                 client.get(
                     "https://www.musixmatch.com/search",
                     headers={
-                        "User-Agent": self._client.headers.get(
-                            "User-Agent", ""
+                        "user-agent": self._client.headers.get(
+                            "user-agent", ""
                         )
                     },
                 ).text,

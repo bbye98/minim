@@ -13,7 +13,7 @@ class ArtistsAPI(DeezerResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.deezer.DeezerAPIClient` and should not be
+       :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
 
@@ -38,7 +38,7 @@ class ArtistsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <int>,
@@ -102,7 +102,7 @@ class ArtistsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -210,7 +210,7 @@ class ArtistsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -283,7 +283,7 @@ class ArtistsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -352,7 +352,7 @@ class ArtistsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -425,7 +425,7 @@ class ArtistsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -518,7 +518,7 @@ class ArtistsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [

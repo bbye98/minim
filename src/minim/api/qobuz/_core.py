@@ -48,7 +48,7 @@ class PrivateQobuzAPIClient(APIClient):
     def __init__(
         self,
         *,
-        authorization_flow: str | None = None,
+        auth_flow: str | None = None,
         app_id: str | None = None,
         app_secret: str | None = None,
         user_identifier: str | None = None,
@@ -62,7 +62,7 @@ class PrivateQobuzAPIClient(APIClient):
         """
         Parameters
         ----------
-        authorization_flow : str or None; keyword-only; optional
+        auth_flow : str or None; keyword-only; optional
             Authorization flow.
 
             **Valid values**:
@@ -195,13 +195,13 @@ class PrivateQobuzAPIClient(APIClient):
         if app_id is None:
             app_id, app_secret = self._resolve_app_credentials()
 
-        if authorization_flow is not None:
+        if auth_flow is not None:
             if user_identifier and user_identifier[0] == "~":
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
                     self.__class__.__name__,
-                    authorization_flow=authorization_flow,
+                    auth_flow=auth_flow,
                     client_id=app_id,
                     user_identifier=user_identifier,
                 )
@@ -216,8 +216,8 @@ class PrivateQobuzAPIClient(APIClient):
                     else token_extras
                 )
 
-        self.set_authorization_flow(
-            authorization_flow,
+        self.set_auth_flow(
+            auth_flow,
             app_id=app_id,
             app_secret=app_secret,
             user_identifier=user_identifier,
@@ -225,7 +225,7 @@ class PrivateQobuzAPIClient(APIClient):
             store_tokens=store_tokens,
             authenticate=False,
         )
-        if authorization_flow is None:
+        if auth_flow is None:
             self._determine_app_secret()
         elif user_auth_token:
             self.set_user_auth_token(user_auth_token)
@@ -236,7 +236,7 @@ class PrivateQobuzAPIClient(APIClient):
     def get_tokens(
         cls,
         *,
-        authorization_flows: str | list[str] | None = None,
+        auth_flows: str | list[str] | None = None,
         app_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
     ) -> list[dict[str, Any]] | None:
@@ -246,7 +246,7 @@ class PrivateQobuzAPIClient(APIClient):
 
         Parameters
         ----------
-        authorization_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or list[str]; keyword-only; optional
             Authorization flows.
 
         app_ids : str or list[str]; keyword-only; optional
@@ -257,7 +257,7 @@ class PrivateQobuzAPIClient(APIClient):
         """
         TokenDatabase.get_tokens(
             client_names=cls.__name__,
-            authorization_flows=authorization_flows,
+            auth_flows=auth_flows,
             client_ids=app_ids,
             user_identifiers=user_identifiers,
         )
@@ -266,7 +266,7 @@ class PrivateQobuzAPIClient(APIClient):
     def remove_tokens(
         cls,
         *,
-        authorization_flows: str | list[str] | None = None,
+        auth_flows: str | list[str] | None = None,
         app_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
     ) -> None:
@@ -276,13 +276,13 @@ class PrivateQobuzAPIClient(APIClient):
 
         .. warning::
 
-           If none of `authorization_flows`, `app_ids`, or
+           If none of `auth_flows`, `app_ids`, or
            `user_identifiers` are provided, all tokens for this client
            will be removed from local storage.
 
         Parameters
         ----------
-        authorization_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or list[str]; keyword-only; optional
             Authorization flows.
 
         app_ids : str or list[str]; keyword-only; optional
@@ -293,7 +293,7 @@ class PrivateQobuzAPIClient(APIClient):
         """
         TokenDatabase.remove_tokens(
             client_names=cls.__name__,
-            authorization_flows=authorization_flows,
+            auth_flows=auth_flows,
             client_ids=app_ids,
             user_identifiers=user_identifiers,
         )
@@ -439,7 +439,7 @@ class PrivateQobuzAPIClient(APIClient):
         )
 
     def _obtain_user_auth_token(
-        self, authorization_flow: str | None = None, **kwargs: dict[str, Any]
+        self, auth_flow: str | None = None, **kwargs: dict[str, Any]
     ) -> None:
         """
         Get and set a new user authentication token via the provided or
@@ -447,7 +447,7 @@ class PrivateQobuzAPIClient(APIClient):
 
         Parameters
         ----------
-        authorization_flow : str; optional
+        auth_flow : str; optional
             Authorization flow. If not provided, the current
             authorization flow in :attr:`_auth_flow` is used.
 
@@ -460,13 +460,13 @@ class PrivateQobuzAPIClient(APIClient):
             Keyword arguments to pass to
             :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
         """
-        if not authorization_flow:
-            authorization_flow = self._auth_flow
+        if not auth_flow:
+            auth_flow = self._auth_flow
 
-        if authorization_flow is None:
+        if auth_flow is None:
             self.set_user_auth_token(None)
 
-        # authorization_flow == "password"
+        # auth_flow == "password"
         resp_json = self._login(**kwargs)
         user_auth_token = resp_json.pop(
             "token" if "token" in resp_json else "user_auth_token"
@@ -483,7 +483,7 @@ class PrivateQobuzAPIClient(APIClient):
         if self._store_tokens:
             TokenDatabase.add_token(
                 self.__class__.__name__,
-                authorization_flow=self._auth_flow,
+                auth_flow=self._auth_flow,
                 client_id=self._app_id,
                 client_secret=self._app_secret,
                 user_identifier=self._user_identifier,
@@ -590,9 +590,9 @@ class PrivateQobuzAPIClient(APIClient):
             or self.users.get_me()
         )
 
-    def set_authorization_flow(
+    def set_auth_flow(
         self,
-        authorization_flow: str | None,
+        auth_flow: str | None,
         /,
         *,
         app_id: str | None = None,
@@ -614,7 +614,7 @@ class PrivateQobuzAPIClient(APIClient):
 
         Parameters
         ----------
-        authorization_flow : str or None; keyword-only
+        auth_flow : str or None; keyword-only
             Authorization flow.
 
             **Valid values**:
@@ -697,12 +697,12 @@ class PrivateQobuzAPIClient(APIClient):
             Keyword arguments to pass to
             :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
         """
-        if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
+        if auth_flow not in self._ALLOWED_AUTH_FLOWS:
             raise ValueError(
-                f"Invalid authorization flow {authorization_flow!r}. "
+                f"Invalid authorization flow {auth_flow!r}. "
                 f"Valid values: {self._join_values(self._ALLOWED_AUTH_FLOWS)}."
             )
-        self._auth_flow = authorization_flow
+        self._auth_flow = auth_flow
         if app_id is None or app_secret is None:
             app_id = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_ID")
             app_secret = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_SECRET")
@@ -716,13 +716,13 @@ class PrivateQobuzAPIClient(APIClient):
                 "An application secret must be provided via the "
                 "`app_secret` parameter."
             )
-        self._client.headers["X-App-Id"] = self._app_id = app_id
+        self._client.headers["x-app-id"] = self._app_id = app_id
         self._app_secret = app_secret
         self._user_identifier = user_identifier
         self._credential_handler = credential_handler
         self._store_tokens = store_tokens
 
-        if authenticate and authorization_flow is not None:
+        if authenticate and auth_flow is not None:
             self._obtain_user_auth_token(**kwargs)
 
     def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
@@ -740,10 +740,10 @@ class PrivateQobuzAPIClient(APIClient):
                     "`user_auth_token` cannot be None when using the "
                     f"{self._ALLOWED_AUTH_FLOWS[self._auth_flow]}."
                 )
-            if "X-User-Auth-Token" in self._client.headers:
-                del self._client.headers["X-User-Auth-Token"]
+            if "x-user-auth-token" in self._client.headers:
+                del self._client.headers["x-user-auth-token"]
             return
         elif isinstance(user_auth_token, str):
-            self._client.headers["X-User-Auth-Token"] = user_auth_token
+            self._client.headers["x-user-auth-token"] = user_auth_token
         else:
             raise TypeError("`user_auth_token` must be a string.")

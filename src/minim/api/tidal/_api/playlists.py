@@ -12,7 +12,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
+       This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -193,7 +193,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
                   .. tab-item:: Single playlist
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": {
@@ -433,7 +433,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
                   .. tab-item:: Multiple playlists
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -747,7 +747,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": {
@@ -817,7 +817,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             "POST", "playlists", params=params, json=payload
         ).json()
 
-    def update_playlist_details(
+    def update_playlist_info(
         self,
         playlist_uuid: str,
         /,
@@ -869,7 +869,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **API default**: :code:`False`.
         """
         self._client._require_scopes(
-            "playlists.update_playlist_details", "playlists.write"
+            "playlists.update_playlist_info", "playlists.write"
         )
         params = {}
         if country_code is not None:
@@ -973,7 +973,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1071,7 +1071,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1290,7 +1290,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             * :code:`(458584456, "tracks")`
             * :code:`("29597422", "videos")`
             * :code:`{"id": "35633900", "types": "tracks"}`
-            * .. code::
+            * .. code-block::
 
                  [
                      (458584456, "tracks"),
@@ -1371,7 +1371,7 @@ class PlaylistsAPI(TIDALResourceAPI):
               "tracks")`
             * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
               "videos")`
-            * .. code::
+            * .. code-block::
 
                  {
                      "id": "35633900",
@@ -1380,7 +1380,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                      },
                      "types": "tracks"
                  }
-            * .. code::
+            * .. code-block::
 
                  [
                      (
@@ -1467,7 +1467,7 @@ class PlaylistsAPI(TIDALResourceAPI):
               "tracks")`
             * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
               "videos")`
-            * .. code::
+            * .. code-block::
 
                  {
                      "id": "35633900",
@@ -1476,7 +1476,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                      },
                      "types": "tracks"
                  }
-            * .. code::
+            * .. code-block::
 
                  [
                      (
@@ -1567,7 +1567,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],
@@ -1646,7 +1646,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],

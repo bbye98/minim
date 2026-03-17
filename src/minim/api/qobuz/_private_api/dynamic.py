@@ -12,7 +12,7 @@ class PrivateDynamicAPI(PrivateQobuzResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
 

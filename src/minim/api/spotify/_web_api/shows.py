@@ -12,7 +12,7 @@ class ShowsAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -85,7 +85,7 @@ class ShowsAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Single show
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "available_markets": <list[str]>,
@@ -167,7 +167,7 @@ class ShowsAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Multiple shows
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "shows": [
@@ -334,7 +334,7 @@ class ShowsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,

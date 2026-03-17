@@ -12,7 +12,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.musixmatch.MusixmatchLyricsAPIClient` and
+       :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
 
@@ -49,7 +49,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -127,7 +127,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             "GET", "artist.get", params={"artist_id": artist_id}
         ).json()
 
-    @TTLCache.cached_method(ttl="static")
+    @TTLCache.cached_method(ttl="daily")
     def get_artist_albums(
         self,
         artist_id: int | str,
@@ -190,7 +190,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -299,7 +299,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {

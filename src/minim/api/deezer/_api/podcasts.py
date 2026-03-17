@@ -13,7 +13,7 @@ class PodcastsAPI(DeezerResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.deezer.DeezerAPIClient` and should not be
+       :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
 
@@ -38,7 +38,7 @@ class PodcastsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "available": <bool>,
@@ -104,7 +104,7 @@ class PodcastsAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [

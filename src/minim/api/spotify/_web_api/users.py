@@ -12,7 +12,7 @@ class UsersAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -370,7 +370,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "country": <str>,
@@ -457,7 +457,7 @@ class UsersAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Current user
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "country": <str>,
@@ -490,7 +490,7 @@ class UsersAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Public user
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "display_name": <str>,
@@ -605,7 +605,7 @@ class UsersAPI(SpotifyResourceAPI):
 
                   .. tab-item:: :code:`resource_type="artists"`
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "href": <str>,
@@ -642,7 +642,7 @@ class UsersAPI(SpotifyResourceAPI):
 
                   .. tab-item:: :code:`resource_type="tracks"`
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "href": <str>,
@@ -886,7 +886,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": {
@@ -1284,7 +1284,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -1594,7 +1594,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -1857,7 +1857,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -2119,7 +2119,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -2251,7 +2251,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -2359,7 +2359,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -2600,7 +2600,7 @@ class UsersAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -2742,7 +2742,7 @@ class UsersAPI(SpotifyResourceAPI):
             * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
             * :code:`{"id": "4iV5W9uYEdYUVa79Axb7Rh",
               "added_at": "2010-01-01T00:00:00Z"}`
-            * .. code::
+            * .. code-block::
 
                  [
                      "4iV5W9uYEdYUVa79Axb7Rh",

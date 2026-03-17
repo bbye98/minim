@@ -11,7 +11,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       :class:`~minim.api.tidal.PrivateTIDALAPIClient` and should not be
        instantiated directly.
     """
 
@@ -129,7 +129,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <str>,
@@ -388,7 +388,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <str>,
@@ -535,7 +535,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <str>,
@@ -873,7 +873,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <str>,
@@ -1303,7 +1303,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <str>,
@@ -1526,7 +1526,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <str>,
@@ -1608,7 +1608,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "id": <str>,

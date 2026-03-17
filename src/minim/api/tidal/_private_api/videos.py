@@ -18,15 +18,17 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       :class:`~minim.api.tidal.PrivateTIDALAPIClient` and should not be
        instantiated directly.
     """
 
     _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
 
-    def _get_video_stream(self, manifest: bytes | str, /) -> tuple[str, bytes]:
+    def _download_video_stream(
+        self, manifest: bytes | str, /
+    ) -> tuple[str, bytes]:
         """
-        Get the video stream data for a music video.
+        Download the video stream data for a music video.
 
         Parameters
         ----------
@@ -60,7 +62,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
                 )
             )
         elif manifest[0] == 60:  # XML (audio-only)
-            return self._client.tracks._get_track_stream(manifest)
+            return self._client.tracks._download_track_stream(manifest)
         else:
             raise ValueError(
                 "`manifest`, when decoded, is not in the JSON format "
@@ -96,7 +98,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "adSupportedStreamReady": <bool>,
@@ -193,7 +195,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -294,7 +296,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "assetPresentation": <str>,

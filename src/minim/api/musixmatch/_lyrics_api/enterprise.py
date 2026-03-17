@@ -14,7 +14,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.musixmatch.MusixmatchLyricsAPIClient` and
+       :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
 
@@ -474,7 +474,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -591,7 +591,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         return self._client._request(
             "POST",
             "work.post",
-            headers={"Content-Type": "application/json"},
+            headers={"content-type": "application/json"},
             json=self._prepare_work_data(work_data),
         ).json()
 
@@ -636,7 +636,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -660,7 +660,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         return self._client._request(
             "POST",
             "work.validity.post",
-            headers={"Content-Type": "application/json"},
+            headers={"content-type": "application/json"},
             json={
                 "data": {
                     "identifier": work_identifier,
@@ -723,7 +723,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -795,7 +795,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         return self._client._request(
             "POST",
             "track.lyrics.fingerprint.post",
-            headers={"Content-Type": "application/json"},
+            headers={"content-type": "application/json"},
             json={"data": {"text": text}},
             params=params,
         )
@@ -835,7 +835,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             .. admonition:: Sample reponse
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -914,7 +914,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             .. admonition:: Sample reponse
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -974,7 +974,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {

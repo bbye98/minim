@@ -11,7 +11,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       :class:`~minim.api.tidal.PrivateTIDALAPIClient` and should not be
        instantiated directly.
     """
 
@@ -669,7 +669,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "acceptedEULA": <bool>,
@@ -728,7 +728,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "channelId": <int>,
@@ -789,7 +789,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -866,7 +866,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "canGetTrial": <bool>,
@@ -922,7 +922,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "ALBUM": <list[str]>,
@@ -1012,7 +1012,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -1230,7 +1230,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -1414,7 +1414,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -1607,7 +1607,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "cursor": <str>,
@@ -1887,7 +1887,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -2177,7 +2177,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "cursor": <str>,
@@ -2350,7 +2350,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "cursor": <str>,
@@ -2523,7 +2523,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "cursor": <str>,
@@ -2696,7 +2696,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -2869,7 +2869,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -2975,7 +2975,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "cursor": <str>,
@@ -3394,7 +3394,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -3625,7 +3625,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -3846,7 +3846,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -4054,7 +4054,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [

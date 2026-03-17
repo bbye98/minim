@@ -13,7 +13,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       :class:`~minim.api.tidal.PrivateTIDALAPIClient` and should not be
        instantiated directly.
     """
 
@@ -48,7 +48,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artistRoles": [
@@ -132,7 +132,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -238,7 +238,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "lastUpdated": <str>,
@@ -303,7 +303,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -410,7 +410,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -540,7 +540,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -670,7 +670,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -785,7 +785,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [

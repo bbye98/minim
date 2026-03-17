@@ -12,7 +12,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
 
@@ -121,7 +121,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
                   .. tab-item:: Current (:code:`subresource="page"`) endpoint
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "artist_category": <str>,
@@ -485,7 +485,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
                   .. tab-item:: Legacy (:code:`subresource="get"`) endpoint
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "albums": {
@@ -956,13 +956,9 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             ).json()
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request("GET", "artist/get", params=params).json()
+        return self._get_paginated_resources(
+            "artist/get", limit=limit, offset=offset, params=params
+        )
 
     @TTLCache.cached_method(ttl="daily")
     def get_artist_releases(
@@ -1055,7 +1051,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "has_more": <bool>,
@@ -1172,12 +1168,6 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             params["filter"] = self._prepare_comma_separated_values(
                 "content filter", content_filters, self._CONTENT_FILTERS
             )
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
@@ -1192,12 +1182,15 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             if track_limit is not None:
                 self._validate_number("track_size", track_limit, int, 1, 30)
                 params["track_size"] = track_limit
-            return self._client._request(
-                "GET", "artist/getReleasesList", params=params
-            ).json()
-        return self._client._request(
-            "GET", "artist/getReleasesGrid", params=params
-        ).json()
+            return self._get_paginated_resources(
+                "artist/getReleasesList",
+                limit=limit,
+                offset=offset,
+                params=params,
+            )
+        return self._get_paginated_resources(
+            "artist/getReleasesGrid", limit=limit, offset=offset, params=params
+        )
 
     @TTLCache.cached_method(ttl="popularity")
     def get_similar_artists(
@@ -1241,7 +1234,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": {
@@ -1268,16 +1261,12 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._validate_qobuz_ids(artist_id, _recursive=False)
-        params = {"artist_id": artist_id}
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "artist/getSimilarArtists", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "artist/getSimilarArtists",
+            limit=limit,
+            offset=offset,
+            params={"artist_id": artist_id},
+        )
 
     def get_featured_artists(
         self,
@@ -1321,7 +1310,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": {
@@ -1459,7 +1448,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "artists": {

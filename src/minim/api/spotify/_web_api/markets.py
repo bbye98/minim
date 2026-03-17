@@ -10,7 +10,7 @@ class MarketsAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 

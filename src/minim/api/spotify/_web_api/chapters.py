@@ -16,7 +16,7 @@ class ChaptersAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -89,7 +89,7 @@ class ChaptersAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Single audiobook chapter
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "audio_preview_url": <str>,
@@ -171,7 +171,7 @@ class ChaptersAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Multiple audiobook chapters
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "chapters": [

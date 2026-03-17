@@ -13,7 +13,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -121,7 +121,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "collaborative": <bool>,
@@ -350,7 +350,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "GET", f"playlists/{playlist_id}", params=params
         ).json()
 
-    def update_playlist_details(
+    def update_playlist_info(
         self,
         playlist_id: str,
         /,
@@ -558,7 +558,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -743,7 +743,6 @@ class PlaylistsAPI(SpotifyResourceAPI):
                     "total": <int>
                   }
         """
-        self._validate_spotify_id(playlist_id)
         params = {}
         if supported_item_types is not None:
             params["additional_types"] = self._prepare_types(
@@ -757,18 +756,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
                     params["fields"] = fields
             else:
                 params["fields"] = ",".join(fields)
-        if country_code is not None:
-            self._client.markets._validate_market(country_code)
-            params["market"] = country_code
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"playlists/{playlist_id}/tracks", params=params
-        ).json()
+        return self._get_resource_items(
+            "playlists",
+            playlist_id,
+            "tracks",
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
+            params=params,
+        )
 
     def add_playlist_items(
         self,
@@ -820,7 +816,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-            * .. code::
+            * .. code-block::
 
                  [
                      "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
@@ -1007,7 +1003,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-            * .. code::
+            * .. code-block::
 
                  [
                      "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
@@ -1090,7 +1086,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
             * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-            * .. code::
+            * .. code-block::
 
                  [
                      "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
@@ -1215,7 +1211,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "collaborative": <bool>,
@@ -1350,7 +1346,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": <str>,
@@ -1478,7 +1474,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": <str>,
@@ -1564,7 +1560,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Sample response**:
 
-            .. code::
+            .. code-block::
 
                [
                  {
@@ -1631,7 +1627,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         )
         self._validate_spotify_id(playlist_id)
         if isinstance(image, str | Path):
-            image = Path(image).resolve(True)
+            image = Path(image).expanduser().resolve(True)
             with open(image, "rb") as f:
                 image = f.read()
         if not isinstance(image, bytes) or not (
@@ -1649,7 +1645,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "PUT",
             f"playlists/{playlist_id}/images",
             data=image,
-            headers={"Content-Type": "image/jpeg"},
+            headers={"content-type": "image/jpeg"},
         )
 
     @_copy_docstring(UsersAPI.follow_playlist)

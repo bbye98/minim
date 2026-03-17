@@ -14,7 +14,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
 
@@ -103,7 +103,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -202,7 +202,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -326,7 +326,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -427,7 +427,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -650,15 +650,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         params = {"playlist_id": playlist_id}
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "playlist/get", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "playlist/get", limit=limit, offset=offset, params=params
+        )
 
     @TTLCache.cached_method(ttl="daily")
     def get_featured_playlists(
@@ -725,7 +719,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "playlists": {
@@ -813,15 +807,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             for playlist_tag_slug in playlist_tag_slugs:
                 self._validate_playlist_tag_slug(playlist_tag_slug)
             params["tags"] = ",".join(str(slug) for slug in playlist_tag_slugs)
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "playlist/getFeatured", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "playlist/getFeatured", limit=limit, offset=offset, params=params
+        )
 
     @TTLCache.cached_method(ttl="static")
     def get_playlist_tags(self) -> dict[str, list[dict[str, Any]]]:
@@ -836,7 +824,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "tags": [
@@ -929,7 +917,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "playlists": {
@@ -994,12 +982,6 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             params["filter"] = self._prepare_comma_separated_values(
                 "playlist type", playlist_types, self._PLAYLIST_TYPES
             )
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
@@ -1010,9 +992,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         if descending is not None:
             self._validate_type("descending", descending, bool)
             params["orderDirection"] = "desc" if descending else "asc"
-        return self._client._request(
-            "GET", "playlist/getUserPlaylists", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "playlist/getUserPlaylists",
+            limit=limit,
+            offset=offset,
+            params=params,
+        )
 
     @_copy_docstring(PrivateSearchAPI.search_playlists)
     def search_playlists(
@@ -1035,7 +1020,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     def unfollow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
         return self._client.users.unfollow_playlist(playlist_id)
 
-    def update_playlist_details(
+    def update_playlist_info(
         self,
         playlist_id: str,
         /,
@@ -1099,7 +1084,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,
@@ -1119,9 +1104,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                     "users_count": <int>
                   }
         """
-        self._client._require_authentication(
-            "playlists.update_playlist_details"
-        )
+        self._client._require_authentication("playlists.update_playlist_info")
         self._validate_qobuz_ids(playlist_id, _recursive=False)
         payload = {}
         if name is not None:
@@ -1240,7 +1223,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "created_at": <int>,

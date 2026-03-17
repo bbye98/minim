@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
@@ -13,7 +14,7 @@ class TracksAPI(MusixmatchResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.musixmatch.MusixmatchLyricsAPIClient` and
+       :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
 
@@ -131,7 +132,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -264,7 +265,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -365,7 +366,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -464,7 +465,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -583,7 +584,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -686,7 +687,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -792,7 +793,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -925,7 +926,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -1004,8 +1005,8 @@ class TracksAPI(MusixmatchResourceAPI):
         genre_id: int | str | None = None,
         language: str | None = None,
         has_lyrics: bool | None = None,
-        release_date_after: str | None = None,
-        release_date_before: str | None = None,
+        released_after: str | datetime | None = None,
+        released_before: str | datetime | None = None,
         artist_popularity_sort_order: str | None = None,
         track_popularity_sort_order: str | None = None,
         page: int | None = None,
@@ -1067,12 +1068,14 @@ class TracksAPI(MusixmatchResourceAPI):
 
             **API default**: :code:`False`.
 
-        release_date_after : str; keyword-only; optional
-            Minimum release date to filter results by, in
+        released_after : str or datetime.datetime; keyword-only; \
+        optional
+            Only return tracks released after this date, in
             :code:`YYYYMMDD` format.
 
-        release_date_before : str; keyword-only; optional
-            Maximum release date to filter results by, in
+        released_before : str or datetime.datetime; keyword-only; \
+        optional
+            Only return tracks released before this date, in
             :code:`YYYYMMDD` format.
 
         artist_popularity_sort_order : str; keyword-only; optional
@@ -1108,7 +1111,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -1205,13 +1208,13 @@ class TracksAPI(MusixmatchResourceAPI):
         if has_lyrics is not None:
             self._validate_type("has_lyrics", has_lyrics, bool)
             params["f_has_lyrics"] = int(has_lyrics)
-        if release_date_after is not None:
+        if released_after is not None:
             params["f_first_release_date_min"] = self._prepare_datetime(
-                release_date_after, "%Y%m%d"
+                released_after, "%Y%m%d"
             )
-        if release_date_before is not None:
+        if released_before is not None:
             params["f_first_release_date_max"] = self._prepare_datetime(
-                release_date_before, "%Y%m%d"
+                released_before, "%Y%m%d"
             )
         if artist_popularity_sort_order is not None:
             self._validate_sort_order(
@@ -1291,7 +1294,7 @@ class TracksAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {

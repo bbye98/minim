@@ -3,6 +3,6 @@ API Reference
 
 .. autosummary::
    :recursive:
-   :toctree: autosummary
+   :toctree: api-ref
 
    minim

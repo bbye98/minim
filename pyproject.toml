@@ -44,4 +44,4 @@ docs = [
 "Bug Tracker" = "https://github.com/bbye98/minim/issues"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"

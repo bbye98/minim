@@ -12,7 +12,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       :class:`~minim.api.tidal.PrivateTIDALAPIClient` and should not be
        instantiated directly.
     """
 
@@ -86,7 +86,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                 f"v1/playlists/{playlist_uuid}",
                 params={"countryCode": country_code},
             )
-            .headers["ETag"]
+            .headers["etag"]
             .replace('"', "")
         )
 
@@ -149,7 +149,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
                   .. tab-item:: Current (:code:`v2`) endpoint
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "followInfo": {
@@ -213,7 +213,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
                   .. tab-item:: Legacy (:code:`v1`) endpoint
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "created": <str>,
@@ -315,7 +315,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -522,7 +522,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -652,7 +652,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "addedAt": <str>,
@@ -773,7 +773,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "addedAt": <str>,
@@ -935,7 +935,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             f"{'public' if public else 'private'}",
         )
 
-    def update_playlist_details(
+    def update_playlist_info(
         self,
         playlist_uuid: str,
         /,
@@ -973,9 +973,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         description : str; keyword-only; optional
             New playlist description.
         """
-        self._client._require_authentication(
-            "playlists.update_playlist_details"
-        )
+        self._client._require_authentication("playlists.update_playlist_info")
         self._validate_uuid(playlist_uuid)
         payload = {}
         if name is not None:
@@ -1133,7 +1131,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             f"v1/playlists/{playlist_uuid}/items",
             data=data,
             headers={
-                "If-None-Match": self._get_playlist_etag(
+                "if-none-match": self._get_playlist_etag(
                     playlist_uuid, country_code=country_code
                 )
             },
@@ -1201,7 +1199,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             f"v1/playlists/{playlist_uuid}/items/{from_item_indices}",
             params={"toIndex": to_index},
             headers={
-                "If-None-Match": self._get_playlist_etag(
+                "if-none-match": self._get_playlist_etag(
                     playlist_uuid, country_code=country_code
                 )
             },
@@ -1263,7 +1261,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             f"v1/playlists/{playlist_uuid}/items/{item_index}/replace",
             data={"itemId": item_id},
             headers={
-                "If-None-Match": self._get_playlist_etag(
+                "if-none-match": self._get_playlist_etag(
                     playlist_uuid, country_code=country_code
                 )
             },
@@ -1319,7 +1317,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             "DELETE",
             f"v1/playlists/{playlist_uuid}/items/{item_indices}",
             headers={
-                "If-None-Match": self._get_playlist_etag(
+                "if-none-match": self._get_playlist_etag(
                     playlist_uuid, country_code=country_code
                 )
             },

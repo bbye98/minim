@@ -15,7 +15,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
 
@@ -50,7 +50,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
                   .. tab-item:: Single track
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "album": {
@@ -208,7 +208,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
                   .. tab-item:: Multiple tracks
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "items": {
@@ -446,7 +446,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "bit_depth": <int>,
@@ -823,7 +823,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "tracks": {

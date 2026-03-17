@@ -12,7 +12,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
+       This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -123,7 +123,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
                   .. tab-item:: Single album
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": {
@@ -571,7 +571,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
                   .. tab-item:: Multiple albums
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -1103,7 +1103,7 @@ class AlbumsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1262,7 +1262,7 @@ class AlbumsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1365,7 +1365,7 @@ class AlbumsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1594,7 +1594,7 @@ class AlbumsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],
@@ -1667,7 +1667,7 @@ class AlbumsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1754,7 +1754,7 @@ class AlbumsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1905,7 +1905,7 @@ class AlbumsAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],

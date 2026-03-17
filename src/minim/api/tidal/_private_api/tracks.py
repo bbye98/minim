@@ -18,15 +18,17 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.tidal.PrivateTIDALAPIClient` and should not be
+       :class:`~minim.api.tidal.PrivateTIDALAPIClient` and should not be
        instantiated directly.
     """
 
     _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES", "HI_RES_LOSSLESS"}
 
-    def _get_track_stream(self, manifest: bytes | str, /) -> tuple[str, bytes]:
+    def _download_track_stream(
+        self, manifest: bytes | str, /
+    ) -> tuple[str, bytes]:
         """
-        Get the audio stream data for a track.
+        Download the audio stream data for a track.
 
         Parameters
         ----------
@@ -134,7 +136,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "accessType": <str>,
@@ -252,7 +254,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -304,7 +306,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   [
                     {
@@ -363,7 +365,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "trackId": <int>,
@@ -473,7 +475,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "items": [
@@ -625,7 +627,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "albumPeakAmplitude": <float>,

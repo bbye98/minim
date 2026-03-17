@@ -12,7 +12,7 @@ class AlbumsAPI(SpotifyResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.spotify.SpotifyWebAPIClient` and should not be
+       :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
 
@@ -79,7 +79,7 @@ class AlbumsAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Single album
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "album_type": <str>,
@@ -187,7 +187,7 @@ class AlbumsAPI(SpotifyResourceAPI):
 
                   .. tab-item:: Multiple albums
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "albums": [
@@ -373,7 +373,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "href": <str>,
@@ -496,7 +496,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "albums": {

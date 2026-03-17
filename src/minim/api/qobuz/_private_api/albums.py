@@ -12,7 +12,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.qobuz.PrivateQobuzAPIClient` and should not be
+       :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
 
@@ -89,7 +89,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "albums_same_artist": {
@@ -303,13 +303,9 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         params = {"album_id": album_id}
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request("GET", "album/get", params=params).json()
+        return self._get_paginated_resources(
+            "album/get", limit=limit, offset=offset, params=params
+        )
 
     @TTLCache.cached_method(ttl="popularity")
     def get_featured_albums(
@@ -369,7 +365,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "albums": {
@@ -466,15 +462,9 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
                     self._client.genres._validate_genre_id(genre_id)
             genre_ids = self._prepare_qobuz_ids(genre_ids, data_type=str)
             params[f"genre_id{'s' if ',' in genre_ids else ''}"] = genre_ids
-        if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "album/getFeatured", params=params
-        ).json()
+        return self._get_paginated_resources(
+            "album/getFeatured", limit=limit, offset=offset, params=params
+        )
 
     def save_albums(
         self, album_ids: str | list[str] | None = None, /
@@ -588,7 +578,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "albums": {

@@ -11,7 +11,7 @@ class ChartsAPI(MusixmatchResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.musixmatch.MusixmatchLyricsAPIClient` and
+       :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
 
@@ -92,7 +92,7 @@ class ChartsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -248,7 +248,7 @@ class ChartsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {
@@ -334,7 +334,7 @@ class ChartsAPI(MusixmatchResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "message": {

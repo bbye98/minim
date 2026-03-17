@@ -12,7 +12,7 @@ class TracksAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
+       This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 
@@ -127,7 +127,7 @@ class TracksAPI(TIDALResourceAPI):
 
                   .. tab-item:: Single track
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": {
@@ -554,7 +554,7 @@ class TracksAPI(TIDALResourceAPI):
 
                   .. tab-item:: Multiple tracks
 
-                     .. code::
+                     .. code-block::
 
                         {
                           "data": [
@@ -1058,7 +1058,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1208,7 +1208,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1361,7 +1361,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [],
@@ -1434,7 +1434,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1514,7 +1514,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1625,7 +1625,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "included": [],
@@ -1698,7 +1698,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "data": [
@@ -1859,7 +1859,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "included": [],
@@ -1882,7 +1882,7 @@ class TracksAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="static")
-    def get_track_statistics(
+    def get_track_stats(
         self,
         track_id: str,
         /,
@@ -1918,7 +1918,7 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample response
                :class: response dropdown
 
-               .. code::
+               .. code-block::
 
                   {
                     "included": [],
