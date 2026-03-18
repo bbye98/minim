@@ -6,6 +6,7 @@ from ._web_api.categories import CategoriesAPI
 from ._web_api.chapters import ChaptersAPI
 from ._web_api.episodes import EpisodesAPI
 from ._web_api.genres import GenresAPI
+from ._web_api.library import LibraryAPI
 from ._web_api.markets import MarketsAPI
 from ._web_api.player import PlayerAPI
 from ._web_api.playlists import PlaylistsAPI
@@ -23,6 +24,7 @@ __all__ = [
     "ChaptersAPI",
     "EpisodesAPI",
     "GenresAPI",
+    "LibraryAPI",
     "MarketsAPI",
     "PlayerAPI",
     "PlaylistsAPI",

@@ -759,7 +759,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         return self._get_resource_items(
             "playlists",
             playlist_id,
-            "tracks",
+            "items",
             country_code=country_code,
             limit=limit,
             offset=offset,
@@ -851,7 +851,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             params["position"] = to_index
         return self._client._request(
             "POST",
-            f"playlists/{playlist_id}/tracks",
+            f"playlists/{playlist_id}/items",
             params=params,
             json={
                 "uris": self._prepare_spotify_uris(
@@ -954,7 +954,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
                 "snapshot_id", snapshot_id
             )
         return self._client._request(
-            "PUT", f"playlists/{playlist_id}/tracks", json=payload
+            "PUT", f"playlists/{playlist_id}/items", json=payload
         ).json()
 
     def replace_playlist_items(
@@ -1026,7 +1026,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._validate_spotify_id(playlist_id)
         return self._client._request(
             "PUT",
-            f"playlists/{playlist_id}/tracks",
+            f"playlists/{playlist_id}/items",
             json={
                 "uris": self._prepare_spotify_uris(
                     uris, limit=100, resource_types=self._AUDIO_TYPES
@@ -1110,7 +1110,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._client._require_authentication("playlists.remove_playlist_items")
         self._validate_spotify_id(playlist_id)
         payload = {
-            "tracks": self._prepare_spotify_uris(
+            "items": self._prepare_spotify_uris(
                 uris, limit=100, resource_types=self._AUDIO_TYPES
             )
         }
@@ -1119,7 +1119,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
                 "snapshot_id", snapshot_id
             )
         return self._client._request(
-            "DELETE", f"playlists/{playlist_id}/tracks", json=payload
+            "DELETE", f"playlists/{playlist_id}/items", json=payload
         ).json()
 
     @_copy_docstring(UsersAPI.get_my_playlists)

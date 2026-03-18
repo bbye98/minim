@@ -128,9 +128,9 @@ class SearchAPI(SpotifyResourceAPI):
         limit : int; keyword-only; optional
             Maximum number of items to return.
 
-            **Valid range**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`10`.
 
-            **API default**: :code:`20`.
+            **API default**: :code:`5`.
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
@@ -499,6 +499,7 @@ class SearchAPI(SpotifyResourceAPI):
             self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if limit is not None:
+            # Leave upper bound at 50 for Extended Quota Mode apps
             self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:

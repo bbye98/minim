@@ -13,6 +13,7 @@ from ._web_api.categories import CategoriesAPI
 from ._web_api.chapters import ChaptersAPI
 from ._web_api.episodes import EpisodesAPI
 from ._web_api.genres import GenresAPI
+from ._web_api.library import LibraryAPI
 from ._web_api.markets import MarketsAPI
 from ._web_api.player import PlayerAPI
 from ._web_api.playlists import PlaylistsAPI
@@ -221,6 +222,8 @@ class SpotifyWebAPIClient(OAuth2APIClient):
         self.episodes: EpisodesAPI = EpisodesAPI(self)
         #: Genres API endpoints for the Spotify Web API.
         self.genres: GenresAPI = GenresAPI(self)
+        #: Library API endpoints for the Spotify Web API.
+        self.library: LibraryAPI = LibraryAPI(self)
         #: Markets API endpoints for the Spotify Web API.
         self.markets: MarketsAPI = MarketsAPI(self)
         #: Player API endpoints for the Spotify Web API.
