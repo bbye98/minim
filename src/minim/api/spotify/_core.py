@@ -81,6 +81,18 @@ class SpotifyWebAPIClient(OAuth2APIClient):
         user_agent: str | None = None,
     ) -> None:
         """
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Conditional
+
+                 Spotify Premium
+                    Use the Spotify Web API with a Development Mode app.
+                    `Learn more. <https://developer.spotify.com/blog
+                    /2026-02-06-update-on-developer-access-and-platform-security>`__
+
         Parameters
         ----------
         auth_flow : str; keyword-only
