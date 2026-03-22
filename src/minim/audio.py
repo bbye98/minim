@@ -1506,7 +1506,9 @@ class MP4Audio(Audio):
     """
 
     _CODECS = {
-        "aac": {"ffmpeg": f"-b:a 256k -c:a {FFMPEG_CODECS['aac']} -c:v copy"},
+        "aac": {
+            "ffmpeg": f"-b:a 256k -c:a {FFMPEG_CODECS['aac'] if FOUND_FFMPEG else 'aac'} -c:v copy"
+        },
         "alac": {"ffmpeg": "-c:a alac -c:v copy"},
     }
     _EXTENSIONS = ["m4a", "aac", "mp4"]
@@ -1723,7 +1725,7 @@ class OggAudio(Audio, _VorbisComment):
             "mutagen": oggopus.OggOpus,
         },
         "vorbis": {
-            "ffmpeg": f"-c:a {FFMPEG_CODECS['vorbis']} -vn",
+            "ffmpeg": f"-c:a {FFMPEG_CODECS['vorbis'] if FOUND_FFMPEG else 'vorbis -strict experimental'} -vn",
             "mutagen": oggvorbis.OggVorbis,
         },
     }

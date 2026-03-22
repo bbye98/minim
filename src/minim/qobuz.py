@@ -221,7 +221,6 @@ class PrivateAPI:
         """
         Create a private Qobuz API client.
         """
-
         self.session = requests.Session()
         if user_agent:
             self.session.headers["User-Agent"] = user_agent
@@ -255,7 +254,6 @@ class PrivateAPI:
         endpoint : `str`
             Private Qobuz API endpoint.
         """
-
         if not self._flow:
             emsg = f"{self._NAME}.{endpoint}() requires user authentication."
             raise RuntimeError(emsg)
@@ -278,7 +276,6 @@ class PrivateAPI:
         resp : `dict`
             JSON-encoded content of the response.
         """
-
         return self._request("get", url, **kwargs).json()
 
     def _get_json_secret(self, url: str, signature: str, **kwargs) -> dict:
@@ -303,7 +300,6 @@ class PrivateAPI:
         resp : `dict`
             JSON-encoded content of the response.
         """
-
         params = kwargs.pop("params", {})
         timestamp = datetime.datetime.now().timestamp()
         params["request_ts"] = timestamp
@@ -332,7 +328,6 @@ class PrivateAPI:
         resp : `requests.Response`
             Response to the request.
         """
-
         r = self.session.request(method, url, **kwargs)
         if r.status_code not in range(200, 299):
             error = r.json()
@@ -343,7 +338,6 @@ class PrivateAPI:
         """
         Set the Qobuz app ID and secret.
         """
-
         if not app_id or not app_secret:
             js = re.search(
                 "/resources/.*/bundle.js",
@@ -411,7 +405,6 @@ class PrivateAPI:
         password : `str`, keyword-only, optional
             Account password.
         """
-
         if auth_token is None:
             if not self._flow:
                 return
@@ -532,7 +525,6 @@ class PrivateAPI:
             and their associated properties to the Minim configuration
             file.
         """
-
         if flow and flow not in self._FLOWS:
             emsg = (
                 f"Invalid authorization flow ({flow=}). "
@@ -563,7 +555,14 @@ class PrivateAPI:
 
     ### ALBUMS ################################################################
 
-    def get_album(self, album_id: str) -> dict[str, Any]:
+    def get_album(
+        self,
+        album_id: str,
+        *,
+        extras: Union[str, list[str]] = None,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for a single album.
 
@@ -573,6 +572,27 @@ class PrivateAPI:
             Qobuz album ID.
 
             **Example**: :code:`"0060254735180"`.
+
+        extras : `str` or `list`, keyword-only, optional
+            Specifies extra information about the album to return.
+
+            **Valid values**: :code:`"albumsFromSameArtist"`,
+            :code:`"focus"`, :code:`"focusAll"`.
+
+        limit : `int`, keyword-only, optional
+            Maximum number of tracks to return.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`500`.
+
+        offset : `int`, keyword-only, optional
+            Index of the first track to return. Use with `limit` to get
+            the next batch of tracks.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -731,15 +751,25 @@ class PrivateAPI:
                     }
                   }
         """
-
         return self._get_json(
-            f"{self.API_URL}/album/get", params={"album_id": album_id}
+            f"{self.API_URL}/album/get",
+            params={
+                "album_id": album_id,
+                "extra": (
+                    extras
+                    if extras is None or isinstance(extras, str)
+                    else ",".join(extras)
+                ),
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     def get_featured_albums(
         self,
         type: str = "new-releases",
         *,
+        genre_ids: Union[int, str, list[Union[int, str]]] = None,
         limit: int = None,
         offset: int = None,
     ) -> dict[str, Any]:
@@ -760,6 +790,13 @@ class PrivateAPI:
             :code:`"universal-classic"`, :code:`"universal-jazz"`,
             :code:`"universal-jeunesse"`, and
             :code:`"universal-chanson"`.
+
+        genre_ids : `int`, `str`, or `list`, optional
+            Qobuz IDs of the genres used to filter the featured albums
+            to return.
+
+            **Examples**: :code:`10`, :code:`"64"`, :code:`"10,64"`,
+            :code:`[10, "64"]`.
 
         limit : `int`, keyword-only, optional
             The maximum number of albums to return.
@@ -858,7 +895,6 @@ class PrivateAPI:
                     }
                   }
         """
-
         if type not in (
             ALBUM_FEATURE_TYPES := {
                 "best-sellers",
@@ -884,9 +920,21 @@ class PrivateAPI:
             )
             raise ValueError(emsg)
 
+        if genre_ids is not None:
+            if isinstance(genre_ids, int):
+                genre_ids = str(genre_ids)
+            elif isinstance(genre_ids, list):
+                genre_ids = ",".join(str(genre_id) for genre_id in genre_ids)
+        n = 0 if genre_ids is None else (genre_ids.count(",") + 1)
+
         return self._get_json(
             f"{self.API_URL}/album/getFeatured",
-            params={"type": type, "limit": limit, "offset": offset},
+            params={
+                "type": type,
+                f"genre_id{'s' if n > 1 else ''}": genre_ids,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     ### ARTISTS ###############################################################
@@ -962,7 +1010,6 @@ class PrivateAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/artist/get",
             params={
@@ -977,13 +1024,1015 @@ class PrivateAPI:
             },
         )
 
+    def get_artist_releases(
+        self,
+        artist_id: Union[int, str],
+        *,
+        release_types: Union[str, list[str]] = None,
+        filters: Union[str, list[str]] = None,
+        limit: int = None,
+        offset: int = None,
+        order: str = None,
+        order_direction: str = None,
+        include_tracks: bool = False,
+        track_limit: int = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for an artist's releases.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`
+            Qobuz artist ID.
+
+        release_types : `str` or `list`, keyword-only, optional
+            Release types to include in the response.
+
+            **Valid values**: :code:`"all"`, :code:`"album"`,
+            :code:`"live"`, :code:`"compilation"`, :code:`"epSingle"`,
+            :code:`"other"`, :code:`"download"`, :code:`"composer"`.
+
+        filters : `str` or `list`, keyword-only, optional
+            Content filters to apply to the releases.
+
+            **Valid values**: :code:`"hires"`, :code:`"explicit"`.
+
+        limit : `int`, keyword-only, optional
+            The maximum number of releases to return.
+
+            **Default**: :code:`50`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first release to return. Use with `limit`
+            to get the next page of releases.
+
+            **Default**: :code:`0`.
+
+        order : `str`, keyword-only, optional
+            Field to sort the releases by.
+
+            **Valid values**: :code:`"relevant"`, :code:`"release_date"`.
+
+        order_direction : `str`, keyword-only, optional
+            Order to sort in.
+
+            **Valid values**: :code:`"asc"`, :code:`"desc"`.
+
+        include_tracks : `bool`, keyword-only, default: :code:`False`
+            Whether to include tracks in the response.
+
+        track_limit : `int`, keyword-only, optional
+            The maximum number of tracks to include per release when
+            `include_tracks` is :code:`True`.
+
+            **Default**: :code:`10`.
+
+        Returns
+        -------
+        releases : `dict`
+            Qobuz catalog information for the artist's releases.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "has_more": <bool>,
+                    "items": [
+                      {
+                        "artist": {
+                          "id": <int>,
+                          "name": {
+                            "display": <str>
+                          }
+                        },
+                        "artists": [
+                          {
+                            "id": <int>,
+                            "name": <str>,
+                            "roles": <list[str]>
+                          }
+                        ],
+                        "audio_info": {
+                          "maximum_bit_depth": <int>,
+                          "maximum_channel_count": <int>,
+                          "maximum_sampling_rate": <float>
+                        },
+                        "awards": [],
+                        "dates": {
+                          "download": <str>,
+                          "original": <str>,
+                          "stream": <str>,
+                        },
+                        "duration": <int>,
+                        "genre": {
+                          "id": <int>,
+                          "name": <str>,
+                          "path": <list[int]>,
+                        },
+                        "id": <str>,
+                        "image": {
+                          "large": <str>,
+                          "small": <str>,
+                          "thumbnail": <str>
+                        },
+                        "label": {
+                          "id": <int>,
+                          "name": <str>
+                        },
+                        "parental_warning": <bool>,
+                        "release_tags": [],
+                        "release_type": <str>,
+                        "rights": {
+                          "downloadable": <bool>,
+                          "hires_purchasable": <bool>,
+                          "hires_streamable": <bool>,
+                          "purchasable": <bool>,
+                          "streamable": <bool>
+                        },
+                        "title": <str>,
+                        "tracks": {
+                          "has_more": <bool>,
+                          "items": [
+                            {
+                              "artist": {
+                                "id": <int>,
+                                "name": {
+                                  "display": <str>
+                                }
+                              },
+                              "artists": [],
+                              "audio_info": {
+                                "maximum_bit_depth": <int>,
+                                "maximum_channel_count": <int>,
+                                "maximum_sampling_rate": <float>
+                              },
+                              "composer": {
+                                "id": <int>,
+                                "name": <str>,
+                              },
+                              "duration": <int>,
+                              "id": <int>,
+                              "isrc": <str>,
+                              "parental_warning": <bool>,
+                              "physical_support": {
+                                "media_number": <int>,
+                                "track_number": <int>
+                              },
+                              "rights": {
+                                "downloadable": <bool>,
+                                "hires_purchasable": <bool>,
+                                "hires_streamable": <bool>,
+                                "previewable": <bool>,
+                                "purchasable": <bool>,
+                                "sampleable": <bool>,
+                                "streamable": <bool>
+                              },
+                              "title": <str>,
+                              "version": <str>,
+                              "work": None
+                            }
+                          ]
+                        },
+                        "tracks_count": <int>,
+                        "version": <str>,
+                      }
+                    ]
+                  }
+        """
+        self._check_authentication("artists.get_artist_releases")
+        params = {
+            "artist_id": artist_id,
+            "release_type": ",".join(release_types),
+            "filter": ",".join(filters),
+            "limit": limit,
+            "offset": offset,
+            "order": order,
+            "orderDirection": order_direction,
+        }
+        if include_tracks:
+            params["track_size"] = track_limit
+            return self._get_json("artist/getReleasesList", params=params)
+        return self._get_json("artist/getReleasesGrid", params=params)
+
+    def get_similar_artists(
+        self,
+        artist_id: Union[int, str],
+        /,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for other artists that are similar
+        to an artist.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`, positional-only
+            Qobuz artist ID
+
+        limit : `int`, keyword-only, optional
+            The maximum number of artists to return.
+
+            **Default**: :code:`25`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first artist to return. Use with `limit` to
+            get the next batch of artists.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        artists : `dict`
+            Qobuz catalog information for similar artists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "artists": {
+                      "items": [
+                        {
+                          "albums_count": <int>,
+                          "id": <int>,
+                          "image": {
+                            "extralarge": <str>,
+                            "large": <str>,
+                            "medium": <str>,
+                            "mega": <str>,
+                            "small": <str>
+                          },
+                          "name": <str>,
+                          "picture": <str>,
+                          "slug": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    }
+                  }
+        """
+        return self._get_json(
+            "artist/getSimilarArtists",
+            params={"artist_id": artist_id, "limit": limit, "offset": offset},
+        )
+
+    ### CATALOG ###############################################################
+
+    def count_search_matches(self, query: str) -> dict[str, dict[str, int]]:
+        """
+        Get the counts of catalog search results for a given query.
+
+        Parameters
+        ----------
+        query : `str`
+            Search query.
+
+        Returns
+        -------
+        counts : `dict`
+            Counts of the search results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": {
+                      "total": <int>
+                    },
+                    "artists": {
+                      "total": <int>
+                    },
+                    "tracks": {
+                      "total": <int>
+                    }
+                  }
+        """
+        if not len(query):
+            raise ValueError("No search query provided.")
+        return self._get_json("catalog/count", params={"query": query.strip()})
+
+    def get_featured(
+        self,
+        type: str = None,
+        genre_ids: Union[int, str, list[Union[int, str]]] = None,
+        *,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for featured albums, artists,
+        articles, and/or playlists.
+
+        Parameters
+        ----------
+        type : `str`, optional
+            Type of item to return. If not specified, featured items of
+            all types are returned.
+
+            **Valid values**: :code:`"albums"`, :code:`"articles"`,
+            :code:`"artists"`, :code:`"playlists"`.
+
+        genre_ids : `int`, `str`, or `list`, optional
+            Qobuz IDs of the genres used to filter the featured items to
+            return.
+
+            **Examples**: :code:`10`, :code:`"64"`, :code:`"10,64"`,
+            :code:`[10, "64"]`.
+
+        limit : `int`, keyword-only, optional
+            The maximum number of items to return per item type.
+
+            **Default**: :code:`25`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first item to return per item type. Use
+            with `limit` to get the next page of items.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        items : `dict`
+            Qobuz catalog information for the featured items.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": {
+                      "items": [
+                        {
+                          "articles": [],
+                          "artist": {
+                            "albums_count": <int>,
+                            "id": <int>,
+                            "image": None,
+                            "name": <str>,
+                            "picture": None,
+                            "slug": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "roles": <list[str]>
+                            }
+                          ],
+                          "displayable": <bool>,
+                          "downloadable": <bool>,
+                          "duration": <int>,
+                          "genre": {
+                            "color": <str>,
+                            "id": <int>,
+                            "name": <str>,
+                            "path": <list[int]>,
+                            "slug": <str>
+                          },
+                          "hires": <bool>,
+                          "hires_streamable": <bool>,
+                          "id": <str>,
+                          "image": {
+                            "back": None,
+                            "large": <str>,
+                            "small": <str>,
+                            "thumbnail": <str>
+                          },
+                          "label": {
+                            "albums_count": <int>,
+                            "id": <int>,
+                            "name": <str>,
+                            "slug": <str>,
+                            "supplier_id": <int>
+                          },
+                          "maximum_bit_depth": <int>,
+                          "maximum_channel_count": <int>,
+                          "maximum_sampling_rate": <float>,
+                          "media_count": <int>,
+                          "parental_warning": <bool>,
+                          "popularity": <int>,
+                          "previewable": <bool>,
+                          "purchasable": <bool>,
+                          "purchasable_at": <int>,
+                          "qobuz_id": <int>,
+                          "release_date_download": <str>,
+                          "release_date_original": <str>,
+                          "release_date_stream": <str>,
+                          "released_at": <int>,
+                          "sampleable": <bool>,
+                          "slug": <str>,
+                          "streamable": <bool>,
+                          "streamable_at": <int>,
+                          "title": <str>,
+                          "tracks_count": <int>,
+                          "upc": <str>,
+                          "url": <str>,
+                          "version": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    },
+                    "artists": {
+                      "items": [
+                        {
+                          "albums_count": <int>,
+                          "id": <int>,
+                          "image": {
+                            "extralarge": <str>,
+                            "large": <str>,
+                            "medium": <str>,
+                            "mega": <str>,
+                            "small": <str>
+                          },
+                          "name": <str>,
+                          "picture": <str>,
+                          "slug": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    },
+                    "playlists": {
+                      "items": [
+                        {
+                          "created_at": <int>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "featured_artists": [],
+                          "genres": [
+                            {
+                              "color": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "path": <list[int]>,
+                              "percent": <int>,
+                              "slug": <str>
+                            }
+                          ],
+                          "id": <int>,
+                          "image_rectangle": <list[str]>,
+                          "image_rectangle_mini": <list[str]>,
+                          "images": <list[str]>,
+                          "images150": <list[str]>,
+                          "images300": <list[str]>,
+                          "is_collaborative": <bool>,
+                          "is_featured": <bool>,
+                          "is_public": <bool>,
+                          "name": <str>,
+                          "owner": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "public_at": <int>,
+                          "slug": <str>,
+                          "stores": <list[str]>,
+                          "tags": [
+                            {
+                              "color": <str>,
+                              "featured_tag_id": <str>,
+                              "genre_tag": None,
+                              "is_discover": <bool>,
+                              "name_json": <str>,
+                              "slug": <str>
+                            }
+                          ],
+                          "tracks_count": <int>,
+                          "updated_at": <int>,
+                          "users_count": <int>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    }
+                  }
+        """
+        return self._get_json(
+            "GET",
+            "catalog/getFeatured",
+            params={
+                "type": type,
+                "genre_ids": genre_ids
+                if isinstance(genre_ids, (int, str))
+                else ",".join(str(genre_id) for genre_id in genre_ids),
+                "limit": limit,
+                "offset": offset,
+            },
+        )
+
+    ### DYNAMIC TRACKS ########################################################
+
+    def get_curated_tracks(self) -> list[dict[str, Any]]:
+        """
+        Get weekly curated tracks for the user.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        limit : `int`, keyword-only, optional
+            The maximum number of tracks to return.
+
+            **Default**: :code:`50`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first track to return. Use with `limit`
+            to get the next page of tracks.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        tracks : `list`
+            Qobuz catalog information for the curated tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "title": <str>,
+                    "baseline": <str>,
+                    "description": <str>,
+                    "type": "weekly",
+                    "step_pagination": <int>,
+                    "images": {
+                      "small": <str>,
+                      "large": <str>
+                    },
+                    "graphics": {
+                      "background": <str>,
+                      "foreground": <str>
+                    },
+                    "duration": <int>,
+                    "generated_at": <int>,
+                    "expires_on": <int>,
+                    "track_count": <int>,
+                    "tracks": {
+                      "offset": <int>,
+                      "limit": <int>,
+                      "items": [
+                        {
+                          "maximum_bit_depth": <int>,
+                          "copyright": <str>,
+                          "performers": <str>,
+                          "audio_info": {
+                            "replaygain_track_peak": <float>,
+                            "replaygain_track_gain": <float>
+                          },
+                          "performer": {
+                            "name": <str>,
+                            "id": <int>
+                          },
+                          "album": {
+                            "image": {
+                              "small": <str>,
+                              "thumbnail": <str>,
+                              "large": <str>
+                            },
+                            "maximum_bit_depth": <int>,
+                            "media_count": <int>,
+                            "artist": {
+                              "image": <str>,
+                              "name": <str>,
+                              "id": <int>,
+                              "albums_count": <int>,
+                              "slug":<str>,
+                              "picture": <str>
+                            },
+                            "upc": <str>,
+                            "released_at": <int>,
+                            "label": {
+                              "name": <str>,
+                              "id": <int>,
+                              "albums_count": <int>,
+                              "supplier_id": <int>,
+                              "slug": <str>
+                            },
+                            "title": <str>,
+                            "qobuz_id": <int>,
+                            "version": <str>,
+                            "duration": <int>,
+                            "parental_warning": <bool>,
+                            "tracks_count": <int>,
+                            "popularity": <int>,
+                            "genre": {
+                              "path": [<int>],
+                              "color": <str>,
+                              "name": <str>,
+                              "id": <int>,
+                              "slug": <str>
+                            },
+                            "maximum_channel_count": <int>,
+                            "id": <str>,
+                            "maximum_sampling_rate": <int>,
+                            "previewable": <bool>,
+                            "sampleable": <bool>,
+                            "displayable": <bool>,
+                            "streamable": <bool>,
+                            "streamable_at": <int>,
+                            "downloadable": <bool>,
+                            "purchasable_at": <int>,
+                            "purchasable": <bool>,
+                            "release_date_original": <str>,
+                            "release_date_download": <str>,
+                            "release_date_stream": <str>,
+                            "release_date_purchase": <str>,
+                            "hires": <bool>,
+                            "hires_streamable": <bool>
+                          },
+                          "work": <str>,
+                          "composer": {
+                            "name": <str>,
+                            "id": <int>
+                          },
+                          "isrc": <str>,
+                          "title": <str>,
+                          "version": <str>,
+                          "duration": <int>,
+                          "parental_warning": <bool>,
+                          "track_number": <int>,
+                          "maximum_channel_count": <int>,
+                          "id": <int>,
+                          "media_number": <int>,
+                          "maximum_sampling_rate": <int>,
+                          "release_date_original": <str>,
+                          "release_date_download": <str>,
+                          "release_date_stream": <str>,
+                          "release_date_purchase": <str>,
+                          "purchasable": <bool>,
+                          "streamable": <bool>,
+                          "previewable": <bool>,
+                          "sampleable": <bool>,
+                          "downloadable": <bool>,
+                          "displayable": <bool>,
+                          "purchasable_at": <int>,
+                          "streamable_at": <int>,
+                          "hires": <bool>,
+                          "hires_streamable": <bool>
+                        }
+                      ]
+                    }
+                  }
+        """
+
+        self._check_authentication("get_curated_tracks")
+
+        return self._get_json(
+            f"{self.API_URL}/dynamic-tracks/get", params={"type": "weekly"}
+        )
+
+    # TODO
+
+    ### FAVORITES #############################################################
+
+    def get_favorites(
+        self, type: str = None, *, limit: int = None, offset: int = None
+    ) -> dict[str, dict]:
+        """
+        Get the current user's favorite albums, artists, and tracks.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        type : `str`
+            Media type to return. If not specified, all of the user's
+            favorite items are returned.
+
+            .. container::
+
+               **Valid values**: :code:`"albums"`, :code:`"artists"`,
+               and :code:`"tracks"`.
+
+        limit : `int`, keyword-only, optional
+            The maximum number of favorited items to return.
+
+            **Default**: :code:`50`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first favorited item to return. Use with
+            `limit` to get the next page of favorited items.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        favorites : `dict`
+            A dictionary containing Qobuz catalog information for the
+            current user's favorite items and the user's ID and email.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": {
+                      "offset": <int>,
+                      "limit": <int>,
+                      "total": <int>,
+                      "items": <list>
+                    },
+                    "user": {
+                      "id": <int>,
+                      "login": <str>
+                    }
+                  }
+        """
+        self._check_authentication("get_favorites")
+
+        if type and type not in (
+            MEDIA_TYPES := {"albums", "artists", "tracks"}
+        ):
+            emsg = (
+                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
+            )
+            raise ValueError(emsg)
+
+        return self._get_json_secret(
+            f"{self.API_URL}/favorite/getUserFavorites",
+            "favoritegetUserFavorites",
+            params={"type": type, "limit": limit, "offset": offset},
+        )
+
+    def get_favorite_ids(self) -> dict[str, Any]:
+        """
+        Get Qobuz IDs of the items in the current user's favorites.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Returns
+        -------
+        saved_ids : `dict`
+            Qobuz IDs of the items in the user's favorites.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": <list[str]>,
+                    "articles": [],
+                    "artists": <list[int]>,
+                    "awards": [],
+                    "labels": [],
+                    "tracks": <list[int]>,
+                  }
+        """
+        self._check_authentication("get_favorite_ids")
+        return self._get_json(f"{self.API_URL}/favorite/getUserFavoriteIds")
+
+    def favorite_items(
+        self,
+        *,
+        album_ids: Union[str, list[str]] = None,
+        artist_ids: Union[int, str, list[Union[int, str]]] = None,
+        track_ids: Union[int, str, list[Union[int, str]]] = None,
+    ) -> None:
+        """
+        Favorite albums, artists, and/or tracks.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        .. seealso::
+
+           For playlists, use :meth:`favorite_playlist`.
+
+        Parameters
+        ----------
+        album_ids : `str` or `list`, keyword-only, optional
+            Qobuz album ID(s).
+
+        artist_ids : `int`, `str`, or `list`, keyword-only, optional
+            Qobuz artist ID(s).
+
+        track_ids : `int`, `str`, or `list`, keyword-only, optional
+            Qobuz track ID(s).
+        """
+        self._check_authentication("favorite_items")
+
+        data = {}
+        if album_ids:
+            data["album_ids"] = (
+                ",".join(str(a) for a in album_ids)
+                if isinstance(album_ids, list)
+                else album_ids
+            )
+        if artist_ids:
+            data["artist_ids"] = (
+                ",".join(str(a) for a in artist_ids)
+                if isinstance(artist_ids, list)
+                else artist_ids
+            )
+        if track_ids:
+            data["track_ids"] = (
+                ",".join(str(a) for a in track_ids)
+                if isinstance(track_ids, list)
+                else track_ids
+            )
+        self._request("post", f"{self.API_URL}/favorite/create", data=data)
+
+    def unfavorite_items(
+        self,
+        *,
+        album_ids: Union[str, list[str]] = None,
+        artist_ids: Union[int, str, list[Union[int, str]]] = None,
+        track_ids: Union[int, str, list[Union[int, str]]] = None,
+    ) -> None:
+        """
+        Unfavorite albums, artists, and/or tracks.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        .. seealso::
+
+           For playlists, use :meth:`unfavorite_playlist`.
+
+        Parameters
+        ----------
+        album_ids : `str` or `list`, keyword-only, optional
+            Qobuz album ID(s).
+
+        artist_ids : `int`, `str`, or `list`, keyword-only, optional
+            Qobuz artist ID(s).
+
+        track_ids : `int`, `str`, or `list`, keyword-only, optional
+            Qobuz track ID(s).
+        """
+        self._check_authentication("unfavorite_items")
+
+        data = {}
+        if album_ids:
+            data["album_ids"] = (
+                ",".join(str(a) for a in album_ids)
+                if isinstance(album_ids, list)
+                else album_ids
+            )
+        if artist_ids:
+            data["artist_ids"] = (
+                ",".join(str(a) for a in artist_ids)
+                if isinstance(artist_ids, list)
+                else artist_ids
+            )
+        if track_ids:
+            data["track_ids"] = (
+                ",".join(str(a) for a in track_ids)
+                if isinstance(track_ids, list)
+                else track_ids
+            )
+        self._request("post", f"{self.API_URL}/favorite/delete", data=data)
+
+    def check_favorite(
+        self, type: str, item_id: Union[int, str]
+    ) -> dict[str, bool]:
+        """
+        Check whether an item is in the current user's favorites.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        type : `str`
+            Type of item.
+
+            **Valid values**: :code:`"album"`, :code:`"artist"`,
+            :code:`"article"`, :code:`"award"`, :code:`"label"`,
+            :code:`"track"`.
+
+        item_id : `int` or `str`
+            Qobuz ID of the item.
+
+        Returns
+        -------
+        saved : `dict`
+            Whether the current user has the specified item in their
+            favorites.
+
+            **Sample response**: :code:`{"status": <bool>}`.
+        """
+        self._check_authentication("check_favorite")
+
+        if f"{type}s" not in (
+            _FAVORITE_TYPES := {
+                "albums",
+                "artists",
+                "articles",
+                "awards",
+                "labels",
+                "tracks",
+            }
+        ):
+            favorite_types = "', '".join(ft[:-1] for ft in _FAVORITE_TYPES)
+            raise ValueError(
+                f"Invalid type {type!r}. Valid values: '{favorite_types}'."
+            )
+        return self._get_json(
+            f"{self.API_URL}/favorite/status",
+            params={"type": type, "item_id": item_id},
+        )
+
+    def toggle_favorited(
+        self, type: str, item_id: Union[int, str]
+    ) -> dict[str, bool]:
+        """
+        Toggle the favorited status of an item.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        type : `str`
+            Type of item.
+
+            **Valid values**: :code:`"album"`, :code:`"artist"`,
+            :code:`"article"`, :code:`"award"`, :code:`"label"`,
+            :code:`"track"`.
+
+        item_id : `int` or `str`
+            Qobuz ID of the item.
+
+        Returns
+        -------
+        saved : dict[str, bool]
+            Whether the current user has the specified item in their
+            favorites.
+
+            **Sample response**: :code:`{"status": <bool>}`.
+        """
+        self._check_authentication("toggle_favorited")
+
+        if f"{type}s" not in (
+            _FAVORITE_TYPES := {
+                "albums",
+                "artists",
+                "articles",
+                "awards",
+                "labels",
+                "tracks",
+            }
+        ):
+            favorite_types = "', '".join(ft[:-1] for ft in _FAVORITE_TYPES)
+            raise ValueError(
+                f"Invalid type {type!r}. Valid values: '{favorite_types}'."
+            )
+        return self._request(
+            "POST",
+            f"{self.API_URL}/favorite/toggle",
+            params={"type": type, "item_id": item_id},
+        ).json()
+
+    ### GENRES ################################################################
+
+    # TODO
+
     ### LABELS ################################################################
 
     def get_label(
         self,
         label_id: Union[int, str],
         *,
-        albums: bool = False,
+        extras: Union[str, list[str]] = None,
         limit: int = None,
         offset: int = None,
     ) -> dict[str, Any]:
@@ -997,9 +2046,11 @@ class PrivateAPI:
 
             **Example**: :code:`1153`.
 
-        albums : `bool`, keyword-only, default: :code:`False`
-            Specifies whether information on the albums released by the
-            record label is returned.
+        extras : `str` or `list`, keyword-only, optional
+            Related resources to include metadata for in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"focus"`,
+            :code:`"focusAll"`.
 
         limit : `int`, keyword-only, optional
             The maximum number of albums to return. Has no effect if
@@ -1039,10 +2090,65 @@ class PrivateAPI:
             f"{self.API_URL}/label/get",
             params={
                 "label_id": label_id,
-                "extra": "albums" if albums else None,
+                "extra": (
+                    extras
+                    if extras is None or isinstance(extras, str)
+                    else ",".join(extras)
+                ),
                 "limit": limit,
                 "offset": offset,
             },
+        )
+
+    def get_labels(
+        self, *, limit: int = None, offset: int = None
+    ) -> dict[str, Any]:
+        """
+        Get available labels.
+
+        Parameters
+        ----------
+        limit : int; keyword-only; optional
+            The maximum number of labels to return.
+
+            **Default**: :code:`25`.
+
+        offset : int; keyword-only; optional
+            The index of the first label to return. Use with `limit` to
+            get the next page of labels.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        labels : dict[str, Any]
+            Qobuz catalog information for the labels.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "labels": {
+                      "items": [
+                        {
+                          "albums_count": <int>,
+                          "id": <int>,
+                          "name": <str>,
+                          "slug": <str>,
+                          "supplier_id": <int>,
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    }
+                  }
+        """
+        return self._get_json(
+            f"{self.API_URL}/label/list",
+            params={"limit": limit, "offset": offset},
         )
 
     ### PLAYLISTS #############################################################
@@ -1934,16 +3040,108 @@ class PrivateAPI:
             data={"playlist_id": playlist_id},
         )
 
+    def get_playlist_tags(self) -> dict[str, list[dict[str, Any]]]:
+        """
+        Get available playlist tags.
+
+        Returns
+        -------
+        playlist_tags : `dict`
+            Qobuz catalog information for playlist tags.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "tags": [
+                      {
+                        "color": <str>,
+                        "featured_tag_id": <str>,
+                        "genre_tag": None,
+                        "is_discover": <str>,
+                        "name_json": <str>,
+                        "position": <str>,
+                        "slug": <str>
+                      }
+                    ]
+                  }
+        """
+        return self._get_json(f"{self.API_URL}/playlist/getTags")
+
+    ### PURCHASES #############################################################
+
+    # TODO
+
+    def get_purchases(
+        self, type: str = "albums", *, limit: int = None, offset: int = None
+    ) -> dict[str, Any]:
+        """
+        Get the current user's purchases.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        type : `str`, default: :code:`"albums"`
+            Media type.
+
+            **Valid values**: :code:`"albums"` and :code:`"tracks"`.
+
+        limit : `int`, keyword-only, optional
+            The maximum number of albums or tracks to return.
+
+            **Default**: :code:`50`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first album or track to return. Use with
+            `limit` to get the next page of albums or tracks.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        purchases : `dict`
+            A dictionary containing Qobuz catalog information for the
+            current user's purchases.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "offset": <int>,
+                    "limit": <int>,
+                    "total": <int>,
+                    "items": <list>
+                  }
+        """
+
+        self._check_authentication("get_purchases")
+
+        if type not in (MEDIA_TYPES := {"albums", "tracks"}):
+            emsg = (
+                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
+            )
+            raise ValueError(emsg)
+
+        return self._get_json(
+            f"{self.API_URL}/purchase/getUserPurchases",
+            params={"type": type, "limit": limit, "offset": offset},
+        )[type]
+
     ### SEARCH ################################################################
 
     def search(
         self,
         query: str,
-        type: str = None,
+        type: str = "catalog",
         *,
-        hi_res: bool = False,
-        new_release: bool = False,
-        strict: bool = False,
         limit: int = 10,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -1955,22 +3153,25 @@ class PrivateAPI:
         query : `str`
             Search query.
 
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
+
         type : `str`, keyword-only, optional
-            Category to search in. If specified, only matching releases
-            and tracks will be returned.
+            Resource type.
 
-            **Valid values**: :code:`"MainArtist"`, :code:`"Composer"`,
-            :code:`"Performer"`, :code:`"ReleaseName"`, and
-            :code:`"Label"`.
-
-        hi_res : `bool`, keyword-only, :code:`False`
-            High-resolution audio only.
-
-        new_release : `bool`, keyword-only, :code:`False`
-            New releases only.
-
-        strict : `bool`, keyword-only, :code:`False`
-            Enable exact word or phrase matching.
+            **Valid values**: :code:`"album"`, :code:`"artist"`,
+            :code:`"catalog"`, :code:`"playlist"`, :code:`"story"`,
+            :code:`"track"`.
 
         limit : `int`, keyword-only, default: :code:`10`
             Maximum number of results to return.
@@ -2304,36 +3505,14 @@ class PrivateAPI:
                     }
                   }
         """
-
-        if type and type not in (
-            SEARCH_TYPES := {
-                "MainArtist",
-                "Composer",
-                "Performer",
-                "ReleaseName",
-                "Label",
-            }
-        ):
-            emsg = (
-                f"Invalid search type. Valid values: {', '.join(SEARCH_TYPES)}"
-            )
-            raise ValueError(emsg)
-
-        if strict:
-            query = f'"{query}"'
-        if type:
-            query += f" #By{type}"
-        if hi_res:
-            query += " #HiRes"
-        if new_release:
-            query += " #NewRelease"
-
         return self._get_json(
-            f"{self.API_URL}/catalog/search",
+            f"{self.API_URL}/{type}/search",
             params={"query": query, "limit": limit, "offset": offset},
         )
 
     ### TRACKS ################################################################
+
+    # TODO
 
     def get_track(self, track_id: Union[int, str]) -> dict[str, Any]:
         """
@@ -2497,7 +3676,6 @@ class PrivateAPI:
                     "hires_streamable": <bool>
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/track/get", params={"track_id": track_id}
         )
@@ -2644,170 +3822,6 @@ class PrivateAPI:
             },
         )
 
-    def get_curated_tracks(self) -> list[dict[str, Any]]:
-        """
-        Get weekly curated tracks for the user.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        Parameters
-        ----------
-        limit : `int`, keyword-only, optional
-            The maximum number of tracks to return.
-
-            **Default**: :code:`50`.
-
-        offset : `int`, keyword-only, optional
-            The index of the first track to return. Use with `limit`
-            to get the next page of tracks.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        tracks : `list`
-            Qobuz catalog information for the curated tracks.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "title": <str>,
-                    "baseline": <str>,
-                    "description": <str>,
-                    "type": "weekly",
-                    "step_pagination": <int>,
-                    "images": {
-                      "small": <str>,
-                      "large": <str>
-                    },
-                    "graphics": {
-                      "background": <str>,
-                      "foreground": <str>
-                    },
-                    "duration": <int>,
-                    "generated_at": <int>,
-                    "expires_on": <int>,
-                    "track_count": <int>,
-                    "tracks": {
-                      "offset": <int>,
-                      "limit": <int>,
-                      "items": [
-                        {
-                          "maximum_bit_depth": <int>,
-                          "copyright": <str>,
-                          "performers": <str>,
-                          "audio_info": {
-                            "replaygain_track_peak": <float>,
-                            "replaygain_track_gain": <float>
-                          },
-                          "performer": {
-                            "name": <str>,
-                            "id": <int>
-                          },
-                          "album": {
-                            "image": {
-                              "small": <str>,
-                              "thumbnail": <str>,
-                              "large": <str>
-                            },
-                            "maximum_bit_depth": <int>,
-                            "media_count": <int>,
-                            "artist": {
-                              "image": <str>,
-                              "name": <str>,
-                              "id": <int>,
-                              "albums_count": <int>,
-                              "slug":<str>,
-                              "picture": <str>
-                            },
-                            "upc": <str>,
-                            "released_at": <int>,
-                            "label": {
-                              "name": <str>,
-                              "id": <int>,
-                              "albums_count": <int>,
-                              "supplier_id": <int>,
-                              "slug": <str>
-                            },
-                            "title": <str>,
-                            "qobuz_id": <int>,
-                            "version": <str>,
-                            "duration": <int>,
-                            "parental_warning": <bool>,
-                            "tracks_count": <int>,
-                            "popularity": <int>,
-                            "genre": {
-                              "path": [<int>],
-                              "color": <str>,
-                              "name": <str>,
-                              "id": <int>,
-                              "slug": <str>
-                            },
-                            "maximum_channel_count": <int>,
-                            "id": <str>,
-                            "maximum_sampling_rate": <int>,
-                            "previewable": <bool>,
-                            "sampleable": <bool>,
-                            "displayable": <bool>,
-                            "streamable": <bool>,
-                            "streamable_at": <int>,
-                            "downloadable": <bool>,
-                            "purchasable_at": <int>,
-                            "purchasable": <bool>,
-                            "release_date_original": <str>,
-                            "release_date_download": <str>,
-                            "release_date_stream": <str>,
-                            "release_date_purchase": <str>,
-                            "hires": <bool>,
-                            "hires_streamable": <bool>
-                          },
-                          "work": <str>,
-                          "composer": {
-                            "name": <str>,
-                            "id": <int>
-                          },
-                          "isrc": <str>,
-                          "title": <str>,
-                          "version": <str>,
-                          "duration": <int>,
-                          "parental_warning": <bool>,
-                          "track_number": <int>,
-                          "maximum_channel_count": <int>,
-                          "id": <int>,
-                          "media_number": <int>,
-                          "maximum_sampling_rate": <int>,
-                          "release_date_original": <str>,
-                          "release_date_download": <str>,
-                          "release_date_stream": <str>,
-                          "release_date_purchase": <str>,
-                          "purchasable": <bool>,
-                          "streamable": <bool>,
-                          "previewable": <bool>,
-                          "sampleable": <bool>,
-                          "downloadable": <bool>,
-                          "displayable": <bool>,
-                          "purchasable_at": <int>,
-                          "streamable_at": <int>,
-                          "hires": <bool>,
-                          "hires_streamable": <bool>
-                        }
-                      ]
-                    }
-                  }
-        """
-
-        self._check_authentication("get_curated_tracks")
-
-        return self._get_json(
-            f"{self.API_URL}/dynamic-tracks/get", params={"type": "weekly"}
-        )
-
     ### STREAMS ###############################################################
 
     def get_track_stream(
@@ -2930,6 +3944,8 @@ class PrivateAPI:
 
     ### USER ##################################################################
 
+    # TODO
+
     def get_profile(self) -> dict[str, Any]:
         """
         Get the current user's profile information.
@@ -3022,246 +4038,3 @@ class PrivateAPI:
         self._check_authentication("get_profile")
 
         return self._get_json(f"{self.API_URL}/user/get")
-
-    def get_favorites(
-        self, type: str = None, *, limit: int = None, offset: int = None
-    ) -> dict[str, dict]:
-        """
-        Get the current user's favorite albums, artists, and tracks.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        Parameters
-        ----------
-        type : `str`
-            Media type to return. If not specified, all of the user's
-            favorite items are returned.
-
-            .. container::
-
-               **Valid values**: :code:`"albums"`, :code:`"artists"`,
-               and :code:`"tracks"`.
-
-        limit : `int`, keyword-only, optional
-            The maximum number of favorited items to return.
-
-            **Default**: :code:`50`.
-
-        offset : `int`, keyword-only, optional
-            The index of the first favorited item to return. Use with
-            `limit` to get the next page of favorited items.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        favorites : `dict`
-            A dictionary containing Qobuz catalog information for the
-            current user's favorite items and the user's ID and email.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "albums": {
-                      "offset": <int>,
-                      "limit": <int>,
-                      "total": <int>,
-                      "items": <list>
-                    },
-                    "user": {
-                      "id": <int>,
-                      "login": <str>
-                    }
-                  }
-        """
-
-        self._check_authentication("get_favorites")
-
-        if type and type not in (
-            MEDIA_TYPES := {"albums", "artists", "tracks"}
-        ):
-            emsg = (
-                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
-            )
-            raise ValueError(emsg)
-
-        return self._get_json_secret(
-            f"{self.API_URL}/favorite/getUserFavorites",
-            "favoritegetUserFavorites",
-            params={"type": type, "limit": limit, "offset": offset},
-        )
-
-    def get_purchases(
-        self, type: str = "albums", *, limit: int = None, offset: int = None
-    ) -> dict[str, Any]:
-        """
-        Get the current user's purchases.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        Parameters
-        ----------
-        type : `str`, default: :code:`"albums"`
-            Media type.
-
-            **Valid values**: :code:`"albums"` and :code:`"tracks"`.
-
-        limit : `int`, keyword-only, optional
-            The maximum number of albums or tracks to return.
-
-            **Default**: :code:`50`.
-
-        offset : `int`, keyword-only, optional
-            The index of the first album or track to return. Use with
-            `limit` to get the next page of albums or tracks.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        purchases : `dict`
-            A dictionary containing Qobuz catalog information for the
-            current user's purchases.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "offset": <int>,
-                    "limit": <int>,
-                    "total": <int>,
-                    "items": <list>
-                  }
-        """
-
-        self._check_authentication("get_purchases")
-
-        if type not in (MEDIA_TYPES := {"albums", "tracks"}):
-            emsg = (
-                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
-            )
-            raise ValueError(emsg)
-
-        return self._get_json(
-            f"{self.API_URL}/purchase/getUserPurchases",
-            params={"type": type, "limit": limit, "offset": offset},
-        )[type]
-
-    def favorite_items(
-        self,
-        *,
-        album_ids: Union[str, list[str]] = None,
-        artist_ids: Union[int, str, list[Union[int, str]]] = None,
-        track_ids: Union[int, str, list[Union[int, str]]] = None,
-    ) -> None:
-        """
-        Favorite albums, artists, and/or tracks.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        .. seealso::
-
-           For playlists, use :meth:`favorite_playlist`.
-
-        Parameters
-        ----------
-        album_ids : `str` or `list`, keyword-only, optional
-            Qobuz album ID(s).
-
-        artist_ids : `int`, `str`, or `list`, keyword-only, optional
-            Qobuz artist ID(s).
-
-        track_ids : `int`, `str`, or `list`, keyword-only, optional
-            Qobuz track ID(s).
-        """
-
-        self._check_authentication("favorite_items")
-
-        data = {}
-        if album_ids:
-            data["album_ids"] = (
-                ",".join(str(a) for a in album_ids)
-                if isinstance(album_ids, list)
-                else album_ids
-            )
-        if artist_ids:
-            data["artist_ids"] = (
-                ",".join(str(a) for a in artist_ids)
-                if isinstance(artist_ids, list)
-                else artist_ids
-            )
-        if track_ids:
-            data["track_ids"] = (
-                ",".join(str(a) for a in track_ids)
-                if isinstance(track_ids, list)
-                else track_ids
-            )
-        self._request("post", f"{self.API_URL}/favorite/create", data=data)
-
-    def unfavorite_items(
-        self,
-        *,
-        album_ids: Union[str, list[str]] = None,
-        artist_ids: Union[int, str, list[Union[int, str]]] = None,
-        track_ids: Union[int, str, list[Union[int, str]]] = None,
-    ) -> None:
-        """
-        Unfavorite albums, artists, and/or tracks.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        .. seealso::
-
-           For playlists, use :meth:`unfavorite_playlist`.
-
-        Parameters
-        ----------
-        album_ids : `str` or `list`, keyword-only, optional
-            Qobuz album ID(s).
-
-        artist_ids : `int`, `str`, or `list`, keyword-only, optional
-            Qobuz artist ID(s).
-
-        track_ids : `int`, `str`, or `list`, keyword-only, optional
-            Qobuz track ID(s).
-        """
-
-        self._check_authentication("unfavorite_items")
-
-        data = {}
-        if album_ids:
-            data["album_ids"] = (
-                ",".join(str(a) for a in album_ids)
-                if isinstance(album_ids, list)
-                else album_ids
-            )
-        if artist_ids:
-            data["artist_ids"] = (
-                ",".join(str(a) for a in artist_ids)
-                if isinstance(artist_ids, list)
-                else artist_ids
-            )
-        if track_ids:
-            data["track_ids"] = (
-                ",".join(str(a) for a in track_ids)
-                if isinstance(track_ids, list)
-                else track_ids
-            )
-        self._request("post", f"{self.API_URL}/favorite/delete", data=data)
