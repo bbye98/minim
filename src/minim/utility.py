@@ -55,7 +55,6 @@ def format_multivalue(
     value : `Any`
         Formatted field value.
     """
-
     if isinstance(value, list):
         if not multivalue:
             if len(value) == 1 or primary:
@@ -92,7 +91,6 @@ def gestalt_ratio(
         is returned if NumPy is installed; otherwise, a `list` is
         returned.
     """
-
     if isinstance(strings, str):
         return SequenceMatcher(None, reference, strings).ratio()
     gen = (SequenceMatcher(None, reference, s).ratio() for s in strings)
@@ -123,7 +121,6 @@ def levenshtein_ratio(
         returned. If `strings` is a `list`, a `numpy.ndarray` is
         returned if NumPy is installed; otherwise, a `list` is returned.
     """
-
     if not FOUND_LEVENSHTEIN:
         emsg = (
             "The Levenshtein module was not found, so "

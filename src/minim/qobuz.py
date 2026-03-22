@@ -70,7 +70,12 @@ def _parse_performers(
         credits["composers"] = sorted(
             {
                 p
-                for cr in {"Composer", "ComposerLyricist", "Lyricist", "Writer"}
+                for cr in {
+                    "Composer",
+                    "ComposerLyricist",
+                    "Lyricist",
+                    "Writer",
+                }
                 for p, r in people.items()
                 if cr in r
             }
@@ -386,7 +391,11 @@ class PrivateAPI:
             self.session.headers["X-App-Id"] = app_id
 
     def set_auth_token(
-        self, auth_token: str = None, *, email: str = None, password: str = None
+        self,
+        auth_token: str = None,
+        *,
+        email: str = None,
+        password: str = None,
     ) -> None:
         """
         Set the private Qobuz API user authentication token.
@@ -420,7 +429,7 @@ class PrivateAPI:
                             page = context.new_page()
                             page.goto(f"{self.WEB_URL}/login", timeout=0)
                             page.wait_for_url(
-                                f"{self.WEB_URL}/featured", wait_until="commit"
+                                f"{self.WEB_URL}/discover", wait_until="commit"
                             )
                             context.close()
                             browser.close()
@@ -1594,7 +1603,9 @@ class PrivateAPI:
         ).json()
 
     def update_playlist_position(
-        self, from_playlist_id: Union[int, str], to_playlist_id: Union[int, str]
+        self,
+        from_playlist_id: Union[int, str],
+        to_playlist_id: Union[int, str],
     ) -> None:
         """
         Organize a user's playlists.
@@ -2849,7 +2860,11 @@ class PrivateAPI:
             return r.content, file["mime_type"]
 
     def get_collection_streams(
-        self, id: Union[int, str], type: str, *, format_id: Union[int, str] = 27
+        self,
+        id: Union[int, str],
+        type: str,
+        *,
+        format_id: Union[int, str] = 27,
     ) -> list[tuple[bytes, str]]:
         """
         Get audio stream data for all tracks in an album or a playlist.

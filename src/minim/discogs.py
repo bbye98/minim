@@ -11,6 +11,7 @@ import json
 import logging
 from multiprocessing import Process
 import os
+from pathlib import Path
 import re
 import secrets
 import time
@@ -48,7 +49,6 @@ class _DiscogsRedirectHandler(BaseHTTPRequestHandler):
         """
         Handles an incoming GET request and parses the query string.
         """
-
         self.server.response = dict(
             urllib.parse.parse_qsl(urllib.parse.urlparse(f"{self.path}").query)
         )
@@ -214,7 +214,6 @@ class API:
 
     _FLOWS = {"discogs", "oauth"}
     _NAME = f"{__module__}.{__qualname__}"
-
     API_URL = "https://api.discogs.com"
     ACCESS_TOKEN_URL = f"{API_URL}/oauth/access_token"
     AUTH_URL = "https://www.discogs.com/oauth/authorize"
@@ -238,7 +237,6 @@ class API:
         """
         Create a Discogs API client.
         """
-
         self.session = requests.Session()
         self.session.headers["User-Agent"] = (
             f"Minim/{VERSION} +{REPOSITORY_URL}"
@@ -251,7 +249,9 @@ class API:
         ):
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
-            access_token_secret = _config.get(self._NAME, "access_token_secret")
+            access_token_secret = _config.get(
+                self._NAME, "access_token_secret"
+            )
             consumer_key = _config.get(self._NAME, "consumer_key")
             consumer_secret = _config.get(self._NAME, "consumer_secret")
         elif flow is None and access_token is not None:
@@ -283,7 +283,6 @@ class API:
             token is required for the endpoint. If :code:`False`, only
             client credentials are required.
         """
-
         if token and (
             self._flow != "oauth"
             or self._flow == "discogs"
@@ -313,7 +312,6 @@ class API:
         resp : `dict`
             JSON-encoded content of the response.
         """
-
         return self._request("get", url, **kwargs).json()
 
     def _request(
@@ -342,7 +340,6 @@ class API:
         resp : `requests.Response`
             Response to the request.
         """
-
         if "headers" not in kwargs:
             kwargs["headers"] = {}
         if self._flow == "oauth" and "Authorization" not in kwargs["headers"]:
@@ -383,7 +380,6 @@ class API:
         access_token_secret : `str`, optional
             OAuth access token secret.
         """
-
         if self._flow == "oauth":
             self._oauth = {
                 "oauth_consumer_key": self._consumer_key,
@@ -622,7 +618,6 @@ class API:
             associated properties are stored to the Minim configuration
             file.
         """
-
         if flow and flow not in self._FLOWS:
             emsg = (
                 f"Invalid authorization flow ({flow=}). "
@@ -841,7 +836,6 @@ class API:
                     "year": <int>
                   }
         """
-
         if curr_abbr and curr_abbr not in (
             CURRENCIES := {
                 "USD",
@@ -908,7 +902,6 @@ class API:
                     "rating": <int>
                   }
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -967,7 +960,6 @@ class API:
                     "rating": <int>
                   }
         """
-
         self._check_authentication("update_user_release_rating")
 
         if username is None:
@@ -1011,7 +1003,6 @@ class API:
 
             **Example**: :code:`"memory"`.
         """
-
         self._check_authentication("delete_user_release_rating")
 
         if username is None:
@@ -1058,7 +1049,6 @@ class API:
                     "release_id": <int>
                   }
         """
-
         return self._get_json(f"{self.API_URL}/releases/{release_id}/rating")
 
     def get_release_stats(self, release_id: Union[int, str]) -> dict[str, Any]:
@@ -1100,7 +1090,6 @@ class API:
                     "num_want": <int>
                   }
         """
-
         return self._get_json(f"{self.API_URL}/releases/{release_id}/stats")
 
     def get_master_release(self, master_id: Union[int, str]) -> dict[str, Any]:
@@ -1191,7 +1180,6 @@ class API:
                     "data_quality": <str>
                   }
         """
-
         return self._get_json(f"{self.API_URL}/masters/{master_id}")
 
     def get_master_release_versions(
@@ -1311,7 +1299,6 @@ class API:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/masters/{master_id}/versions",
             params={
@@ -1377,7 +1364,6 @@ class API:
                     ]
                   }
         """
-
         return self._get_json(f"{self.API_URL}/artists/{artist_id}")
 
     def get_artist_releases(
@@ -1402,10 +1388,14 @@ class API:
             **Example**: :code:`108713`.
 
         page : `int` or `str`, keyword-only, optional
-            Page of results to fetch.
+            The page you want to request.
+
+            **Example**: :code:`3`.
 
         per_page : `int` or `str`, keyword-only, optional
-            Number of results per page.
+            The number of items per page.
+
+            **Example**: :code:`25`.
 
         sort : `str`, keyword-only, optional
             Sort results by this field.
@@ -1455,7 +1445,6 @@ class API:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/artists/{artist_id}/releases",
             params={
@@ -1519,7 +1508,6 @@ class API:
                     "data_quality": <str>
                   }
         """
-
         return self._get_json(f"{self.API_URL}/labels/{label_id}")
 
     def get_label_releases(
@@ -1542,10 +1530,14 @@ class API:
             **Example**: :code:`1`.
 
         page : `int` or `str`, keyword-only, optional
-            Page of results to fetch.
+            The page you want to request.
+
+            **Example**: :code:`3`.
 
         per_page : `int` or `str`, keyword-only, optional
-            Number of results per page.
+            The number of items per page.
+
+            **Example**: :code:`25`.
 
         Returns
         -------
@@ -1584,7 +1576,6 @@ class API:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/labels/{label_id}/releases",
             params={"page": page, "per_page": per_page},
@@ -1761,7 +1752,6 @@ class API:
                     ]
                   }
         """
-
         self._check_authentication("search", False)
 
         return self._get_json(
@@ -1906,7 +1896,6 @@ class API:
                     ]
                   }
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -2014,7 +2003,6 @@ class API:
                     "audio": <bool>
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/marketplace/listings/{listing_id}",
             params={"curr_abbr": curr_abbr},
@@ -2117,6 +2105,7 @@ class API:
             the Discogs website. Set this field to :code:`"auto"` to
             have the quantity automatically estimated for you.
         """
+        self._check_authentication("create_listing")
 
         return self._request(
             "post",
@@ -2244,7 +2233,6 @@ class API:
             the Discogs website. Set this field to :code:`"auto"` to
             have the quantity automatically estimated for you.
         """
-
         self._check_authentication("edit_listing")
 
         self._request(
@@ -2285,7 +2273,6 @@ class API:
 
             **Example**: :code:`172723812`.
         """
-
         self._check_authentication("delete_listing")
 
         self._request(
@@ -2373,7 +2360,6 @@ class API:
                     }
                   }
         """
-
         self._check_authentication("get_order")
 
         return self._get_json(f"{self.API_URL}/marketplace/orders/{order_id}")
@@ -2499,7 +2485,6 @@ class API:
                     }
                   }
         """
-
         self._check_authentication("edit_order")
 
         return self._request(
@@ -2656,7 +2641,6 @@ class API:
                     ]
                   }
         """
-
         self._check_authentication("get_user_orders")
 
         return self._get_json(
@@ -2752,7 +2736,6 @@ class API:
                     ]
                   }
         """
-
         self._check_authentication("get_order_messages")
 
         return self._get_json(
@@ -2831,7 +2814,6 @@ class API:
                     "subject": <str>
                   }
         """
-
         self._check_authentication("add_order_message")
 
         if message is None and status is None:
@@ -2844,7 +2826,9 @@ class API:
             json={"message": message, "status": status},
         ).json()
 
-    def get_fee(self, price: float, *, currency: str = "USD") -> dict[str, Any]:
+    def get_fee(
+        self, price: float, *, currency: str = "USD"
+    ) -> dict[str, Any]:
         """
         `Marketplace > Fee with currency
         <https://www.discogs.com/developers/#page:marketplace,header
@@ -2881,7 +2865,6 @@ class API:
                     "currency": <str>,
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/marketplace/fee/{price}/{currency}"
         )
@@ -2956,7 +2939,6 @@ class API:
                     }
                   }
         """
-
         self._check_authentication("get_price_suggestions")
 
         return self._get_json(
@@ -3025,7 +3007,6 @@ class API:
                     "blocked_from_sale": <bool>
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/marketplace/stats/{release_id}",
             params={"curr_abbr": curr_abbr},
@@ -3070,7 +3051,6 @@ class API:
             Full path to the exported CSV file (:code:`download=True`)
             or the export ID (:code:`download=False`).
         """
-
         self._check_authentication("export_inventory")
 
         r = self._request("post", f"{self.API_URL}/inventory/export")
@@ -3143,7 +3123,6 @@ class API:
                     }
                   }
         """
-
         self._check_authentication("get_inventory_exports")
 
         return self._get_json(
@@ -3191,7 +3170,6 @@ class API:
                     "id": <int>
                   }
         """
-
         self._check_authentication("get_inventory_export")
 
         return self._get_json(f"{self.API_URL}/inventory/export/{export_id}")
@@ -3231,7 +3209,6 @@ class API:
         path : `str`
             Full path to the exported CSV file.
         """
-
         self._check_authentication("download_inventory_export")
 
         while True:
@@ -3259,7 +3236,265 @@ class API:
 
     ### INVENTORY UPLOAD ######################################################
 
-    # TODO
+    def upload_inventory_additions(
+        self, inventory_csv: Union[bytes, str, Path]
+    ) -> str:
+        """
+        `Inventory Upload > Add Inventory <https://www.discogs.com
+        /developers/#page:inventory-upload,
+        header:inventory-upload-add-inventory>`_: Upload a CSV of
+        listings to add to your inventory.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        .. note::
+
+           Listings are marked as "For Sale". Currency information is
+           pulled from the current user's marketplace settings.
+
+        Parameters
+        ----------
+        inventory_csv : `bytes`, `str`, or `pathlib.Path`, \
+        positional-only
+            Path to, name of, or contents of a CSV file containing the
+            listings to add.
+
+            **Required fields**: :code:`release_id`, :code:`price`,
+            :code:`media_condition`.
+
+            **Optional fields**: :code:`sleeve_condition`,
+            :code:`comments`, :code:`accept_offer`, :code:`location`,
+            :code:`external_id`, :code:`weight`,
+            :code:`format_quantity`.
+
+        Returns
+        -------
+        upload_url : str
+            Request URL to get information for the inventory upload.
+        """
+        self._check_authentication("upload_inventory_additions")
+
+        if isinstance(inventory_csv, (str, Path)):
+            inventory_csv = open(inventory_csv, "rb")
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/inventory/upload/add",
+            files={"upload": ("inventory.csv", inventory_csv, "text/csv")},
+        ).headers["Location"]
+
+    def upload_inventory_updates(
+        self, inventory_csv: Union[bytes, str, Path]
+    ) -> str:
+        """
+        `Inventory Upload > Change Inventory <https://www.discogs.com
+        /developers/#page:inventory-upload,
+        header:inventory-upload-change-inventory>`_: Upload a CSV of
+        listings to change in your inventory.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        .. note::
+
+           Listings are marked as "For Sale". Currency information is
+           pulled from the current user's marketplace settings.
+
+        Parameters
+        ----------
+        inventory_csv : `bytes`, `str`, or `pathlib.Path`, \
+        positional-only
+            Path to, name of, or contents of a CSV file containing the
+            listings to change.
+
+            **Required field**: :code:`release_id`.
+
+            **Optional fields**: :code:`price`, :code:`media_condition`,
+            :code:`sleeve_condition`, :code:`comments`,
+            :code:`accept_offer`, :code:`location`, :code:`external_id`,
+            :code:`weight`, :code:`format_quantity`.
+
+        Returns
+        -------
+        upload_url : str
+            Request URL to get information for the inventory upload.
+        """
+        self._check_authentication("upload_inventory_updates")
+
+        if isinstance(inventory_csv, (str, Path)):
+            inventory_csv = open(inventory_csv, "rb")
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/inventory/upload/update",
+            files={"upload": ("inventory.csv", inventory_csv, "text/csv")},
+        ).headers["Location"]
+
+    def upload_inventory_deletions(
+        self, inventory_csv: Union[bytes, str, Path]
+    ) -> str:
+        """
+        `Inventory Upload > Delete Inventory <https://www.discogs.com
+        /developers/#page:inventory-upload,
+        header:inventory-upload-delete-inventory>`_: Upload a CSV of
+        listings to delete from your inventory.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        .. note::
+
+           Listings are marked as "For Sale". Currency information is
+           pulled from the current user's marketplace settings.
+
+        Parameters
+        ----------
+        inventory_csv : `bytes`, `str`, or `pathlib.Path`, \
+        positional-only
+            Path to, name of, or contents of a CSV file containing the
+            listings to delete.
+
+            **Required field**: :code:`listing_id`.
+
+        Returns
+        -------
+        upload_url : str
+            Request URL to get information for the inventory upload.
+        """
+        self._check_authentication("upload_inventory_deletions")
+
+        if isinstance(inventory_csv, (str, Path)):
+            inventory_csv = open(inventory_csv, "rb")
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/inventory/upload/delete",
+            files={"upload": ("inventory.csv", inventory_csv, "text/csv")},
+        ).headers["Location"]
+
+    def get_inventory_uploads(
+        self, *, page: int = None, per_page: int = None
+    ) -> dict[str, Any]:
+        """
+        `Inventory Upload > Get Recent Uploads <https://www.discogs.com
+        /developers/#page:inventory-upload,
+        header:inventory-upload-get-recent-uploads>`_: Get all recent
+        inventory uploads.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        page : `int`, keyword-only, optional
+            The page you want to request.
+
+            **Example**: :code:`3`.
+
+        per_page : `int`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
+
+        Returns
+        -------
+        uploads : `dict`
+            The authenticated user's inventory uploads.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "created_ts": <str>,
+                        "filename": <str>,
+                        "finished_ts": <str>,
+                        "id": <int>,
+                        "results": <str>,
+                        "status": <str>,
+                        "type": <str>
+                      }
+                    ],
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    }
+                  }
+        """
+        self._check_authentication("get_inventory_uploads")
+
+        return self._get_json(
+            f"{self.API_URL}/inventory/upload",
+            params={"page": page, "per_page": per_page},
+        )
+
+    def get_inventory_upload(
+        self, upload_id: Union[int, str]
+    ) -> dict[str, Any]:
+        """
+        `Inventory Upload > Get an Upload <https://www.discogs.com
+        /developers/#page:inventory-upload,
+        header:inventory-upload-get-an-upload>`_: Get details about the
+        status of an inventory upload.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        upload_id : `int` or `str`
+            ID of the upload.
+
+        Returns
+        -------
+        upload : `dict`
+            Details about the status of the inventory upload.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "created_ts": <str>,
+                    "filename": <str>,
+                    "finished_ts": <str>,
+                    "id": <int>,
+                    "results": <str>,
+                    "status": <str>,
+                    "type": <str>
+                  }
+        """
+        self._check_authentication("get_inventory_upload")
+
+        return self._get_json(f"{self.API_URL}/inventory/upload/{upload_id}")
 
     ### USER IDENTITY #########################################################
 
@@ -3299,7 +3534,6 @@ class API:
                     "consumer_name": <str>
                   }
         """
-
         self._check_authentication("get_identity")
 
         return self._get_json(f"{self.API_URL}/oauth/identity")
@@ -3375,7 +3609,6 @@ class API:
                     "curr_abbr": <str>,
                   }
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -3470,7 +3703,6 @@ class API:
                     "rating_avg": <float>
                   }
         """
-
         self._check_authentication("edit_profile")
 
         if (
@@ -3542,10 +3774,14 @@ class API:
             **Example**: :code:`"shooezgirl"`.
 
         page : `int` or `str`, keyword-only, optional
-            Page of results to fetch.
+            The page you want to request.
+
+            **Example**: :code:`3`.
 
         per_page : `int` or `str`, keyword-only, optional
-            Number of results per page.
+            The number of items per page.
+
+            **Example**: :code:`25`.
 
         Returns
         -------
@@ -3676,7 +3912,6 @@ class API:
                     }
                   }
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -3713,10 +3948,14 @@ class API:
             **Example**: :code:`"shooezgirl"`.
 
         page : `int` or `str`, keyword-only, optional
-            Page of results to fetch.
+            The page you want to request.
+
+            **Example**: :code:`3`.
 
         per_page : `int` or `str`, keyword-only, optional
-            Number of results per page.
+            The number of items per page.
+
+            **Example**: :code:`25`.
 
         sort : `str`, keyword-only, optional
             Sort items by this field.
@@ -3845,7 +4084,6 @@ class API:
                     ]
                   }
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -3910,7 +4148,6 @@ class API:
                     }
                   ]
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -3921,7 +4158,9 @@ class API:
             f"{self.API_URL}/users/{username}/collection/folders"
         )["folders"]
 
-    def create_collection_folder(self, name: str) -> dict[str, Union[int, str]]:
+    def create_collection_folder(
+        self, name: str
+    ) -> dict[str, Union[int, str]]:
         """
         `User Collection > Collection > Create Folder
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -3958,7 +4197,6 @@ class API:
                     "resource_url": <str>
                   }
         """
-
         self._check_authentication("create_collection_folder")
 
         return self._request(
@@ -4013,7 +4251,6 @@ class API:
                     "resource_url": <str>
                   }
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -4080,7 +4317,6 @@ class API:
                     "resource_url": <str>
                   }
         """
-
         self._check_authentication("rename_collection_folder")
 
         return self._request(
@@ -4121,7 +4357,6 @@ class API:
 
             **Example**: :code:`"rodneyfool"`.
         """
-
         self._check_authentication("delete_collection_folder")
 
         self._request(
@@ -4221,7 +4456,6 @@ class API:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/users/{self._username}/collection"
             f"/releases/{release_id}"
@@ -4271,11 +4505,15 @@ class API:
 
             **Example**: :code:`"rodneyfool"`.
 
-        page : `int`, keyword-only, optional
-            Page of results to fetch.
+        page : `int` or `str`, keyword-only, optional
+            The page you want to request.
 
-        per_page : `int`, keyword-only, optional
-            Number of results per page.
+            **Example**: :code:`3`.
+
+        per_page : `int` or `str`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
 
         sort : `str`, keyword-only, optional
             Sort items by this field.
@@ -4356,7 +4594,6 @@ class API:
                     ]
                   }
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -4429,6 +4666,7 @@ class API:
                     "resource_url": <str>
                   }
         """
+        self._check_authentication("add_collection_folder_release")
 
         if username is None:
             if hasattr(self, "_username"):
@@ -4503,6 +4741,7 @@ class API:
 
             **Example**: :code:`5`.
         """
+        self._check_authentication("edit_collection_folder_release")
 
         self._request(
             "post",
@@ -4558,6 +4797,7 @@ class API:
 
             **Example**: :code:`"rodneyfool"`.
         """
+        self._check_authentication("delete_collection_folder_release")
 
         self._request(
             "delete",
@@ -4623,7 +4863,6 @@ class API:
                     }
                   ]
         """
-
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
@@ -4690,7 +4929,6 @@ class API:
 
             **Example**: :code:`"rodneyfool"`.
         """
-
         self._check_authentication("edit_collection_fields")
 
         self._request(
@@ -4739,6 +4977,7 @@ class API:
                     "minimum": <str>
                   }
         """
+        self._check_authentication("get_collection_value")
 
         if username is None:
             if hasattr(self, "_username"):
@@ -4752,8 +4991,511 @@ class API:
 
     ### USER WANTLIST #########################################################
 
-    # TODO
+    def get_wantlist_releases(
+        self,
+        username: str = None,
+        /,
+        *,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+    ) -> dict[str, Any]:
+        """
+        `User Wantlist > Wantlist <https://www.discogs.com/developers
+        /#page:user-wantlist,header:user-wantlist-wantlist>`_: Returns
+        the releases in a user's wantlist.
+
+        Parameters
+        ----------
+        username : `str`, optional
+            The username of the wantlist you are trying to fetch. If not
+            specified, the username of the authenticated user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        page : `int` or `str`, keyword-only, optional
+            The page you want to request.
+
+            **Example**: :code:`3`.
+
+        per_page : `int` or `str`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
+
+        Returns
+        -------
+        wantlist : `dict`
+            The releases in the user's wantlist.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    },
+                    "wants": [
+                      {
+                        "basic_information": {
+                          "artists": [
+                            {
+                              "anv": <str>,
+                              "id": <int>,
+                              "join": <str>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                              "role": <str>,
+                              "tracks": <str>
+                            }
+                          ],
+                          "formats": [
+                            {
+                              "descriptions": <list[str]>,
+                              "name": <str>,
+                              "qty": <str>,
+                              "text": <str>
+                            }
+                          ],
+                          "genres": <list[str]>,
+                          "id": <int>,
+                          "labels": [
+                            {
+                              "catno": <str>,
+                              "entity_type": <str>,
+                              "entity_type_name": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                            }
+                          ],
+                          "resource_url": <str>,
+                          "styles": <list[str]>,
+                          "thumb": <str>,
+                          "title": <str>,
+                          "year": <int>,
+                        },
+                        "id": <int>,
+                        "notes": <str>,
+                        "rating": <int>
+                      }
+                    ]
+                  }
+        """
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/wants",
+            params={"page": page, "per_page": per_page},
+        )
+
+    def add_wantlist_release(
+        self, release_id: int, *, username: str = None
+    ) -> dict[str, Any]:
+        """
+        `User Wantlist > Add to Wantlist > Add to Wantlist
+        <https://www.discogs.com/developers/#page:user-wantlist,
+        header:user-wantlist-add-to-wantlist-put>`_: Add a release to a
+        user's wantlist.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        release_id : `int`
+            The ID of the release you are adding.
+
+            **Example**: :code:`130076`.
+
+        username : `str`, keyword-only, optional
+            The username of the wantlist you are trying to modify. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        release : `dict`
+            Information about the newly added release.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "basic_information": {
+                      "artists": [
+                        {
+                          "anv": <str>,
+                          "id": <int>,
+                          "join": <str>,
+                          "name": <str>,
+                          "resource_url": <str>,
+                          "role": <str>,
+                          "tracks": <str>
+                        }
+                      ],
+                      "formats": [
+                        {
+                          "descriptions": <list[str]>,
+                          "name": <str>,
+                          "qty": <str>,
+                          "text": <str>
+                        }
+                      ],
+                      "genres": <list[str]>,
+                      "id": <int>,
+                      "labels": [
+                        {
+                          "catno": <str>,
+                          "entity_type": <str>,
+                          "entity_type_name": <str>,
+                          "id": <int>,
+                          "name": <str>,
+                          "resource_url": <str>,
+                        }
+                      ],
+                      "resource_url": <str>,
+                      "styles": <list[str]>,
+                      "thumb": <str>,
+                      "title": <str>,
+                      "year": <int>,
+                    },
+                    "id": <int>,
+                    "notes": <str>,
+                    "rating": <int>
+                  }
+        """
+        self._check_authentication("add_wantlist_release")
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/users/{username}/wants/{release_id}",
+        ).json()
+
+    def edit_wantlist_release(
+        self,
+        release_id: int,
+        *,
+        username: str = None,
+        notes: str = None,
+        rating: int = None,
+    ) -> dict[str, Any]:
+        """
+        `User Wantlist > Add to Wantlist > Edit Release in Wantlist
+        <https://www.discogs.com/developers/#page:user-wantlist,
+        header:user-wantlist-add-to-wantlist-post>`_: Update a release
+        in a user's wantlist.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        release_id : `int`
+            The ID of the release you are modifying.
+
+            **Example**: :code:`130076`.
+
+        username : `str`, keyword-only, optional
+            The username of the wantlist you are trying to modify. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        notes : `str`, keyword-only, optional
+            The new notes for the release.
+
+            **Example**: :code:`"My favorite release"`.
+
+        rating : `int`, keyword-only, optional
+            The new rating for the release.
+
+            **Example**: :code:`5`.
+
+        Returns
+        -------
+        release : `dict`
+            Information about the edited release.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "basic_information": {
+                      "artists": [
+                        {
+                          "anv": <str>,
+                          "id": <int>,
+                          "join": <str>,
+                          "name": <str>,
+                          "resource_url": <str>,
+                          "role": <str>,
+                          "tracks": <str>
+                        }
+                      ],
+                      "formats": [
+                        {
+                          "descriptions": <list[str]>,
+                          "name": <str>,
+                          "qty": <str>,
+                          "text": <str>
+                        }
+                      ],
+                      "genres": <list[str]>,
+                      "id": <int>,
+                      "labels": [
+                        {
+                          "catno": <str>,
+                          "entity_type": <str>,
+                          "entity_type_name": <str>,
+                          "id": <int>,
+                          "name": <str>,
+                          "resource_url": <str>,
+                        }
+                      ],
+                      "resource_url": <str>,
+                      "styles": <list[str]>,
+                      "thumb": <str>,
+                      "title": <str>,
+                      "year": <int>,
+                    },
+                    "id": <int>,
+                    "notes": <str>,
+                    "rating": <int>
+                  }
+        """
+        self._check_authentication("edit_wantlist_release")
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        self._request(
+            "post",
+            f"{self.API_URL}/users/{username}/wants/{release_id}",
+            json={"notes": notes, "rating": rating},
+        )
+
+    def delete_wantlist_release(
+        self, release_id: int, *, username: str = None
+    ) -> None:
+        """
+        `User Wantlist > Add to Wantlist > Delete Release from Wantlist
+        <https://www.discogs.com/developers/#page:user-wantlist,
+        header:user-wantlist-add-to-wantlist-delete>`_: Remove a release
+        from a user's wantlist.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        release_id : `int`
+            The ID of the release you are deleting.
+
+            **Example**: :code:`130076`.
+
+        username : `str`, keyword-only, optional
+            The username of the wantlist you are trying to modify. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+        self._check_authentication("delete_wantlist_release")
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        self._request(
+            "delete",
+            f"{self.API_URL}/users/{username}/wants/{release_id}",
+        )
 
     ### USER LISTS ############################################################
 
-    # TODO
+    def get_user_lists(
+        self, username: str = None, *, page: int = None, per_page: int = None
+    ) -> dict[str, Any]:
+        """
+        `User Lists > User Lists <https://www.discogs.com/developers
+        /#page:user-lists,header:user-lists-user-lists>`_: Returns a
+        user's lists.
+
+        Parameters
+        ----------
+        username : `str`, optional
+            The username of the lists you are trying to fetch. If not
+            specified, the username of the authenticated user is used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        page : `int` or `str`, keyword-only, optional
+            The page you want to request.
+
+            **Example**: :code:`3`.
+
+        per_page : `int` or `str`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
+
+        Returns
+        -------
+        lists : `dict`
+            The lists created by the user.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "lists": [
+                      {
+                        "date_added": <str>,
+                        "date_changed": <str>,
+                        "description": <str>,
+                        "id": <int>,
+                        "image_url": <str>,
+                        "name": <str>,
+                        "public": <bool>,
+                        "resource_url": <str>,
+                        "uri": <str>,
+                        "user": {
+                          "avatar_url": <str>,
+                          "id": <int>,
+                          "resource_url": <str>,
+                          "username": <str>
+                        }
+                      }
+                    ],
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "first": <str>,
+                        "last": <str>,
+                        "next": <str>,
+                        "prev": <str>
+                      }
+                    }
+                  }
+        """
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/lists",
+            params={"page": page, "per_page": per_page},
+        )
+
+    def get_list(self, list_id: int) -> dict[str, Any]:
+        """
+         `User Lists > List <https://www.discogs.com/developers
+        /#page:user-lists,header:user-lists-list>`_: Returns the items
+        in a list.
+
+        Parameters
+        ----------
+        list_id : `int`
+            The ID of the list to request.
+
+            **Example**: :code:`3`.
+
+        Returns
+        -------
+        list : `dict`
+            The items in the list.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "date_added": <str>,
+                    "date_changed": <str>,
+                    "description": <str>,
+                    "id": <int>,
+                    "image_url": <str>,
+                    "items": [
+                      {
+                        "comment": <str>,
+                        "display_title": <str>,
+                        "id": <int>,
+                        "image_url": <str>,
+                        "resource_url": <str>,
+                        "stats": {
+                          "community": {
+                            "in_collection": <int>,
+                            "in_wantlist": <int>
+                          },
+                          "user": {
+                            "in_collection": <int>,
+                            "in_wantlist": <int>
+                          }
+                        },
+                        "type": "release",
+                        "uri": <str>
+                      }
+                    ],
+                    "name": <str>,
+                    "public": <bool>,
+                    "resource_url": <str>,
+                    "uri": <str>,
+                    "user": {
+                      "avatar_url": <str>,
+                      "id": <int>,
+                      "resource_url": <str>,
+                      "username": <str>
+                    }
+                  }
+        """
+        return self._get_json(f"{self.API_URL}/lists/{list_id}")

@@ -10270,7 +10270,6 @@ class PrivateAPI:
             url,
             params={
                 "query": query,
-                "type": type,
                 "limit": limit,
                 "offset": offset,
                 "countryCode": self._get_country_code(country_code),
@@ -10954,7 +10953,7 @@ class PrivateAPI:
         )
 
     def get_track_lyrics(
-        self, id: Union[int, str], country_code: str = None
+        self, track_id: Union[int, str], country_code: str = None
     ) -> dict[str, Any]:
         """
         Get lyrics for a track.
@@ -10967,7 +10966,7 @@ class PrivateAPI:
 
         Parameters
         ----------
-        id : `int` or `str`
+        track_id : `int` or `str`
             TIDAL track ID.
 
             **Example**: :code:`251380837`.
@@ -11006,7 +11005,7 @@ class PrivateAPI:
 
         try:
             return self._get_json(
-                f"{self.WEB_URL}/v1/tracks/{id}/lyrics",
+                f"{self.WEB_URL}/v1/tracks/{track_id}/lyrics",
                 params={"countryCode": self._get_country_code(country_code)},
             )
         except RuntimeError:
@@ -11017,7 +11016,7 @@ class PrivateAPI:
             )
 
     def get_track_mix_id(
-        self, tidal_id: Union[int, str], country_code: str = None
+        self, track_id: Union[int, str], country_code: str = None
     ) -> str:
         """
         Get the curated mix of tracks based on a track.
@@ -11030,7 +11029,7 @@ class PrivateAPI:
 
         Parameters
         ----------
-        tidal_id : `int` or `str`
+        track_id : `int` or `str`
             TIDAL track ID.
 
             **Example**: :code:`251380837`.
@@ -11058,7 +11057,7 @@ class PrivateAPI:
         )
 
         return self._get_json(
-            f"{self.API_URL}/v1/tracks/{tidal_id}/mix",
+            f"{self.API_URL}/v1/tracks/{track_id}/mix",
             params={"countryCode": self._get_country_code(country_code)},
         )["id"]
 
@@ -11104,7 +11103,7 @@ class PrivateAPI:
 
             **Example**: :code:`251380837`.
 
-        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
+        audio_quality : `str`, keyword-only, default: :code:`"HI_RES"`
             Audio quality.
 
             .. container::
@@ -11219,7 +11218,7 @@ class PrivateAPI:
         country_code: str = None,
         *,
         limit: int = None,
-        offset=None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for a track's recommended
