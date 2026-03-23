@@ -48,7 +48,6 @@ class _TIDALRedirectHandler(BaseHTTPRequestHandler):
         """
         Handles an incoming GET request and parses the query string.
         """
-
         self.server.response = dict(
             urllib.parse.parse_qsl(urllib.parse.urlparse(f"{self.path}").query)
         )
@@ -268,7 +267,6 @@ class API:
                `TIDAL API Reference
                <https://tidal-music.github.io/tidal-api-reference/>`_.
         """
-
         SCOPES = {
             "collection": ["collection.read", "collection.write"],
             "entitlements": ["entitlements.read"],
@@ -319,7 +317,6 @@ class API:
         """
         Create a TIDAL API client.
         """
-
         self.session = requests.Session()
         self.session.headers["accept"] = self.session.headers[
             "Content-Type"
@@ -369,7 +366,6 @@ class API:
         endpoint : `str`
             TIDAL API endpoint.
         """
-
         if self._flow != "pkce":
             emsg = f"{self._NAME}.{endpoint}() requires user authentication."
             raise RuntimeError(emsg)
@@ -387,7 +383,6 @@ class API:
         scope : `str`
             Required scope for `endpoint`.
         """
-
         if scope not in self._scopes:
             emsg = (
                 f"{self._NAME}.{endpoint}() requires the '{scope}' "
@@ -410,7 +405,6 @@ class API:
         auth_code : `str`
             Authorization code.
         """
-
         params = {
             "client_id": self._client_id,
             "redirect_uri": self._redirect_uri,
@@ -524,14 +518,12 @@ class API:
         resp : `dict`
             JSON-encoded content of the response.
         """
-
         return self._request("get", url, **kwargs).json()
 
     def _refresh_access_token(self) -> None:
         """
         Refresh the expired excess token.
         """
-
         if self._flow == "client_credentials":
             self.set_access_token()
         else:
@@ -587,7 +579,6 @@ class API:
         resp : `requests.Response`
             Response to the request.
         """
-
         if self._expiry is not None and datetime.datetime.now() > self._expiry:
             self._refresh_access_token()
 
@@ -633,7 +624,6 @@ class API:
             the default authorization flow (if possible) when
             `access_token` expires.
         """
-
         if access_token is None:
             if not self._client_id or not self._client_secret:
                 raise ValueError("TIDAL API client credentials not provided.")
@@ -779,7 +769,6 @@ class API:
             and their associated properties to the Minim configuration
             file.
         """
-
         if flow not in self._FLOWS:
             emsg = (
                 f"Invalid authorization flow ({flow=}). "
@@ -5538,7 +5527,6 @@ class PrivateAPI:
         """
         Create a private TIDAL API client.
         """
-
         self.session = requests.Session()
         if user_agent:
             self.session.headers["User-Agent"] = user_agent
@@ -5598,7 +5586,6 @@ class PrivateAPI:
             Some endpoints can be used without authentication but require
             specific scopes when user authentication has been performed.
         """
-
         if flows is None:
             flows = self._FLOWS
 
@@ -5640,7 +5627,6 @@ class PrivateAPI:
         auth_code : `str`
             Authorization code.
         """
-
         params = {
             "client_id": self._client_id,
             "code_challenge": code_challenge,
@@ -5720,7 +5706,6 @@ class PrivateAPI:
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
         """
-
         return (
             country_code
             or getattr(self, "_country_code", None)
@@ -5745,14 +5730,12 @@ class PrivateAPI:
         resp : `dict`
             JSON-encoded content of the response.
         """
-
         return self._request("get", url, **kwargs).json()
 
     def _refresh_access_token(self) -> None:
         """
         Refresh the expired excess token.
         """
-
         if (
             self._flow is None
             or not self._refresh_token
@@ -5816,7 +5799,6 @@ class PrivateAPI:
         resp : `requests.Response`
             Response to the request.
         """
-
         if self._expiry is not None and datetime.datetime.now() > self._expiry:
             self._refresh_access_token()
 
@@ -5884,7 +5866,6 @@ class PrivateAPI:
             the default authorization flow (if possible) when
             `access_token` expires.
         """
-
         if access_token is None:
             if self._flow is None:
                 self._expiry = datetime.datetime.max
@@ -6054,7 +6035,6 @@ class PrivateAPI:
             and their associated properties to the Minim configuration
             file.
         """
-
         if flow and flow not in self._FLOWS:
             emsg = (
                 f"Invalid authorization flow ({flow=}). "
@@ -6176,7 +6156,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_album",
             "r_usr",
@@ -6310,7 +6289,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_album_items",
             "r_usr",
@@ -6378,7 +6356,6 @@ class PrivateAPI:
                     }
                   ]
         """
-
         self._check_scope(
             "get_album_credits",
             "r_usr",
@@ -6435,7 +6412,6 @@ class PrivateAPI:
                     "summary": <str>
                   }
         """
-
         self._check_scope(
             "get_album_review",
             "r_usr",
@@ -6539,7 +6515,6 @@ class PrivateAPI:
                     "source": <str>
                   }
         """
-
         self._check_scope(
             "get_similar_albums",
             "r_usr",
@@ -6668,7 +6643,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_favorite_albums", "r_usr", flows={"device_code"}
         )
@@ -6720,7 +6694,6 @@ class PrivateAPI:
 
             **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
-
         self._check_scope("favorite_albums", "r_usr", flows={"device_code"})
 
         self._request(
@@ -6757,7 +6730,6 @@ class PrivateAPI:
             **Examples**: :code:`"251380836,275646830"` or
             :code:`[251380836, 275646830]`.
         """
-
         self._check_scope("unfavorite_albums", "r_usr", flows={"device_code"})
 
         if isinstance(album_ids, list):
@@ -6824,7 +6796,6 @@ class PrivateAPI:
                     }
                   }
         """
-
         self._check_scope(
             "get_artist",
             "r_usr",
@@ -6950,7 +6921,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_artist_albums",
             "r_usr",
@@ -7080,7 +7050,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_artist_top_tracks",
             "r_usr",
@@ -7195,7 +7164,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_artist_videos",
             "r_usr",
@@ -7246,7 +7214,6 @@ class PrivateAPI:
 
             **Example**: :code:`"000ec0b01da1ddd752ec5dee553d48"`.
         """
-
         self._check_scope(
             "get_artist_mix_id",
             "r_usr",
@@ -7380,7 +7347,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_artist_radio",
             "r_usr",
@@ -7441,7 +7407,6 @@ class PrivateAPI:
                     "summary": <str>
                   }
         """
-
         self._check_scope(
             "get_artist_biography",
             "r_usr",
@@ -7519,7 +7484,6 @@ class PrivateAPI:
                     "source": <str>
                   }
         """
-
         self._check_scope(
             "get_artist_links",
             "r_usr",
@@ -7612,7 +7576,6 @@ class PrivateAPI:
                     "source": "TIDAL"
                   }
         """
-
         self._check_scope(
             "get_similar_artists",
             "r_usr",
@@ -7717,7 +7680,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_favorite_artists", "r_usr", flows={"device_code"}
         )
@@ -7768,7 +7730,6 @@ class PrivateAPI:
 
             **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
-
         self._check_scope("favorite_artists", "r_usr", flows={"device_code"})
 
         self._request(
@@ -7804,7 +7765,6 @@ class PrivateAPI:
 
             **Examples**: :code:`"1566,7804"` or :code:`[1566, 7804]`.
         """
-
         self._check_scope("unfavorite_artists", "r_usr", flows={"device_code"})
 
         if isinstance(artist_ids, list):
@@ -7883,7 +7843,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_blocked_artists", "r_usr", flows={"device_code"}
         )
@@ -7910,7 +7869,6 @@ class PrivateAPI:
 
             **Example**: :code:`1566`.
         """
-
         self._check_scope("block_artist", "r_usr", flows={"device_code"})
 
         self._request(
@@ -7936,7 +7894,6 @@ class PrivateAPI:
 
             **Example**: :code:`1566`.
         """
-
         self._check_scope("unblock_artist", "r_usr", flows={"device_code"})
 
         self._request(
@@ -7958,7 +7915,6 @@ class PrivateAPI:
 
             **Example**: :code:`"US"`.
         """
-
         return self._get_json(f"{self.API_URL}/v1/country")["countryCode"]
 
     ### IMAGES ################################################################
@@ -8011,7 +7967,6 @@ class PrivateAPI:
             to an image or video file and its filename is returned
             instead.
         """
-
         if width is None or height is None:
             dimensions = "origin"
         else:
@@ -8145,7 +8100,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_mix_items",
             "r_usr",
@@ -8273,7 +8227,6 @@ class PrivateAPI:
                     "lastModifiedAt": <str>
                   }
         """
-
         self._check_scope("get_favorite_mixes", "r_usr", flows={"device_code"})
 
         url = f"{self.API_URL}/v2/favorites/mixes"
@@ -8319,7 +8272,6 @@ class PrivateAPI:
 
             **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
-
         self._check_scope("favorite_mixes", "r_usr", flows={"device_code"})
 
         self._request(
@@ -8351,7 +8303,6 @@ class PrivateAPI:
             :code:`["000ec0b01da1ddd752ec5dee553d48",
             "000dd748ceabd5508947c6a5d3880a"]`
         """
-
         self._check_scope("unfavorite_mixes", "r_usr", flows={"device_code"})
 
         self._request(
@@ -8409,7 +8360,6 @@ class PrivateAPI:
         page : `dict`
             A dictionary containing the page ID, title, and submodules.
         """
-
         self._check_scope(
             "get_album_page",
             "r_usr",
@@ -8479,7 +8429,6 @@ class PrivateAPI:
         page : `dict`
             A dictionary containing the page ID, title, and submodules.
         """
-
         self._check_scope(
             "get_artist_page",
             "r_usr",
@@ -8549,7 +8498,6 @@ class PrivateAPI:
         page : `dict`
             A dictionary containing the page ID, title, and submodules.
         """
-
         self._check_scope(
             "get_mix_page",
             "r_usr",
@@ -8619,7 +8567,6 @@ class PrivateAPI:
         page : `dict`
             A dictionary containing the page ID, title, and submodules.
         """
-
         self._check_scope(
             "get_video_page",
             "r_usr",
@@ -8709,7 +8656,6 @@ class PrivateAPI:
                     "lastItemAddedAt": <str>
                   }
         """
-
         self._check_scope(
             "get_playlist",
             "r_usr",
@@ -8760,7 +8706,6 @@ class PrivateAPI:
 
             **Example**: :code:`"1698984074453"`.
         """
-
         self._check_scope(
             "get_playlist_etag",
             "r_usr",
@@ -8892,7 +8837,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_playlist_items",
             "r_usr",
@@ -9026,7 +8970,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_playlist_recommendations", "r_usr", flows={"device_code"}
         )
@@ -9066,7 +9009,6 @@ class PrivateAPI:
             playlist directly under "My Playlists", use
             :code:`folder_id="root"`.
         """
-
         self._check_scope("favorite_playlists", "r_usr", flow={"device_code"})
 
         self._request(
@@ -9097,7 +9039,6 @@ class PrivateAPI:
             playlist directly under "My Playlists", use
             :code:`folder_id="root"`.
         """
-
         self._check_scope("move_playlist", "r_usr", flows={"device_code"})
 
         self._request(
@@ -9126,7 +9067,6 @@ class PrivateAPI:
 
             **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
         """
-
         self._check_scope(
             "unfavorite_playlist", "r_usr", flows={"device_code"}
         )
@@ -9205,7 +9145,6 @@ class PrivateAPI:
                     }
                   }
         """
-
         self._check_scope("get_user_playlist", "r_usr", flows={"device_code"})
 
         return self._get_json(
@@ -9301,7 +9240,6 @@ class PrivateAPI:
                     "cursor": <str>
                   }
         """
-
         self._check_scope("get_user_playlists", "r_usr", flows={"device_code"})
 
         if user_id is None:
@@ -9383,7 +9321,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_personal_playlists", "r_usr", flows={"device_code"}
         )
@@ -9478,7 +9415,6 @@ class PrivateAPI:
                     }
                   }
         """
-
         self._check_scope("create_playlist", "r_usr", flows={"device_code"})
 
         return self._request(
@@ -9518,7 +9454,6 @@ class PrivateAPI:
         description : `str`, keyword-only, optional
             New playlist description.
         """
-
         self._check_scope("update_playlist", "r_usr", flows={"device_code"})
 
         if title is None and description is None:
@@ -9556,7 +9491,6 @@ class PrivateAPI:
             Determines whether the playlist is public (:code:`True`) or
             private (:code:`False`).
         """
-
         self._check_scope(
             "set_playlist_privacy", "r_usr", flows={"device_code"}
         )
@@ -9617,7 +9551,6 @@ class PrivateAPI:
 
             **Valid values**: :code:`"FAIL"`.
         """
-
         self._check_scope("add_playlist_items", "r_usr", flows={"device_code"})
 
         if items is None and from_playlist_uuid is None:
@@ -9671,7 +9604,6 @@ class PrivateAPI:
         to_index : `int` or `str`
             Desired item index.
         """
-
         self._check_scope("move_playlist_item", "r_usr", flows={"device_code"})
 
         self._request(
@@ -9740,7 +9672,6 @@ class PrivateAPI:
             Item indices, provided as an integer or a comma-separated
             string.
         """
-
         self._check_scope(
             "delete_playlist_item", "r_usr", flows={"device_code"}
         )
@@ -9768,7 +9699,6 @@ class PrivateAPI:
 
             **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
         """
-
         self._check_scope("delete_playlist", "r_usr", flows={"device_code"})
 
         self._request(
@@ -9866,7 +9796,6 @@ class PrivateAPI:
                     "cursor": <str>
                   }
         """
-
         self._check_scope(
             "get_personal_playlist_folders", "r_usr", flows={"device_code"}
         )
@@ -9916,7 +9845,6 @@ class PrivateAPI:
             be created in. To create a folder directly under "My
             Playlists", use :code:`folder_id="root"`.
         """
-
         self._check_scope(
             "create_playlist_folder", "r_usr", flows={"device_code"}
         )
@@ -9944,7 +9872,6 @@ class PrivateAPI:
 
             **Example**: :code:`"92b3c1ea-245a-4e5a-a5a4-c215f7a65b9f"`.
         """
-
         self._check_scope(
             "delete_playlist_folder", "r_usr", flows={"device_code"}
         )
@@ -10239,7 +10166,6 @@ class PrivateAPI:
                     }
                   }
         """
-
         self._check_scope(
             "search",
             "r_usr",
@@ -10381,7 +10307,6 @@ class PrivateAPI:
         streams : `list`
             Audio and video stream data and their MIME types.
         """
-
         if type not in (COLLECTION_TYPES := {"album", "mix", "playlist"}):
             emsg = (
                 "Invalid collection type. Valid values: "
@@ -10506,7 +10431,6 @@ class PrivateAPI:
         codec : `str`
             Audio codec.
         """
-
         manifest = base64.b64decode(
             self.get_track_playback_info(
                 track_id,
@@ -10638,7 +10562,6 @@ class PrivateAPI:
         codec : `str`
             Video codec.
         """
-
         manifest = base64.b64decode(
             self.get_video_playback_info(
                 video_id,
@@ -10760,7 +10683,6 @@ class PrivateAPI:
                     }
                   }
         """
-
         self._check_scope(
             "get_track",
             "r_usr",
@@ -10837,7 +10759,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_track_contributors",
             "r_usr",
@@ -10899,7 +10820,6 @@ class PrivateAPI:
                     }
                   ]
         """
-
         self._check_scope(
             "get_track_credits",
             "r_usr",
@@ -10943,7 +10863,6 @@ class PrivateAPI:
             'Kelman Duran', 'Terius "The-Dream" G...de-Diamant',
             'Mike Dean']`
         """
-
         return sorted(
             {
                 c["name"]
@@ -11000,7 +10919,6 @@ class PrivateAPI:
                     "isRightToLeft": <bool>
                   }
         """
-
         self._check_scope("get_track_lyrics")
 
         try:
@@ -11048,7 +10966,6 @@ class PrivateAPI:
 
             **Example**: :code:`"0017159e6a1f34ae3d981792d72ecf"`.
         """
-
         self._check_scope(
             "get_track_mix_id",
             "r_usr",
@@ -11160,7 +11077,6 @@ class PrivateAPI:
                     "trackPeakAmplitude": <float>
                   }
         """
-
         self._check_scope(
             "get_track_playback_info",
             "r_usr",
@@ -11328,7 +11244,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_track_recommendations", "r_usr", flows={"device_code"}
         )
@@ -11465,7 +11380,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_favorite_tracks", "r_usr", flows={"device_code"}
         )
@@ -11517,7 +11431,6 @@ class PrivateAPI:
 
             **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
-
         self._check_scope("favorite_tracks", "r_usr", flows={"device_code"})
 
         self._request(
@@ -11554,7 +11467,6 @@ class PrivateAPI:
             **Examples**: :code:`"251380837,251380838"` or
             :code:`[251380837, 251380838]`.
         """
-
         self._check_scope("unfavorite_tracks", "r_usr", flows={"device_code"})
 
         if isinstance(track_ids, list):
@@ -11616,7 +11528,6 @@ class PrivateAPI:
                     "newUser": <bool>
                   }
         """
-
         self._check_scope("get_profile")
 
         return self._get_json(f"{self.LOGIN_URL}/oauth2/me")
@@ -11656,7 +11567,6 @@ class PrivateAPI:
                   }
 
         """
-
         self._check_scope("get_session", "r_usr", flows={"device_code"})
 
         return self._get_json(f"{self.API_URL}/v1/sessions")
@@ -11691,7 +11601,6 @@ class PrivateAPI:
                     "TRACK": [<str>]
                   }
         """
-
         self._check_scope("get_favorite_ids", "r_usr", flows={"device_code"})
 
         return self._get_json(
@@ -11750,7 +11659,6 @@ class PrivateAPI:
                     "profileType": <str>
                   }
         """
-
         self._check_scope("get_user_profile", "r_usr", flows={"device_code"})
 
         return self._get_json(f"{self.API_URL}/v2/profiles/{user_id}")
@@ -11794,7 +11702,6 @@ class PrivateAPI:
             A dictionary containing the user's followers and the cursor
             position.
         """
-
         self._check_scope("get_user_followers", "r_usr", flows={"device_code"})
 
         if user_id is None:
@@ -11868,7 +11775,6 @@ class PrivateAPI:
                     "cursor": <str>
                   }
         """
-
         self._check_scope("get_user_following", "r_usr", flows={"device_code"})
 
         if include_only and include_only not in (
@@ -11908,7 +11814,6 @@ class PrivateAPI:
 
             **Example**: :code:`172311284`.
         """
-
         self._check_scope("follow_user", "r_usr", flows={"device_code"})
 
         self._request(
@@ -11934,7 +11839,6 @@ class PrivateAPI:
 
             **Example**: :code:`172311284`.
         """
-
         self._check_scope("unfollow_user", "r_usr", flows={"device_code"})
 
         self._request(
@@ -11973,7 +11877,6 @@ class PrivateAPI:
             A dictionary containing the users blocked by the current
             user and the number of results.
         """
-
         self._check_scope("get_blocked_users", "r_usr", flows={"device_code"})
 
         return self._get_json(
@@ -11998,7 +11901,6 @@ class PrivateAPI:
 
             **Example**: :code:`172311284`.
         """
-
         self._check_scope("block_user", "r_usr", flows={"device_code"})
 
         self._request("put", f"{self.API_URL}/v2/profiles/block/{user_id}")
@@ -12020,7 +11922,6 @@ class PrivateAPI:
 
             **Example**: :code:`172311284`.
         """
-
         self._check_scope("unblock_user", "r_usr", flows={"device_code"})
 
         self._request("delete", f"{self.API_URL}/v2/profiles/block/{user_id}")
@@ -12102,7 +12003,6 @@ class PrivateAPI:
                     "album": <dict>
                   }
         """
-
         self._check_scope(
             "get_video",
             "r_usr",
@@ -12188,7 +12088,6 @@ class PrivateAPI:
                     "manifest": <str>
                   }
         """
-
         self._check_scope(
             "get_video_playback_info",
             "r_usr",
@@ -12341,7 +12240,6 @@ class PrivateAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_favorite_videos", "r_usr", flows={"device_code"}
         )
@@ -12393,7 +12291,6 @@ class PrivateAPI:
 
             **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
-
         self._check_scope("favorite_videos", "r_usr", flows={"device_code"})
 
         self._request(
@@ -12430,7 +12327,6 @@ class PrivateAPI:
             **Examples**: :code:`"59727844,75623239"` or
             :code:`[59727844, 75623239]`.
         """
-
         self._check_scope("unfavorite_videos", "r_usr", flows={"device_code"})
 
         if isinstance(video_ids, list):
