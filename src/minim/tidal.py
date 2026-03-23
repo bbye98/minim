@@ -2992,7 +2992,7 @@ class API:
         """
         `Search Results > Search albums <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_albums>_: Search for
+        /get_searchResults__id__relationships_albums>`_: Search for
         albums in the TIDAL catalog.
 
         Parameters
@@ -3043,7 +3043,7 @@ class API:
         """
         `Search Results > Search artists <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_artists>_: Search for
+        /get_searchResults__id__relationships_artists>`_: Search for
         artists in the TIDAL catalog.
 
         Parameters
@@ -3094,7 +3094,7 @@ class API:
         """
         `Search Results > Search playlists <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_playlists>_: Search for
+        /get_searchResults__id__relationships_playlists>`_: Search for
         playlists in the TIDAL catalog.
 
         Parameters
@@ -3145,7 +3145,7 @@ class API:
         """
         `Search Results > Search top hits <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_topHits>_: Search for top
+        /get_searchResults__id__relationships_topHits>`_: Search for top
         hits in the TIDAL catalog.
 
         Parameters
@@ -3196,7 +3196,7 @@ class API:
         """
         `Search Results > Search tracks <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_tracks>_: Search for
+        /get_searchResults__id__relationships_tracks>`_: Search for
         tracks in the TIDAL catalog.
 
         Parameters
@@ -3247,7 +3247,7 @@ class API:
         """
         `Search Results > Search videos <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_videos>_: Search for
+        /get_searchResults__id__relationships_videos>`_: Search for
         videos in the TIDAL catalog.
 
         Parameters
