@@ -3,6 +3,8 @@
 .ruff_cache/
 _examples/
 dist/
+docs/build/
+docs/source/api/
 jupyter_execute/
 src/minim.egg-info
 .coverage
