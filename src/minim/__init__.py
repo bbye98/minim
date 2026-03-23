@@ -28,7 +28,7 @@ FOUND_FFMPEG = shutil.which("ffmpeg") is not None
 FOUND_FLASK = find_spec("flask") is not None
 FOUND_PLAYWRIGHT = find_spec("playwright") is not None
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 REPOSITORY_URL = "https://github.com/bbye98/minim"
 
 if FOUND_FFMPEG:

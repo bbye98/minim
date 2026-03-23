@@ -21,17 +21,20 @@
 [![continuous-integration](https://github.com/bbye98/minim/actions/workflows/ci.yml/badge.svg)](https://github.com/bbye98/minim/actions/workflows/ci.yml)
 
 Minim is a lightweight Python 3 library that can interface with APIs 
-by popular music services—iTunes, Qobuz, Spotify, and TIDAL—and operate 
-on audio files, such as updating metadata and converting between audio
-formats.
+by popular music services—Discogs, iTunes, Qobuz, Spotify, and TIDAL—and 
+operate on audio files, such as updating metadata and converting between 
+audio formats.
 
-* **Documentation**: https://bbye98.github.io/minim/ (old) and https://minim.readthedocs.io/en/latest/ (new)
+* **Documentation**: https://minim.readthedocs.io/en/latest/
 
 ## Features
 
 * [`minim.audio`](https://github.com/bbye98/minim/blob/main/src/minim/audio.py):
   Audio file handlers for reading and writing metadata and converting
   between audio formats.
+* [`minim.discogs`](https://github.com/bbye98/minim/blob/main/src/minim/discogs.py):
+  A client for the Discogs API with support for the Discogs Auth and 
+  OAuth flows, and access token caching.
 * [`minim.itunes`](https://github.com/bbye98/minim/blob/main/src/minim/itunes.py):
   A client for the iTunes Search API.
 * [`minim.qobuz`](https://github.com/bbye98/minim/blob/main/src/minim/qobuz.py):
