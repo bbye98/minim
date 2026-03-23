@@ -704,7 +704,7 @@ class API:
         release : `dict`
             Discogs database information for a single release.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -891,7 +891,7 @@ class API:
         rating : `dict`
             Rating for the release by the given user.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -949,7 +949,7 @@ class API:
         rating : `dict`
             Updated rating for the release by the given user.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1036,7 +1036,7 @@ class API:
         rating : `dict`
             Community release rating average and count.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1080,7 +1080,7 @@ class API:
         stats : `dict`
             Release "have" and "want" counts.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1110,7 +1110,7 @@ class API:
         master_release : `dict`
             Discogs database information for a single master release.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1256,7 +1256,7 @@ class API:
             Discogs database information for all releases that are
             versions of the specified master.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1330,7 +1330,7 @@ class API:
         artist : `dict`
             Discogs database information for a single artist.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1414,7 +1414,7 @@ class API:
             Discogs database information for all releases by the
             specified artist.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1474,7 +1474,7 @@ class API:
         label : `dict`
             Discogs database information for a single label.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1545,7 +1545,7 @@ class API:
             Discogs database information for all releases by the
             specified label.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1713,7 +1713,7 @@ class API:
         results : `dict`
             Search results.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1846,7 +1846,7 @@ class API:
         inventory : `dict`
             The seller's inventory.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1942,7 +1942,7 @@ class API:
         listing : `dict`
             The marketplace listing.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -2303,7 +2303,7 @@ class API:
         order : `dict`
             The marketplace order.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -2428,7 +2428,7 @@ class API:
         order : `dict`
             The marketplace order.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                 :class: dropdown
 
                 .. code::
@@ -2573,7 +2573,7 @@ class API:
         orders : `dict`
             The authenticated user's orders.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -2699,7 +2699,7 @@ class API:
         messages : `dict`
             The order's messages.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -2795,7 +2795,7 @@ class API:
         message : `dict`
             The order's message.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -2855,7 +2855,7 @@ class API:
         fee : `dict`
             The fee for selling an item on the marketplace.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -2899,7 +2899,7 @@ class API:
         prices : `dict`
             The price suggestions for the release.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -2993,7 +2993,7 @@ class API:
         stats : `dict`
             The marketplace statistics for the release.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3094,7 +3094,7 @@ class API:
         exports : `dict`
             The authenticated user's inventory exports.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3155,7 +3155,7 @@ class API:
         export : `dict`
             Details about the status of the inventory export.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3414,7 +3414,7 @@ class API:
         uploads : `dict`
             The authenticated user's inventory uploads.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3477,7 +3477,7 @@ class API:
         upload : `dict`
             Details about the status of the inventory upload.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3522,7 +3522,7 @@ class API:
         identity : `dict`
             Basic information about the authenticated user.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3570,7 +3570,7 @@ class API:
         profile : `dict`
             Detailed information about the user.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3672,7 +3672,7 @@ class API:
         profile : `dict`
             Updated profile.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3788,7 +3788,7 @@ class API:
         submissions : `dict`
             Submissions made by the user.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -3974,7 +3974,7 @@ class API:
         contributions : `dict`
             Contributions made by the user.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4134,7 +4134,7 @@ class API:
         folders : `list`
             A list of folders in the user's collection.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4185,7 +4185,7 @@ class API:
         folder : `dict`
             Information about the newly-created folder.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4239,7 +4239,7 @@ class API:
         folder : `dict`
             Metadata about the folder.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4305,7 +4305,7 @@ class API:
         folder : `dict`
             Information about the edited folder.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4394,7 +4394,7 @@ class API:
         releases : `list`
             A list of releases and their folders.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4532,7 +4532,7 @@ class API:
         items : `dict`
             Items in the folder.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4656,7 +4656,7 @@ class API:
         folder : `dict`
             Information about the folder.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4839,7 +4839,7 @@ class API:
         fields : `list`
             A list of user-defined collection fields.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -4966,7 +4966,7 @@ class API:
         value : `dict`
             The total minimum value of the user's collection.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -5027,7 +5027,7 @@ class API:
         wantlist : `dict`
             The releases in the user's wantlist.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -5137,7 +5137,7 @@ class API:
         release : `dict`
             Information about the newly added release.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -5248,7 +5248,7 @@ class API:
         release : `dict`
             Information about the edited release.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -5386,7 +5386,7 @@ class API:
         lists : `dict`
             The lists created by the user.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -5454,7 +5454,7 @@ class API:
         list : `dict`
             The items in the list.
 
-            .. admonition:: Sample
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::

@@ -43,7 +43,6 @@ class SearchAPI:
         """
         Create a iTunes Search API client.
         """
-
         self.session = requests.Session()
 
     def _get_json(self, url: str, **kwargs) -> dict:
@@ -64,7 +63,6 @@ class SearchAPI:
         resp : `dict`
             JSON-encoded content of the response.
         """
-
         return self._request("get", url, **kwargs).json()
 
     def _request(self, method: str, url: str, **kwargs) -> requests.Response:
@@ -87,7 +85,6 @@ class SearchAPI:
         resp : `requests.Response`
             Response to the request.
         """
-
         r = self.session.request(method, url, **kwargs)
         if not 200 <= r.status_code < 300:
             emsg = f"{r.status_code} {r.reason}"
@@ -309,7 +306,6 @@ class SearchAPI:
 
         >>> itunes.search("yelp", country="us", entity="software")
         """
-
         return self._get_json(
             f"{self.API_URL}/search",
             params={
@@ -509,7 +505,6 @@ class SearchAPI:
 
         >>> itunes.lookup(bundle_id="com.yelp.yelpiphone")
         """
-
         return self._get_json(
             f"{self.API_URL}/lookup",
             params={

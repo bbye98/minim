@@ -45,7 +45,6 @@ class _SpotifyRedirectHandler(BaseHTTPRequestHandler):
         """
         Handles an incoming GET request and parses the query string.
         """
-
         self.server.response = dict(
             urllib.parse.parse_qsl(urllib.parse.urlparse(f"{self.path}").query)
         )
@@ -158,7 +157,6 @@ class PrivateLyricsService:
         """
         Create a Spotify Lyrics service client.
         """
-
         self.session = requests.Session()
         self.session.headers["App-Platform"] = "WebPlayer"
 
@@ -188,7 +186,6 @@ class PrivateLyricsService:
         resp : `dict`
             JSON-encoded content of the response.
         """
-
         return self._request("get", url, **kwargs).json()
 
     def _request(
@@ -217,7 +214,6 @@ class PrivateLyricsService:
         resp : `requests.Response`
             Response to the request.
         """
-
         if self._expiry is not None and datetime.datetime.now() > self._expiry:
             self.set_access_token()
 
@@ -246,7 +242,6 @@ class PrivateLyricsService:
             and their associated properties to the Minim configuration
             file.
         """
-
         self._sp_dc = sp_dc or os.environ.get("SPOTIFY_SP_DC")
         self._save = save
 
@@ -270,7 +265,6 @@ class PrivateLyricsService:
             reauthenticated (if `sp_dc` is found or provided) when the
             `access_token` expires.
         """
-
         if access_token is None:
             if not self._sp_dc:
                 raise ValueError("Missing sp_dc cookie.")
@@ -354,7 +348,6 @@ class PrivateLyricsService:
                     "hasVocalRemoval": <bool>
                   }
         """
-
         return self._get_json(
             f"{self.LYRICS_URL}/track/{track_id}",
             params={"format": "json", "market": "from_token"},
@@ -643,7 +636,6 @@ class WebAPI:
                <https://developer.spotify.com/documentation/web-api
                /concepts/scopes>`_.
         """
-
         SCOPES = {
             "images": ["ugc-image-upload"],
             "spotify_connect": [
@@ -672,7 +664,9 @@ class WebAPI:
             if categories in SCOPES.keys():
                 return SCOPES[categories]
             if categories == "all":
-                return " ".join(s for scopes in SCOPES.values() for s in scopes)
+                return " ".join(
+                    s for scopes in SCOPES.values() for s in scopes
+                )
             return " ".join(
                 s
                 for scopes in SCOPES.values()
@@ -707,7 +701,6 @@ class WebAPI:
         """
         Create a Spotify Web API client.
         """
-
         self.session = requests.Session()
 
         if (
@@ -760,7 +753,6 @@ class WebAPI:
         scope : `str`
             Required scope for `endpoint`.
         """
-
         if scope not in self._scopes:
             emsg = (
                 f"{self._NAME}.{endpoint}() requires the '{scope}' "
@@ -783,7 +775,6 @@ class WebAPI:
         auth_code : `str`
             Authorization code.
         """
-
         params = {
             "client_id": self._client_id,
             "redirect_uri": self._redirect_uri,
@@ -897,14 +888,12 @@ class WebAPI:
         resp : `dict`
             JSON-encoded content of the response.
         """
-
         return self._request("get", url, **kwargs).json()
 
     def _refresh_access_token(self) -> None:
         """
         Refresh the expired excess token.
         """
-
         if (
             self._flow == "web_player"
             or not self._refresh_token
@@ -972,7 +961,6 @@ class WebAPI:
         resp : `requests.Response`
             Response to the request.
         """
-
         if self._expiry is not None and datetime.datetime.now() > self._expiry:
             self._refresh_access_token()
 
@@ -1017,7 +1005,6 @@ class WebAPI:
             the default authorization flow (if possible) when
             `access_token` expires.
         """
-
         if access_token is None:
             if self._flow == "web_player":
                 headers = (
@@ -1196,7 +1183,6 @@ class WebAPI:
             and their associated properties to the Minim configuration
             file.
         """
-
         if flow not in self._FLOWS:
             emsg = (
                 f"Invalid authorization flow ({flow=}). "
@@ -1415,7 +1401,6 @@ class WebAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/albums/{id}", params={"market": market}
         )
@@ -1583,7 +1568,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
             f"{self.API_URL}/albums",
             params={
@@ -1707,7 +1691,6 @@ class WebAPI:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/albums/{id}/tracks",
             params={"limit": limit, "market": market, "offset": offset},
@@ -1899,7 +1882,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_saved_albums", "user-library-read")
 
         return self._get_json(
@@ -1929,7 +1911,6 @@ class WebAPI:
             **Example**: :code:`"382ObEPsp2rxGrnsizN5TX,
             1A2GTWGtFfWp7KSQTwWOyo, 2noRn2Aes5aoNVsU6iWThc"`.
         """
-
         self._check_scope("save_albums", "user-library-modify")
 
         if isinstance(ids, str):
@@ -1937,7 +1918,9 @@ class WebAPI:
                 "put", f"{self.API_URL}/me/albums", params={"ids": ids}
             )
         elif isinstance(ids, list):
-            self._request("put", f"{self.API_URL}/me/albums", json={"ids": ids})
+            self._request(
+                "put", f"{self.API_URL}/me/albums", json={"ids": ids}
+            )
 
     def remove_saved_albums(self, ids: Union[str, list[str]]) -> None:
         """
@@ -1961,7 +1944,6 @@ class WebAPI:
             **Example**: :code:`"382ObEPsp2rxGrnsizN5TX,
             1A2GTWGtFfWp7KSQTwWOyo, 2noRn2Aes5aoNVsU6iWThc"`.
         """
-
         self._check_scope("remove_saved_albums", "user-library-modify")
 
         if isinstance(ids, str):
@@ -2001,7 +1983,6 @@ class WebAPI:
 
             **Example**: :code:`[False, True]`.
         """
-
         self._check_scope("check_saved_albums", "user-library-read")
 
         return self._get_json(
@@ -2118,7 +2099,6 @@ class WebAPI:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/browse/new-releases",
             params={"country": country, "limit": limit, "offset": offset},
@@ -2174,7 +2154,6 @@ class WebAPI:
                     "uri": <str>
                   }
         """
-
         return self._get_json(f"{self.API_URL}/artists/{id}")
 
     def get_artists(
@@ -2233,7 +2212,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
             f"{self.API_URL}/artists",
             params={"ids": ids if isinstance(ids, str) else ",".join(ids)},
@@ -2384,7 +2362,6 @@ class WebAPI:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/artists/{id}/albums",
             params={
@@ -2545,9 +2522,9 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
-            f"{self.API_URL}/artists/{id}/top-tracks", params={"market": market}
+            f"{self.API_URL}/artists/{id}/top-tracks",
+            params={"market": market},
         )["tracks"]
 
     def get_related_artists(self, id: str) -> list[dict[str, Any]]:
@@ -2603,7 +2580,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(f"{self.API_URL}/artists/{id}/related-artists")[
             "artists"
         ]
@@ -2741,13 +2717,15 @@ class WebAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/audiobooks/{id}", params={"market": market}
         )
 
     def get_audiobooks(
-        self, ids: Union[int, str, list[Union[int, str]]], *, market: str = None
+        self,
+        ids: Union[int, str, list[Union[int, str]]],
+        *,
+        market: str = None,
     ) -> list[dict[str, Any]]:
         """
         `Audiobooks > Get Several Audiobooks
@@ -2887,7 +2865,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
             f"{self.API_URL}/audiobooks",
             params={
@@ -3008,7 +2985,6 @@ class WebAPI:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/audiobooks/{id}/chapters",
             params={"limit": limit, "market": market, "offset": offset},
@@ -3108,7 +3084,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_saved_audiobooks", "user-library-read")
 
         return self._get_json(
@@ -3139,13 +3114,14 @@ class WebAPI:
             **Example**: :code:`"18yVqkdbdRvS24c0Ilj2ci,
             1HGw3J3NxZO1TP1BTtVhpZ, 7iHfbu1YPACw6oZPAFJtqe"`.
         """
-
         self._check_scope("save_audiobooks", "user-library-modify")
 
         self._request(
             "put",
             f"{self.API_URL}/me/audiobooks",
-            params={"ids": f"{ids if isinstance(ids, str) else ','.join(ids)}"},
+            params={
+                "ids": f"{ids if isinstance(ids, str) else ','.join(ids)}"
+            },
         )
 
     def remove_saved_audiobooks(self, ids: Union[str, list[str]]) -> None:
@@ -3171,13 +3147,14 @@ class WebAPI:
             **Example**: :code:`"18yVqkdbdRvS24c0Ilj2ci,
             1HGw3J3NxZO1TP1BTtVhpZ, 7iHfbu1YPACw6oZPAFJtqe"`.
         """
-
         self._check_scope("remove_saved_audiobooks", "user-library-modify")
 
         self._request(
             "delete",
             f"{self.API_URL}/me/audiobooks",
-            params={"ids": f"{ids if isinstance(ids, str) else ','.join(ids)}"},
+            params={
+                "ids": f"{ids if isinstance(ids, str) else ','.join(ids)}"
+            },
         )
 
     def check_saved_audiobooks(self, ids: Union[str, list[str]]) -> list[bool]:
@@ -3212,7 +3189,6 @@ class WebAPI:
 
             **Example**: :code:`[False, True]`.
         """
-
         self._check_scope("check_saved_audiobooks", "user-library-read")
 
         return self._get_json(
@@ -3282,7 +3258,6 @@ class WebAPI:
                     "name": <str>
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/browse/categories/{category_id}",
             params={"country": country, "locale": locale},
@@ -3372,7 +3347,6 @@ class WebAPI:
                     "total": <int>
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/browse/categories",
             params={
@@ -3504,13 +3478,15 @@ class WebAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/chapters/{id}", params={"market": market}
         )
 
     def get_chapters(
-        self, ids: Union[int, str, list[Union[int, str]]], *, market: str = None
+        self,
+        ids: Union[int, str, list[Union[int, str]]],
+        *,
+        market: str = None,
     ) -> list[dict[str, Any]]:
         """
         `Chapters > Get Several Chapters <https://developer.spotify.com/
@@ -3637,7 +3613,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
             f"{self.API_URL}/chapters",
             params={
@@ -3753,13 +3728,15 @@ class WebAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/episodes/{id}", params={"market": market}
         )
 
     def get_episodes(
-        self, ids: Union[int, str, list[Union[int, str]]], *, market: str = None
+        self,
+        ids: Union[int, str, list[Union[int, str]]],
+        *,
+        market: str = None,
     ) -> list[dict[str, Any]]:
         """
         `Episodes > Get Several Episodes
@@ -3872,7 +3849,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
             f"{self.API_URL}/episodes",
             params={
@@ -4016,7 +3992,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_saved_episodes", "user-library-read")
 
         return self._get_json(
@@ -4046,7 +4021,6 @@ class WebAPI:
             **Example**:
             :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`.
         """
-
         self._check_scope("save_episodes", "user-library-modify")
 
         if isinstance(ids, str):
@@ -4080,7 +4054,6 @@ class WebAPI:
             **Example**:
             :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`.
         """
-
         self._check_scope("remove_saved_episodes", "user-library-modify")
 
         if isinstance(ids, str):
@@ -4124,7 +4097,6 @@ class WebAPI:
 
             **Example**: :code:`[False, True]`.
         """
-
         self._check_scope("check_saved_episodes", "user-library-read")
 
         return self._get_json(
@@ -4149,10 +4121,104 @@ class WebAPI:
 
             **Example**: :code:`["acoustic", "afrobeat", ...]`.
         """
-
         return self._get_json(
             f"{self.API_URL}/recommendations/available-genre-seeds"
         )["genres"]
+
+    ### LIBRARY ###############################################################
+
+    def save_items(self, uris: str | list[str]) -> None:
+        """
+        `Library > Save Items to Library <https://developer.spotify.com
+        /documentation/web-api/reference/save-library-items>`_: Save one
+        or more items to the current user's library.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`user-library-modify`,
+           :code:`user-follow-modify`, and
+           :code:`playlist-modify-public` scopes.
+
+        Parameters
+        ----------
+        uris : `str` or `list`
+            A (comma-separated) list of Spotify URIs for the items to
+            save. Maximum: 40 URIs.
+        """
+        self._check_scope("save_items", "user-library-modify")
+        self._check_scope("save_items", "user-follow-modify")
+        self._check_scope("save_items", "playlist-modify-public")
+        self._request(
+            "put",
+            f"{self.API_URL}/me/library",
+            params={"uris": ",".join(uris)},
+        )
+
+    def remove_saved_items(self, uris: str | list[str]) -> None:
+        """
+        `Library > Remove Items from Library
+        <https://developer.spotify.com/documentation/web-api/reference
+        /remove-library-items>`_: Remove one or more items from the
+        current user's library.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+            Requires the :code:`user-library-modify`,
+            :code:`user-follow-modify`, and
+            :code:`playlist-modify-public` scopes.
+
+        Parameters
+        ----------
+        uris : `str` or `list`
+            A (comma-separated) list of Spotify URIs for the items to
+            remove. Maximum: 40 URIs.
+        """
+        self._check_scope("remove_saved_items", "user-library-modify")
+        self._check_scope("remove_saved_items", "user-follow-modify")
+        self._check_scope("remove_saved_items", "playlist-modify-public")
+        self._request(
+            "delete",
+            f"{self.API_URL}/me/library",
+            params={"uris": ",".join(uris)},
+        )
+
+    def are_items_saved(self, uris: str | list[str]) -> list[bool]:
+        """
+        `Library > Check User's Saved Items
+        <https://developer.spotify.com/documentation/web-api/reference
+        /check-library-contains>`_: Check whether one or more items are
+        saved in the current user's library.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+            Requires the :code:`user-library-read`,
+            :code:`user-follow-read`, and
+            :code:`playlist-read-private` scopes.
+
+        Parameters
+        ----------
+        uris : `str` or `list`
+            A (comma-separated) list of Spotify URIs for the items to
+            check. Maximum: 40 URIs.
+
+        Returns
+        -------
+        contains : `list`
+            Array of booleans specifying whether the items are found in
+            the user's library.
+
+            **Example**: :code:`[False, True]`.
+        """
+        self._check_scope("are_items_saved", "user-library-read")
+        self._check_scope("are_items_saved", "user-follow-read")
+        self._check_scope("are_items_saved", "playlist-read-private")
+        return self._get_json(
+            f"{self.API_URL}/me/library/contains",
+            params={"uris": ",".join(uris)},
+        )
 
     ### MARKETS ###############################################################
 
@@ -4170,7 +4236,6 @@ class WebAPI:
 
             **Example**: :code:`["CA", "BR", "IT"]`.
         """
-
         return self._get_json(f"{self.API_URL}/markets")["markets"]
 
     ### PLAYER ################################################################
@@ -4372,7 +4437,6 @@ class WebAPI:
                     }
                   }
         """
-
         self._check_scope("get_playback_state", "user-read-playback-state")
 
         return self._get_json(
@@ -4412,7 +4476,6 @@ class WebAPI:
             :code:`False` or not provided, the current playback state is
             kept.
         """
-
         self._check_scope("transfer_playback", "user-modify-playback-state")
 
         json = {
@@ -4462,8 +4525,7 @@ class WebAPI:
                     }
                   ]
         """
-
-        self._check_scope("get_available_devices", "user-read-playback-state")
+        self._check_scope("get_devices", "user-read-playback-state")
 
         self._get_json(f"{self.API_URL}/me/player/devices")
 
@@ -4663,7 +4725,6 @@ class WebAPI:
                     }
                   }
         """
-
         self._check_scope(
             "get_currently_playing_item", "user-read-currently-playing"
         )
@@ -4742,7 +4803,6 @@ class WebAPI:
 
             **Valid values**: `position_ms` must be a positive number.
         """
-
         self._check_scope("start_playback", "user-modify-playback-state")
 
         json = {}
@@ -4782,7 +4842,6 @@ class WebAPI:
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-
         self._check_scope("pause_playback", "user-modify-playback-state")
 
         self._request(
@@ -4812,7 +4871,6 @@ class WebAPI:
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-
         self._check_scope("skip_to_next", "user-modify-playback-state")
 
         self._request(
@@ -4842,7 +4900,6 @@ class WebAPI:
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-
         self._check_scope("skip_to_previous", "user-modify-playback-state")
 
         self._request(
@@ -4883,7 +4940,6 @@ class WebAPI:
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-
         self._check_scope("seek_to_position", "user-modify-playback-state")
 
         self._request(
@@ -4925,7 +4981,6 @@ class WebAPI:
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-
         self._check_scope("set_repeat_mode", "user-modify-playback-state")
 
         self._request(
@@ -4965,7 +5020,6 @@ class WebAPI:
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-
         self._check_scope("set_playback_volume", "user-modify-playback-state")
 
         self._request(
@@ -5000,7 +5054,6 @@ class WebAPI:
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-
         self._check_scope(
             "toggle_playback_shuffle", "user-modify-playback-state"
         )
@@ -5192,7 +5245,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope(
             "get_recently_played_tracks", "user-read-recently-played"
         )
@@ -5441,7 +5493,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_user_queue", "user-read-playback-state")
 
         return self._get_json(f"{self.API_URL}/me/player/queue")
@@ -5471,7 +5522,6 @@ class WebAPI:
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-
         self._check_scope("add_queue_item", "user-modify-playback-state")
 
         self._request(
@@ -5733,7 +5783,6 @@ class WebAPI:
                     "uri": <str>
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/playlists/{playlist_id}",
             params={
@@ -5804,7 +5853,6 @@ class WebAPI:
             Value for playlist description as displayed in Spotify
             clients and in the Web API.
         """
-
         self._check_scope(
             "change_playlist_details",
             "playlist-modify-"
@@ -6062,11 +6110,10 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_playlist_item", "playlist-modify-private")
 
         return self._get_json(
-            f"{self.API_URL}/playlists/{playlist_id}/tracks",
+            f"{self.API_URL}/playlists/{playlist_id}/items",
             params={
                 "additional_types": (
                     additional_types
@@ -6146,7 +6193,6 @@ class WebAPI:
         snapshot_id : `str`
             The updated playlist's snapshot ID.
         """
-
         self._check_scope(
             "add_playlist_details",
             "playlist-modify-"
@@ -6158,7 +6204,7 @@ class WebAPI:
         )
 
         if isinstance(uris, str):
-            url = f"{self.API_URL}/playlists/{playlist_id}/tracks?{uris=}"
+            url = f"{self.API_URL}/playlists/{playlist_id}/items?{uris=}"
             if position is not None:
                 url += f"{position=}"
             return self._request("post", url).json()["snapshot_id"]
@@ -6169,7 +6215,7 @@ class WebAPI:
                 json["position"] = position
             self._request(
                 "post",
-                f"{self.API_URL}/playlists/{playlist_id}/tracks",
+                f"{self.API_URL}/playlists/{playlist_id}/items",
                 json=json,
             ).json()["snapshot_id"]
 
@@ -6269,7 +6315,6 @@ class WebAPI:
         snapshot_id : `str`
             The updated playlist's snapshot ID.
         """
-
         self._check_scope(
             "update_playlist_details",
             "playlist-modify-"
@@ -6293,21 +6338,21 @@ class WebAPI:
                 json["range_length"] = range_length
             return self._request(
                 "put",
-                f"{self.API_URL}/playlists/{playlist_id}/tracks",
+                f"{self.API_URL}/playlists/{playlist_id}/items",
                 json=json,
             ).json()["snapshot_id"]
 
         elif isinstance(uris, str):
             return self._request(
                 "put",
-                f"{self.API_URL}/playlists/{playlist_id}/tracks?uris={uris}",
+                f"{self.API_URL}/playlists/{playlist_id}/items?uris={uris}",
                 json=json,
             ).json()["snapshot_id"]
 
         elif isinstance(uris, list):
             return self._request(
                 "put",
-                f"{self.API_URL}/playlists/{playlist_id}/tracks",
+                f"{self.API_URL}/playlists/{playlist_id}/items",
                 json={"uris": uris} | json,
             ).json()["snapshot_id"]
 
@@ -6354,7 +6399,6 @@ class WebAPI:
         snapshot_id : `str`
             The updated playlist's snapshot ID.
         """
-
         self._check_scope(
             "remove_playlist_items",
             "playlist-modify-"
@@ -6370,7 +6414,7 @@ class WebAPI:
             json["snapshot_id"] = snapshot_id
         return self._request(
             "delete",
-            f"{self.API_URL}/playlists/{playlist_id}/tracks",
+            f"{self.API_URL}/playlists/{playlist_id}/items",
             json=json,
         ).json()["snapshot_id"]
 
@@ -6465,7 +6509,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_personal_playlists", "playlist-read-private")
         self._check_scope(
             "get_personal_playlists", "playlist-read-collaborative"
@@ -6572,7 +6615,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_user_playlists", "playlist-read-private")
         self._check_scope("get_user_playlists", "playlist-read-collaborative")
 
@@ -6819,7 +6861,6 @@ class WebAPI:
                     "uri": <str>
                   }
         """
-
         self._check_scope(
             "create_playlist",
             "playlist-modify-" + ("public" if public else "private"),
@@ -6832,7 +6873,9 @@ class WebAPI:
             json["description"] = description
 
         return self._request(
-            "post", f"{self.API_URL}/users/{self._user_id}/playlists", json=json
+            "post",
+            f"{self.API_URL}/users/{self._user_id}/playlists",
+            json=json,
         ).json()
 
     def get_featured_playlists(
@@ -6964,7 +7007,6 @@ class WebAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/browse/featured-playlists",
             params={
@@ -7083,7 +7125,6 @@ class WebAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/browse/categories/{category_id}/playlists",
             params={"country": country, "limit": limit, "offset": offset},
@@ -7120,10 +7161,9 @@ class WebAPI:
                     "width": <int>
                   }
         """
-
-        return self._get_json(f"{self.API_URL}/playlists/{playlist_id}/images")[
-            0
-        ]
+        return self._get_json(
+            f"{self.API_URL}/playlists/{playlist_id}/images"
+        )[0]
 
     def add_playlist_cover_image(self, playlist_id: str, image: bytes) -> None:
         """
@@ -7150,7 +7190,6 @@ class WebAPI:
             Base64-encoded JPEG image data. The maximum payload size is
             256 KB.
         """
-
         self._check_scope("get_categories", "ugc-image-upload")
         self._check_scope(
             "get_categories",
@@ -7683,7 +7722,6 @@ class WebAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/search?q={urllib.parse.quote(q)}",
             params={
@@ -7812,7 +7850,6 @@ class WebAPI:
                     }
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/shows/{id}", params={"market": market}
         )
@@ -7896,7 +7933,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
             f"{self.API_URL}/shows",
             params={
@@ -8011,7 +8047,6 @@ class WebAPI:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/shows/{id}/episodes",
             params={"limit": limit, "market": market, "offset": offset},
@@ -8110,7 +8145,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_saved_shows", "user-library-read")
 
         return self._get_json(
@@ -8139,13 +8173,14 @@ class WebAPI:
             **Example**:
             :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`.
         """
-
         self._check_scope("save_shows", "user-library-modify")
 
         self._request(
             "put",
             f"{self.API_URL}/me/shows",
-            params={"ids": f"{ids if isinstance(ids, str) else ','.join(ids)}"},
+            params={
+                "ids": f"{ids if isinstance(ids, str) else ','.join(ids)}"
+            },
         )
 
     def remove_saved_shows(
@@ -8185,7 +8220,6 @@ class WebAPI:
 
             **Example**: :code:`"ES"`.
         """
-
         self._check_scope("remove_saved_shows", "user-library-modify")
 
         self._request(
@@ -8227,7 +8261,6 @@ class WebAPI:
 
             **Example**: :code:`[False, True]`.
         """
-
         self._check_scope("check_saved_shows", "user-library-read")
 
         return self._get_json(
@@ -8381,13 +8414,15 @@ class WebAPI:
                     "is_local": <bool>
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/tracks/{id}", params={"market": market}
         )
 
     def get_tracks(
-        self, ids: Union[int, str, list[Union[int, str]]], *, market: str = None
+        self,
+        ids: Union[int, str, list[Union[int, str]]],
+        *,
+        market: str = None,
     ) -> list[dict[str, Any]]:
         """
         `Tracks > Get Several Tracks <https://developer.spotify.com/
@@ -8539,7 +8574,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
             f"{self.API_URL}/tracks",
             params={
@@ -8724,7 +8758,6 @@ class WebAPI:
                     ]
                   }
         """
-
         self._check_scope("get_saved_tracks", "user-library-read")
 
         return self._get_json(
@@ -8754,7 +8787,6 @@ class WebAPI:
             **Example**: :code:`"7ouMYWpwJ422jRcDASZB7P,
             4VqPOruhp5EdPBeR92t6lQ, 2takcwOaAZWiXQijPHIx7B"`.
         """
-
         self._check_scope("save_tracks", "user-library-modify")
 
         if isinstance(ids, str):
@@ -8762,7 +8794,9 @@ class WebAPI:
                 "put", f"{self.API_URL}/me/tracks", params={"ids": ids}
             )
         elif isinstance(ids, list):
-            self._request("put", f"{self.API_URL}/me/tracks", json={"ids": ids})
+            self._request(
+                "put", f"{self.API_URL}/me/tracks", json={"ids": ids}
+            )
 
     def remove_saved_tracks(self, ids: Union[str, list[str]]) -> None:
         """
@@ -8786,7 +8820,6 @@ class WebAPI:
             **Example**: :code:`"7ouMYWpwJ422jRcDASZB7P,
             4VqPOruhp5EdPBeR92t6lQ, 2takcwOaAZWiXQijPHIx7B"`.
         """
-
         self._check_scope("remove_saved_tracks", "user-library-modify")
 
         if isinstance(ids, str):
@@ -8829,7 +8862,6 @@ class WebAPI:
 
             **Example**: :code:`[False, True]`.
         """
-
         self._check_scope("check_saved_tracks", "user-library-read")
 
         return self._get_json(
@@ -8882,7 +8914,6 @@ class WebAPI:
                     "valence": <float>,
                   }
         """
-
         return self._get_json(f"{self.API_URL}/audio-features/{id}")
 
     def get_tracks_audio_features(
@@ -8937,7 +8968,6 @@ class WebAPI:
                     }
                   ]
         """
-
         return self._get_json(
             f"{self.API_URL}/audio-features",
             params={"ids": ids if isinstance(ids, str) else ",".join(ids)},
@@ -9059,7 +9089,6 @@ class WebAPI:
                     ]
                   }
         """
-
         return self._get_json(f"{self.API_URL}/audio-analysis/{id}")
 
     def get_recommendations(
@@ -9284,7 +9313,6 @@ class WebAPI:
                     ]
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/recommendations",
             params={
@@ -9363,7 +9391,6 @@ class WebAPI:
                     "uri": <str>
                   }
         """
-
         self._check_scope("get_profile", "user-read-private")
 
         return self._get_json(f"{self.API_URL}/me")
@@ -9467,7 +9494,6 @@ class WebAPI:
                     ]
                   }
         """
-
         if type not in (TYPES := {"artists", "tracks"}):
             raise ValueError(
                 f"Invalid entity type ({type=}). "
@@ -9478,7 +9504,11 @@ class WebAPI:
 
         return self._get_json(
             f"{self.API_URL}/me/top/{type}",
-            params={"limit": limit, "offset": offset, "time_range": time_range},
+            params={
+                "limit": limit,
+                "offset": offset,
+                "time_range": time_range,
+            },
         )
 
     def get_user_profile(self, user_id: str) -> dict[str, Any]:
@@ -9527,7 +9557,6 @@ class WebAPI:
                     "uri": <str>
                   }
         """
-
         return self._get_json(f"{self.API_URL}/users/{user_id}")
 
     def follow_playlist(self, playlist_id: str) -> None:
@@ -9548,7 +9577,6 @@ class WebAPI:
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`
         """
-
         self._check_scope("follow_playlist", "playlist-modify-private")
 
         self._request(
@@ -9574,7 +9602,6 @@ class WebAPI:
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`
         """
-
         self._check_scope("unfollow_playlist", "playlist-modify-private")
 
         self._request(
@@ -9655,7 +9682,6 @@ class WebAPI:
                       ]
                     }
         """
-
         self._check_scope("get_followed_artists", "user-follow-read")
 
         return self._get_json(
@@ -9690,7 +9716,6 @@ class WebAPI:
 
             **Valid values**: :code:`"artist"` and :code:`"user"`.
         """
-
         self._check_scope("follow_people", "user-follow-modify")
 
         if isinstance(ids, str):
@@ -9734,7 +9759,6 @@ class WebAPI:
 
             **Valid values**: :code:`"artist"` and :code:`"user"`.
         """
-
         self._check_scope("unfollow_people", "user-follow-modify")
 
         if isinstance(ids, str):
@@ -9789,7 +9813,6 @@ class WebAPI:
 
             **Example**: :code:`[False, True]`.
         """
-
         self._check_scope("check_followed_people", "user-follow-read")
 
         return self._get_json(
@@ -9833,7 +9856,6 @@ class WebAPI:
 
             **Example**: :code:`[False, True]`.
         """
-
         return self._get_json(
             f"{self.API_URL}/playlists/{playlist_id}/followers/contains",
             params={"ids": ids if isinstance(ids, str) else ",".join(ids)},
