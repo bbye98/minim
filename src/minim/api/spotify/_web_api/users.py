@@ -2898,7 +2898,7 @@ class UsersAPI(SpotifyResourceAPI):
         /documentation/web-api/reference/save-library-items>`_: Save one
         or more items to the current user's library.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: entitlement
 
            .. tab-set::
@@ -2955,7 +2955,7 @@ class UsersAPI(SpotifyResourceAPI):
         /remove-library-items>`_: Remove one or more items from the
         current user's library.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: entitlement
 
            .. tab-set::
@@ -3013,7 +3013,7 @@ class UsersAPI(SpotifyResourceAPI):
         /check-library-contains>`_: Check whether one or more items are
         saved in the current user's library.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: entitlement
 
            .. tab-set::
