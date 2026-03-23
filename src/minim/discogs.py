@@ -5438,7 +5438,7 @@ class API:
 
     def get_list(self, list_id: int) -> dict[str, Any]:
         """
-         `User Lists > List <https://www.discogs.com/developers
+        `User Lists > List <https://www.discogs.com/developers
         /#page:user-lists,header:user-lists-list>`_: Returns the items
         in a list.
 
