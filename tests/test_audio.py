@@ -8,10 +8,11 @@ from minim import audio  # noqa: E402
 
 
 class TestAudio:
-
     @classmethod
     def setup_class(cls):
-        cls.obj = audio.Audio(Path(__file__).parent / "data/samples/middle_c.wav")
+        cls.obj = audio.Audio(
+            Path(__file__).parent / "data/samples/middle_c.wav"
+        )
         assert isinstance(cls.obj, audio.WAVEAudio)
 
     def test_convert_flac(self):
@@ -33,7 +34,10 @@ class TestAudio:
     def test_convert_mp3(self):
         self.obj_new = copy(self.obj)
         self.obj_new.convert("mp3", filename="middle_c_mp3")
-        assert isinstance(self.obj_new, audio.MP3Audio) and self.obj_new.codec == "mp3"
+        assert (
+            isinstance(self.obj_new, audio.MP3Audio)
+            and self.obj_new.codec == "mp3"
+        )
 
         self.obj_new.title = "Middle C (Copy)"
         self.obj_new.write_metadata()
@@ -44,7 +48,10 @@ class TestAudio:
     def test_convert_mp4_aac(self):
         self.obj_new = copy(self.obj)
         self.obj_new.convert("aac", filename="middle_c_aac")
-        assert isinstance(self.obj_new, audio.MP4Audio) and "mp4a" in self.obj_new.codec
+        assert (
+            isinstance(self.obj_new, audio.MP4Audio)
+            and "mp4a" in self.obj_new.codec
+        )
 
         self.obj_new.title = "Middle C (Copy)"
         self.obj_new.write_metadata()
@@ -87,7 +94,10 @@ class TestAudio:
     def test_convert_ogg_opus(self):
         self.obj_new = copy(self.obj)
         self.obj_new.convert("opus", filename="middle_c_opus")
-        assert isinstance(self.obj_new, audio.OggAudio) and self.obj_new.codec == "opus"
+        assert (
+            isinstance(self.obj_new, audio.OggAudio)
+            and self.obj_new.codec == "opus"
+        )
 
         self.obj_new.title = "Middle C (Copy)"
         self.obj_new.write_metadata()
@@ -99,7 +109,8 @@ class TestAudio:
         self.obj_new = copy(self.obj)
         self.obj_new.convert("vorbis", filename="middle_c_vorbis")
         assert (
-            isinstance(self.obj_new, audio.OggAudio) and self.obj_new.codec == "vorbis"
+            isinstance(self.obj_new, audio.OggAudio)
+            and self.obj_new.codec == "vorbis"
         )
 
         self.obj_new.title = "Middle C (Copy)"
@@ -110,7 +121,9 @@ class TestAudio:
 
     def test_convert_wave_16bit(self):
         self.obj_new = copy(self.obj)
-        self.obj_new.convert("wav", filename="middle_c_16bit", options="-c:a pcm_s16le")
+        self.obj_new.convert(
+            "wav", filename="middle_c_16bit", options="-c:a pcm_s16le"
+        )
         assert isinstance(self.obj_new, audio.WAVEAudio)
 
         self.obj_new.title = "Middle C (Copy)"

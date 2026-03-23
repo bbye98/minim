@@ -6,7 +6,6 @@ from minim import itunes  # noqa: E402
 
 
 class TestSearchAPI:
-
     @classmethod
     def setup_class(cls):
         cls.obj = itunes.SearchAPI()
@@ -20,12 +19,17 @@ class TestSearchAPI:
 
     def test_search_limit(self):
         limit = 25
-        assert self.obj.search("Jack Johnson", limit=limit)["resultCount"] <= limit
+        assert (
+            self.obj.search("Jack Johnson", limit=limit)["resultCount"]
+            <= limit
+        )
 
     def test_search_entity(self):
         assert all(
             r["kind"] == "music-video"
-            for r in self.obj.search("Jack Johnson", entity="musicVideo")["results"]
+            for r in self.obj.search("Jack Johnson", entity="musicVideo")[
+                "results"
+            ]
         )
 
     def test_search_country(self):
@@ -37,11 +41,16 @@ class TestSearchAPI:
     def test_search_country_entity(self):
         assert all(
             r["kind"] == "software" and r["currency"] == "USD"
-            for r in self.obj.search("Yelp", country="US", entity="software")["results"]
+            for r in self.obj.search("Yelp", country="US", entity="software")[
+                "results"
+            ]
         )
 
     def test_lookup_artist(self):
-        assert self.obj.lookup(909253)["results"][0]["artistName"] == "Jack Johnson"
+        assert (
+            self.obj.lookup(909253)["results"][0]["artistName"]
+            == "Jack Johnson"
+        )
 
     def test_lookup_app(self):
         assert "Yelp" in self.obj.lookup(284910350)["results"][0]["trackName"]
@@ -53,7 +62,9 @@ class TestSearchAPI:
         )
 
     def test_lookup_artists(self):
-        assert self.obj.lookup(amg_artist_id=[468749, 5723])["resultCount"] == 2
+        assert (
+            self.obj.lookup(amg_artist_id=[468749, 5723])["resultCount"] == 2
+        )
 
     def test_lookup_artist_entity(self):
         r = self.obj.lookup(909253, entity="album")
@@ -84,7 +95,9 @@ class TestSearchAPI:
     def test_lookup_upc_entity(self):
         assert all(
             r["artistName"] == "Weezer"
-            for r in self.obj.lookup(upc=720642462928, entity="song")["results"]
+            for r in self.obj.lookup(upc=720642462928, entity="song")[
+                "results"
+            ]
         )
 
     def test_lookup_isbn(self):

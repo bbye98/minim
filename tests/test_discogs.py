@@ -6,7 +6,6 @@ from minim import discogs  # noqa: E402
 
 
 class TestAPI:
-
     ARTIST_ID = 108713
     LABEL_ID = 1
     MASTER_RELEASE_ID = 1000
@@ -30,7 +29,9 @@ class TestAPI:
 
     def test_get_community_release_rating(self):
         assert (
-            self.obj.get_community_release_rating(self.RELEASE_ID)["release_id"]
+            self.obj.get_community_release_rating(self.RELEASE_ID)[
+                "release_id"
+            ]
             == self.RELEASE_ID
         )
 

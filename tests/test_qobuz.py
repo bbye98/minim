@@ -6,7 +6,6 @@ from minim import qobuz  # noqa: E402
 
 
 class TestPrivateAPI:
-
     ALBUM_ID = "0060254735180"
     ARTIST_ID = 594172
     LABEL_ID = 1153
@@ -30,11 +29,14 @@ class TestPrivateAPI:
         assert self.obj.get_label(self.LABEL_ID)["id"] == self.LABEL_ID
 
     def test_get_playlist(self):
-        assert self.obj.get_playlist(self.PLAYLIST_ID)["id"] == self.PLAYLIST_ID
+        assert (
+            self.obj.get_playlist(self.PLAYLIST_ID)["id"] == self.PLAYLIST_ID
+        )
 
     def test_get_featured_playlists(self):
         assert all(
-            "is_collaborative" in p for p in self.obj.get_featured_playlists()["items"]
+            "is_collaborative" in p
+            for p in self.obj.get_featured_playlists()["items"]
         )
 
     def test_search(self):
