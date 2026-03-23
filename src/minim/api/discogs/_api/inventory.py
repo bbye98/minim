@@ -185,7 +185,7 @@ class InventoryAPI(DiscogsResourceAPI):
         ]
 
     @TTLCache.cached_method(ttl="user")
-    def get_my_recent_inventory_exports(
+    def get_my_inventory_exports(
         self, *, limit: int | None = None, page: int | None = None
     ) -> dict[str, Any]:
         """
@@ -260,7 +260,7 @@ class InventoryAPI(DiscogsResourceAPI):
                   }
         """
         self._client._require_authentication(
-            "inventory.get_my_recent_inventory_exports"
+            "inventory.get_my_inventory_exports"
         )
         return self._get_paginated_resources(
             "inventory/export", limit=limit, page=page
@@ -381,7 +381,9 @@ class InventoryAPI(DiscogsResourceAPI):
             f.write(resp.content)
         return target
 
-    def upload_inventory_additions(self, inventory_csv: str | Path, /) -> str:
+    def upload_inventory_additions(
+        self, inventory_csv: bytes | str | Path, /
+    ) -> str:
         """
         `Inventory Upload > Add Inventory <https://www.discogs.com
         /developers/#page:inventory-upload,
@@ -405,9 +407,9 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        inventory_csv : str or pathlib.Path; positional-only
-            Path to or name of a CSV file containing the listings to
-            add.
+        inventory_csv : bytes, str, or pathlib.Path; positional-only
+            Path to, name of, or contents of a CSV file containing the
+            listings to add.
 
             **Required fields**: :code:`release_id`, :code:`price`,
             :code:`media_condition`.
@@ -451,7 +453,9 @@ class InventoryAPI(DiscogsResourceAPI):
             },
         ).headers["Location"]
 
-    def upload_inventory_updates(self, inventory_csv: str | Path, /) -> str:
+    def upload_inventory_updates(
+        self, inventory_csv: bytes | str | Path, /
+    ) -> str:
         """
         `Inventory Upload > Change Inventory <https://www.discogs.com
         /developers/#page:inventory-upload,
@@ -476,8 +480,8 @@ class InventoryAPI(DiscogsResourceAPI):
         Parameters
         ----------
         inventory_csv : str or pathlib.Path; positional-only
-            Path to or name of a CSV file containing the listings to
-            update.
+            Path to, name of, or contents of a CSV file containing the
+            listings to update.
 
             **Required field**: :code:`release_id`.
 
@@ -523,7 +527,9 @@ class InventoryAPI(DiscogsResourceAPI):
             },
         ).headers["Location"]
 
-    def upload_inventory_deletions(self, inventory_csv: str | Path, /) -> str:
+    def upload_inventory_deletions(
+        self, inventory_csv: bytes | str | Path, /
+    ) -> str:
         """
         `Inventory Upload > Delete Inventory <https://www.discogs.com
         /developers/#page:inventory-upload,
@@ -543,8 +549,8 @@ class InventoryAPI(DiscogsResourceAPI):
         Parameters
         ----------
         inventory_csv : str or pathlib.Path; positional-only
-            Path to or name of a CSV file containing the listings to
-            delete.
+            Path to, name of, or contents of a CSV file containing the
+            listings to delete.
 
             **Required field**: :code:`listing_id`.
 
@@ -575,7 +581,7 @@ class InventoryAPI(DiscogsResourceAPI):
         ).headers["Location"]
 
     @TTLCache.cached_method(ttl="user")
-    def get_my_recent_inventory_uploads(
+    def get_my_inventory_uploads(
         self, *, limit: int | None = None, page: int | None = None
     ) -> dict[str, Any]:
         """
@@ -650,7 +656,7 @@ class InventoryAPI(DiscogsResourceAPI):
                   }
         """
         self._client._require_authentication(
-            "inventory.get_my_recent_inventory_uploads"
+            "inventory.get_my_inventory_uploads"
         )
         return self._get_paginated_resources(
             "inventory/upload", limit=limit, page=page

@@ -156,7 +156,6 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                       "purchase": <int>
                     }
                   }
-
         """
         self._client._require_authentication("users.get_last_update")
         return self._client._request("GET", "user/lastUpdate").json()
@@ -672,7 +671,9 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._client._require_authentication("purchases.get_my_purchases")
+        self._client._require_authentication(
+            "purchases.get_my_purchased_item_ids"
+        )
         return self._client._request(
             "GET", "purchase/getUserPurchasesIds"
         ).json()

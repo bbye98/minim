@@ -3060,7 +3060,7 @@ class UsersAPI(SpotifyResourceAPI):
             "GET",
             "me/library/contains",
             params={
-                "ids": ",".join(
+                "uris": ",".join(
                     self._prepare_spotify_uris(
                         spotify_uris,
                         limit=40,
