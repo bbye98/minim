@@ -9,3 +9,5 @@ docs/source/api/
 jupyter_execute/
 src/minim.egg-info
 .coverage
+tests/data/previews/spektrem_shine.mp3
+tests/data/previews/tobu_back_to_you_copy.flac
