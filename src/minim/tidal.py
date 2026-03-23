@@ -2190,7 +2190,7 @@ class API:
         user_ids: Union[int, str, list[Union[int, str]], None] = None,
         include: Union[str, list[str], None] = None,
         cursor: Union[int, str, None] = None,
-        sort: str | None = None,
+        sort: str = None,
     ) -> dict[str, Any]:
         """
         `Playlists > Get multiple playlists <https://tidal-music.github.io
@@ -3946,11 +3946,11 @@ class API:
         relationship: str,
         /,
         *,
-        country_code: str | None = None,
-        locale: str | None = None,
+        country_code: str = None,
+        locale: str = None,
         include: bool = False,
-        cursor: str | None = None,
-        sort: str | None = None,
+        cursor: str = None,
+        sort: str = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -4065,11 +4065,11 @@ class API:
     def get_saved_albums(
         self,
         *,
-        country_code: str | None = None,
-        locale: str | None = None,
+        country_code: str = None,
+        locale: str = None,
         include: bool = False,
-        cursor: str | None = None,
-        sort: str | None = None,
+        cursor: str = None,
+        sort: str = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get albums in user's collection
@@ -4129,7 +4129,7 @@ class API:
         album_ids: Union[str, list[str]],
         /,
         *,
-        country_code: str | None = None,
+        country_code: str = None,
     ) -> None:
         """
         `User Collections > Add albums to user's collection
@@ -4161,7 +4161,7 @@ class API:
         album_ids: Union[str, list[str]],
         /,
         *,
-        country_code: str | None = None,
+        country_code: str = None,
     ) -> None:
         """
         `User Collections > Remove albums from user's collection
@@ -4191,11 +4191,11 @@ class API:
     def get_saved_artists(
         self,
         *,
-        country_code: str | None = None,
-        locale: str | None = None,
+        country_code: str = None,
+        locale: str = None,
         include: bool = False,
-        cursor: str | None = None,
-        sort: str | None = None,
+        cursor: str = None,
+        sort: str = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get artists in user's collection
@@ -4253,7 +4253,7 @@ class API:
         artist_ids: Union[str, list[str]],
         /,
         *,
-        country_code: str | None = None,
+        country_code: str = None,
     ) -> None:
         """
         `User Collections > Add artists to user's collection
@@ -4284,7 +4284,7 @@ class API:
         artist_ids: Union[str, list[str]],
         /,
         *,
-        country_code: str | None = None,
+        country_code: str = None,
     ) -> None:
         """
         `User Collections > Remove artists from user's collection
@@ -4344,12 +4344,12 @@ class API:
     def get_saved_playlists(
         self,
         *,
-        country_code: str | None = None,
-        locale: str | None = None,
+        country_code: str = None,
+        locale: str = None,
         folders: bool = False,
         include: bool = False,
-        cursor: str | None = None,
-        sort: str | None = None,
+        cursor: str = None,
+        sort: str = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get playlists in user's collection
@@ -4461,11 +4461,11 @@ class API:
     def get_saved_tracks(
         self,
         *,
-        country_code: str | None = None,
-        locale: str | None = None,
+        country_code: str = None,
+        locale: str = None,
         include: bool = False,
-        cursor: str | None = None,
-        sort: str | None = None,
+        cursor: str = None,
+        sort: str = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get tracks in user's collection
@@ -4526,7 +4526,7 @@ class API:
         track_ids: Union[str, list[str]],
         /,
         *,
-        country_code: str | None = None,
+        country_code: str = None,
     ) -> None:
         """
         `User Collections > Add tracks to user's collection
@@ -4557,7 +4557,7 @@ class API:
         track_ids: Union[str, list[str]],
         /,
         *,
-        country_code: str | None = None,
+        country_code: str = None,
     ) -> None:
         """
         `User Collections > Remove tracks from user's collection
@@ -4586,11 +4586,11 @@ class API:
     def get_saved_videos(
         self,
         *,
-        country_code: str | None = None,
-        locale: str | None = None,
+        country_code: str = None,
+        locale: str = None,
         include: bool = False,
-        cursor: str | None = None,
-        sort: str | None = None,
+        cursor: str = None,
+        sort: str = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get videos in user's collection
@@ -4650,7 +4650,7 @@ class API:
         video_ids: Union[str, list[str]],
         /,
         *,
-        country_code: str | None = None,
+        country_code: str = None,
     ) -> None:
         """
         `User Collections > Add videos to user's collection
@@ -4681,7 +4681,7 @@ class API:
         video_ids: Union[str, list[str]],
         /,
         *,
-        country_code: str | None = None,
+        country_code: str = None,
     ) -> None:
         """
         `User Collections > Remove videos from user's collection

@@ -4127,7 +4127,7 @@ class WebAPI:
 
     ### LIBRARY ###############################################################
 
-    def save_items(self, uris: str | list[str]) -> None:
+    def save_items(self, uris: Union[str, list[str]]) -> None:
         """
         `Library > Save Items to Library <https://developer.spotify.com
         /documentation/web-api/reference/save-library-items>`_: Save one
@@ -4155,7 +4155,7 @@ class WebAPI:
             params={"uris": ",".join(uris)},
         )
 
-    def remove_saved_items(self, uris: str | list[str]) -> None:
+    def remove_saved_items(self, uris: Union[str, list[str]]) -> None:
         """
         `Library > Remove Items from Library
         <https://developer.spotify.com/documentation/web-api/reference
@@ -4184,7 +4184,7 @@ class WebAPI:
             params={"uris": ",".join(uris)},
         )
 
-    def are_items_saved(self, uris: str | list[str]) -> list[bool]:
+    def are_items_saved(self, uris: Union[str, list[str]]) -> list[bool]:
         """
         `Library > Check User's Saved Items
         <https://developer.spotify.com/documentation/web-api/reference
