@@ -114,7 +114,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL content metadata for the albums.
+            TIDAL metadata for the albums.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -1084,7 +1084,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the album
+            Whether to include TIDAL metadata for the album
             artists.
 
         cursor : str; keyword-only; optional
@@ -1098,7 +1098,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL content metadata for the album artists.
+            TIDAL metadata for the album artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1243,7 +1243,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the album's
+            Whether to include TIDAL metadata for the album's
             cover art.
 
         cursor : str; keyword-only; optional
@@ -1257,7 +1257,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL content metadata for the album's cover art.
+            TIDAL metadata for the album's cover art.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1345,7 +1345,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the tracks and
+            Whether to include TIDAL metadata for the tracks and
             videos in the album.
 
         cursor : str; keyword-only; optional
@@ -1359,7 +1359,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            TIDAL content metadata for the tracks and videos in the
+            TIDAL metadata for the tracks and videos in the
             album.
 
             .. admonition:: Sample response
@@ -1575,7 +1575,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the album's
+            Whether to include TIDAL metadata for the album's
             owners.
 
         cursor : str; keyword-only; optional
@@ -1589,7 +1589,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL content metadata for the album's owners.
+            TIDAL metadata for the album's owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1648,7 +1648,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the album's
+            Whether to include TIDAL metadata for the album's
             providers.
 
         cursor : str; keyword-only; optional
@@ -1662,7 +1662,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL content metadata for the album's providers.
+            TIDAL metadata for the album's providers.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1735,7 +1735,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the similar
+            Whether to include TIDAL metadata for the similar
             albums.
 
         cursor : str; keyword-only; optional
@@ -1749,7 +1749,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL content metadata for the similar albums.
+            TIDAL metadata for the similar albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1885,7 +1885,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the suggested
+            Whether to include TIDAL metadata for the suggested
             cover art.
 
         cursor : str; keyword-only; optional
@@ -1899,7 +1899,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL content metadata for the album's suggested cover
+            TIDAL metadata for the album's suggested cover
             art.
 
             .. admonition:: Sample response

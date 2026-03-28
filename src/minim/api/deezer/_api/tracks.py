@@ -1,9 +1,15 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class TracksAPI(DeezerResourceAPI):
@@ -16,6 +22,8 @@ class TracksAPI(DeezerResourceAPI):
        :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
+
+    __slot__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_track(self, track_id: int | str, /) -> dict[str, Any]:
@@ -33,7 +41,7 @@ class TracksAPI(DeezerResourceAPI):
         Returns
         -------
         track : dict[str, Any]
-            Deezer content metadata for the track.
+            Deezer metadata for the track.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -132,8 +140,8 @@ class TracksAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.update_user_track_metadata)
-    def update_user_track_metadata(
+    @_copy_docstring(UsersAPI.update_track_metadata)
+    def update_track_metadata(
         self,
         track_id: int | str,
         /,
@@ -142,16 +150,16 @@ class TracksAPI(DeezerResourceAPI):
         artist: str | None = None,
         title: str | None = None,
     ) -> bool:
-        return self._client.users.update_user_track_metadata(
+        return self._client.users.update_track_metadata(
             track_id, album=album, artist=artist, title=title
         )
 
-    @_copy_docstring(UsersAPI.delete_user_track)
-    def delete_user_track(self, track_id: int | str, /) -> bool:
-        return self._client.users.delete_user_track(track_id)
+    @_copy_docstring(UsersAPI.delete_track)
+    def delete_track(self, track_id: int | str, /) -> bool:
+        return self._client.users.delete_track(track_id)
 
-    @_copy_docstring(UsersAPI.get_saved_tracks)
-    def get_saved_tracks(
+    @_copy_docstring(UsersAPI.get_user_saved_tracks)
+    def get_user_saved_tracks(
         self,
         user_id: int | str = "me",
         /,
@@ -159,14 +167,14 @@ class TracksAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        self._client.users.get_saved_tracks(
+        self._client.users.get_user_saved_tracks(
             user_id, limit=limit, offset=offset
         )
 
     @_copy_docstring(UsersAPI.save_tracks)
     def save_tracks(
         self,
-        track_ids: int | str | list[int | str],
+        track_ids: int | str | Collection[int | str],
         /,
         *,
         user_id: int | str = "me",
@@ -192,8 +200,8 @@ class TracksAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_track_recommendations)
-    def get_track_recommendations(
+    @_copy_docstring(UsersAPI.get_user_track_recommendations)
+    def get_user_track_recommendations(
         self, user_id: int | str = "me", /
     ) -> dict[str, Any]:
-        return self._client.users.get_track_recommendations(user_id)
+        return self._client.users.get_user_track_recommendations(user_id)

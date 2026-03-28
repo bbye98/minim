@@ -42,7 +42,7 @@ class AlbumsAPI(MusixmatchResourceAPI):
         Returns
         -------
         album : dict[str, Any]
-            Musixmatch content metadata for the album.
+            Musixmatch metadata for the album.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -164,7 +164,7 @@ class AlbumsAPI(MusixmatchResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Musixmatch content metadata for the tracks in the
+            Page of Musixmatch metadata for the tracks in the
             album.
 
             .. admonition:: Sample response

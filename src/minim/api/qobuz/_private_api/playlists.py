@@ -98,7 +98,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Qobuz content metadata for the updated playlist.
+            Qobuz metadata for the updated playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -124,7 +124,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.add_playlist_tracks")
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, recursive=False)
         params = {
             "playlist_id": playlist_id,
             "track_ids": self._prepare_qobuz_ids(track_ids, data_type=str),
@@ -197,7 +197,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Qobuz content metadata for the newly created playlist.
+            Qobuz metadata for the newly created playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -275,7 +275,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": "success"}`.
         """
         self._client._require_authentication("playlists.delete_playlist")
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, recursive=False)
         return self._client._request(
             "POST", "playlist/delete", data={"playlist_id": playlist_id}
         ).json()
@@ -321,7 +321,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Qobuz content metadata for the updated playlist.
+            Qobuz metadata for the updated playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -350,7 +350,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication(
             "playlists.remove_playlist_tracks"
         )
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, recursive=False)
         return self._client._request(
             "POST",
             "playlist/deleteTracks",
@@ -422,7 +422,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Qobuz content metadata for the playlist.
+            Qobuz metadata for the playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -646,7 +646,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                     "users_count": <int>
                   }
         """
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, recursive=False)
         params = {"playlist_id": playlist_id}
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
@@ -714,7 +714,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Qobuz content metadata for the featured playlists.
+            Page of Qobuz metadata for the featured playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -819,7 +819,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlist_tags : dict[str, list[dict[str, Any]]]
-            Qobuz content metadata for playlist tags.
+            Qobuz metadata for playlist tags.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -911,7 +911,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Qobuz content metadata for the playlists in the
+            Page of Qobuz metadata for the playlists in the
             current user's collection.
 
             .. admonition:: Sample response
@@ -1079,7 +1079,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Qobuz content metadata for the updated playlist.
+            Qobuz metadata for the updated playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1105,7 +1105,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.update_playlist_info")
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, recursive=False)
         payload = {}
         if name is not None:
             payload["name"] = self._prepare_string("name", name)
@@ -1218,7 +1218,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Qobuz content metadata for the updated playlist.
+            Qobuz metadata for the updated playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1246,7 +1246,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication(
             "playlists.reorder_playlist_items"
         )
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, recursive=False)
         self._validate_number("to_index", to_index, int, 0)
         return self._client._request(
             "POST",

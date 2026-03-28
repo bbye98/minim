@@ -138,7 +138,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
 
     @staticmethod
     def _validate_qobuz_ids(
-        qobuz_ids: int | str | list[int | str], /, *, _recursive: bool = True
+        qobuz_ids: int | str | list[int | str], /, *, recursive: bool = True
     ) -> None:
         """
         Validate one or more Qobuz IDs.
@@ -152,14 +152,14 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             raise ValueError("At least one Qobuz ID must be specified.")
 
         if isinstance(qobuz_ids, str):
-            if _recursive:
+            if recursive:
                 PrivateQobuzResourceAPI._validate_qobuz_ids(
                     qobuz_ids.split(",")
                 )
             elif not qobuz_ids.isdecimal():
                 raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
         elif not isinstance(qobuz_ids, int):
-            if _recursive:
+            if recursive:
                 if not isinstance(qobuz_ids, tuple | list | str):
                     raise TypeError(
                         "Qobuz IDs must be provided as integers, "
@@ -167,7 +167,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
                     )
                 for qobuz_id in qobuz_ids:
                     PrivateQobuzResourceAPI._validate_qobuz_ids(
-                        qobuz_id, _recursive=False
+                        qobuz_id, recursive=False
                     )
             else:
                 raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
@@ -256,7 +256,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz content metadata for the items in the
+            Page of Qobuz metadata for the items in the
             resource.
         """
         if params is None:

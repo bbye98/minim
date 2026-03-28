@@ -85,7 +85,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            TIDAL content metadata for the videos.
+            TIDAL metadata for the videos.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -671,7 +671,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the albums
+            Whether to include TIDAL metadata for the albums
             containing the video.
 
         cursor : str; keyword-only; optional
@@ -682,7 +682,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL content metadata for the albums containing the videos.
+            TIDAL metadata for the albums containing the videos.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -816,7 +816,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the video's
+            Whether to include TIDAL metadata for the video's
             artists.
 
         cursor : str; keyword-only; optional
@@ -827,7 +827,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL content metadata for the video's artists
+            TIDAL metadata for the video's artists
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -970,7 +970,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the video's
+            Whether to include TIDAL metadata for the video's
             providers.
 
         cursor : str; keyword-only; optional
@@ -981,7 +981,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL content metadata for the video's providers.
+            TIDAL metadata for the video's providers.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1051,7 +1051,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the video's
+            Whether to include TIDAL metadata for the video's
             thumbnail.
 
         cursor : str; keyword-only; optional
@@ -1062,7 +1062,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         thumbnail : dict[str, Any]
-            TIDAL content metadata for the video's thumbnail.
+            TIDAL metadata for the video's thumbnail.
 
             .. admonition:: Sample response
                :class: response dropdown

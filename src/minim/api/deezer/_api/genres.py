@@ -1,7 +1,10 @@
-from typing import Any
-
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class GenresAPI(DeezerResourceAPI):
@@ -15,6 +18,8 @@ class GenresAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
+    __slot__ = ()
+
     @TTLCache.cached_method(ttl="static")
     def get_genre(
         self, genre_id: int | str | None = None, /
@@ -25,8 +30,8 @@ class GenresAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        genre_id : int or str; positional-only; optional
-            Deezer ID of the genre. If not specified, all available
+        genre_id : int, str, or None; positional-only; optional
+            Deezer ID of the genre. If :code:`None`, all available
             genres are returned.
 
             **Examples**: :code:`0`, :code:`"2"`.
@@ -34,7 +39,8 @@ class GenresAPI(DeezerResourceAPI):
         Returns
         -------
         genre : dict[str, Any]
-            Deezer content metadata for the genre(s).
+            Deezer metadata for the specified genre or all available
+            genres.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -88,7 +94,7 @@ class GenresAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        genre_id : int or str; positional-only; defualt: :code:`0`
+        genre_id : int or str; positional-only; default: :code:`0`
             Deezer ID of the genre.
 
             **Examples**: :code:`0`, :code:`"2"`.
@@ -96,7 +102,7 @@ class GenresAPI(DeezerResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Deezer content metadata for the genre's artists.
+            Deezer metadata for the artists associated with the genre.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -145,12 +151,12 @@ class GenresAPI(DeezerResourceAPI):
 
             **Examples**: :code:`0`, :code:`"2"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of podcasts to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first podcast to return. Use with `limit` to
             get the next batch of podcasts.
 
@@ -161,7 +167,8 @@ class GenresAPI(DeezerResourceAPI):
         Returns
         -------
         podcasts : dict[str, Any]
-            Page of Deezer content metadata for the genre's podcasts.
+            Page of Deezer metadata for the podcasts associated with the
+            genre.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -183,7 +190,8 @@ class GenresAPI(DeezerResourceAPI):
     def get_genre_radios(self, genre_id: int | str = 0, /) -> dict[str, Any]:
         """
         `Genre > Radios <https://developers.deezer.com/api/genre
-        /radios>`_: Get Deezer catalog information for a genre's radios.
+        /radios>`_: Get Deezer catalog information for radios primarily
+        associated with a genre.
 
         Parameters
         ----------
@@ -195,7 +203,8 @@ class GenresAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Deezer content metadata for the genre's radio.
+            Deezer metadata for the radios primarily associated with the
+            genre.
 
             .. admonition:: Sample response
                :class: response dropdown

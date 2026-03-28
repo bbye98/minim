@@ -55,7 +55,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         Returns
         -------
         resource : dict[str, Any]
-            Musixmatch content metadata for the track or one of its
+            Musixmatch metadata for the track or one of its
             subresources.
         """
         if params is None:
@@ -118,7 +118,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         Returns
         -------
         lyrics : dict[str, Any]
-            Musixmatch content metadata for the track's lyrics.
+            Musixmatch metadata for the track's lyrics.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -195,7 +195,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         Returns
         -------
         track : dict[str, Any]
-            Musixmatch content metadata for the track.
+            Musixmatch metadata for the track.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -314,7 +314,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         Returns
         -------
         subtitles : dict[str, Any]
-            Musixmatch content metadata for the track's subtitles.
+            Musixmatch metadata for the track's subtitles.
 
             .. admonition:: Sample response
                :class: response dropdown

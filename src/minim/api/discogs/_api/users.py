@@ -332,7 +332,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         edits : dict[str, Any]
-            Page of Discogs content metadata for edits made by the user.
+            Page of Discogs metadata for edits made by the user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -518,7 +518,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         contributions : dict[str, Any]
-            Page of Discogs content metadata for the user's
+            Page of Discogs metadata for the user's
             contributions.
 
             .. admonition:: Sample response
@@ -683,7 +683,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         folders : dict[str, Any]
-            Discogs content metadata for the user's collection folders.
+            Discogs metadata for the user's collection folders.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -741,7 +741,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         folder : dict[str, Any]
-            Discogs content metadata for the newly created collection
+            Discogs metadata for the newly created collection
             folder.
 
             .. admonition:: Sample response
@@ -803,7 +803,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         folder : dict[str, Any]
-            Discogs content metadata for the user's collection folder.
+            Discogs metadata for the user's collection folder.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -963,7 +963,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         instances : dict[str, Any]
-            Discogs content metadata for the release instances in the
+            Discogs metadata for the release instances in the
             user's collection.
 
             .. admonition:: Sample response
@@ -1106,7 +1106,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Page of Discogs content metadata for the releases in the
+            Page of Discogs metadata for the releases in the
             collection folder.
 
             .. admonition:: Sample response
@@ -1240,7 +1240,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         instance : dict[str, Any]
-            Discogs content metadata for the newly added release
+            Discogs metadata for the newly added release
             instance.
 
             .. admonition:: Sample response
@@ -1448,7 +1448,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         fields : dict[str, Any]
-            Discogs content metadata for the collection note fields.
+            Discogs metadata for the collection note fields.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1644,7 +1644,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Page of Discogs content metadata for the releases in the
+            Page of Discogs metadata for the releases in the
             user's wantlist.
 
             .. admonition:: Sample response
@@ -1757,7 +1757,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         release : dict[str, Any]
-            Discogs content metadata for the newly added release.
+            Discogs metadata for the newly added release.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1868,7 +1868,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         release : dict[str, Any]
-            Discogs content metadata for the updated release.
+            Discogs metadata for the updated release.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2027,7 +2027,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         lists : dict[str, Any]
-            Page of Discogs content metadata for the user's lists.
+            Page of Discogs metadata for the user's lists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2102,7 +2102,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         list : dict[str, Any]
-            Discogs content metadata for the user's list.
+            Discogs metadata for the user's list.
 
             .. admonition:: Sample response
                :class: response dropdown

@@ -80,7 +80,7 @@ class ChaptersAPI(SpotifyResourceAPI):
         Returns
         -------
         chapters : dict[str, Any]
-            Spotify content metadata for the audiobook chapters.
+            Spotify metadata for the audiobook chapters.
 
             .. admonition:: Sample responses
                :class: response dropdown

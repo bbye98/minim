@@ -41,7 +41,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            TIDAL content metadata for the tracks in the mix.
+            TIDAL metadata for the tracks in the mix.
 
             .. admonition:: Sample response
                :class: response dropdown

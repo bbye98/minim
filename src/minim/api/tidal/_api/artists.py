@@ -168,7 +168,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL content metadata for the artists.
+            TIDAL metadata for the artists.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -1026,7 +1026,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             albums.
 
         cursor : str; keyword-only; optional
@@ -1037,7 +1037,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL content metadata for the artist's albums.
+            TIDAL metadata for the artist's albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1170,13 +1170,13 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             biography.
 
         Returns
         -------
         biography : dict[str, Any]
-            TIDAL content metadata for the artist's biography.
+            TIDAL metadata for the artist's biography.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1235,7 +1235,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             owners.
 
         cursor : str; keyword-only; optional
@@ -1246,7 +1246,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL content metadata for the artist's owners.
+            TIDAL metadata for the artist's owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1302,7 +1302,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             profile art.
 
         cursor : str; keyword-only; optional
@@ -1313,7 +1313,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         profile_art : dict[str, Any]
-            TIDAL content metadata for the artist's profile art.
+            TIDAL metadata for the artist's profile art.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1399,7 +1399,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             mix.
 
         cursor : str; keyword-only; optional
@@ -1410,7 +1410,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         mix : dict[str, Any]
-            TIDAL content metadata for the artist's mix.
+            TIDAL metadata for the artist's mix.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1505,7 +1505,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             roles.
 
         cursor : str; keyword-only; optional
@@ -1516,7 +1516,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         roles : dict[str, Any]
-            TIDAL content metadata for the artist's roles.
+            TIDAL metadata for the artist's roles.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1587,7 +1587,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the similar
+            Whether to include TIDAL metadata for the similar
             artists.
 
         cursor : str; keyword-only; optional
@@ -1598,7 +1598,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL content metadata for the similar artists.
+            TIDAL metadata for the similar artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1740,7 +1740,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             track providers.
 
         cursor : str; keyword-only; optional
@@ -1751,7 +1751,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL content metadata for the artist's track providers.
+            TIDAL metadata for the artist's track providers.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1834,7 +1834,7 @@ class ArtistsAPI(TIDALResourceAPI):
             * :code:`"ID"` – Returns every track as a separate item.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             tracks.
 
         cursor : str; keyword-only; optional
@@ -1845,7 +1845,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            TIDAL content metadata for the artist's tracks.
+            TIDAL metadata for the artist's tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2003,7 +2003,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist's
+            Whether to include TIDAL metadata for the artist's
             videos.
 
         cursor : str; keyword-only; optional
@@ -2014,7 +2014,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            TIDAL content metadata for the artist's videos.
+            TIDAL metadata for the artist's videos.
 
             .. admonition:: Sample response
                :class: response dropdown

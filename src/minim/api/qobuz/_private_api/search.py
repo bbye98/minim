@@ -63,7 +63,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            Page of Qobuz content metadata for the matching items.
+            Page of Qobuz metadata for the matching items.
         """
         return self._get_paginated_resources(
             f"{resource_type}/search",
@@ -121,7 +121,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz content metadata for the matching items.
+            Page of Qobuz metadata for the matching items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -621,7 +621,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Qobuz content metadata for the matching albums.
+            Page of Qobuz metadata for the matching albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -758,7 +758,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Qobuz content metadata for the matching artists.
+            Page of Qobuz metadata for the matching artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -830,7 +830,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz content metadata for the most popular items.
+            Page of Qobuz metadata for the most popular items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1106,7 +1106,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Qobuz content metadata for the matching playlists.
+            Page of Qobuz metadata for the matching playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1239,7 +1239,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         stories : dict[str, Any]
-            Page of Qobuz content metadata for the matching stories.
+            Page of Qobuz metadata for the matching stories.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1330,7 +1330,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Qobuz content metadata for the matching tracks.
+            Page of Qobuz metadata for the matching tracks.
 
             .. admonition:: Sample response
                :class: response dropdown

@@ -1,9 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class RadiosAPI(DeezerResourceAPI):
@@ -16,6 +20,8 @@ class RadiosAPI(DeezerResourceAPI):
        :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
+
+    __slot__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_radio(self, radio_id: int | str, /) -> dict[str, Any]:
@@ -33,7 +39,7 @@ class RadiosAPI(DeezerResourceAPI):
         Returns
         -------
         radio : dict[str, Any]
-            Deezer content metadata for the radio.
+            Deezer metadata for the radio.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -67,7 +73,7 @@ class RadiosAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Deezer content metadata for the radios.
+            Deezer metadata for the grouped radios.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -119,14 +125,14 @@ class RadiosAPI(DeezerResourceAPI):
 
             **Examples**: :code:`31061`, :code:`"37151"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`40`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -137,7 +143,7 @@ class RadiosAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the tracks in the radio.
+            Page of Deezer metadata for the radio's tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -204,14 +210,14 @@ class RadiosAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of radios to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`25`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first radio to return. Use with `limit` to get
             the next batch of radios.
 
@@ -222,7 +228,7 @@ class RadiosAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Page of Deezer content metadata for all genres' radios.
+            Page of Deezer metadata for all genres' radios.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -266,8 +272,8 @@ class RadiosAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         return self._client.charts.get_top_radios(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_followed_radios)
-    def get_followed_radios(
+    @_copy_docstring(UsersAPI.get_user_followed_radios)
+    def get_user_followed_radios(
         self,
         user_id: int | str = "me",
         /,
@@ -275,7 +281,7 @@ class RadiosAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_followed_radios(
+        return self._client.users.get_user_followed_radios(
             user_id, limit=limit, offset=offset
         )
 
@@ -291,8 +297,8 @@ class RadiosAPI(DeezerResourceAPI):
     ) -> bool:
         return self._client.users.remove_saved_radio(radio_id, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.get_radio_recommendations)
-    def get_radio_recommendations(
+    @_copy_docstring(UsersAPI.get_user_radio_recommendations)
+    def get_user_radio_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -300,6 +306,6 @@ class RadiosAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_radio_recommendations(
+        return self._client.users.get_user_radio_recommendations(
             user_id, limit=limit, offset=offset
         )

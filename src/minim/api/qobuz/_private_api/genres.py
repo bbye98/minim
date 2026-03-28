@@ -88,7 +88,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         genre : dict[str, Any]
-            Qobuz content metadata for the genre.
+            Qobuz metadata for the genre.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -103,7 +103,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
                     "slug": <str>
                   }
         """
-        self._validate_qobuz_ids(genre_id, _recursive=False)
+        self._validate_qobuz_ids(genre_id, recursive=False)
         return self._client._request(
             "GET", "genre/get", params={"genre_id": genre_id}
         ).json()
@@ -147,7 +147,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         genres : dict[str, Any]
-            Page of Qobuz content metadata for the genres.
+            Page of Qobuz metadata for the genres.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -180,7 +180,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         """
         params = {}
         if genre_id is not None:
-            self._validate_qobuz_ids(genre_id, _recursive=False)
+            self._validate_qobuz_ids(genre_id, recursive=False)
             params["parent_id"] = genre_id
         return self._get_paginated_resources(
             "genre/list", limit=limit, offset=offset, params=params

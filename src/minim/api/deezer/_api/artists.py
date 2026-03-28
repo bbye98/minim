@@ -1,9 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class ArtistsAPI(DeezerResourceAPI):
@@ -16,6 +20,8 @@ class ArtistsAPI(DeezerResourceAPI):
        :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
+
+    __slot__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_artist(self, artist_id: int | str, /) -> dict[str, Any]:
@@ -33,7 +39,7 @@ class ArtistsAPI(DeezerResourceAPI):
         Returns
         -------
         artist : dict[str, Any]
-            Deezer content metadata for the artist.
+            Deezer metadata for the artist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -70,7 +76,7 @@ class ArtistsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Artist > Top <https://developers.deezer.com/api/artist/top>`_:
-        Get Deezer catalog information for an artist's top tracks.
+        Get Deezer catalog information for top tracks by an artist.
 
         Parameters
         ----------
@@ -97,7 +103,7 @@ class ArtistsAPI(DeezerResourceAPI):
         Returns
         -------
         top_tracks : dict[str, Any]
-            Page of Deezer content metadata for the artist's top tracks.
+            Page of Deezer metadata for the artist's top tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -177,8 +183,8 @@ class ArtistsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Artist > Albums <https://developers.deezer.com/api/artist
-        /albums>`_: Get Deezer catalog information for an artist's
-        albums.
+        /albums>`_: Get Deezer catalog information for albums by an
+        artist.
 
         Parameters
         ----------
@@ -205,7 +211,7 @@ class ArtistsAPI(DeezerResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Deezer content metadata for the artist's albums.
+            Page of Deezer metadata for the artist's albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -253,7 +259,7 @@ class ArtistsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Artist > Fans <https://developers.deezer.com/api/artist
-        /fans>`_: Get Deezer catalog information for an artist's fans.
+        /fans>`_: Get Deezer profile information for fans of an artist.
 
         Parameters
         ----------
@@ -278,7 +284,7 @@ class ArtistsAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer content metadata for the artist's fans.
+            Page of Deezer metadata for the artist's fans.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -319,8 +325,7 @@ class ArtistsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Artist > Related <https://developers.deezer.com/api/artist
-        /related>`_: Get Deezer catalog information for other artists
-        that are similar to an artist.
+        /related>`_: Get Deezer catalog information for similar artists.
 
         Parameters
         ----------
@@ -334,7 +339,7 @@ class ArtistsAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
-            **API default** :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
@@ -347,7 +352,7 @@ class ArtistsAPI(DeezerResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Deezer content metadata for the similar artists.
+            Page of Deezer metadata for the similar artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -419,8 +424,8 @@ class ArtistsAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the tracks in the
-            artist's radio.
+            Page of Deezer metadata for the tracks in the artist's
+            radio.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -485,8 +490,8 @@ class ArtistsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Artist > Playlists <https://developers.deezer.com/api/artist
-        /playlists>`_: Get Deezer catalog information for playlists that
-        an artist's tracks appear in.
+        /playlists>`_: Get Deezer catalog information for playlists
+        featuring an artist.
 
         Parameters
         ----------
@@ -513,7 +518,8 @@ class ArtistsAPI(DeezerResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Deezer content metadata for the artist's playlists.
+            Page of Deezer metadata for the playlists featuring the
+            artist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -563,8 +569,8 @@ class ArtistsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         return self._client.charts.get_top_artists(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_followed_artists)
-    def get_followed_artists(
+    @_copy_docstring(UsersAPI.get_user_followed_artists)
+    def get_user_followed_artists(
         self,
         user_id: int | str = "me",
         /,
@@ -572,7 +578,7 @@ class ArtistsAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_followed_artists(
+        return self._client.users.get_user_followed_artists(
             user_id, limit=limit, offset=offset
         )
 
@@ -605,8 +611,8 @@ class ArtistsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_artist_recommendations)
-    def get_artist_recommendations(
+    @_copy_docstring(UsersAPI.get_user_artist_recommendations)
+    def get_user_artist_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -614,6 +620,6 @@ class ArtistsAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_artist_recommendations(
+        return self._client.users.get_user_artist_recommendations(
             user_id, limit=limit, offset=offset
         )

@@ -146,7 +146,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         Returns
         -------
         resource : dict[str, Any]
-            TIDAL content metadata for the resource.
+            TIDAL metadata for the resource.
         """
         if country_code is None:
             country_code = self._client._my_country_code
@@ -215,7 +215,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         Returns
         -------
         resource : dict[str, Any]
-            TIDAL content metadata for the related resource.
+            TIDAL metadata for the related resource.
         """
         if params is None:
             params = {}

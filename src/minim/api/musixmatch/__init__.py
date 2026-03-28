@@ -1,3 +1,7 @@
+"""
+API clients for Musixmatch services, such as the Musixmatch Lyrics API.
+"""
+
 from ._core import MusixmatchLyricsAPIClient
 from ._lyrics_api.albums import AlbumsAPI
 from ._lyrics_api.artists import ArtistsAPI

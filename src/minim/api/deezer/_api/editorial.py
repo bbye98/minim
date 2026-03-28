@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class EditorialAPI(DeezerResourceAPI):
@@ -14,6 +18,8 @@ class EditorialAPI(DeezerResourceAPI):
        :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
+
+    __slot__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_editorial(
@@ -31,19 +37,19 @@ class EditorialAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        editorial_id : int or str; positional-only; optional
-            Deezer ID of the editorial. If not specified, all available
+        editorial_id : int, str, or None; positional-only; optional
+            Deezer ID of the editorial. If :code:`None`, all available
             editorials are returned.
 
             **Examples**: :code:`0`, :code:`"2"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of editorials to return. Only applicable when
             `editorial_id` is :code:`None`.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first editorial to return. Use with `limit` to
             get the next batch of editorials. Only applicable when
             `editorial_id` is :code:`None`.
@@ -55,7 +61,8 @@ class EditorialAPI(DeezerResourceAPI):
         Returns
         -------
         editorial : dict[str, Any]
-            Deezer content metadata for the editorial(s).
+            Deezer metadata for the specified editorial or a page of
+            Deezer metadata for all available editorials.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -112,7 +119,7 @@ class EditorialAPI(DeezerResourceAPI):
         """
         `Editorial > Selection <https://developers.deezer.com/api
         /editorial/selection>`_: Get Deezer catalog information for
-        albums selected weekly by the Deezer team.
+        featured albums selected by the Deezer team.
 
         Parameters
         ----------
@@ -124,7 +131,7 @@ class EditorialAPI(DeezerResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Deezer content metadata for the featured albums.
+            Deezer metadata for the featured albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -165,7 +172,7 @@ class EditorialAPI(DeezerResourceAPI):
     @TTLCache.cached_method(ttl="daily")
     def get_editorial_charts(
         self,
-        editorial_id: int | str | None = None,
+        editorial_id: int | str = 0,
         /,
         *,
         limit: int | None = None,
@@ -183,14 +190,14 @@ class EditorialAPI(DeezerResourceAPI):
 
             **Examples**: :code:`0`, :code:`"2"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of items to return per item type.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`10`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first item to return per item type. Use with
             `limit` to get the next batch of items.
 
@@ -201,7 +208,7 @@ class EditorialAPI(DeezerResourceAPI):
         Returns
         -------
         charts : dict[str, Any]
-            Page of Deezer content metadata for the top items.
+            Deezer metadata for the top editorial items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -373,7 +380,7 @@ class EditorialAPI(DeezerResourceAPI):
     @TTLCache.cached_method(ttl="daily")
     def get_editorial_releases(
         self,
-        editorial_id: int | str | None = None,
+        editorial_id: int | str = 0,
         /,
         *,
         limit: int | None = None,
@@ -381,8 +388,8 @@ class EditorialAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Editorial > Releases <https://developers.deezer.com/api
-        /editorial/releases>`_: Get Deezer catalog information for
-        new releases selected weekly by the Deezer team.
+        /editorial/releases>`_: Get Deezer catalog information for new
+        releases selected by the Deezer team.
 
         Parameters
         ----------
@@ -391,14 +398,14 @@ class EditorialAPI(DeezerResourceAPI):
 
             **Examples**: :code:`0`, :code:`"2"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of releases to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`20`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first release to return. Use with `limit` to
             get the next batch of releases.
 
@@ -408,8 +415,8 @@ class EditorialAPI(DeezerResourceAPI):
 
         Returns
         -------
-        albums : dict[str, Any]
-            Deezer content metadata for the newly released albums.
+        releases : dict[str, Any]
+            Page of Deezer metadata for the new releases.
 
             .. admonition:: Sample response
                :class: response dropdown

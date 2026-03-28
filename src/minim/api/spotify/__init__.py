@@ -1,3 +1,7 @@
+"""
+API clients for Spotify services, such as the Spotify Web API.
+"""
+
 from ._core import SpotifyWebAPIClient
 from ._web_api.albums import AlbumsAPI
 from ._web_api.artists import ArtistsAPI

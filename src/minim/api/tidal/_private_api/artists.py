@@ -43,7 +43,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         artist : dict[str, Any]
-            TIDAL content metadata for the artist.
+            TIDAL metadata for the artist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -127,7 +127,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of TIDAL content metadata for the artist's albums.
+            Page of TIDAL metadata for the artist's albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -233,7 +233,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         biography : dict[str, Any]
-            TIDAL content metadata for the artist's biography.
+            TIDAL metadata for the artist's biography.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -297,7 +297,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         links : dict[str, Any]
-            Page of TIDAL content metadata for links to websites
+            Page of TIDAL metadata for links to websites
             associated with an artist.
 
             .. admonition:: Sample response
@@ -404,7 +404,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         radio : dict[str, Any]
-            Page of TIDAL content metadata for the tracks in the artist
+            Page of TIDAL metadata for the tracks in the artist
             radio.
 
             .. admonition:: Sample response
@@ -535,7 +535,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         top_tracks : dict[str, Any]
-            Page of TIDAL content metadata for the artist's top tracks.
+            Page of TIDAL metadata for the artist's top tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -665,7 +665,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            Page of TIDAL content metadata for the artist's videos.
+            Page of TIDAL metadata for the artist's videos.
 
             .. admonition:: Sample response
                :class: response dropdown

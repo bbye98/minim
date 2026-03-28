@@ -41,7 +41,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Qobuz content metadata for the tracks.
+            Qobuz metadata for the tracks.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -465,7 +465,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                     "url": <str>
                   }
         """
-        self._validate_qobuz_ids(track_id, _recursive=False)
+        self._validate_qobuz_ids(track_id, recursive=False)
         params = {"track_id": track_id}
         if format_id is not None:
             self._validate_numeric("format_id", format_id, int)
@@ -817,7 +817,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         saved_items : dict[str, Any]
-            Page of Qobuz content metadata for tracks in the user's
+            Page of Qobuz metadata for tracks in the user's
             favorites.
 
             .. admonition:: Sample response
@@ -1112,8 +1112,8 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         response : dict[str, str]
             API JSON response.
         """
-        self._validate_qobuz_ids(track_id, _recursive=False)
-        self._validate_qobuz_ids(format_id, _recursive=False)
+        self._validate_qobuz_ids(track_id, recursive=False)
+        self._validate_qobuz_ids(format_id, recursive=False)
         if isinstance(started_at, datetime):
             started_at = int(started_at.timestamp())
         self._validate_number("started_at", started_at, int, 0, time.time())
@@ -1122,7 +1122,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
         else:
-            self._validate_qobuz_ids(user_id, _recursive=False)
+            self._validate_qobuz_ids(user_id, recursive=False)
         event = {
             "user_id": int(user_id),
             "track_id": int(track_id),
@@ -1133,10 +1133,10 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             "local": local,
         }
         if credential_id is not None:
-            self._validate_qobuz_ids(credential_id, _recursive=False)
+            self._validate_qobuz_ids(credential_id, recursive=False)
             event["credential_id"] = credential_id
         if device_id is not None:
-            self._validate_qobuz_ids(device_id, _recursive=False)
+            self._validate_qobuz_ids(device_id, recursive=False)
             event["device_id"] = device_id
         if intent is not None:
             intent = self._prepare_string("intent", intent).lower()

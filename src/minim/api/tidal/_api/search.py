@@ -65,7 +65,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         search_suggestions : dict[str, Any]
-            Search suggestions and associated TIDAL content metadata.
+            Search suggestions and associated TIDAL metadata.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -498,7 +498,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the direct hits.
 
         cursor : str; keyword-only; optional
@@ -509,7 +509,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         direct_hits : dict[str, Any]
-            TIDAL content metadata for the direct hits.
+            TIDAL metadata for the direct hits.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -936,7 +936,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            TIDAL content metadata for the matching items.
+            TIDAL metadata for the matching items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1441,7 +1441,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the matching albums.
 
         cursor : str; keyword-only; optional
@@ -1452,7 +1452,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL content metadata for the matching albums.
+            TIDAL metadata for the matching albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1602,7 +1602,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the matching artists.
 
         cursor : str; keyword-only; optional
@@ -1613,7 +1613,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL content metadata for the matching artists.
+            TIDAL metadata for the matching artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1773,7 +1773,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the matching playlists.
 
         cursor : str; keyword-only; optional
@@ -1784,7 +1784,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            TIDAL content metadata for the matching playlists.
+            TIDAL metadata for the matching playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1904,7 +1904,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the matching top hits.
 
         cursor : str; keyword-only; optional
@@ -1915,7 +1915,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         top_hits : dict[str, Any]
-            TIDAL content metadata for the matching top hits.
+            TIDAL metadata for the matching top hits.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2337,7 +2337,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the matching tracks.
 
         cursor : str; keyword-only; optional
@@ -2348,7 +2348,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            TIDAL content metadata for the matching tracks.
+            TIDAL metadata for the matching tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2516,7 +2516,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the matching videos.
 
         cursor : str; keyword-only; optional
@@ -2527,7 +2527,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            TIDAL content metadata for the matching videos.
+            TIDAL metadata for the matching videos.
 
             .. admonition:: Sample response
                :class: response dropdown

@@ -1,3 +1,7 @@
+"""
+API clients for Discogs services, such as the Discogs API.
+"""
+
 from ._core import DiscogsAPIClient
 from ._api.database import DatabaseAPI
 from ._api.inventory import InventoryAPI

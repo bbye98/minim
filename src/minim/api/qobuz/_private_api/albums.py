@@ -84,7 +84,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         album : dict[str, Any]
-            Qobuz content metadata for the album.
+            Qobuz metadata for the album.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -360,7 +360,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Qobuz content metadata for the featured albums.
+            Page of Qobuz metadata for the featured albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -572,7 +572,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Qobuz content metadata for albums in the user's
+            Page of Qobuz metadata for albums in the user's
             favorites.
 
             .. admonition:: Sample response

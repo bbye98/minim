@@ -1,3 +1,7 @@
+"""
+API clients for various music services.
+"""
+
 import sqlite3
 
 from .. import MINIM_DIR

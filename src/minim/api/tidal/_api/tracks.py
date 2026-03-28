@@ -118,7 +118,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            TIDAL content metadata for the tracks.
+            TIDAL metadata for the tracks.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -1039,7 +1039,7 @@ class TracksAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the albums
+            Whether to include TIDAL metadata for the albums
             containing the track.
 
         cursor : str; keyword-only; optional
@@ -1053,7 +1053,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL content metadata for the albums containing the track.
+            TIDAL metadata for the albums containing the track.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1189,7 +1189,7 @@ class TracksAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the track's
+            Whether to include TIDAL metadata for the track's
             artists.
 
         cursor : str; keyword-only; optional
@@ -1203,7 +1203,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL content metadata for the track's artists.
+            TIDAL metadata for the track's artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1342,7 +1342,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the track's
+            Whether to include TIDAL metadata for the track's
             owners.
 
         cursor : str; keyword-only; optional
@@ -1356,7 +1356,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL content metadata for the track's owners.
+            TIDAL metadata for the track's owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1415,7 +1415,7 @@ class TracksAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the track's
+            Whether to include TIDAL metadata for the track's
             providers.
 
         cursor : str; keyword-only; optional
@@ -1429,7 +1429,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL content metadata for the track's providers.
+            TIDAL metadata for the track's providers.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1495,7 +1495,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the track's
+            Whether to include TIDAL metadata for the track's
             mix.
 
         cursor : str; keyword-only; optional
@@ -1509,7 +1509,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         mix : dict[str, Any]
-            TIDAL content metadata for the track's mix.
+            TIDAL metadata for the track's mix.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1606,7 +1606,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the track's
+            Whether to include TIDAL metadata for the track's
             shares.
 
         cursor : str; keyword-only; optional
@@ -1620,7 +1620,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         shares : dict[str, Any]
-            TIDAL content metadata for the track's shares.
+            TIDAL metadata for the track's shares.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1679,7 +1679,7 @@ class TracksAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the similar
+            Whether to include TIDAL metadata for the similar
             tracks.
 
         cursor : str; keyword-only; optional
@@ -1693,7 +1693,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            TIDAL content metadata for the similar tracks.
+            TIDAL metadata for the similar tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1840,7 +1840,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the track's
+            Whether to include TIDAL metadata for the track's
             source file.
 
         cursor : str; keyword-only; optional
@@ -1854,7 +1854,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         source_file : dict[str, Any]
-            TIDAL content metadata for the track's source file.
+            TIDAL metadata for the track's source file.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1904,7 +1904,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the track's
+            Whether to include TIDAL metadata for the track's
             statistics.
 
         share_code : str; keyword-only; optional
@@ -1913,7 +1913,7 @@ class TracksAPI(TIDALResourceAPI):
         Returns
         -------
         statistics : dict[str, Any]
-            TIDAL content metadata for the track's statistics.
+            TIDAL metadata for the track's statistics.
 
             .. admonition:: Sample response
                :class: response dropdown

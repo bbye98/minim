@@ -87,7 +87,7 @@ class ChartsAPI(MusixmatchResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Musixmatch content metadata for the top tracks.
+            Page of Musixmatch metadata for the top tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -243,7 +243,7 @@ class ChartsAPI(MusixmatchResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Musixmatch content metadata for the top artists.
+            Page of Musixmatch metadata for the top artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -329,7 +329,7 @@ class ChartsAPI(MusixmatchResourceAPI):
         Returns
         -------
         genres : dict[str, Any]
-            Musixmatch content metadata for the available genres.
+            Musixmatch metadata for the available genres.
 
             .. admonition:: Sample response
                :class: response dropdown

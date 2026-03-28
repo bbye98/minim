@@ -82,7 +82,7 @@ class EpisodesAPI(SpotifyResourceAPI):
         Returns
         -------
         episodes : dict[str, Any]
-            Spotify content metadata for the show episodes.
+            Spotify metadata for the show episodes.
 
             .. admonition:: Sample responses
                :class: response dropdown

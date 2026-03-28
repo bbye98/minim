@@ -108,7 +108,7 @@ class DiscogsResourceAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz content metadata for the items in the
+            Page of Qobuz metadata for the items in the
             resource.
         """
         if params is None:

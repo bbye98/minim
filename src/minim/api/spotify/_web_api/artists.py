@@ -44,7 +44,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Spotify content metadata for the artists.
+            Spotify metadata for the artists.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -178,7 +178,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Spotify content metadata for the artist's albums.
+            Page of Spotify metadata for the artist's albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -298,7 +298,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         Returns
         -------
         top_tracks : dict[str, Any]
-            Spotify content metadata for the artist's top tracks.
+            Spotify metadata for the artist's top tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -422,7 +422,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Spotify content metadata for the related artists.
+            Spotify metadata for the related artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -529,7 +529,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Spotify content metadata for the current user's top
+            Page of Spotify metadata for the current user's top
             artists.
 
             .. admonition:: Sample response

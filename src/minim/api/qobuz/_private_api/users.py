@@ -416,7 +416,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         purchases : dict[str, Any]
-            Pages of Qobuz content metadata for purchased albums and
+            Pages of Qobuz metadata for purchased albums and
             tracks.
 
             .. admonition:: Sample response
@@ -707,7 +707,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": "success"}`.
         """
         self._client._require_authentication("playlists.follow_playlist")
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, recursive=False)
         return self._client._request(
             "POST", "playlist/subscribe", data={"playlist_id": playlist_id}
         ).json()
@@ -741,7 +741,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": "success"}`.
         """
         self._client._require_authentication("playlists.follow_playlist")
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, recursive=False)
         return self._client._request(
             "POST", "playlist/unsubscribe", data={"playlist_id": playlist_id}
         ).json()
@@ -764,7 +764,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlists : list[dict[str, Any]]
-            Qobuz content metadata for the personally curated playlists.
+            Qobuz metadata for the personally curated playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -849,7 +849,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Qobuz content metadata for tracks in the personally
+            Page of Qobuz metadata for tracks in the personally
             curated playlist.
 
             .. admonition:: Sample response
@@ -1034,7 +1034,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         recommendations : dict[str, Any]
-            Qobuz content metadata for the track recommendations
+            Qobuz metadata for the track recommendations
             generated from the provided seeds.
 
             .. admonition:: Sample response

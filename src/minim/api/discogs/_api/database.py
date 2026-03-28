@@ -57,7 +57,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         release : dict[str, Any]
-            Discogs content metadata for the release.
+            Discogs metadata for the release.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -462,7 +462,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         master : dict[str, Any]
-            Discogs content metadata for the master release.
+            Discogs metadata for the master release.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -605,7 +605,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         versions : dict[str, Any]
-            Discogs content metadata for the master's release versions.
+            Discogs metadata for the master's release versions.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -725,7 +725,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         artist : dict[str, Any]
-            Discogs content metadata for the artist.
+            Discogs metadata for the artist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -815,7 +815,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Discogs content metadata for the artist's releases.
+            Discogs metadata for the artist's releases.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -897,7 +897,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         label : dict[str, Any]
-            Discogs content metadata for the label.
+            Discogs metadata for the label.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -981,7 +981,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Page of Discogs content metadata for the label's releases.
+            Page of Discogs metadata for the label's releases.
 
             .. admonition:: Sample response
                :class: response dropdown

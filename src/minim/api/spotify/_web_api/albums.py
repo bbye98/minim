@@ -70,7 +70,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Spotify content metadata for the albums.
+            Spotify metadata for the albums.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -367,7 +367,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Spotify content metadata for the tracks in the
+            Page of Spotify metadata for the tracks in the
             album.
 
             .. admonition:: Sample response
@@ -490,7 +490,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Spotify content metadata for the featured new
+            Page of Spotify metadata for the featured new
             releases.
 
             .. admonition:: Sample response

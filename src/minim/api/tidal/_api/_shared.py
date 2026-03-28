@@ -60,7 +60,7 @@ class TIDALResourceAPI(ResourceAPI):
 
     @staticmethod
     def _validate_tidal_ids(
-        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
+        tidal_ids: int | str | list[int | str], /, *, recursive: bool = True
     ) -> None:
         """
         Validate one or more TIDAL IDs.
@@ -77,12 +77,12 @@ class TIDALResourceAPI(ResourceAPI):
             if not tidal_ids.isdecimal():
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
         elif not isinstance(tidal_ids, int):
-            if _recursive:
+            if recursive:
                 if not isinstance(tidal_ids, tuple | list | str):
                     raise ValueError("TIDAL IDs must be integers or strings.")
                 for tidal_id in tidal_ids:
                     TIDALResourceAPI._validate_tidal_ids(
-                        tidal_id, _recursive=False
+                        tidal_id, recursive=False
                     )
             else:
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
@@ -218,7 +218,7 @@ class TIDALResourceAPI(ResourceAPI):
         Returns
         -------
         resources : dict[str, Any]
-            TIDAL content metadata for the resources.
+            TIDAL metadata for the resources.
         """
         if params is None:
             params = {}
@@ -303,7 +303,7 @@ class TIDALResourceAPI(ResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the related
+            Whether to include TIDAL metadata for the related
             resource.
 
         cursor : str; keyword-only; optional
@@ -331,10 +331,10 @@ class TIDALResourceAPI(ResourceAPI):
         Returns
         -------
         resource : dict[str, Any]
-            TIDAL content metadata for the related resource.
+            TIDAL metadata for the related resource.
         """
         if resource_identifier_type == "id":
-            self._validate_tidal_ids(resource_identifier, _recursive=False)
+            self._validate_tidal_ids(resource_identifier, recursive=False)
         elif resource_identifier_type == "uuid":
             self._validate_uuid(resource_identifier)
         else:

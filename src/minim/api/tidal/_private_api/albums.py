@@ -41,7 +41,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         album : dict[str, Any]
-            TIDAL content metadata for the album.
+            TIDAL metadata for the album.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -126,7 +126,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         credits : dict[str, Any]
-            TIDAL content metadata for the album's credits.
+            TIDAL metadata for the album's credits.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -194,7 +194,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of TIDAL content metadata for the tracks and videos in
+            Page of TIDAL metadata for the tracks and videos in
             the album.
 
             .. admonition:: Sample response
@@ -378,7 +378,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         credits : dict[str, Any]
-            Page of TIDAL content metadata for the credits of the tracks
+            Page of TIDAL metadata for the credits of the tracks
             and videos in the album.
 
             .. admonition:: Sample response
@@ -561,7 +561,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         review : dict[str, Any]
-            TIDAL content metadata for the review of or synopsis for the
+            TIDAL metadata for the review of or synopsis for the
             album.
 
             .. admonition:: Sample response
@@ -626,7 +626,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of TIDAL content metadata for the similar albums.
+            Page of TIDAL metadata for the similar albums.
 
             .. admonition:: Sample response
                :class: response dropdown

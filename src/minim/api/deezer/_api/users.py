@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class UsersAPI(DeezerResourceAPI):
@@ -14,6 +20,8 @@ class UsersAPI(DeezerResourceAPI):
        :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
+
+    __slot__ = ()
 
     @TTLCache.cached_method(ttl="user")
     def get_user(self, user_id: int | str = "me", /) -> dict[str, Any]:
@@ -49,7 +57,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         profile : dict[str, Any]
-            Profile information for the specified user.
+            Deezer metadata for the user's profile.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -85,12 +93,13 @@ class UsersAPI(DeezerResourceAPI):
         return self._request_resource_relationship("GET", "user", user_id)
 
     @TTLCache.cached_method(ttl="static")
-    def get_permissions(
+    def get_user_permissions(
         self, user_id: int | str = "me", /
     ) -> dict[str, dict[str, bool]]:
         """
         `User > Permissions <https://developers.deezer.com/api/user
-        /permissions>`_: Get the permissions granted to the client.
+        /permissions>`_: Get the permissions granted to the Deezer API
+        client by a user.
 
         .. admonition:: Permission and user authentication
            :class: entitlement
@@ -114,7 +123,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         permissions: dict[str, dict[str, bool]]
-            Permissions granted to the client.
+            Permissions granted to the client by the user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -133,16 +142,18 @@ class UsersAPI(DeezerResourceAPI):
                     }
                   }
         """
-        self._client._require_authentication("users.get_permissions")
+        self._client._require_authentication("users.get_user_permissions")
         return self._request_resource_relationship(
             "GET", "user", user_id, "permissions"
         )
 
     @TTLCache.cached_method(ttl="static")
-    def get_options(self, user_id: int | str = "me", /) -> dict[str, Any]:
+    def get_user_entitlements(
+        self, user_id: int | str = "me", /
+    ) -> dict[str, Any]:
         """
-        `Options <https://developers.deezer.com/api/options>`_: Get a
-        user's options.
+        `Options <https://developers.deezer.com/api/options>`_: Get the
+        entitlements for a user on Deezer.
 
         .. admonition:: Permission and user authentication
            :class: entitlement
@@ -165,8 +176,8 @@ class UsersAPI(DeezerResourceAPI):
 
         Returns
         -------
-        options: dict[str, Any]
-            User's options.
+        entitlements: dict[str, Any]
+            User's entitlement.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -189,17 +200,18 @@ class UsersAPI(DeezerResourceAPI):
                     "type": "options"
                   }
         """
-        self._client._require_authentication("users.get_options")
+        self._client._require_authentication("users.get_user_entitlements")
         return self._request_resource_relationship(
             "GET", "user", user_id, "options"
         )
 
-    def send_notification(
+    def send_user_notification(
         self, message: str, /, *, user_id: int | str = "me"
     ) -> dict[str, bool]:
         """
         `User > Notification <https://developers.deezer.com/api/user
-        /notifications>`_: Add a notification to a user's feed.
+        /notifications>`_: Add a notification to a user's feed on
+        Deezer.
 
         .. admonition:: Permission and user authentication
            :class: entitlement
@@ -226,7 +238,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         status : dict[str, bool]
-            Whether the request completed successfully.
+            Whether the notification was sent successfully.
 
             **Sample response**: :code:`{"success": True}`.
         """
@@ -270,7 +282,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Deezer content metadata for tracks in the user's Flow mix.
+            Deezer metadata for tracks in the user's Flow mix.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -326,7 +338,7 @@ class UsersAPI(DeezerResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="playback")
-    def get_recently_played(
+    def get_user_recently_played(
         self,
         user_id: int | str = "me",
         /,
@@ -336,8 +348,8 @@ class UsersAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `User > History <https://developers.deezer.com/api/user
-        /history>`_: Get Deezer catalog information for tracks recently
-        played by a user.
+        /history>`_: Get Deezer catalog information for the tracks
+        recently played by a user on Deezer.
 
         .. admonition:: Permission
            :class: entitlement
@@ -359,12 +371,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -375,7 +387,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the recently played
+            Page of Deezer metadata for the user's recently played
             tracks.
 
             .. admonition:: Sample response
@@ -430,7 +442,7 @@ class UsersAPI(DeezerResourceAPI):
                   }
         """
         self._client._require_permissions(
-            "users.get_recently_played", "listening_history"
+            "users.get_user_recently_played", "listening_history"
         )
         return self._request_resource_relationship(
             "GET", "user", user_id, "history", limit=limit, offset=offset
@@ -448,7 +460,7 @@ class UsersAPI(DeezerResourceAPI):
         """
         `User > Charts > Albums <https://developers.deezer.com/api/user
         /charts/albums>`_: Get Deezer catalog information for a user's
-        top albums.
+        top albums on Deezer.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -470,12 +482,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
             the next batch of albums.
 
@@ -486,7 +498,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Deezer content metadata for the user's top albums.
+            Page of Deezer metadata for the user's top albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -548,7 +560,7 @@ class UsersAPI(DeezerResourceAPI):
         """
         `User > Charts > Artists <https://developers.deezer.com/api/user
         /charts/artists>`_: Get Deezer catalog information for a user's
-        top artists.
+        top artists on Deezer.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -570,12 +582,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of artists to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
             the next batch of artists.
 
@@ -586,7 +598,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Deezer content metadata for the user's top artists.
+            Page of Deezer metadata for the user's top artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -661,12 +673,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
             get the next batch of playlists.
 
@@ -677,7 +689,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Deezer content metadata for the user's top
+            Page of Deezer metadata for the user's top
             playlists.
 
             .. admonition:: Sample response
@@ -746,7 +758,7 @@ class UsersAPI(DeezerResourceAPI):
         """
         `User > Charts > Tracks <https://developers.deezer.com/api/user
         /charts/tracks>`_: Get Deezer catalog information for a user's
-        top tracks.
+        top tracks on Deezer.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -768,12 +780,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -784,7 +796,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the user's top tracks.
+            Page of Deezer metadata for the user's top tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -843,7 +855,7 @@ class UsersAPI(DeezerResourceAPI):
             "GET", "user", user_id, "charts/tracks", limit=limit, offset=offset
         )
 
-    def get_album_recommendations(
+    def get_user_album_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -853,7 +865,8 @@ class UsersAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `User > Recommendations > Albums <https://developers.deezer.com
-        /api/user/recommendations/albums>`_: Get album recommendations.
+        /api/user/recommendations/albums>`_: Get Discogs catalog
+        information for albums recommended for a user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -875,12 +888,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to
             get the next batch of albums.
 
@@ -891,8 +904,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Deezer content metadata for the album
-            recommendations.
+            Page of Deezer metadata for the recommended albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -937,7 +949,9 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_album_recommendations")
+        self._client._require_authentication(
+            "users.get_user_album_recommendations"
+        )
         return self._request_resource_relationship(
             "GET",
             "user",
@@ -947,7 +961,7 @@ class UsersAPI(DeezerResourceAPI):
             offset=offset,
         )
 
-    def get_release_recommendations(
+    def get_user_release_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -958,7 +972,8 @@ class UsersAPI(DeezerResourceAPI):
         """
         `User > Recommendations > Releases
         <https://developers.deezer.com/api/user/recommendations
-        /releases>`_: Get new album recommendations.
+        /releases>`_: Get Discogs catalog information for new releases
+        recommended for a user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -980,14 +995,14 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
-            Maximum number of albums to return.
+        limit : int; keyword-only; optional
+            Maximum number of releases to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
-            Index of the first album to return. Use with `limit` to
-            get the next batch of albums.
+        offset : int; keyword-only; optional
+            Index of the first release to return. Use with `limit` to
+            get the next batch of releases.
 
             **Minimum value**: :code:`0`.
 
@@ -995,9 +1010,8 @@ class UsersAPI(DeezerResourceAPI):
 
         Returns
         -------
-        albums : dict[str, Any]
-            Page of Deezer content metadata for the new album
-            recommendations.
+        releases : dict[str, Any]
+            Page of Deezer metadata for the recommended new releases.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1043,7 +1057,7 @@ class UsersAPI(DeezerResourceAPI):
                   }
         """
         self._client._require_authentication(
-            "users.get_release_recommendations"
+            "users.get_user_release_recommendations"
         )
         return self._request_resource_relationship(
             "GET",
@@ -1054,7 +1068,7 @@ class UsersAPI(DeezerResourceAPI):
             offset=offset,
         )
 
-    def get_artist_recommendations(
+    def get_user_artist_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -1064,8 +1078,8 @@ class UsersAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `User > Recommendations > Artists <https://developers.deezer.com
-        /api/user/recommendations/artists>`_: Get artist
-        recommendations.
+        /api/user/recommendations/artists>`_: Get Discogs catalog
+        information for artists recommended for a user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1087,12 +1101,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of artists to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to
             get the next batch of artists.
 
@@ -1103,8 +1117,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Deezer content metadata for the artist
-            recommendations.
+            Page of Deezer metadata for the recommended artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1135,7 +1148,9 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_album_recommendations")
+        self._client._require_authentication(
+            "users.get_user_album_recommendations"
+        )
         return self._request_resource_relationship(
             "GET",
             "user",
@@ -1145,7 +1160,7 @@ class UsersAPI(DeezerResourceAPI):
             offset=offset,
         )
 
-    def get_playlist_recommendations(
+    def get_user_playlist_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -1156,7 +1171,8 @@ class UsersAPI(DeezerResourceAPI):
         """
         `User > Recommendations > Playlists
         <https://developers.deezer.com/api/user/recommendations
-        /playlists>`_: Get playlist recommendations.
+        /playlists>`_: Get Discogs catalog information for playlists
+        recommended for a user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1178,12 +1194,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
             get the next batch of playlists.
 
@@ -1194,8 +1210,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Deezer content metadata for the playlist
-            recommendations.
+            Page of Deezer metadata for the recommended playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1242,7 +1257,7 @@ class UsersAPI(DeezerResourceAPI):
                   }
         """
         self._client._require_authentication(
-            "users.get_playlist_recommendations"
+            "users.get_user_playlist_recommendations"
         )
         return self._request_resource_relationship(
             "GET",
@@ -1253,7 +1268,7 @@ class UsersAPI(DeezerResourceAPI):
             offset=offset,
         )
 
-    def get_radio_recommendations(
+    def get_user_radio_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -1263,7 +1278,8 @@ class UsersAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `User > Recommendations > Radios <https://developers.deezer.com
-        /api/user/recommendations/radios>`_: Get radio recommendations.
+        /api/user/recommendations/radios>`_: Get Discogs catalog
+        information for radios recommended for a user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1285,12 +1301,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of radios to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first radio to return. Use with `limit` to
             get the next batch of radios.
 
@@ -1301,8 +1317,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Page of Deezer content metadata for the radio
-            recommendations.
+            Page of Deezer metadata for the recommended radios.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1330,7 +1345,9 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_radio_recommendations")
+        self._client._require_authentication(
+            "users.get_user_radio_recommendations"
+        )
         return self._request_resource_relationship(
             "GET",
             "user",
@@ -1340,12 +1357,13 @@ class UsersAPI(DeezerResourceAPI):
             offset=offset,
         )
 
-    def get_track_recommendations(
+    def get_user_track_recommendations(
         self, user_id: int | str = "me", /
     ) -> dict[str, Any]:
         """
         `User > Recommendations > Tracks <https://developers.deezer.com
-        /api/user/recommendations/tracks>`_: Get track recommendations.
+        /api/user/recommendations/tracks>`_: Get Discogs catalog
+        information for tracks recommended for a user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1367,12 +1385,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to
             get the next batch of tracks.
 
@@ -1383,8 +1401,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the track
-            recommendations.
+            Page of Deezer metadata for the recommended tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1444,7 +1461,7 @@ class UsersAPI(DeezerResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_saved_albums(
+    def get_user_saved_albums(
         self,
         user_id: int | str = "me",
         /,
@@ -1477,12 +1494,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
             the next batch of albums.
 
@@ -1493,8 +1510,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
-            albums.
+            Page of Deezer metadata for the user's favorite albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1540,21 +1556,21 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_saved_albums")
+        self._client._require_authentication("users.get_user_saved_albums")
         return self._request_resource_relationship(
             "GET", "user", user_id, "albums", limit=limit, offset=offset
         )
 
     def save_albums(
         self,
-        album_ids: int | str | list[int | str],
+        album_ids: int | str | Collection[int | str],
         /,
         *,
         user_id: int | str = "me",
     ) -> bool:
         """
         `User > Albums <https://developers.deezer.com/api
-        /actions-post>`__: Add one or more albums to a user's favorites.
+        /actions-post>`__: Favorite one or more albums.
 
         .. admonition:: Permission
            :class: entitlement
@@ -1569,7 +1585,7 @@ class UsersAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        album_ids : int or str; positional-only
+        album_ids : int, str, or Collection[int | str]; positional-only
             Deezer IDs of the albums.
 
             **Examples**: :code:`10546890`, :code:`"816455081"`,
@@ -1586,7 +1602,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the albums were favorited successfully.
         """
         self._client._require_permissions(
             "users.save_albums", "manage_library"
@@ -1605,7 +1621,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `User > Albums <https://developers.deezer.com/api
-        /actions-delete>`__: Remove an album from a user's favorites.
+        /actions-delete>`__: Unfavorite an album.
 
         .. admonition:: Permissions
            :class: entitlement
@@ -1639,18 +1655,18 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the album was unfavorited successfully.
         """
         self._client._require_permissions(
             "users.remove_saved_album", {"manage_library", "delete_library"}
         )
-        self._validate_deezer_ids(album_id, _recursive=False)
+        self._validate_deezer_ids(album_id, recursive=False)
         return self._request_resource_relationship(
             "DELETE", "user", user_id, "albums", params={"album_id": album_id}
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_followed_artists(
+    def get_user_followed_artists(
         self,
         user_id: int | str = "me",
         /,
@@ -1683,12 +1699,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of artists to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
             the next batch of artists.
 
@@ -1699,7 +1715,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
+            Page of Deezer metadata for the user's favorite
             artists.
 
             .. admonition:: Sample response
@@ -1732,22 +1748,21 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_followed_artists")
+        self._client._require_authentication("users.get_user_followed_artists")
         return self._request_resource_relationship(
             "GET", "user", user_id, "artists", limit=limit, offset=offset
         )
 
     def follow_artists(
         self,
-        artist_ids: int | str | list[int | str],
+        artist_ids: int | str | Collection[int | str],
         /,
         *,
         user_id: int | str = "me",
     ) -> bool:
         """
         `User > Artists <https://developers.deezer.com/api
-        /actions-post>`__: Add one or more artists to a user's
-        favorites.
+        /actions-post>`__: Favorite one or more artists.
 
         .. admonition:: Permission
            :class: entitlement
@@ -1762,7 +1777,7 @@ class UsersAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        artist_ids : int or str; positional-only
+        artist_ids : int, str, or Collection[int | str]; positional-only
             Deezer IDs of the artists.
 
             **Examples**: :code:`3265001`, :code:`"330311461"`,
@@ -1779,7 +1794,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the artists were favorited successfully.
         """
         self._client._require_permissions(
             "users.follow_artists", "manage_library"
@@ -1798,7 +1813,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `User > Artists <https://developers.deezer.com/api
-        /actions-delete>`__: Remove an artist from a user's favorites.
+        /actions-delete>`__: Unfavorite an artist.
 
         .. admonition:: Permissions
            :class: entitlement
@@ -1832,12 +1847,12 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the artist was unfavorited successfully.
         """
         self._client._require_permissions(
             "users.unfollow_artist", {"manage_library", "delete_library"}
         )
-        self._validate_deezer_ids(artist_id, _recursive=False)
+        self._validate_deezer_ids(artist_id, recursive=False)
         return self._request_resource_relationship(
             "DELETE",
             "user",
@@ -1880,12 +1895,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
             get the next batch of playlists.
 
@@ -1896,7 +1911,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Deezer content metadata for the user's playlists.
+            Page of Deezer metadata for the user's playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1950,15 +1965,14 @@ class UsersAPI(DeezerResourceAPI):
 
     def follow_playlists(
         self,
-        playlist_ids: int | str | list[int | str],
+        playlist_ids: int | str | Collection[int | str],
         /,
         *,
         user_id: int | str = "me",
     ) -> bool:
         """
         `User > Playlists <https://developers.deezer.com/api
-        /actions-post>`__: Add one or more playlists to a user's
-        favorites.
+        /actions-post>`__: Favorite one or more playlists.
 
         .. admonition:: Permission
            :class: entitlement
@@ -1973,7 +1987,7 @@ class UsersAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        playlist_ids : int or str; positional-only
+        playlist_ids : int, str, or Collection[int | str]; positional-only
             Deezer IDs of the playlists.
 
             **Examples**: :code:`13651021241`, :code:`"1495242491"`,
@@ -1990,7 +2004,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the playlists were favorited successfully.
         """
         self._client._require_permissions(
             "users.follow_playlists", "manage_library"
@@ -2013,7 +2027,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `User > Playlists <https://developers.deezer.com/api
-        /actions-delete>`__: Remove a playlist from a user's favorites.
+        /actions-delete>`__: Unfavorite a playlist.
 
         .. admonition:: Permissions
            :class: entitlement
@@ -2049,12 +2063,12 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the playlist was unfavorited successfully.
         """
         self._client._require_permissions(
             "users.unfollow_playlist", {"manage_library", "delete_library"}
         )
-        self._validate_deezer_ids(playlist_id, _recursive=False)
+        self._validate_deezer_ids(playlist_id, recursive=False)
         return self._request_resource_relationship(
             "DELETE",
             "user",
@@ -2175,7 +2189,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the playlist details were updated successfully.
         """
         self._client._require_permissions(
             "playlists.update_playlist_info", "manage_library"
@@ -2209,7 +2223,7 @@ class UsersAPI(DeezerResourceAPI):
     def delete_playlist(self, playlist_id: int | str, /) -> bool:
         """
         `Playlist <https://developers.deezer.com/api
-        /playlist#actions>`__: Update the details of a playlist.
+        /playlist#actions>`__: Delete a playlist.
 
         .. admonition:: Permissions
            :class: entitlement
@@ -2236,7 +2250,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the playlist was deleted successfully.
         """
         self._client._require_permissions(
             "playlists.delete_playlist", {"manage_library", "delete_library"}
@@ -2246,7 +2260,10 @@ class UsersAPI(DeezerResourceAPI):
         )
 
     def add_playlist_tracks(
-        self, playlist_id: int | str, /, track_ids: int | str | list[int | str]
+        self,
+        playlist_id: int | str,
+        /,
+        track_ids: int | str | Collection[int | str],
     ) -> bool:
         """
         `Playlist > Tracks <https://developers.deezer.com/api
@@ -2270,7 +2287,7 @@ class UsersAPI(DeezerResourceAPI):
 
             **Examples**: :code:`13651021241`, :code:`"1495242491"`.
 
-        track_ids : int, str, or list[int | str]
+        track_ids : int, str, or Collection[int | str]
             Deezer IDs of the tracks.
 
             **Examples**: :code:`101602968`, :code:`"3541756661"`,
@@ -2280,7 +2297,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the tracks were added successfully.
         """
         self._client._require_permissions(
             "playlists.add_playlist_tracks", "manage_library"
@@ -2294,7 +2311,10 @@ class UsersAPI(DeezerResourceAPI):
         )
 
     def reorder_playlist_tracks(
-        self, playlist_id: int | str, /, track_ids: int | str | list[int | str]
+        self,
+        playlist_id: int | str,
+        /,
+        track_ids: int | str | Collection[int | str],
     ) -> Any:
         """
         `Playlist > Tracks <https://developers.deezer.com/api
@@ -2318,7 +2338,7 @@ class UsersAPI(DeezerResourceAPI):
 
             **Examples**: :code:`13651021241`, :code:`"1495242491"`.
 
-        track_ids : int, str, or list[int | str]
+        track_ids : int, str, or Collection[int | str]
             Deezer IDs of the tracks in the desired order.
 
             **Examples**: :code:`101602968`, :code:`"3541756661"`,
@@ -2333,7 +2353,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the tracks were reordered successfully.
         """
         self._client._require_permissions(
             "playlists.reorder_playlist_tracks", "manage_library"
@@ -2347,7 +2367,7 @@ class UsersAPI(DeezerResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_followed_podcasts(
+    def get_user_followed_podcasts(
         self,
         user_id: int | str = "me",
         /,
@@ -2380,12 +2400,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of podcasts to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first podcast to return. Use with `limit` to
             get the next batch of podcasts.
 
@@ -2396,8 +2416,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         podcasts : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
-            podcasts.
+            Page of Deezer metadata for the user's favorite podcasts.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2429,7 +2448,9 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_followed_podcasts")
+        self._client._require_authentication(
+            "users.get_user_followed_podcasts"
+        )
         return self._request_resource_relationship(
             "GET", "user", user_id, "podcasts", limit=limit, offset=offset
         )
@@ -2439,7 +2460,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `User > Podcasts <https://developers.deezer.com/api
-        /actions-post>`__: Add a podcast to a user's favorites.
+        /actions-post>`__: Favorite a podcast.
 
         .. admonition:: Permission
            :class: entitlement
@@ -2469,12 +2490,12 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the podcast was favorited successfully.
         """
         self._client._require_permissions(
             "users.follow_podcast", "manage_library"
         )
-        self._validate_deezer_ids(podcast_id, _recursive=False)
+        self._validate_deezer_ids(podcast_id, recursive=False)
         return self._request_resource_relationship(
             "POST",
             "user",
@@ -2492,7 +2513,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `User > Podcasts <https://developers.deezer.com/api
-        /actions-delete>`__: Remove a podcast from a user's favorites.
+        /actions-delete>`__: Unfavorite a podcast.
 
         .. admonition:: Permissions
            :class: entitlement
@@ -2526,12 +2547,12 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the podcast was unfavorited successfully.
         """
         self._client._require_permissions(
             "users.unfollow_podcast", {"manage_library", "delete_library"}
         )
-        self._validate_deezer_ids(podcast_id, _recursive=False)
+        self._validate_deezer_ids(podcast_id, recursive=False)
         return self._request_resource_relationship(
             "DELETE",
             "user",
@@ -2573,14 +2594,14 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         status : dict[str, Any]
-            Whether the request completed successfully.
+            Whether the resume point was set successfully.
 
             **Sample response**: :code:`{'error': [], 'results': True}`.
         """
         self._client._require_permissions(
             "episodes.set_episode_resume_point", "manage_library"
         )
-        self._validate_deezer_ids(episode_id, _recursive=False)
+        self._validate_deezer_ids(episode_id, recursive=False)
         self._validate_number("position", position, int, 0, 100)
         return self._request_resource_relationship(
             "POST",
@@ -2595,7 +2616,8 @@ class UsersAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Episode > Bookmark <https://developers.deezer.com/api
-        /actions-delete>`__: Remove a resume point for a podcast episode.
+        /actions-delete>`__: Remove a resume point for a podcast
+        episode.
 
         .. admonition:: Permission
            :class: entitlement
@@ -2618,20 +2640,20 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         status : dict[str, Any]
-            Whether the request completed successfully.
+            Whether the resume point was removed successfully.
 
             **Sample response**: :code:`{'error': [], 'results': True}`.
         """
         self._client._require_permissions(
             "episodes.remove_episode_resume_point", "manage_library"
         )
-        self._validate_deezer_ids(episode_id, _recursive=False)
+        self._validate_deezer_ids(episode_id, recursive=False)
         return self._request_resource_relationship(
             "DELETE", "episode", episode_id, "bookmark"
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_followed_radios(
+    def get_user_followed_radios(
         self,
         user_id: int | str = "me",
         /,
@@ -2664,12 +2686,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of radios to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first radio to return. Use with `limit` to
             get the next batch of radios.
 
@@ -2680,8 +2702,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
-            radios.
+            Page of Deezer metadata for the user's favorite radios.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2696,7 +2717,7 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_followed_radios")
+        self._client._require_authentication("users.get_user_followed_radios")
         return self._request_resource_relationship(
             "GET", "user", user_id, "radios", limit=limit, offset=offset
         )
@@ -2706,7 +2727,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `User > Radios <https://developers.deezer.com/api
-        /actions-post>`__: Add a radio to a user's favorites.
+        /actions-post>`__: Favorite a radio.
 
         .. admonition:: Permission
            :class: entitlement
@@ -2736,10 +2757,10 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the radio was favorited successfully.
         """
         self._client._require_permissions("users.save_radio", "manage_library")
-        self._validate_deezer_ids(radio_id, _recursive=False)
+        self._validate_deezer_ids(radio_id, recursive=False)
         return self._request_resource_relationship(
             "POST", "user", user_id, "radios", params={"radio_id": radio_id}
         )
@@ -2749,7 +2770,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `User > Radios <https://developers.deezer.com/api
-        /actions-delete>`__: Remove a radio from a user's favorites.
+        /actions-delete>`__: Unfavorite a radio.
 
         .. admonition:: Permissions
            :class: entitlement
@@ -2783,18 +2804,18 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the radio was unfavorited successfully.
         """
         self._client._require_permissions(
             "users.remove_saved_radio", {"manage_library", "delete_library"}
         )
-        self._validate_deezer_ids(radio_id, _recursive=False)
+        self._validate_deezer_ids(radio_id, recursive=False)
         return self._request_resource_relationship(
             "DELETE", "user", user_id, "radios", params={"radio_id": radio_id}
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_saved_tracks(
+    def get_user_saved_tracks(
         self,
         user_id: int | str = "me",
         /,
@@ -2804,8 +2825,8 @@ class UsersAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `User > Tracks <https://developers.deezer.com/api/user
-        /tracks>`_: Get Deezer catalog information for a user's
-        favorite tracks.
+        /tracks>`_: Get Deezer catalog information for a user's favorite
+        tracks.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -2827,12 +2848,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -2843,8 +2864,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
-            tracks.
+            Page of Deezer metadata for the user's favorite tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2898,21 +2918,21 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_saved_tracks")
+        self._client._require_authentication("users.get_user_saved_tracks")
         return self._request_resource_relationship(
             "GET", "user", user_id, "tracks", limit=limit, offset=offset
         )
 
     def save_tracks(
         self,
-        track_ids: int | str | list[int | str],
+        track_ids: int | str | Collection[int | str],
         /,
         *,
         user_id: int | str = "me",
     ) -> bool:
         """
         `User > Tracks <https://developers.deezer.com/api
-        /actions-post>`__: Add one or more tracks to a user's favorites.
+        /actions-post>`__: Favorite one or more tracks.
 
         .. admonition:: Permission
            :class: entitlement
@@ -2927,7 +2947,7 @@ class UsersAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        track_ids : int, str, or list[int | str]; positional-only
+        track_ids : int, str, or Collection[int | str]; positional-only
             Deezer IDs of the tracks.
 
             **Examples**: :code:`101602968`, :code:`"3541756661"`,
@@ -2944,7 +2964,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the track was favorited successfully.
         """
         self._client._require_permissions(
             "users.save_tracks", "manage_library"
@@ -2963,7 +2983,7 @@ class UsersAPI(DeezerResourceAPI):
     ) -> bool:
         """
         `User > Tracks <https://developers.deezer.com/api
-        /actions-delete>`__: Remove a track from a user's favorites.
+        /actions-delete>`__: Unfavorite a track.
 
         .. admonition:: Permissions
            :class: entitlement
@@ -2997,12 +3017,12 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the track was unfavorited successfully.
         """
         self._client._require_permissions(
             "users.remove_saved_track", {"manage_library", "delete_library"}
         )
-        self._validate_deezer_ids(track_id, _recursive=False)
+        self._validate_deezer_ids(track_id, recursive=False)
         return self._request_resource_relationship(
             "DELETE", "user", user_id, "tracks", params={"track_id": track_id}
         )
@@ -3041,12 +3061,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -3057,8 +3077,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the user's uploaded
-            tracks.
+            Page of Deezer metadata for the user's uploaded tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -3116,7 +3135,7 @@ class UsersAPI(DeezerResourceAPI):
             "GET", "user", user_id, "tracks", limit=limit, offset=offset
         )
 
-    def update_user_track_metadata(
+    def update_track_metadata(
         self,
         track_id: int | str,
         /,
@@ -3164,10 +3183,10 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the track metadata was updated successfully.
         """
         self._client._require_permissions(
-            "tracks.update_user_track_metadata", "manage_library"
+            "tracks.update_track_metadata", "manage_library"
         )
         params = {}
         if album is not None:
@@ -3182,7 +3201,7 @@ class UsersAPI(DeezerResourceAPI):
             "POST", "track", track_id, params=params
         )
 
-    def delete_user_track(self, track_id: int | str, /) -> bool:
+    def delete_track(self, track_id: int | str, /) -> bool:
         """
         `Track <https://developers.deezer.com/api/actions-delete>`__:
         Delete a user-uploaded track.
@@ -3208,15 +3227,15 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the track was deleted successfully.
         """
         self._client._require_permissions(
-            "tracks.delete_user_track", "delete_library"
+            "tracks.delete_track", "delete_library"
         )
         return self._request_resource_relationship("DELETE", "track", track_id)
 
     @TTLCache.cached_method(ttl="user")
-    def get_followed_users(
+    def get_user_followings(
         self,
         user_id: int | str = "me",
         /,
@@ -3226,8 +3245,8 @@ class UsersAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `User > Followings <https://developers.deezer.com/api/user
-        /followings>`_: Get Deezer catalog information for other users
-        followed by a user.
+        /followings>`_: Get Deezer profile information for users
+        followed by the specified user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -3249,12 +3268,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of users to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first user to return. Use with `limit` to get
             the next batch of users.
 
@@ -3265,7 +3284,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer content metadata for the followed users.
+            Page of Deezer metadata for the followed users' profiles.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -3291,7 +3310,7 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_followed_users")
+        self._client._require_authentication("users.get_user_followings")
         return self._request_resource_relationship(
             "GET", "user", user_id, "followings", limit=limit, offset=offset
         )
@@ -3307,8 +3326,8 @@ class UsersAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `User > Followers <https://developers.deezer.com/api/user
-        /followers>`_: Get Deezer catalog information for a user's
-        followers.
+        /followers>`_: Get Deezer profile information for users
+        following the specified user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -3330,12 +3349,12 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of users to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first user to return. Use with `limit` to get
             the next batch of users.
 
@@ -3346,7 +3365,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer content metadata for the user's followers.
+            Page of Deezer metadata for the followers' profiles.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -3412,12 +3431,12 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the user was followed successfully.
         """
         self._client._require_permissions(
             "users.follow_user", "manage_community"
         )
-        self._validate_deezer_ids(follow_user_id, _recursive=False)
+        self._validate_deezer_ids(follow_user_id, recursive=False)
         return self._request_resource_relationship(
             "POST",
             "user",
@@ -3461,12 +3480,12 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the user was unfollowed successfully.
         """
         self._client._require_permissions(
             "users.unfollow_user", "manage_community"
         )
-        self._validate_deezer_ids(unfollow_user_id, _recursive=False)
+        self._validate_deezer_ids(unfollow_user_id, recursive=False)
         return self._request_resource_relationship(
             "DELETE",
             "user",

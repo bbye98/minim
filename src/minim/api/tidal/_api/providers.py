@@ -38,7 +38,7 @@ class ProvidersAPI(TIDALResourceAPI):
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL content metadata for the providers.
+            TIDAL metadata for the providers.
 
             .. admonition:: Sample responses
                :class: response dropdown

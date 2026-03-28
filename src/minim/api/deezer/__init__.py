@@ -1,3 +1,7 @@
+"""
+API clients for Deezer services, such as the Deezer API.
+"""
+
 from ._core import DeezerAPIClient
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI

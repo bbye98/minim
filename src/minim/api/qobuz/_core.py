@@ -488,7 +488,6 @@ class PrivateQobuzAPIClient(APIClient):
                 client_secret=self._app_secret,
                 user_identifier=self._user_identifier,
                 redirect_uri=None,
-                scopes="",
                 token_type=None,
                 access_token=user_auth_token,
                 refresh_token=None,

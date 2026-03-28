@@ -39,7 +39,7 @@ class UsersAPI(TIDALResourceAPI):
         | list[int | str | dict[str, int | str]],
         /,
         *,
-        _recursive: bool = True,
+        recursive: bool = True,
     ) -> list[dict[str, str]]:
         """
         Validate, normalize, and prepare a list of resource identifiers.
@@ -82,13 +82,11 @@ class UsersAPI(TIDALResourceAPI):
                     f"A maximum of 20 {resource_type} can be sent in a request."
                 )
             return [
-                cls._prepare_resource_identifiers(
-                    resource_id, _recursive=False
-                )
+                cls._prepare_resource_identifiers(resource_id, recursive=False)
                 for resource_id in resource_ids
             ]
         resource_identifier = {"id": str(resource_id), "type": resource_type}
-        if _recursive:
+        if recursive:
             return [resource_identifier]
         return resource_identifier
 
@@ -133,7 +131,7 @@ class UsersAPI(TIDALResourceAPI):
             IETF BCP 47 language tag.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the specified
+            Whether to include TIDAL metadata for the specified
             resource.
 
         cursor : str; keyword-only; optional
@@ -162,14 +160,14 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         resource : dict[str, Any]
-            TIDAL content metadata for the specified resource.
+            TIDAL metadata for the specified resource.
         """
         if params is None:
             params = {}
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, recursive=False)
         if sort_by is not None:
             self._process_sort(
                 sort_by,
@@ -237,7 +235,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, recursive=False)
         params = {}
         if country_code is not None:
             self._validate_country_code(country_code)
@@ -304,7 +302,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         collection : dict[str, Any]
-            TIDAL content metadata for the items in the current user's
+            TIDAL metadata for the items in the current user's
             collection.
 
             .. admonition:: Sample response
@@ -748,7 +746,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, recursive=False)
         self._get_resources(
             "userCollections",
             user_id,
@@ -801,7 +799,7 @@ class UsersAPI(TIDALResourceAPI):
             IETF BCP 47 language tag.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the albums in
+            Whether to include TIDAL metadata for the albums in
             the user's collection.
 
         cursor : str; keyword-only; optional
@@ -823,7 +821,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL content metadata for the albums in the user's
+            TIDAL metadata for the albums in the user's
             collection.
 
             .. admonition:: Sample response
@@ -1098,7 +1096,7 @@ class UsersAPI(TIDALResourceAPI):
             IETF BCP 47 language tag.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artists in
+            Whether to include TIDAL metadata for the artists in
             the user's collection.
 
         cursor : str; keyword-only; optional
@@ -1119,7 +1117,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL content metadata for the artists in the user's
+            TIDAL metadata for the artists in the user's
             collection.
 
             .. admonition:: Sample response
@@ -1399,7 +1397,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the owners of
+            Whether to include TIDAL metadata for the owners of
             the user's collection.
 
         cursor : str; keyword-only; optional
@@ -1410,7 +1408,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL content metadata for the owners in the user's
+            TIDAL metadata for the owners in the user's
             collection.
 
             .. admonition:: Sample response
@@ -1492,11 +1490,11 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
 
         include_folders : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             playlist folders in the user's collection.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the playlists
+            Whether to include TIDAL metadata for the playlists
             in the user's collection.
 
         cursor : str; keyword-only; optional
@@ -1518,7 +1516,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            TIDAL content metadata for the playlists (and playlist
+            TIDAL metadata for the playlists (and playlist
             folders) in the user's collection.
 
             .. admonition:: Sample response
@@ -1776,7 +1774,7 @@ class UsersAPI(TIDALResourceAPI):
             IETF BCP 47 language tag.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the tracks in
+            Whether to include TIDAL metadata for the tracks in
             the user's collection.
 
         cursor : str; keyword-only; optional
@@ -1798,7 +1796,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            TIDAL content metadata for the tracks in the user's
+            TIDAL metadata for the tracks in the user's
             collection.
 
             .. admonition:: Sample response
@@ -2096,7 +2094,7 @@ class UsersAPI(TIDALResourceAPI):
             IETF BCP 47 language tag.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the videos in
+            Whether to include TIDAL metadata for the videos in
             the user's collection.
 
         cursor : str; keyword-only; optional
@@ -2118,7 +2116,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            TIDAL content metadata for the videos in the user's
+            TIDAL metadata for the videos in the user's
             collection.
 
             .. admonition:: Sample response
@@ -2413,7 +2411,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, recursive=False)
         return self._get_resources(
             "userEntitlements",
             user_id,
@@ -2444,7 +2442,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the user
+            Whether to include TIDAL metadata for the user
             entitlements' owners.
 
         cursor : str; keyword-only; optional
@@ -2455,7 +2453,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL content metadata for the user entitlements' owners.
+            TIDAL metadata for the user entitlements' owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2480,7 +2478,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, recursive=False)
         return self._get_resource_relationship(
             "userEntitlements",
             user_id,
@@ -2542,7 +2540,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         recommendations : dict[str, Any]
-            TIDAL content metadata for the items in the mixes.
+            TIDAL metadata for the items in the mixes.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2587,7 +2585,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, recursive=False)
         return self._get_resources(
             "userRecommendations",
             user_id,
@@ -2639,7 +2637,7 @@ class UsersAPI(TIDALResourceAPI):
             IETF BCP 47 language tag.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the user's
+            Whether to include TIDAL metadata for the user's
             Discovery Mixes.
 
         cursor : str; keyword-only; optional
@@ -2724,7 +2722,7 @@ class UsersAPI(TIDALResourceAPI):
             IETF BCP 47 language tag.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the user's
+            Whether to include TIDAL metadata for the user's
             mixes.
 
         cursor : str; keyword-only; optional
@@ -2807,7 +2805,7 @@ class UsersAPI(TIDALResourceAPI):
             IETF BCP 47 language tag.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the user's New
+            Whether to include TIDAL metadata for the user's New
             Arrival Mixes.
 
         cursor : str; keyword-only; optional

@@ -112,7 +112,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artist : dict[str, Any]
-            Qobuz content metadata for the artist.
+            Qobuz metadata for the artist.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -938,7 +938,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                           }
                         }
         """
-        self._validate_qobuz_ids(artist_id, _recursive=False)
+        self._validate_qobuz_ids(artist_id, recursive=False)
         params = {"artist_id": artist_id}
         if subresource == "page":
             if sort_by is not None:
@@ -1046,7 +1046,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Page of Qobuz content metadata for the artist's releases.
+            Page of Qobuz metadata for the artist's releases.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1158,7 +1158,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication("artists.get_artist_releases")
-        self._validate_qobuz_ids(artist_id, _recursive=False)
+        self._validate_qobuz_ids(artist_id, recursive=False)
         params = {"artist_id": artist_id}
         if release_types is not None:
             params["release_type"] = self._prepare_comma_separated_values(
@@ -1229,7 +1229,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Qobuz content metadata for similar artists.
+            Page of Qobuz metadata for similar artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1260,7 +1260,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._validate_qobuz_ids(artist_id, _recursive=False)
+        self._validate_qobuz_ids(artist_id, recursive=False)
         return self._get_paginated_resources(
             "artist/getSimilarArtists",
             limit=limit,
@@ -1305,7 +1305,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Qobuz content metadata for the featured artists.
+            Page of Qobuz metadata for the featured artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1442,7 +1442,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Qobuz content metadata for artists in the user's
+            Page of Qobuz metadata for artists in the user's
             favorites.
 
             .. admonition:: Sample response

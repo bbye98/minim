@@ -1,9 +1,15 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class AlbumsAPI(DeezerResourceAPI):
@@ -16,6 +22,8 @@ class AlbumsAPI(DeezerResourceAPI):
        :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
+
+    __slot__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_album(
@@ -37,14 +45,14 @@ class AlbumsAPI(DeezerResourceAPI):
 
             **Examples**: :code:`10546890`, :code:`"816455081"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`25`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -55,7 +63,7 @@ class AlbumsAPI(DeezerResourceAPI):
         Returns
         -------
         album : dict[str, Any]
-            Deezer content metadata for the album.
+            Deezer metadata for the album.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -180,7 +188,7 @@ class AlbumsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Album > Fans <https://developers.deezer.com/api/album/fans>`_:
-        Get Deezer catalog information for an album's fans.
+        Get Deezer profile information for fans of an album.
 
         Parameters
         ----------
@@ -189,12 +197,12 @@ class AlbumsAPI(DeezerResourceAPI):
 
             **Examples**: :code:`10546890`, :code:`"816455081"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of users to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first user to return. Use with `limit` to get
             the next batch of users.
 
@@ -205,7 +213,7 @@ class AlbumsAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer content metadata for the album's fans.
+            Page of Deezer metadata for the album's fans.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -246,7 +254,7 @@ class AlbumsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Album > Tracks <https://developers.deezer.com/api/album
-        /tracks>`_: Get Deezer catalog information for tracks in an
+        /tracks>`_: Get Deezer catalog information for tracks on an
         album.
 
         Parameters
@@ -256,14 +264,14 @@ class AlbumsAPI(DeezerResourceAPI):
 
             **Examples**: :code:`10546890`, :code:`"816455081"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`25`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -274,7 +282,7 @@ class AlbumsAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the tracks in the album.
+            Page of Deezer metadata for the album's tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -323,8 +331,8 @@ class AlbumsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         return self._client.charts.get_top_albums(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_saved_albums)
-    def get_saved_albums(
+    @_copy_docstring(UsersAPI.get_user_saved_albums)
+    def get_user_saved_albums(
         self,
         user_id: int | str = "me",
         /,
@@ -332,14 +340,14 @@ class AlbumsAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_albums(
+        return self._client.users.get_user_saved_albums(
             user_id, limit=limit, offset=offset
         )
 
     @_copy_docstring(UsersAPI.save_albums)
     def save_albums(
         self,
-        album_ids: int | str | list[int | str],
+        album_ids: int | str | Collection[int | str],
         /,
         *,
         user_id: int | str = "me",
@@ -365,8 +373,8 @@ class AlbumsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_album_recommendations)
-    def get_album_recommendations(
+    @_copy_docstring(UsersAPI.get_user_album_recommendations)
+    def get_user_album_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -374,12 +382,12 @@ class AlbumsAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_album_recommendations(
+        return self._client.users.get_user_album_recommendations(
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_release_recommendations)
-    def get_release_recommendations(
+    @_copy_docstring(UsersAPI.get_user_release_recommendations)
+    def get_user_release_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -387,6 +395,6 @@ class AlbumsAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_release_recommendations(
+        return self._client.users.get_user_release_recommendations(
             user_id, limit=limit, offset=offset
         )

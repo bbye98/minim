@@ -49,7 +49,7 @@ class CategoriesAPI(SpotifyResourceAPI):
         Returns
         -------
         category : dict[str, Any]
-            Spotify content metadata for the category.
+            Spotify metadata for the category.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -125,7 +125,7 @@ class CategoriesAPI(SpotifyResourceAPI):
         Returns
         -------
         categories : dict[str, Any]
-            Page of Spotify content metadata for available categories.
+            Page of Spotify metadata for available categories.
 
             .. admonition:: Sample response
                :class: response dropdown

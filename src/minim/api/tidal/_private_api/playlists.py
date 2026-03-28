@@ -140,7 +140,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            TIDAL content metadata for the playlist.
+            TIDAL metadata for the playlist.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -309,7 +309,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of TIDAL content metadata for the tracks and videos in
+            Page of TIDAL metadata for the tracks and videos in
             the playlist.
 
             .. admonition:: Sample response
@@ -517,7 +517,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of TIDAL content metadata for the recommended tracks.
+            Page of TIDAL metadata for the recommended tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -646,7 +646,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         folder : dict[str, Any]
-            TIDAL content metadata for the newly created playlist
+            TIDAL metadata for the newly created playlist
             folder.
 
             .. admonition:: Sample response
@@ -768,7 +768,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            TIDAL content metadata for the newly created playlist.
+            TIDAL metadata for the newly created playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1113,7 +1113,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                 item_ids = ",".join(str(item_id) for item_id in item_ids)
             data["itemIds"] = str(item_ids)
         elif from_album_id is not None:
-            self._validate_tidal_ids(from_album_id, _recursive=False)
+            self._validate_tidal_ids(from_album_id, recursive=False)
             data["fromAlbumId"] = from_album_id
         else:
             self._validate_uuid(from_playlist_uuid)

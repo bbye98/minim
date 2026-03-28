@@ -131,7 +131,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         track : dict[str, Any]
-            TIDAL content metadata for the track.
+            TIDAL metadata for the track.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -249,7 +249,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         contributors : dict[str, Any]
-            Page of TIDAL content metadata for the track's contributors.
+            Page of TIDAL metadata for the track's contributors.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -301,7 +301,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         credits : dict[str, Any]
-            TIDAL content metadata for the track's credits.
+            TIDAL metadata for the track's credits.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -359,7 +359,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         lyrics : dict[str, Any]
-            TIDAL content metadata for the track's formatted and/or
+            TIDAL metadata for the track's formatted and/or
             time-synced lyrics.
 
             .. admonition:: Sample response
@@ -470,7 +470,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of TIDAL content metadata for the recommended tracks.
+            Page of TIDAL metadata for the recommended tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -646,7 +646,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                     "trackReplayGain": <float>
                   }
         """
-        self._validate_tidal_ids(track_id, _recursive=False)
+        self._validate_tidal_ids(track_id, recursive=False)
         quality = self._prepare_string("quality", quality).upper()
         if quality not in self._AUDIO_QUALITIES:
             raise ValueError(

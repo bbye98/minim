@@ -1,3 +1,8 @@
+"""
+A Python library for semi-automated music tagging, featuring API clients
+for major music services and integrated media file handlers.
+"""
+
 from importlib.util import find_spec
 from pathlib import Path
 

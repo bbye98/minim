@@ -1,9 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PodcastsAPI(DeezerResourceAPI):
@@ -16,6 +20,8 @@ class PodcastsAPI(DeezerResourceAPI):
        :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
+
+    __slot__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_podcast(self, podcast_id: int | str, /) -> dict[str, Any]:
@@ -33,7 +39,7 @@ class PodcastsAPI(DeezerResourceAPI):
         Returns
         -------
         podcast : dict[str, Any]
-            Deezer content metadata for the podcast.
+            Deezer metadata for the podcast.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -71,8 +77,8 @@ class PodcastsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Podcast > Episodes <https://developers.deezer.com/api/podcast
-        /episodes>`_: Get Deezer catalog information for a podcast's
-        episodes.
+        /episodes>`_: Get Deezer catalog information for episodes in a
+        podcast.
 
         Parameters
         ----------
@@ -81,14 +87,14 @@ class PodcastsAPI(DeezerResourceAPI):
 
             **Examples**: :code:`436862`, :code:`"2740882"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of episodes to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`25`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first episode to return. Use with `limit` to
             get the next batch of episodes.
 
@@ -99,7 +105,7 @@ class PodcastsAPI(DeezerResourceAPI):
         Returns
         -------
         episodes : dict[str, Any]
-            Page of Deezer content metadata for the podcast's episodes.
+            Page of Deezer metadata for the podcast's episodes.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -137,8 +143,8 @@ class PodcastsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         return self._client.charts.get_top_podcasts(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_followed_podcasts)
-    def get_followed_podcasts(
+    @_copy_docstring(UsersAPI.get_user_followed_podcasts)
+    def get_user_followed_podcasts(
         self,
         user_id: int | str = "me",
         /,
@@ -146,7 +152,7 @@ class PodcastsAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_followed_podcasts(
+        return self._client.users.get_user_followed_podcasts(
             user_id, limit=limit, offset=offset
         )
 

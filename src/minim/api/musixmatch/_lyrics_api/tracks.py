@@ -58,7 +58,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         resource : dict[str, Any]
-            Musixmatch content metadata for the track resource.
+            Musixmatch metadata for the track resource.
         """
         _params = {}
         if track_id is not None:
@@ -127,7 +127,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         track : dict[str, Any]
-            Musixmatch content metadata for the track.
+            Musixmatch metadata for the track.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -260,7 +260,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         lyrics : dict[str, Any]
-            Musixmatch content metadata for the track's lyrics.
+            Musixmatch metadata for the track's lyrics.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -360,7 +360,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         moods : dict[str, Any]
-            Musixmatch content metadata for the moods associated with
+            Musixmatch metadata for the moods associated with
             the track's lyrics.
 
             .. admonition:: Sample response
@@ -460,7 +460,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         subtitles : dict[str, Any]
-            Musixmatch content metadata for the track's subtitles.
+            Musixmatch metadata for the track's subtitles.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -578,7 +578,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         lyrics : dict[str, Any]
-            Musixmatch content metadata for the track's Rich Sync
+            Musixmatch metadata for the track's Rich Sync
             lyrics.
 
             .. admonition:: Sample response
@@ -681,7 +681,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         snippet : dict[str, Any]
-            Musixmatch content metadata for the snippet of the track's
+            Musixmatch metadata for the snippet of the track's
             lyrics.
 
             .. admonition:: Sample response
@@ -787,7 +787,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         translation : dict[str, Any]
-            Musixmatch content metadata for the translation of the
+            Musixmatch metadata for the translation of the
             track's lyrics.
 
             .. admonition:: Sample response
@@ -920,7 +920,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         translation : dict[str, Any]
-            Musixmatch content metadata for the translation of the
+            Musixmatch metadata for the translation of the
             track's subtitles.
 
             .. admonition:: Sample response
@@ -1106,7 +1106,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Musixmatch content metadata for the matching tracks.
+            Page of Musixmatch metadata for the matching tracks.
 
             .. admonition:: Sample response
                :class: response dropdown

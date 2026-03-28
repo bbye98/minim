@@ -116,7 +116,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Spotify content metadata for the playlist.
+            Spotify metadata for the playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -553,7 +553,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify content metadata for the playlist items.
+            Page of Spotify metadata for the playlist items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1206,7 +1206,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Spotify content metadata for the newly created playlist.
+            Spotify metadata for the newly created playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1341,7 +1341,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Spotify content metadata for the featured playlists.
+            Page of Spotify metadata for the featured playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1468,7 +1468,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Spotify content metadata for the playlists in the
+            Page of Spotify metadata for the playlists in the
             specified category.
 
             .. admonition:: Sample response

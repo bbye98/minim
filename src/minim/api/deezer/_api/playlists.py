@@ -1,9 +1,15 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PlaylistsAPI(DeezerResourceAPI):
@@ -16,6 +22,8 @@ class PlaylistsAPI(DeezerResourceAPI):
        :class:`~minim.api.deezer.DeezerAPIClient` and should not be
        instantiated directly.
     """
+
+    __slot__ = ()
 
     @TTLCache.cached_method(ttl="user")
     def get_playlist(
@@ -37,12 +45,12 @@ class PlaylistsAPI(DeezerResourceAPI):
 
             **Examples**: :code:`13651021241`, :code:`"1495242491"`.
 
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -53,7 +61,7 @@ class PlaylistsAPI(DeezerResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Deezer content metadata for the playlist.
+            Deezer metadata for the playlist and its tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -143,7 +151,7 @@ class PlaylistsAPI(DeezerResourceAPI):
     def mark_playlist_seen(self, playlist_id: int | str, /) -> bool:
         """
         `Playlist > Seen <https://developers.deezer.com/api/playlist
-        /seen>`_: Mark a playlist as seen.
+        /seen>`_: Mark a Deezer playlist as seen.
 
         Parameters
         ----------
@@ -155,7 +163,7 @@ class PlaylistsAPI(DeezerResourceAPI):
         Returns
         -------
         success : bool
-            Whether the request completed successfully.
+            Whether the playlist was successfully marked as seen.
         """
         return self._request_resource_relationship(
             "POST", "playlist", playlist_id, "seen"
@@ -172,7 +180,7 @@ class PlaylistsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Playlist > Fans <https://developers.deezer.com/api/playlist
-        /fans>`_: Get Deezer catalog information for a playlist's fans.
+        /fans>`_: Get Deezer profile information for fans of a playlist.
 
         Parameters
         ----------
@@ -197,7 +205,7 @@ class PlaylistsAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer content metadata for the playlist's fans.
+            Page of Deezer metadata for the playlist's fans.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -238,7 +246,7 @@ class PlaylistsAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Playlist > Tracks <https://developers.deezer.com/api/playlist
-        /tracks>`__: Get Deezer catalog information for the tracks in a
+        /tracks>`__: Get Deezer catalog information for tracks in a
         playlist.
 
         Parameters
@@ -266,7 +274,7 @@ class PlaylistsAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the artist's top tracks.
+            Page of Deezer metadata for the playlist's tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -354,8 +362,7 @@ class PlaylistsAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Deezer content metadata for the tracks in the playlist's
-            radio.
+            Deezer metadata for the tracks in the playlist's radio.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -443,7 +450,10 @@ class PlaylistsAPI(DeezerResourceAPI):
 
     @_copy_docstring(UsersAPI.add_playlist_tracks)
     def add_playlist_tracks(
-        self, playlist_id: int | str, /, track_ids: int | str | list[int | str]
+        self,
+        playlist_id: int | str,
+        /,
+        track_ids: int | str | Collection[int | str],
     ) -> bool:
         return self._client.users.add_playlist_tracks(
             playlist_id, track_ids=track_ids
@@ -451,7 +461,10 @@ class PlaylistsAPI(DeezerResourceAPI):
 
     @_copy_docstring(UsersAPI.reorder_playlist_tracks)
     def reorder_playlist_tracks(
-        self, playlist_id: int | str, /, track_ids: int | str | list[int | str]
+        self,
+        playlist_id: int | str,
+        /,
+        track_ids: int | str | Collection[int | str],
     ) -> Any:
         return self._client.users.reorder_playlist_tracks(
             playlist_id, track_ids=track_ids
@@ -473,7 +486,7 @@ class PlaylistsAPI(DeezerResourceAPI):
     @_copy_docstring(UsersAPI.follow_playlists)
     def follow_playlists(
         self,
-        playlist_ids: int | str | list[int | str],
+        playlist_ids: int | str | Collection[int | str],
         /,
         *,
         user_id: int | str = "me",
@@ -507,8 +520,8 @@ class PlaylistsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_playlist_recommendations)
-    def get_playlist_recommendations(
+    @_copy_docstring(UsersAPI.get_user_playlist_recommendations)
+    def get_user_playlist_recommendations(
         self,
         user_id: int | str = "me",
         /,
@@ -516,6 +529,6 @@ class PlaylistsAPI(DeezerResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_playlist_recommendations(
+        return self._client.users.get_user_playlist_recommendations(
             user_id, limit=limit, offset=offset
         )

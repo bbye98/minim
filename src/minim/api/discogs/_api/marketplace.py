@@ -143,7 +143,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         listing : dict[str, Any] or None
-            Discogs content metadata for a newly created listing or
+            Discogs metadata for a newly created listing or
             :code:`None` for an updated listing.
 
             .. admonition:: Sample response
@@ -292,7 +292,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         listings : dict[str, Any]
-            Page of Discogs content metadata for the seller's inventory.
+            Page of Discogs metadata for the seller's inventory.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -428,7 +428,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         listing : dict[str, Any]
-            Discogs content metadata for the listing.
+            Discogs metadata for the listing.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -605,7 +605,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         listing : dict[str, Any]
-            Discogs content metadata for the newly created listing.
+            Discogs metadata for the newly created listing.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -797,7 +797,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         order : dict[str, Any]
-            Discogs content metadata for the order.
+            Discogs metadata for the order.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -929,7 +929,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         order : dict[str, Any]
-            Discogs content metadata for the updated order.
+            Discogs metadata for the updated order.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1095,7 +1095,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         orders : dict[str, Any]
-            Page of Discogs content metadata for the current user's
+            Page of Discogs metadata for the current user's
             orders.
 
             .. admonition:: Sample response
@@ -1223,7 +1223,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         `Marketplace > List Order Messages > List Order Messages
         <https://www.discogs.com/developers/#page:marketplace,
         header:marketplace-list-order-messages-get>`_: Get Discogs
-        content metadata for a marketplace order's messages.
+        metadata for a marketplace order's messages.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1260,7 +1260,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         messages : dict[str, Any]
-            Page of Discogs content metadata for the order's messages.
+            Page of Discogs metadata for the order's messages.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1350,7 +1350,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         message : dict[str, Any]
-            Discogs content metadata for the order message.
+            Discogs metadata for the order message.
 
             .. admonition:: Sample response
                :class: response dropdown

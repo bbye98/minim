@@ -85,7 +85,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
         Returns
         -------
         audiobooks : dict[str, Any]
-            Spotify content metadata for the audiobooks.
+            Spotify metadata for the audiobooks.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -359,7 +359,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
         Returns
         -------
         chapters : dict[str, Any]
-            Page of Spotify content metadata for the audiobook's
+            Page of Spotify metadata for the audiobook's
             chapters.
 
             .. admonition:: Sample response

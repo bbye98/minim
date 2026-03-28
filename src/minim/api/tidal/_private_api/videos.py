@@ -93,7 +93,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         video : dict[str, Any]
-            TIDAL content metadata for the video.
+            TIDAL metadata for the video.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -190,7 +190,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         contributors : dict[str, Any]
-            Page of TIDAL content metadata for the video's contributors.
+            Page of TIDAL metadata for the video's contributors.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -312,7 +312,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._require_subscription("videos.get_video_playback_info")
-        self._validate_tidal_ids(video_id, _recursive=False)
+        self._validate_tidal_ids(video_id, recursive=False)
         quality = self._prepare_string("quality", quality).upper()
         if quality not in self._VIDEO_QUALITIES:
             raise ValueError(

@@ -1,3 +1,7 @@
+"""
+API clients for Qobuz services, such as the Qobuz API.
+"""
+
 from ._core import PrivateQobuzAPIClient
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI

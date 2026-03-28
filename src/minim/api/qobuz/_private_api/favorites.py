@@ -229,7 +229,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz content metadata for items in the user's
+            Page of Qobuz metadata for items in the user's
             favorites.
 
             .. admonition:: Sample response
@@ -547,7 +547,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         if item_type == "album":
             self._validate_album_id(item_id)
         else:
-            self._validate_qobuz_ids(item_id, _recursive=False)
+            self._validate_qobuz_ids(item_id, recursive=False)
         return self._client._request(
             "GET",
             "favorite/status",
@@ -600,7 +600,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         if item_type == "album":
             self._validate_album_id(item_id)
         else:
-            self._validate_qobuz_ids(item_id, _recursive=False)
+            self._validate_qobuz_ids(item_id, recursive=False)
         return self._client._request(
             "POST",
             "favorite/toggle",

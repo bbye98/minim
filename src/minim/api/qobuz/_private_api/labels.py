@@ -66,7 +66,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         label : dict[str, Any]
-            Qobuz content metadata for the label.
+            Qobuz metadata for the label.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -158,7 +158,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
                     "supplier_id": <int>
                   }
         """
-        self._validate_qobuz_ids(label_id, _recursive=False)
+        self._validate_qobuz_ids(label_id, recursive=False)
         params = {"label_id": label_id}
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
@@ -193,7 +193,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         labels : dict[str, Any]
-            Page of Qobuz content metadata for the labels.
+            Page of Qobuz metadata for the labels.
 
             .. admonition:: Sample response
                :class: response dropdown

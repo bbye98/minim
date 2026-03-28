@@ -32,7 +32,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         *,
         meta: bool = True,
-        _recursive: bool = True,
+        recursive: bool = True,
     ) -> list[dict[str, Any]]:
         """
         Process user-specified items to add to, update in, or remove
@@ -72,7 +72,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                     )
                 return [
                     cls._process_playlist_items(
-                        item, meta=meta, _recursive=False
+                        item, meta=meta, recursive=False
                     )
                     for item in items
                 ]
@@ -87,7 +87,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         item = {"id": str(item_id), "type": item_type}
         if meta:
             item["meta"] = {"itemId": item_uuid}
-        if _recursive:
+        if recursive:
             return [item]
         return item
 
@@ -184,7 +184,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            TIDAL content metadata for the playlists.
+            TIDAL metadata for the playlists.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -742,7 +742,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            TIDAL content metadata for the newly created playlist.
+            TIDAL metadata for the newly created playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -957,7 +957,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the playlist cover art.
 
         cursor : str; keyword-only; optional
@@ -968,7 +968,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL content metadata for the playlist cover art.
+            TIDAL metadata for the playlist cover art.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1055,7 +1055,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the items in the playlist.
 
         cursor : str; keyword-only; optional
@@ -1066,7 +1066,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL content metadata for the items in the playlist.
+            TIDAL metadata for the items in the playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1551,7 +1551,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the playlist's owners.
 
         cursor : str; keyword-only; optional
@@ -1562,7 +1562,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL content metadata for the playlist's owners.
+            TIDAL metadata for the playlist's owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1630,7 +1630,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
+            Whether to include TIDAL metadata for
             the playlist's owners' profiles.
 
         cursor : str; keyword-only; optional
@@ -1641,7 +1641,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         owner_profiles : dict[str, Any]
-            TIDAL content metadata for the playlist's owners' profiles.
+            TIDAL metadata for the playlist's owners' profiles.
 
             .. admonition:: Sample response
                :class: response dropdown

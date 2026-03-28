@@ -185,7 +185,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Musixmatch content metadata for the artist's albums.
+            Page of Musixmatch metadata for the artist's albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -293,7 +293,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Musixmatch content metadata for the matching
+            Page of Musixmatch metadata for the matching
             artists.
 
             .. admonition:: Sample response

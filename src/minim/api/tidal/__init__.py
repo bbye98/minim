@@ -1,3 +1,7 @@
+"""
+API clients for TIDAL services, such as the TIDAL API.
+"""
+
 from ._core import TIDALAPIClient, PrivateTIDALAPIClient
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI

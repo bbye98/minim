@@ -91,7 +91,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         resources : dict[str, Any]
-            Page of TIDAL content metadata for resources blocked by the
+            Page of TIDAL metadata for resources blocked by the
             user.
         """
         if user_id is None:
@@ -383,7 +383,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         resource : dict[str, Any]
-            TIDAL content metadata for the related resource.
+            TIDAL metadata for the related resource.
         """
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
@@ -467,7 +467,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for the playlist folders
+            Page of TIDAL metadata for the playlist folders
             and/or playlists in the current user's collection.
         """
         self._validate_number("limit", limit, int, 1, 50)
@@ -586,9 +586,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             "GET", f"v1/users/{user_id}/{subresource}", params=params
         ).json()
 
-    def _manage_followed_users(
-        self, method: str, user_id: int | str, /
-    ) -> None:
+    def _manage_followings(self, method: str, user_id: int | str, /) -> None:
         """
         Follow or unfollow a TIDAL user.
 
@@ -612,7 +610,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id : int or str; positional-only
             TIDAL ID of the user.
         """
-        self._validate_tidal_ids(user_id, _recursive=False)
+        self._validate_tidal_ids(user_id, recursive=False)
         self._client._request(
             method, "v2/follow", params={"trn": f"trn:user:{user_id}"}
         )
@@ -643,7 +641,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id : int or str; positional-only
             TIDAL ID of the user.
         """
-        self._validate_tidal_ids(user_id, _recursive=False)
+        self._validate_tidal_ids(user_id, recursive=False)
         self._client._request(method, f"v2/profiles/block/{user_id}")
 
     @TTLCache.cached_method(ttl="static")
@@ -1006,7 +1004,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of TIDAL content metadata for albums in the user's
+            Page of TIDAL metadata for albums in the user's
             collection.
 
             .. admonition:: Sample response
@@ -1224,7 +1222,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of TIDAL content metadata for artists blocked by the
+            Page of TIDAL metadata for artists blocked by the
             user.
 
             .. admonition:: Sample response
@@ -1408,7 +1406,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of TIDAL content metadata for artists in the user's
+            Page of TIDAL metadata for artists in the user's
             collection.
 
             .. admonition:: Sample response
@@ -1601,7 +1599,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         mixes : dict[str, Any]
-            Page of TIDAL content metadata for mixes in the current
+            Page of TIDAL metadata for mixes in the current
             user's collection.
 
             .. admonition:: Sample response
@@ -1881,7 +1879,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for editorial playlists in
+            Page of TIDAL metadata for editorial playlists in
             the user's collection.
 
             .. admonition:: Sample response
@@ -2171,7 +2169,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for the playlists in the
+            Page of TIDAL metadata for the playlists in the
             current user's collection.
 
             .. admonition:: Sample response
@@ -2344,7 +2342,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for the playlists in the
+            Page of TIDAL metadata for the playlists in the
             specified playlist folder in the current user's collection.
 
             .. admonition:: Sample response
@@ -2517,7 +2515,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for the playlist folders and
+            Page of TIDAL metadata for the playlist folders and
             playlists in the current user's collection.
 
             .. admonition:: Sample response
@@ -2690,7 +2688,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for editorial and
+            Page of TIDAL metadata for editorial and
             user-created playlists in the user's collection.
 
             .. admonition:: Sample response
@@ -2863,7 +2861,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for user-created playlists in
+            Page of TIDAL metadata for user-created playlists in
             the user's collection.
 
             .. admonition:: Sample response
@@ -2969,7 +2967,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for the public playlists in a
+            Page of TIDAL metadata for the public playlists in a
             user's collection.
 
             .. admonition:: Sample response
@@ -3092,7 +3090,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         followers : dict[str, Any]
-            TIDAL content metadata for the user's followers.
+            TIDAL metadata for the user's followers.
 
             **Sample response**: :code:`{'cursor': None, 'items': {}}`.
         """
@@ -3106,7 +3104,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_followed_users(
+    def get_followings(
         self,
         user_id: int | str | None = None,
         /,
@@ -3144,7 +3142,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         following : dict[str, Any]
-            TIDAL content metadata for the people followed by the user.
+            TIDAL metadata for the people followed by the user.
 
             **Sample response**: :code:`{'cursor': None, 'items': {}}`.
         """
@@ -3180,7 +3178,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id : int or str; positional-only
             TIDAL ID of the user.
         """
-        self._manage_followed_users("PUT", user_id)
+        self._manage_followings("PUT", user_id)
 
     def unfollow_user(self, user_id: int | str, /) -> None:
         """
@@ -3205,7 +3203,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id : int or str; positional-only
             TIDAL ID of the user.
         """
-        self._manage_followed_users("DELETE", user_id)
+        self._manage_followings("DELETE", user_id)
 
     @TTLCache.cached_method(ttl="user")
     def get_my_blocked_users(
@@ -3249,7 +3247,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of TIDAL content metadata for users blocked by the
+            Page of TIDAL metadata for users blocked by the
             current user.
 
             **Sample response**: :code:`{'items': [], 'limit': 0,
@@ -3388,7 +3386,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of TIDAL content metadata for tracks in the user's
+            Page of TIDAL metadata for tracks in the user's
             collection.
 
             .. admonition:: Sample response
@@ -3619,7 +3617,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of TIDAL content metadata for tracks blocked by the
+            Page of TIDAL metadata for tracks blocked by the
             user.
 
             .. admonition:: Sample response
@@ -3840,7 +3838,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            Page of TIDAL content metadata for videos in the user's
+            Page of TIDAL metadata for videos in the user's
             collection.
 
             .. admonition:: Sample response
@@ -4048,7 +4046,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            Page of TIDAL content metadata for videos blocked by the
+            Page of TIDAL metadata for videos blocked by the
             user.
 
             .. admonition:: Sample response

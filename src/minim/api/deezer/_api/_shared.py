@@ -1,8 +1,13 @@
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
+from ...._types import COLLECTION_TYPES
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
     from .. import DeezerAPIClient
 
 
@@ -13,16 +18,18 @@ class DeezerResourceAPI(ResourceAPI):
 
     _client: "DeezerAPIClient"
 
+    __slot__ = ()
+
     @staticmethod
     def _prepare_deezer_ids(
-        deezer_ids: int | str | list[int | str], /
+        deezer_ids: int | str | Collection[int | str], /
     ) -> tuple[str, int]:
         """
         Validate, normalize, and serialize Deezer IDs.
 
         Parameters
         ----------
-        deezer_ids : int, str, or list[int | str]; positional-only
+        deezer_ids : int, str, or Collection[int | str]; positional-only
             Deezer IDs.
 
         Returns
@@ -35,8 +42,10 @@ class DeezerResourceAPI(ResourceAPI):
         """
         if isinstance(deezer_ids, int):
             return str(deezer_ids), 1
+
         if isinstance(deezer_ids, str):
             return DeezerResourceAPI._prepare_deezer_ids(deezer_ids.split(","))
+
         DeezerResourceAPI._validate_deezer_ids(deezer_ids)
         return ",".join(str(deezer_id) for deezer_id in deezer_ids), len(
             deezer_ids
@@ -44,36 +53,44 @@ class DeezerResourceAPI(ResourceAPI):
 
     @staticmethod
     def _validate_deezer_ids(
-        deezer_ids: int | str | list[int | str], /, *, _recursive: bool = True
+        deezer_ids: int | str | Collection[int | str],
+        /,
+        *,
+        recursive: bool = True,
     ) -> None:
         """
         Validate one or more Deezer IDs.
 
         Parameters
         ----------
-        deezer_ids : int, str, or list[int | str]; positional-only
+        deezer_ids : int, str, or Collection[int | str]; positional-only
             Deezer IDs.
+
+        recursive : bool; keyword-only; default: :code:`True`
+            Whether to iterate over a collection of Deezer IDs.
         """
         if not isinstance(deezer_ids, int) and not deezer_ids:
             raise ValueError("At least one Deezer ID must be specified.")
 
         if isinstance(deezer_ids, str):
-            if _recursive:
+            if recursive:
                 DeezerResourceAPI._validate_deezer_ids(deezer_ids.split(","))
             elif not (
                 deezer_ids.lstrip("-").isdecimal() or deezer_ids == "me"
             ):
                 raise ValueError(f"Invalid Deezer ID {deezer_ids!r}.")
+
         elif not isinstance(deezer_ids, int):
-            if _recursive:
-                if not isinstance(deezer_ids, tuple | list | str):
+            if recursive:
+                if not isinstance(deezer_ids, COLLECTION_TYPES):
                     raise TypeError(
                         "Deezer IDs must be provided as integers, "
                         "strings, or lists of integers and/or strings."
                     )
+
                 for deezer_id in deezer_ids:
                     DeezerResourceAPI._validate_deezer_ids(
-                        deezer_id, _recursive=False
+                        deezer_id, recursive=False
                     )
             else:
                 raise ValueError(f"Invalid Deezer ID {deezer_ids!r}.")
@@ -130,9 +147,9 @@ class DeezerResourceAPI(ResourceAPI):
         Returns
         -------
         resource : dict[str, Any]
-            Deezer content metadata for the related resource.
+            Deezer metadata for the related resource.
         """
-        self._validate_deezer_ids(resource_id, _recursive=False)
+        self._validate_deezer_ids(resource_id, recursive=False)
         if params is None:
             params = {}
         if limit is not None:

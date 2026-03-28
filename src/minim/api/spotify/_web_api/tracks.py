@@ -267,7 +267,7 @@ class TracksAPI(SpotifyResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Spotify content metadata for the tracks.
+            Spotify metadata for the tracks.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -968,7 +968,7 @@ class TracksAPI(SpotifyResourceAPI):
         Returns
         -------
         recommendations : dict[str, Any]
-            Spotify content metadata for the track recommendations
+            Spotify metadata for the track recommendations
             generated from the provided seeds and tuning parameters.
 
             .. admonition:: Sample response
@@ -1185,7 +1185,7 @@ class TracksAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify content metadata for the current user's top
+            Page of Spotify metadata for the current user's top
             tracks.
 
             .. admonition:: Sample response

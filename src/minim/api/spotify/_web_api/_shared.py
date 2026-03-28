@@ -262,7 +262,7 @@ class SpotifyResourceAPI(ResourceAPI):
         Returns
         -------
         resources : dict[str, Any]
-            Spotify content metadata for the resources.
+            Spotify metadata for the resources.
         """
         is_string = isinstance(resource_ids, str)
         resource_ids, num_ids = self._prepare_spotify_ids(
@@ -356,7 +356,7 @@ class SpotifyResourceAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify content metadata for the items in the
+            Page of Spotify metadata for the items in the
             resource.
         """
         resource_id = resource_id.strip()

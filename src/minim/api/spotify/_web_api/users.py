@@ -216,7 +216,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify content metadata for the user's saved
+            Page of Spotify metadata for the user's saved
             items.
         """
         params = {}
@@ -604,7 +604,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify content metadata for the current user's top
+            Page of Spotify metadata for the current user's top
             artists or tracks.
 
             .. admonition:: Sample responses
@@ -889,7 +889,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Spotify content metadata for the artists followed by the
+            Spotify metadata for the artists followed by the
             current user.
 
             .. admonition:: Sample response
@@ -1287,7 +1287,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Spotify content metadata for the user's saved
+            Page of Spotify metadata for the user's saved
             albums.
 
             .. admonition:: Sample response
@@ -1597,7 +1597,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         audiobooks : dict[str, Any]
-            Page of Spotify content metadata for the user's saved
+            Page of Spotify metadata for the user's saved
             audiobooks.
 
             .. admonition:: Sample response
@@ -1860,7 +1860,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         episodes : dict[str, Any]
-            Page of Spotify content metadata for the user's saved show
+            Page of Spotify metadata for the user's saved show
             episodes.
 
             .. admonition:: Sample response
@@ -2122,7 +2122,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Spotify content metadata for the current user's
+            Page of Spotify metadata for the current user's
             playlists.
 
             .. admonition:: Sample response
@@ -2255,7 +2255,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Spotify content metadata for the user's playlists.
+            Page of Spotify metadata for the user's playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2363,7 +2363,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         shows : dict[str, Any]
-            Page of Spotify content metadata for the user's saved shows.
+            Page of Spotify metadata for the user's saved shows.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2603,7 +2603,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Spotify content metadata for the user's saved
+            Page of Spotify metadata for the user's saved
             tracks.
 
             .. admonition:: Sample response

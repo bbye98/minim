@@ -65,7 +65,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            Page of TIDAL content metadata for the matching items.
+            Page of TIDAL metadata for the matching items.
         """
         endpoint = "v1/search"
         if resource_type is not None:
@@ -124,7 +124,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of TIDAL content metadata for the matching items.
+            Page of TIDAL metadata for the matching items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -431,7 +431,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of TIDAL content metadata for the matching albums.
+            Page of TIDAL metadata for the matching albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -546,7 +546,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of TIDAL content metadata for the matching artists.
+            Page of TIDAL metadata for the matching artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -733,7 +733,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of TIDAL content metadata for the matching tracks.
+            Page of TIDAL metadata for the matching tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -860,7 +860,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            Page of TIDAL content metadata for the matching videos.
+            Page of TIDAL metadata for the matching videos.
 
             .. admonition:: Sample response
                :class: response dropdown

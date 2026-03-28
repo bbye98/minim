@@ -67,7 +67,7 @@ class ArtworksAPI(TIDALResourceAPI):
         Returns
         -------
         artworks : dict[str, Any]
-            TIDAL content metadata for the artworks.
+            TIDAL metadata for the artworks.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -183,7 +183,7 @@ class ArtworksAPI(TIDALResourceAPI):
             **Example**: :code:`"2xpmpI1s9DzeAPMlmNh9kM"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artwork's
+            Whether to include TIDAL metadata for the artwork's
             owners.
 
         cursor : str; keyword-only; optional
@@ -194,7 +194,7 @@ class ArtworksAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL content metadata for the artwork's owners.
+            TIDAL metadata for the artwork's owners.
 
             .. admonition:: Sample response
                :class: response dropdown

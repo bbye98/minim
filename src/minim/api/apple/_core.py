@@ -1,18 +1,25 @@
+from __future__ import annotations
 from json.decoder import JSONDecodeError
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 import warnings
 
 from .._shared import TTLCache, APIClient, ResourceAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
     import httpx
+
+    from ..._types import Collection
 
 
 class iTunesSearchAPIClient(APIClient):
     """
     iTunes Search API client.
     """
+
+    BASE_URL = "https://itunes.apple.com"
 
     _LOCALES = {"en_us", "ja_jp"}
     _MEDIA_TYPES = {
@@ -155,8 +162,10 @@ class iTunesSearchAPIClient(APIClient):
     }
     _PROVIDER = "Apple"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    BASE_URL = "https://itunes.apple.com"
+
     _rate_limit_per_second = 1 / 3
+
+    __slots__ = ()
 
     def __init__(
         self,
@@ -219,6 +228,7 @@ class iTunesSearchAPIClient(APIClient):
         """
         if (rate_limiter := self._rate_limiter) is not None:
             rate_limiter.throttle()
+
         resp = self._client.request(method, endpoint, **kwargs)
         status = resp.status_code
         if 200 <= status < 300:
@@ -232,6 +242,7 @@ class iTunesSearchAPIClient(APIClient):
             )
             time.sleep(retry_after)
             return self._request(method, endpoint, retry=False, **kwargs)
+
         emsg = f"{status} {resp.reason_phrase}"
         try:
             if details := resp.json()["errorMessage"]:
@@ -244,13 +255,13 @@ class iTunesSearchAPIClient(APIClient):
     def lookup(
         self,
         *,
-        itunes_ids: int | str | list[int | str] | None = None,
-        amg_album_ids: int | str | list[int | str] | None = None,
-        amg_artist_ids: int | str | list[int | str] | None = None,
-        amg_video_ids: int | str | list[int | str] | None = None,
-        bundle_ids: str | list[str] | None = None,
-        isbns: int | str | list[int | str] | None = None,
-        barcodes: int | str | list[int | str] | None = None,
+        itunes_ids: int | str | Collection[int | str] | None = None,
+        amg_album_ids: int | str | Collection[int | str] | None = None,
+        amg_artist_ids: int | str | Collection[int | str] | None = None,
+        amg_video_ids: int | str | Collection[int | str] | None = None,
+        bundle_ids: str | Collection[str] | None = None,
+        isbns: int | str | Collection[int | str] | None = None,
+        barcodes: int | str | Collection[int | str] | None = None,
         item_type: str | None = None,
         limit: int | str | None = None,
         order: str | None = None,
@@ -270,49 +281,51 @@ class iTunesSearchAPIClient(APIClient):
 
         Parameters
         ----------
-        itunes_ids : int, str, or list[int | str]; keyword-only; \
+        itunes_ids : int, str, or Collection[int | str]; keyword-only; \
         optional
             iTunes IDs.
 
             **Examples**: :code:`984746615`, :code:`"1440935756"`,
             :code:`[984746615, "1440935756"]`.
 
-        amg_album_ids : int, str, or list[int | str]; keyword-only; \
-        optional
+        amg_album_ids : int, str, or Collection[int | str]; \
+        keyword-only; optional
             AMG album IDs.
 
             **Examples**: :code:`2025410`, :code:`"2844399"`,
             :code:`[2025410, "2844399"]`.
 
-        amg_artist_ids : int, str, or list[int | str]; keyword-only; \
-        optional
+        amg_artist_ids : int, str, or Collection[int | str]; 
+        keyword-only; optional
             AMG artist IDs.
 
             **Examples**: :code:`472102`, :code:`"2913530"`,
             :code:`[472102, "2913530"]`.
 
-        amg_video_ids : int, str, or list[int | str]; keyword-only; \
-        optional
+        amg_video_ids : int, str, or Collection[int | str]; 
+        keyword-only; optional
             AMG video IDs.
 
             **Examples**: :code:`17120`, :code:`"17121"`,
             :code:`[17122, "17123"]`.
 
-        bundle_ids : str or list[str]; keyword-only; optional
+        bundle_ids : str or Collection[str]; keyword-only; optional
             App bundle IDs.
 
             **Examples**: :code:`"com.tripadvisor.LocalPicks"`,
             :code:`["com.tripadvisor.LocalPicks",
             "com.yelp.yelpiphone"]`.
 
-        isbns : int, str, or list[int | str]; keyword-only; optional
+        isbns : int, str, or Collection[int | str]; keyword-only; \
+        optional
             ISBNs.
 
             **Examples**: :code:`9781637993415`,
             :code:`"9781705142110"`,
             :code:`[9781637993415, "9781705142110"]`.
 
-        barcodes : int, str, or list[int | str]; keyword-only; optional
+        barcodes : int, str, or Collection[int | str]; keyword-only; \
+        optional
             Barcodes (UPCs and/or EANs).
 
             **Examples**: :code:`602448438034`, :code:`"075678671173"`,
@@ -347,7 +360,7 @@ class iTunesSearchAPIClient(APIClient):
         Returns
         -------
         results : dict[str, Any]
-            Lookup results.
+            Apple metadata for the matching items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -592,31 +605,32 @@ class iTunesSearchAPIClient(APIClient):
             "`amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, "
             "or `barcodes` must be provided."
         )
-        params = {}
         _locals = locals()
-        for arg_name, param_name, is_int_like in [
-            ("itunes_ids", "id", True),
-            ("amg_album_ids", "amgAlbumId", True),
-            ("amg_artist_ids", "amgArtistId", True),
-            ("amg_video_ids", "amgVideoId", True),
-            ("bundle_ids", "bundleId", False),
-            ("isbns", "isbn", True),
-            ("barcodes", "upc", True),
+        params = {}
+        for arg_name, param_name in [
+            ("itunes_ids", "id"),
+            ("amg_album_ids", "amgAlbumId"),
+            ("amg_artist_ids", "amgArtistId"),
+            ("amg_video_ids", "amgVideoId"),
+            ("bundle_ids", "bundleId"),
+            ("isbns", "isbn"),
+            ("barcodes", "upc"),
         ]:
             if (arg := _locals.get(arg_name)) is not None:
                 if len(params):
                     raise ValueError(emsg)
-                if not isinstance(arg, list | tuple):
-                    arg = [arg]
-                if is_int_like:
+
+                if arg_name.startswith("bundle"):
                     _validate = ResourceAPI._validate_numeric
                     dtype = int
                 else:
                     _validate = ResourceAPI._validate_type
                     dtype = str
-                for idx, val in enumerate(arg):
+                for idx, val in enumerate(
+                    [arg] if isinstance(arg, int | str) else arg
+                ):
                     _validate(f"{arg_name}[{idx}]", val, dtype)
-                params[param_name] = ",".join(str(val) for val in arg)
+                params[param_name] = self._join_values(arg, whitespace=False)
         if not len(params):
             raise ValueError(emsg)
 
@@ -628,11 +642,13 @@ class iTunesSearchAPIClient(APIClient):
                     f"Invalid item type {item_type!r}. "
                     f"Valid values: {self._join_values(entities)}."
                 )
+            params["entity"] = item_type
         if limit is not None:
             ResourceAPI._validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
         if order is not None:
-            if order.lower() != "recent":
+            order = ResourceAPI._prepare_string("order", order)
+            if order != "recent":
                 raise ValueError(
                     f"Invalid ordering mode {order!r}. Valid value: 'recent'."
                 )
@@ -748,7 +764,7 @@ class iTunesSearchAPIClient(APIClient):
         Returns
         -------
         results : dict[str, Any]
-            Search results.
+            Apple metadata for the matching items.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -1040,6 +1056,7 @@ class iTunesSearchAPIClient(APIClient):
                     f"Invalid item type {item_type!r}{emsg_suffix}."
                     f"Valid values: {self._join_values(entities)}."
                 )
+            params["entity"] = item_type
         if search_field is not None:
             if search_field not in (
                 attributes := self._MEDIA_TYPES[media_type or "all"][
@@ -1050,6 +1067,7 @@ class iTunesSearchAPIClient(APIClient):
                     f"Invalid search field {search_field!r}{emsg_suffix}. "
                     f"Valid values: {self._join_values(attributes)}."
                 )
+            params["attribute"] = search_field
         if limit is not None:
             ResourceAPI._validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
@@ -1070,7 +1088,11 @@ class iTunesSearchAPIClient(APIClient):
             )
             if isinstance(include_explicit, bool):
                 params["explicit"] = "Yes" if include_explicit else "No"
-            elif include_explicit.lower() in {"yes", "no"}:
+            elif (
+                include_explicit := ResourceAPI._prepare_string(
+                    "include_explicit", include_explicit
+                )
+            ) in {"yes", "no"}:
                 params["explicit"] = include_explicit
             else:
                 raise ValueError(

@@ -168,7 +168,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         request_url : str
-            Request URL to get Discogs content metadata for the
+            Request URL to get Discogs metadata for the
             inventory export.
 
             .. seealso::
@@ -225,7 +225,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         exports : dict[str, Any]
-            Page of Discogs content metadata for the current user's
+            Page of Discogs metadata for the current user's
             recent inventory exports.
 
             .. admonition:: Sample response
@@ -293,7 +293,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         export : dict[str, Any]
-            Discogs content metadata for an inventory export.
+            Discogs metadata for an inventory export.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -422,7 +422,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         upload_url : str
-            Request URL to get Discogs content metadata for the
+            Request URL to get Discogs metadata for the
             inventory upload.
 
             .. seealso::
@@ -493,7 +493,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         upload_url : str
-            Request URL to get Discogs content metadata for the
+            Request URL to get Discogs metadata for the
             inventory upload.
 
             .. seealso::
@@ -557,7 +557,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         upload_url : str
-            Request URL to get Discogs content metadata for the
+            Request URL to get Discogs metadata for the
             inventory upload.
 
             .. seealso::
@@ -621,7 +621,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         uploads : dict[str, Any]
-            Page of Discogs content metadata for the current user's
+            Page of Discogs metadata for the current user's
             recent inventory uploads.
 
             .. admonition:: Sample response
@@ -690,7 +690,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         upload : dict[str, Any]
-            Discogs content metadata for an inventory upload.
+            Discogs metadata for an inventory upload.
 
             .. admonition:: Sample response
                :class: response dropdown

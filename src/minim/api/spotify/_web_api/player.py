@@ -128,7 +128,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         state : dict[str, Any]
-            Playback state and Spotify content metadata for the
+            Playback state and Spotify metadata for the
             currently playing item.
 
             .. admonition:: Sample response
@@ -450,7 +450,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         item : dict[str, Any]
-            Playback state and Spotify content metadata for the
+            Playback state and Spotify metadata for the
             currently playing item.
 
             .. admonition:: Sample response
@@ -1137,7 +1137,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify content metadata for the recently played
+            Page of Spotify metadata for the recently played
             items.
 
             .. admonition:: Sample response
@@ -1317,7 +1317,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         queue : dict[str, Any]
-            Spotify content metadata for the currently playing item and
+            Spotify metadata for the currently playing item and
             queued items.
 
             .. admonition:: Sample response

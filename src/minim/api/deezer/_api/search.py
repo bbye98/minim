@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class SearchAPI(DeezerResourceAPI):
@@ -24,6 +28,8 @@ class SearchAPI(DeezerResourceAPI):
         "DURATION",
     }
 
+    __slot__ = ()
+
     def _search_resource(
         self,
         resource_type: str | None,
@@ -37,9 +43,8 @@ class SearchAPI(DeezerResourceAPI):
         descending: bool = False,
     ) -> dict[str, Any]:
         """
-        Get Deezer catalog information for albums, artists, playlists,
-        podcasts, radios, tracks, and/or users that match a keyword
-        string.
+        Search for albums, artists, playlists, podcasts, radios, tracks,
+        and/or users on Deezer.
 
         Parameters
         ----------
@@ -85,7 +90,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            Page of Deezer content metadata for the matching items.
+            Page of Deezer metadata for the matching items.
         """
         endpoint = "search"
         if resource_type is not None:
@@ -197,7 +202,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Deezer content metadata for the matching albums.
+            Page of Deezer metadata for the matching albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -326,7 +331,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Deezer content metadata for the matching artists.
+            Page of Deezer metadata for the matching artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -419,7 +424,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Deezer content metadata for the matching playlists.
+            Page of Deezer metadata for the matching playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -523,7 +528,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         podcasts : dict[str, Any]
-            Page of Deezer content metadata for the matching podcasts.
+            Page of Deezer metadata for the matching podcasts.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -616,7 +621,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Page of Deezer content metadata for the matching radios.
+            Page of Deezer metadata for the matching radios.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -730,7 +735,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the matching tracks.
+            Page of Deezer metadata for the matching tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -809,7 +814,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > User <https://developers.deezer.com/api/search
-        /user>`_: Search for users in the Deezer catalog.
+        /user>`_: Search for users on Deezer.
 
         Parameters
         ----------
@@ -850,7 +855,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer content metadata for the matching users.
+            Page of Deezer metadata for the matching users.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -887,7 +892,7 @@ class SearchAPI(DeezerResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_search_history(
+    def get_my_search_history(
         self,
         query: str | None = None,
         /,
@@ -900,7 +905,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > History <https://developers.deezer.com/api/search
-        /history>`_: Get the current user's search history.
+        /history>`_: Get the current user's search history on Deezer.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -949,7 +954,8 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         searches : dict[str, Any]
-            Current user's search history.
+            Page of Deezer metadata for the current user's search
+            history.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -964,7 +970,7 @@ class SearchAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("search.get_search_history")
+        self._client._require_authentication("search.get_my_search_history")
         return self._search_resource(
             "history",
             query,

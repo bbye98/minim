@@ -1,8 +1,12 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import DeezerResourceAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class EpisodesAPI(DeezerResourceAPI):
@@ -16,6 +20,8 @@ class EpisodesAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
+    __slot__ = ()
+
     @TTLCache.cached_method(ttl="static")
     def get_episode(self, episode_id: int | str, /) -> dict[str, Any]:
         """
@@ -27,12 +33,12 @@ class EpisodesAPI(DeezerResourceAPI):
         episode_id : int or str; positional-only
             Deezer ID of the episode.
 
-            **Example**: :code:`796445891`, :code:`"822265072"`.
+            **Examples**: :code:`796445891`, :code:`"822265072"`.
 
         Returns
         -------
         episode : dict[str, Any]
-            Deezer content metadata for the podcast episode.
+            Deezer metadata for the podcast episode.
 
             .. admonition:: Sample response
                :class: response dropdown

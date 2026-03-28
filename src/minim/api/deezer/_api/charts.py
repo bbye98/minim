@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class ChartsAPI(DeezerResourceAPI):
@@ -15,6 +19,8 @@ class ChartsAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
+    __slot__ = ()
+
     @TTLCache.cached_method(ttl="popularity")
     def get_top_albums(
         self, *, limit: int | None = None, offset: int | None = None
@@ -26,14 +32,14 @@ class ChartsAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`10`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
             the next batch of albums.
 
@@ -44,7 +50,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Deezer content metadata for the top albums.
+            Page of Deezer metadata for the top albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -103,14 +109,14 @@ class ChartsAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of artists to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`10`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
             the next batch of artists.
 
@@ -121,7 +127,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Deezer content metadata for the top artists.
+            Page of Deezer metadata for the top artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -165,14 +171,14 @@ class ChartsAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`10`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
             get the next batch of playlists.
 
@@ -183,7 +189,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Deezer content metadata for the top playlists.
+            Page of Deezer metadata for the top playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -239,14 +245,14 @@ class ChartsAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of podcasts to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`10`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first podcast to return. Use with `limit` to
             get the next batch of podcasts.
 
@@ -257,7 +263,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         podcasts : dict[str, Any]
-            Page of Deezer content metadata for the top podcasts.
+            Page of Deezer metadata for the top podcasts.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -301,14 +307,14 @@ class ChartsAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of radios to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`25`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first radio to return. Use with `limit` to get
             the next batch of radios.
 
@@ -319,7 +325,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Page of Deezer content metadata for the top radios.
+            Page of Deezer metadata for the top radios.
         """
         params = {}
         if limit is not None:
@@ -341,14 +347,14 @@ class ChartsAPI(DeezerResourceAPI):
 
         Parameters
         ----------
-        limit : int or None; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`10`.
 
-        offset : int or None; keyword-only; optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -359,7 +365,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer content metadata for the top tracks.
+            Page of Deezer metadata for the top tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
