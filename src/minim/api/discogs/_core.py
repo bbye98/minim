@@ -1,6 +1,7 @@
+from __future__ import annotations
 from functools import cached_property
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 import warnings
 
 from ... import __version__, REPOSITORY_URL
@@ -13,6 +14,8 @@ from ._api.search import SearchAPI
 from ._api.users import UsersAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
     import httpx
 
 
@@ -38,6 +41,15 @@ class DiscogsAPIClient(OAuth1APIClient):
     AUTH_URL = "https://www.discogs.com/oauth/authorize"
     REQUEST_TOKEN_URL = f"{BASE_URL}/oauth/request_token"
     ACCESS_TOKEN_URL = f"{BASE_URL}/oauth/access_token"
+
+    __slots__ = (
+        "_rate_limit_per_second",
+        "database",
+        "inventory",
+        "marketplace",
+        "search",
+        "users",
+    )
 
     def __init__(
         self,
@@ -164,7 +176,7 @@ class DiscogsAPIClient(OAuth1APIClient):
                access tokens for this client.
 
         user_agent : str; keyword-only; \
-        default: :code:`"minim/x.y.z +https://github.com/bbye98/minim"`
+        default: :code:`"minim/X.Y.Z +https://github.com/bbye98/minim"`
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """

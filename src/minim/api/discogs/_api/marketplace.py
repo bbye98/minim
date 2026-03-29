@@ -1,8 +1,12 @@
-from datetime import datetime
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from typing import Any
 
 
 class MarketplaceAPI(DiscogsResourceAPI):
@@ -57,6 +61,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Cancelled",
         "Cancelled (Refund Received)",
     }
+
+    __slots__ = ()
 
     def _upsert_listing(
         self,
@@ -143,8 +149,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         listing : dict[str, Any] or None
-            Discogs metadata for a newly created listing or
-            :code:`None` for an updated listing.
+            Discogs metadata for a newly created listing or :code:`None`
+            for an updated listing.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -233,7 +239,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > Inventory <https://www.discogs.com/developers
         /#page:marketplace,header:marketplace-inventory>`_: Get Discogs
-        catalog information for a user's marketplace listings.
+        resource information for a user's marketplace inventory.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -264,7 +270,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             :code:`"Sold"`, :code:`"Suspended"`, :code:`"Violation"`.
 
         limit : int; keyword-only; optional
-            Maximum number of releases to return.
+            Maximum number of listings to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
@@ -272,14 +278,14 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
         page : int; keyword-only; optional
             Page number. Use with `limit` to get the next page of
-            releases.
+            listings.
 
             **Minimum value**: :code:`1`.
 
             **API default**: :code:`1`.
 
         sort_by : str; keyword-only; optional
-            Field to sort the returned items by.
+            Field to sort the returned listings by.
 
             **Valid values**: :code:`"listed"`, :code:`"price"`,
             :code:`"item"`, :code:`"artist"`, :code:`"label"`,
@@ -291,8 +297,9 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        listings : dict[str, Any]
-            Page of Discogs metadata for the seller's inventory.
+        inventory : dict[str, Any]
+            Page of Discogs metadata for the user's marketplace
+            inventory.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -394,7 +401,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > Listing > Get Listing <https://www.discogs.com
         /developers/#page:marketplace,header:marketplace-listing>`_: Get
-        Discogs catalog information for a marketplace listing.
+        Discogs resource information for a marketplace listing.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -775,7 +782,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > Order > Get Order <https://www.discogs.com
         /developers/#page:marketplace,header:marketplace-order>`_: Get
-        Discogs catalog information for a marketplace order.
+        Discogs resource information for a marketplace order.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1027,7 +1034,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > List Orders <https://www.discogs.com/developers
         /#page:marketplace,header:marketplace-list-orders>`_: Get
-        Discogs catalog information for the current user's marketplace
+        Discogs resource information for the current user's marketplace
         orders.
 
         .. admonition:: User authentication
@@ -1095,8 +1102,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         orders : dict[str, Any]
-            Page of Discogs metadata for the current user's
-            orders.
+            Page of Discogs metadata for the current user's orders.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1222,8 +1228,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > List Order Messages > List Order Messages
         <https://www.discogs.com/developers/#page:marketplace,
-        header:marketplace-list-order-messages-get>`_: Get Discogs
-        metadata for a marketplace order's messages.
+        header:marketplace-list-order-messages-get>`_: Get the
+        communication history for a marketplace order.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1289,7 +1295,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             page=page,
         )
 
-    def add_order_message(
+    def post_order_message(
         self,
         order_id: str,
         message: str | None = None,
@@ -1300,8 +1306,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > List Order Messages > Add New Message
         <https://www.discogs.com/developers/#page:marketplace,
-        header:marketplace-list-order-messages-post>`_: Add a
-        marketplace order message.
+        header:marketplace-list-order-messages-post>`_: Post a new
+        message to and/or update the status for a marketplace order.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1334,9 +1340,9 @@ class MarketplaceAPI(DiscogsResourceAPI):
 
                If specified, `message` will be prepended with:
 
-               .. code-block:: none
+               .. code-block::
 
-                  Seller changed status from {old_status} to {new_status}
+                  f"Seller changed status from {old_status} to {status}"
 
             **Valid values**: :code:`"New Order"`,
             :code:`"Buyer Contacted"`, :code:`"Invoice Sent"`,
@@ -1350,7 +1356,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         message : dict[str, Any]
-            Discogs metadata for the order message.
+            Discogs metadata for the order's new message.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1371,7 +1377,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
                     "timestamp": <str>
                   }
         """
-        self._client._require_authentication("marketplace.add_order_message")
+        self._client._require_authentication("marketplace.post_order_message")
         payload = {}
         if message is not None:
             self._validate_type("message", message, str)
@@ -1400,13 +1406,12 @@ class MarketplaceAPI(DiscogsResourceAPI):
     ) -> dict[str, Any]:
         """
         `Marketplace > Fee <https://www.discogs.com/developers
-        /#page:marketplace,header:marketplace-fee>`_: Get the fee for
-        selling an item on the marketplace at a given price․
+        /#page:marketplace,header:marketplace-fee>`_: Get the
+        marketplace selling fee for a specified price․
         `Marketplace > Fee with Currency <https://www.discogs.com
         /developers/#page:marketplace,
-        header:marketplace-fee-with-currency>`_: Get the fee in a
-        particular currency for selling an item on the marketplace at a
-        given price.
+        header:marketplace-fee-with-currency>`_: Get the marketplace
+        selling fee in a particular currency for a specified price.
 
         Parameters
         ----------
@@ -1424,7 +1429,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         fee : dict[str, Any]
-            Fee.
+            Calculated marketplace selling fee.
 
             **Sample response**:
             :code:`{"currency": <str>, "value": <float>}`.
@@ -1472,7 +1477,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Returns
         -------
         price_suggestions : dict[str, Any]
-            Suggested prices for the release.
+            Release's suggested prices by media condition.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1529,8 +1534,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         `Marketplace > Release Statistics <https://www.discogs.com
         /developers/#page:marketplace,
-        header:marketplace-release-statistics>`_: Get a release's
-        marketplace statistics.
+        header:marketplace-release-statistics>`_: Get marketplace
+        statistics for a release.
 
         Parameters
         ----------

@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class DatabaseAPI(DiscogsResourceAPI):
@@ -25,6 +29,8 @@ class DatabaseAPI(DiscogsResourceAPI):
         "country",
     }
     _SEARCH_RESOURCE_TYPES = {"release", "master", "artist", "label"}
+
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_release(
@@ -231,7 +237,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         `Database > Release Rating By User > Get Release Rating By User
         <https://www.discogs.com/developers/#page:database,
         header:database-release-rating-by-user>`_: Get a user's rating
-        for a release.
+        for a release on Discogs.
 
         Parameters
         ----------
@@ -280,7 +286,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         `Database > Release Rating By User > Update Release Rating By
         User <https://www.discogs.com/developers/#page:database,
         header:database-release-rating-by-user-put>`_: Set a user's
-        rating for a release.
+        rating for a release on Deezer.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -314,8 +320,8 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         rating : dict[str, int | str]
-            User's new rating for the release. Only returned if `rating`
-            is not :code:`0`.
+            User's new rating for the release. Returns :code:`None` if
+            `rating` is :code:`0`.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -383,8 +389,8 @@ class DatabaseAPI(DiscogsResourceAPI):
         """
         `Database > Community Release Rating <https://www.discogs.com
         /developers/#page:database,
-        header:database-community-release-rating>`_: Get the average
-        rating and number of user ratings for a release.
+        header:database-community-release-rating>`_: Get the community
+        rating for a release on Deezer.
 
         Parameters
         ----------
@@ -396,7 +402,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         rating : dict[str, Any]
-            Average rating and number of user ratings for the release.
+            Community rating for the release.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -422,8 +428,8 @@ class DatabaseAPI(DiscogsResourceAPI):
     ) -> dict[str, Any]:
         """
         `Database > Release Stats <https://www.discogs.com/developers
-        /#page:database,header:database-release-stats>`_: Get a
-        release's community statistics.
+        /#page:database,header:database-release-stats>`_: Get community
+        statistics for a release on Deezer.
 
         Parameters
         ----------
@@ -435,7 +441,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         Returns
         -------
         commununity_stats : dict[str, Any]
-            Release's community statistics.
+            Community statistics for the release.
 
             **Sample response**:
             :code:`{"num_have": <int>, "num_want": <int>}`.
@@ -779,7 +785,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         """
         `Database > Artist Releases <https://www.discogs.com/developers
         /#page:database,header:database-artist-releases>`_: Get Discogs
-        catalog information for an artist's releases.
+        catalog information for releases by an artist.
 
         Parameters
         ----------
@@ -954,7 +960,7 @@ class DatabaseAPI(DiscogsResourceAPI):
         `Database > All Label Releases <https://www.discogs.com
         /developers/#page:database,
         header:database-all-label-releases>`_: Get Discogs catalog
-        information for a label's releases.
+        information for releases by a label.
 
         Parameters
         ----------
@@ -1167,15 +1173,14 @@ class DatabaseAPI(DiscogsResourceAPI):
             **Example**: :code:`"jerome99"`.
 
         limit : int; keyword-only; optional
-            Maximum number of search results to return.
+            Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **API default**: :code:`50`.
 
         page : int; keyword-only; optional
-            Page number. Use with `limit` to get the next page of search
-            results.
+            Page number. Use with `limit` to get the next page of items.
 
             **Minimum value**: :code:`1`.
 
@@ -1183,8 +1188,8 @@ class DatabaseAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        search_results : dict[str, Any]
-            Page of search results.
+        results : dict[str, Any]
+            Page of Discogs metadata for the matching catalog items.
 
             .. admonition:: Sample response
                :class: response dropdown

@@ -284,7 +284,7 @@ class ArtistsAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer metadata for the artist's fans.
+            Page of Deezer profile information for the artist's fans.
 
             .. admonition:: Sample response
                :class: response dropdown

@@ -77,7 +77,7 @@ class SearchAPI(DeezerResourceAPI):
             **API default**: :code:`0`.
 
         sort_by : str; keyword-only; optional
-            Field to sort the returned items by.
+            Field to sort the search results by.
 
             **Valid values**: :code:`"RANKING"`, :code:`"TRACK"`,
             :code:`"ARTIST"`, :code:`"ALBUM"`, :code:`"RATING"`,
@@ -90,7 +90,7 @@ class SearchAPI(DeezerResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            Page of Deezer metadata for the matching items.
+            Page of Deezer metadata for the matching catalog items.
         """
         endpoint = "search"
         if resource_type is not None:

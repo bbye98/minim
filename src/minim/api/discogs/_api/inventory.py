@@ -1,11 +1,15 @@
+from __future__ import annotations
 import csv
 from email.message import Message
 import io
 from pathlib import Path
-from typing import Any, IO
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any, IO
 
 
 class InventoryAPI(DiscogsResourceAPI):
@@ -19,6 +23,8 @@ class InventoryAPI(DiscogsResourceAPI):
        :class:`~minim.api.discogs.DiscogsAPIClient` and should not be
        instantiated directly.
     """
+
+    __slots__ = ()
 
     def _prepare_inventory_csv(
         self,
@@ -36,7 +42,8 @@ class InventoryAPI(DiscogsResourceAPI):
         Parameters
         ----------
         inventory_csv : bytes, str, or pathlib.Path; positional-only
-            Path to, name of, or contents of an inventory CSV file.
+            Path to, name of, or a byte string of the contents of an
+            inventory CSV file.
 
         required_fields : set[str]; keyword-only
             Required fields.
@@ -153,7 +160,8 @@ class InventoryAPI(DiscogsResourceAPI):
         `Inventory Export > Export Your Inventory
         <https://www.discogs.com/developers/#page:inventory-export,
         header:inventory-export-export-your-inventory>`_: Export the
-        current user's inventory as comma-separated values (CSV).
+        current user's Discogs marketplace inventory as comma-separated
+        values (CSV).
 
         .. admonition:: User authentication
            :class: entitlement
@@ -167,9 +175,8 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        request_url : str
-            Request URL to get Discogs metadata for the
-            inventory export.
+        resource_url : str
+            Resource URL for the inventory export.
 
             .. seealso::
 
@@ -192,8 +199,8 @@ class InventoryAPI(DiscogsResourceAPI):
         `Inventory Export > Get Recent Exports <https://www.discogs.com
         /developers/#page:inventory-export,
         header:inventory-export-get-recent-exports>`_: Get Discogs
-        catalog information for the current user's recent inventory
-        exports.
+        resource information for the current user's recent marketplace
+        inventory exports.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -225,8 +232,8 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         exports : dict[str, Any]
-            Page of Discogs metadata for the current user's
-            recent inventory exports.
+            Page of Discogs metadata for the current user's recent
+            inventory exports.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -271,7 +278,8 @@ class InventoryAPI(DiscogsResourceAPI):
         """
         `Inventory > Get an Export <https://www.discogs.com/developers
         /#page:inventory-export,header:inventory-export-get-an-export>`_:
-        Get Discogs catalog information for an inventory export.
+        Get Discogs resource information for a marketplace inventory
+        export.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -286,7 +294,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Parameters
         ----------
         export_id : int or str; positional-only
-            Discogs ID of the export.
+            Discogs ID of the inventory export.
 
             **Examples**: :code:`599632`, :code:`"16105411"`.
 
@@ -324,7 +332,8 @@ class InventoryAPI(DiscogsResourceAPI):
         `Inventory Export > Download an Export <https://www.discogs.com
         /developers/#page:inventory-export,
         header:inventory-export-download-an-export>`_: Download the
-        comma-separated values (CSV) for an inventory export.
+        comma-separated values (CSV) for a Discogs marketplace inventory
+        export.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -339,7 +348,7 @@ class InventoryAPI(DiscogsResourceAPI):
         Parameters
         ----------
         export_id : int or str; positional-only
-            Discogs ID of the export.
+            Discogs ID of the inventory export.
 
             **Examples**: :code:`599632`, :code:`"16105411"`.
 
@@ -351,8 +360,8 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         export_csv : bytes or pathlib.Path
-            Raw CSV data or absolute path to the written CSV file for
-            the inventory export.
+            Raw CSV data or absolute path to the saved CSV file for the
+            inventory export.
         """
         self._client._require_authentication(
             "inventory.download_inventory_export"
@@ -387,8 +396,8 @@ class InventoryAPI(DiscogsResourceAPI):
         """
         `Inventory Upload > Add Inventory <https://www.discogs.com
         /developers/#page:inventory-upload,
-        header:inventory-upload-add-inventory>`_: Add marketplace
-        listings by uploading comma-separated values (CSV).
+        header:inventory-upload-add-inventory>`_: Add Discogs
+        marketplace listings by uploading comma-separated values (CSV).
 
         .. admonition:: User authentication
            :class: entitlement
@@ -421,9 +430,9 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        upload_url : str
-            Request URL to get Discogs metadata for the
-            inventory upload.
+        resource_url : str
+            Resource URL to get Discogs metadata for the inventory
+            upload.
 
             .. seealso::
 
@@ -459,8 +468,8 @@ class InventoryAPI(DiscogsResourceAPI):
         """
         `Inventory Upload > Change Inventory <https://www.discogs.com
         /developers/#page:inventory-upload,
-        header:inventory-upload-change-inventory>`_: Update marketplace
-        listings by uploading comma-separated values (CSV).
+        header:inventory-upload-change-inventory>`_: Update Discogs
+        marketplace listings by uploading comma-separated values (CSV).
 
         .. admonition:: User authentication
            :class: entitlement
@@ -492,9 +501,9 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        upload_url : str
-            Request URL to get Discogs metadata for the
-            inventory upload.
+        resource_url : str
+            Resource URL to get Discogs metadata for the inventory
+            upload.
 
             .. seealso::
 
@@ -533,8 +542,8 @@ class InventoryAPI(DiscogsResourceAPI):
         """
         `Inventory Upload > Delete Inventory <https://www.discogs.com
         /developers/#page:inventory-upload,
-        header:inventory-upload-delete-inventory>`_: Delete marketplace
-        listings by uploading comma-separated values (CSV).
+        header:inventory-upload-delete-inventory>`_: Delete Discogs
+        marketplace listings by uploading comma-separated values (CSV).
 
         .. admonition:: User authentication
            :class: entitlement
@@ -556,9 +565,9 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        upload_url : str
-            Request URL to get Discogs metadata for the
-            inventory upload.
+        resource_url : str
+            Resource URL to get Discogs metadata for the inventory
+            upload.
 
             .. seealso::
 
@@ -588,8 +597,8 @@ class InventoryAPI(DiscogsResourceAPI):
         `Inventory Upload > Get Recent Uploads <https://www.discogs.com
         /developers/#page:inventory-upload,
         header:inventory-upload-get-recent-uploads>`_: Get Discogs
-        catalog information for the current user's recent inventory
-        uploads.
+        resource information for the current user's recent marketplace
+        inventory uploads.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -621,8 +630,8 @@ class InventoryAPI(DiscogsResourceAPI):
         Returns
         -------
         uploads : dict[str, Any]
-            Page of Discogs metadata for the current user's
-            recent inventory uploads.
+            Page of Discogs metadata for the current user's recent
+            inventory uploads.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -668,7 +677,7 @@ class InventoryAPI(DiscogsResourceAPI):
         `Inventory Upload > Get an Upload <https://www.discogs.com
         /developers/#page:inventory-upload,
         header:inventory-upload-get-an-upload>`_: Get Discogs catalog
-        information for an inventory upload.
+        information for a marketplace inventory upload.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -683,14 +692,14 @@ class InventoryAPI(DiscogsResourceAPI):
         Parameters
         ----------
         upload_id : int or str; positional-only
-            Discogs ID of the upload.
+            Discogs ID of the inventory upload.
 
             **Examples**: :code:`119615`, :code:`"119615"`.
 
         Returns
         -------
         upload : dict[str, Any]
-            Discogs metadata for an inventory upload.
+            Discogs metadata for the inventory upload.
 
             .. admonition:: Sample response
                :class: response dropdown

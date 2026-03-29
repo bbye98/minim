@@ -213,7 +213,7 @@ class AlbumsAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer metadata for the album's fans.
+            Page of Deezer profile information for the album's fans.
 
             .. admonition:: Sample response
                :class: response dropdown

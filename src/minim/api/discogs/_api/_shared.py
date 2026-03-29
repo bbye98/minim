@@ -1,8 +1,11 @@
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from .. import DiscogsAPIClient
 
 
@@ -40,30 +43,7 @@ class DiscogsResourceAPI(ResourceAPI):
         "ZAR",
     }
 
-    def _resolve_username(self, username: str | None = None, /) -> str:
-        """
-        Resolve or validate a username for a Discogs API request.
-
-        Parameters
-        ----------
-        username : str; positional-only; optional
-            Username. If not provided, the username of the current user
-            is used. Only optional when authenticated.
-
-        Return
-        ------
-        username : str
-            Username.
-        """
-        if username is None:
-            try:
-                return self._client._identity["username"]
-            except RuntimeError:
-                raise RuntimeError(
-                    "`username` must be provided when unauthenticated."
-                ) from None
-        else:
-            return self._prepare_string("username", username)
+    __slots__ = ()
 
     def _get_paginated_resources(
         self,
@@ -108,8 +88,7 @@ class DiscogsResourceAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz metadata for the items in the
-            resource.
+            Page of Qobuz metadata for the items.
         """
         if params is None:
             params = {}
@@ -120,3 +99,28 @@ class DiscogsResourceAPI(ResourceAPI):
             self._validate_number("page", page, int, 0)
             params["page"] = page
         return self._client._request("GET", endpoint, params=params).json()
+
+    def _resolve_username(self, username: str | None = None, /) -> str:
+        """
+        Resolve or validate a username for a Discogs API request.
+
+        Parameters
+        ----------
+        username : str; positional-only; optional
+            Username. If not provided, the username of the current user
+            is used. Only optional when authenticated.
+
+        Return
+        ------
+        username : str
+            Username.
+        """
+        if username is None:
+            try:
+                return self._client._identity["username"]
+            except RuntimeError:
+                raise RuntimeError(
+                    "`username` must be provided when unauthenticated."
+                ) from None
+        else:
+            return self._prepare_string("username", username)

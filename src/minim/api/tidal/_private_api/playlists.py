@@ -935,7 +935,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             f"{'public' if public else 'private'}",
         )
 
-    def update_playlist_info(
+    def update_playlist_details(
         self,
         playlist_uuid: str,
         /,
@@ -973,7 +973,9 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         description : str; keyword-only; optional
             New playlist description.
         """
-        self._client._require_authentication("playlists.update_playlist_info")
+        self._client._require_authentication(
+            "playlists.update_playlist_details"
+        )
         self._validate_uuid(playlist_uuid)
         payload = {}
         if name is not None:

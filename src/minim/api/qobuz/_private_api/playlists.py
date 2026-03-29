@@ -1020,7 +1020,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     def unfollow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
         return self._client.users.unfollow_playlist(playlist_id)
 
-    def update_playlist_info(
+    def update_playlist_details(
         self,
         playlist_id: str,
         /,
@@ -1104,7 +1104,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                     "users_count": <int>
                   }
         """
-        self._client._require_authentication("playlists.update_playlist_info")
+        self._client._require_authentication(
+            "playlists.update_playlist_details"
+        )
         self._validate_qobuz_ids(playlist_id, recursive=False)
         payload = {}
         if name is not None:

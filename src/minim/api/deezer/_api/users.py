@@ -2131,7 +2131,7 @@ class UsersAPI(DeezerResourceAPI):
             params={"name": self._prepare_string("name", name)},
         )
 
-    def update_playlist_info(
+    def update_playlist_details(
         self,
         playlist_id: int | str,
         /,
@@ -2192,7 +2192,7 @@ class UsersAPI(DeezerResourceAPI):
             Whether the playlist details were updated successfully.
         """
         self._client._require_permissions(
-            "playlists.update_playlist_info", "manage_library"
+            "playlists.update_playlist_details", "manage_library"
         )
         params = {}
         if name is not None:
@@ -3284,7 +3284,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer metadata for the followed users' profiles.
+            Page of Deezer profile information for the followed users.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -3365,7 +3365,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer metadata for the followers' profiles.
+            Page of Deezer profile information for the followers.
 
             .. admonition:: Sample response
                :class: response dropdown

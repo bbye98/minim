@@ -350,7 +350,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "GET", f"playlists/{playlist_id}", params=params
         ).json()
 
-    def update_playlist_info(
+    def update_playlist_details(
         self,
         playlist_id: str,
         /,

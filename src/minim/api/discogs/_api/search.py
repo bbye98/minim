@@ -1,8 +1,12 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import _copy_docstring
 from ._shared import DiscogsResourceAPI
 from .database import DatabaseAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class SearchAPI(DiscogsResourceAPI):
@@ -20,6 +24,8 @@ class SearchAPI(DiscogsResourceAPI):
        :class:`~minim.api.discogs.DiscogsAPIClient` and should not be
        instantiated directly.
     """
+
+    __slots__ = ()
 
     @_copy_docstring(DatabaseAPI.search)
     def search(

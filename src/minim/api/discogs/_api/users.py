@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class UsersAPI(DiscogsResourceAPI):
@@ -26,6 +30,8 @@ class UsersAPI(DiscogsResourceAPI):
         "title",
         "year",
     }
+
+    __sort__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_my_identity(self) -> dict[str, Any]:
@@ -69,7 +75,7 @@ class UsersAPI(DiscogsResourceAPI):
         """
         `User Identity > Profile > Get Profile <https://www.discogs.com
         /developers/#page:user-identity,header:user-identity-profile>`_:
-        Get profile information for a Discogs user.
+        Get Discogs profile information for a user.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -94,7 +100,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         user : dict[str, Any]
-            User's profile information.
+            Deezer profile information for the user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -157,8 +163,8 @@ class UsersAPI(DiscogsResourceAPI):
         """
         `User Identity > Profile > Edit Profile <https://www.discogs.com
         /developers/#page:user-identity,
-        header:user-identity-profile-post>`_: Update a user's profile
-        information.
+        header:user-identity-profile-post>`_: Update the Deezer profile
+        information for a user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -215,7 +221,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         profile : dict[str, Any]
-            Updated user's profile information.
+            Updated Deezer profile information for the user.
 
             .. admonition:: Sample resposne
                :class: response dropdown
@@ -304,8 +310,7 @@ class UsersAPI(DiscogsResourceAPI):
         `User Identity > User Submissions <https://www.discogs.com
         /developers/#page:user-identity,
         header:user-identity-user-submissions>`_: Get Discogs catalog
-        information for edits that a user has made to artists, labels,
-        and/or releases.
+        information for a user's edits to artists, labels, and releases.
 
         Parameters
         ----------
@@ -332,7 +337,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         edits : dict[str, Any]
-            Page of Discogs metadata for edits made by the user.
+            Page of Discogs metadata for the user's edits.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -480,8 +485,8 @@ class UsersAPI(DiscogsResourceAPI):
         `User Identity > User Contributions <https://www.discogs.com
         /developers/#page:user-identity,
         header:user-identity-user-contributions>`_: Get Discogs catalog
-        information for artists, labels, and/or releases that a user has
-        created.
+        information for a user's contributions of artists, labels, and
+        releases.
 
         Parameters
         ----------
@@ -518,8 +523,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         contributions : dict[str, Any]
-            Page of Discogs metadata for the user's
-            contributions.
+            Page of Discogs metadata for the user's contributions.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -741,8 +745,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         folder : dict[str, Any]
-            Discogs metadata for the newly created collection
-            folder.
+            Discogs metadata for the newly created collection folder.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -870,6 +873,23 @@ class UsersAPI(DiscogsResourceAPI):
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        folder : dict[str, Any]
+            Discogs metadata for the renamed collection folder.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code-block::
+
+                  {
+                    "count": <int>,
+                    "id": <int>,
+                    "name": <str>,
+                    "resource_url": <str>
+                  }
         """
         self._client._require_authentication(
             "users.rename_user_collection_folder"
@@ -963,8 +983,8 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         instances : dict[str, Any]
-            Discogs metadata for the release instances in the
-            user's collection.
+            Discogs metadata for the release instances in the user's
+            collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1106,7 +1126,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Page of Discogs metadata for the releases in the
+            Page of Discogs metadata for the releases in the user's
             collection folder.
 
             .. admonition:: Sample response
@@ -1240,8 +1260,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         instance : dict[str, Any]
-            Discogs metadata for the newly added release
-            instance.
+            Discogs metadata for the newly added release instance.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1264,7 +1283,7 @@ class UsersAPI(DiscogsResourceAPI):
             f"/collection/folders/{folder_id}/releases/{release_id}",
         ).json()
 
-    def update_user_collection_release(
+    def update_user_collection_release_instance(
         self,
         from_folder_id: int | str,
         release_id: int | str,
@@ -1277,8 +1296,8 @@ class UsersAPI(DiscogsResourceAPI):
         """
         `User Collection > Change Rating of Release
         <https://www.discogs.com/developers/#page:user-collection,
-        header:user-collection-change-rating-of-release>`_: Change the
-        rating on a release and/or move an instance to another
+        header:user-collection-change-rating-of-release>`_: Update the
+        rating for a release and/or move a release instance to another
         collection folder.
 
         .. admonition:: User authentication
@@ -1333,7 +1352,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Example**: :code:`"rodneyfool"`.
         """
         self._client._require_authentication(
-            "users.update_user_collection_release"
+            "users.update_user_collection_release_instance"
         )
         self._validate_numeric("from_folder_id", from_folder_id, int, 0)
         self._validate_numeric("release_id", release_id, int, 1)
@@ -1355,7 +1374,7 @@ class UsersAPI(DiscogsResourceAPI):
             json=payload,
         ).json()
 
-    def remove_user_collection_release(
+    def remove_user_collection_release_instance(
         self,
         folder_id: int | str,
         release_id: int | str,
@@ -1367,7 +1386,7 @@ class UsersAPI(DiscogsResourceAPI):
         `User Collection > Delete Instance from Folder
         <https://www.discogs.com/developers/#page:user-collection,
         header:user-collection-delete-instance-from-folder>`_: Remove a
-        release from a user's collection folder.
+        release instance from a user's collection folder.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1403,7 +1422,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Example**: :code:`"rodneyfool"`.
         """
         self._client._require_authentication(
-            "users.remove_user_collection_release"
+            "users.remove_user_collection_release_instance"
         )
         self._validate_numeric("folder_id", folder_id, int, 0)
         self._validate_numeric("release_id", release_id, int, 1)
@@ -1422,8 +1441,8 @@ class UsersAPI(DiscogsResourceAPI):
         """
         `User Collection > List Custom Fields <https://www.discogs.com
         /developers/#page:user-collection,
-        header:user-collection-delete-instance-from-folder>`_: Get
-        Discogs catalog information for user-defined collection note
+        header:user-collection-list-custom-fields>`_: Get
+        Discogs resource information for user-defined collection note
         fields.
 
         .. admonition:: User authentication
@@ -1486,8 +1505,8 @@ class UsersAPI(DiscogsResourceAPI):
         """
         `User Collection > Edit Fields Instance <https://www.discogs.com
         /developers/#page:user-collection,
-        header:user-collection-edit-fields-instance>`_: Update the value
-        of a note field for a release instance in a user's collection.
+        header:user-collection-edit-fields-instance>`_: Update a note
+        field for a release instance in a user's collection.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1574,7 +1593,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         value : dict[str, Any]
-            Estimated monetary value of the user's collection.
+            Estimated value of the user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1604,8 +1623,7 @@ class UsersAPI(DiscogsResourceAPI):
         """
         `User Wantlist > Wantlist <https://www.discogs.com/developers
         /#page:user-wantlist,header:user-wantlist-wantlist>`_: Get
-        Discogs catalog information for the releases in a user's
-        wantlist.
+        Discogs catalog information for releases in a user's wantlist.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -1644,8 +1662,8 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Page of Discogs metadata for the releases in the
-            user's wantlist.
+            Page of Discogs metadata for the releases in the user's
+            wantlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1827,8 +1845,8 @@ class UsersAPI(DiscogsResourceAPI):
         """
         `User Wantlist > Add to Wantlist > Edit Release in Wantlist
         <https://www.discogs.com/developers/#page:user-wantlist,
-        header:user-wantlist-add-to-wantlist-post>`_: Update the user
-        notes for or the rating on a release in a user's wantlist.
+        header:user-wantlist-add-to-wantlist-post>`_: Update the notes
+        or rating for a release in a user's wantlist.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -2102,7 +2120,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         list : dict[str, Any]
-            Discogs metadata for the user's list.
+            Discogs metadata for the user's list and the items in it.
 
             .. admonition:: Sample response
                :class: response dropdown

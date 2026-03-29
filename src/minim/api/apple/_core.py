@@ -346,21 +346,21 @@ class iTunesSearchAPIClient(APIClient):
             **Example**: :code:`"movieArtist"`.
 
         limit : int; keyword-only; optional
-            Maximum number of results to return.
+            Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`200`.
 
             **API default**: :code:`50`.
 
         order : str; keyword-only; optional
-            Ordering mode for the results.
+            Ordering mode for the items.
 
             **Valid value**: :code:`"recent"`.
 
         Returns
         -------
-        results : dict[str, Any]
-            Apple metadata for the matching items.
+        items : dict[str, Any]
+            Apple metadata for the catalog items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -727,7 +727,7 @@ class iTunesSearchAPIClient(APIClient):
             :code:`media="all"` and :code:`entity="allArtist"`.
 
         limit : int; keyword-only; optional
-            Maximum number of results to return.
+            Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`200`.
 
@@ -736,8 +736,8 @@ class iTunesSearchAPIClient(APIClient):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
-            underscore. If provided, results are returned in the
-            specified language.
+            underscore. If provided, items are returned in the specified
+            language.
 
             **Valid values**:
 
@@ -764,7 +764,7 @@ class iTunesSearchAPIClient(APIClient):
         Returns
         -------
         results : dict[str, Any]
-            Apple metadata for the matching items.
+            Apple metadata for the matching catalog items.
 
             .. admonition:: Sample responses
                :class: response dropdown

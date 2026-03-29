@@ -205,7 +205,7 @@ class PlaylistsAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer metadata for the playlist's fans.
+            Page of Deezer profile information for the playlist's fans.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -425,8 +425,8 @@ class PlaylistsAPI(DeezerResourceAPI):
     def create_playlist(self, name: str) -> dict[str, int]:
         return self._client.users.create_playlist(name)
 
-    @_copy_docstring(UsersAPI.update_playlist_info)
-    def update_playlist_info(
+    @_copy_docstring(UsersAPI.update_playlist_details)
+    def update_playlist_details(
         self,
         playlist_id: int | str,
         /,
@@ -436,7 +436,7 @@ class PlaylistsAPI(DeezerResourceAPI):
         public: bool | None = None,
         collaborative: bool | None = None,
     ) -> bool:
-        return self._client.users.update_playlist_info(
+        return self._client.users.update_playlist_details(
             playlist_id,
             name=name,
             description=description,
