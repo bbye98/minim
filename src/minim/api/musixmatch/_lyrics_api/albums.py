@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class AlbumsAPI(MusixmatchResourceAPI):
@@ -14,6 +18,8 @@ class AlbumsAPI(MusixmatchResourceAPI):
        :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
+
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_album(self, album_id: int | str, /) -> dict[str, Any]:
@@ -164,8 +170,7 @@ class AlbumsAPI(MusixmatchResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Musixmatch metadata for the tracks in the
-            album.
+            Page of Musixmatch metadata for the album's tracks.
 
             .. admonition:: Sample response
                :class: response dropdown

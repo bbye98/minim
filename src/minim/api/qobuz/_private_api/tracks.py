@@ -1,11 +1,15 @@
+from __future__ import annotations
 from datetime import datetime
 import time
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PrivateTracksAPI(PrivateQobuzResourceAPI):
@@ -21,6 +25,8 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
     _INTENTS = {"download", "import", "stream"}
     _TRACK_FORMAT_IDS = {5, 6, 7, 27}
+
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_tracks(

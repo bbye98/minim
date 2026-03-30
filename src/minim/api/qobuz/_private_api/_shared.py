@@ -1,8 +1,12 @@
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import COLLECTION_TYPES, Collection
     from .. import PrivateQobuzAPIClient
 
 
@@ -14,14 +18,16 @@ class PrivateQobuzResourceAPI(ResourceAPI):
     _RELATIONSHIPS: set[str]
     _client: "PrivateQobuzAPIClient"
 
+    __slots__ = ()
+
     @staticmethod
-    def _prepare_album_ids(album_ids: str | list[str], /) -> str:
+    def _prepare_album_ids(album_ids: str | Collection[str], /) -> str:
         """
         Validate, normalize, and serialize Qobuz album IDs.
 
         Parameters
         ----------
-        album_ids : str or list[str]; positional-only
+        album_ids : str or Collection[str]; positional-only
             Qobuz IDs of the albums.
 
         Returns
@@ -33,7 +39,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             return PrivateQobuzResourceAPI._prepare_album_ids(
                 album_ids.strip().split(",")
             )
-        if not isinstance(album_ids, tuple | list | set):
+        if not isinstance(album_ids, COLLECTION_TYPES):
             raise TypeError(
                 "Qobuz album IDs must be provided as integers, "
                 "strings, or lists of integers and/or strings."
@@ -44,7 +50,10 @@ class PrivateQobuzResourceAPI(ResourceAPI):
 
     @staticmethod
     def _prepare_comma_separated_values(
-        parameter: str, values: str | list[str], /, allowed_values: set[str]
+        parameter: str,
+        values: str | Collection[str],
+        /,
+        allowed_values: set[str],
     ) -> str:
         """
         Validate, normalize, and serialize comma-separated values.
@@ -54,7 +63,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         parameter : str; positional-only
             Name of the parameter being prepared.
 
-        values : str or list[str]; positional-only
+        values : str or Collection[str]; positional-only
             Comma-separated values.
 
         allowed_values : set[str]; positional-only
@@ -77,7 +86,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
 
     @staticmethod
     def _prepare_qobuz_ids(
-        qobuz_ids: int | str | list[int | str], /, *, data_type: type
+        qobuz_ids: int | str | Collection[int | str], /, *, data_type: type
     ) -> list[int]:
         """
         Validate, normalize, and serialize or prepare a list of Qobuz
@@ -85,7 +94,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
 
         Parameters
         ----------
-        qobuz_ids : int, str, or list[int | str]; positional-only
+        qobuz_ids : int, str, or Collection[int | str]; positional-only
             Qobuz IDs.
 
         data_type : type; keyword-only
@@ -103,19 +112,25 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             return PrivateQobuzResourceAPI._prepare_qobuz_ids(
                 qobuz_ids.split(","), data_type=data_type
             )
+
         if data_type is str:
             if isinstance(qobuz_ids, int):
                 return str(qobuz_ids)
+
             PrivateQobuzResourceAPI._validate_qobuz_ids(qobuz_ids)
             return ",".join(str(qobuz_id) for qobuz_id in qobuz_ids)
+
         elif data_type is list:
             if isinstance(qobuz_ids, int):
                 return [qobuz_ids]
+
             PrivateQobuzResourceAPI._validate_qobuz_ids(qobuz_ids)
             return [int(qobuz_id) for qobuz_id in qobuz_ids]
+
         else:
             if isinstance(qobuz_ids, int):
                 return [{"track_id": qobuz_ids}]
+
             PrivateQobuzResourceAPI._validate_qobuz_ids(qobuz_ids)
             return [{"track_id": qobuz_id} for qobuz_id in qobuz_ids]
 
@@ -131,6 +146,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         """
         if not isinstance(album_id, str):
             raise TypeError("Qobuz album IDs must be strings.")
+
         if not album_id.isalnum():
             raise ValueError(
                 f"Qobuz album ID {album_id!r} is not alphanumeric."
@@ -138,14 +154,17 @@ class PrivateQobuzResourceAPI(ResourceAPI):
 
     @staticmethod
     def _validate_qobuz_ids(
-        qobuz_ids: int | str | list[int | str], /, *, recursive: bool = True
+        qobuz_ids: int | str | Collection[int | str],
+        /,
+        *,
+        recursive: bool = True,
     ) -> None:
         """
         Validate one or more Qobuz IDs.
 
         Parameters
         ----------
-        qobuz_ids : int, str, or list[int | str]; positional-only
+        qobuz_ids : int, str, or Collection[int | str]; positional-only
             Qobuz IDs.
         """
         if not isinstance(qobuz_ids, int) and not qobuz_ids:
@@ -158,13 +177,15 @@ class PrivateQobuzResourceAPI(ResourceAPI):
                 )
             elif not qobuz_ids.isdecimal():
                 raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
+
         elif not isinstance(qobuz_ids, int):
             if recursive:
-                if not isinstance(qobuz_ids, tuple | list | str):
+                if not isinstance(qobuz_ids, str | COLLECTION_TYPES):
                     raise TypeError(
                         "Qobuz IDs must be provided as integers, "
                         "strings, or lists of integers and/or strings."
                     )
+
                 for qobuz_id in qobuz_ids:
                     PrivateQobuzResourceAPI._validate_qobuz_ids(
                         qobuz_id, recursive=False
@@ -175,7 +196,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
     @classmethod
     def _prepare_expand(
         cls,
-        expand: str | list[str],
+        expand: str | Collection[str],
         /,
         *,
         relationships: set[str] | None = None,
@@ -185,7 +206,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
 
         Parameters
         ----------
-        expand : str or list[str]; positional-only
+        expand : str or Collection[str]; positional-only
             Related resources to include metadata for in the response.
 
         resources : set[str]; keyword-only; optional
@@ -202,14 +223,17 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             relationships = getattr(cls, "_RELATIONSHIPS", {})
         if isinstance(expand, str):
             return cls._prepare_expand(expand.strip().split(","))
-        if not isinstance(expand, tuple | list | set):
+
+        if not isinstance(expand, str | COLLECTION_TYPES):
             raise ValueError("`expand` must be a string or a list of strings.")
+
         for resource in expand:
             if resource not in relationships:
                 raise ValueError(
                     f"Invalid related resource {resource!r}. Valid "
                     f"values: {ResourceAPI._join_values(relationships)}."
                 )
+
         return ",".join(expand)
 
     def _get_paginated_resources(
@@ -256,8 +280,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz metadata for the items in the
-            resource.
+            Page of Qobuz metadata for the items.
         """
         if params is None:
             params = {}

@@ -1,8 +1,12 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PrivateDynamicAPI(PrivateQobuzResourceAPI):
@@ -15,6 +19,8 @@ class PrivateDynamicAPI(PrivateQobuzResourceAPI):
        :class:`~minim.api.qobuz.PrivateQobuzAPIClient` and should not be
        instantiated directly.
     """
+
+    __slots__ = ()
 
     @_copy_docstring(PrivateUsersAPI.get_personalized_playlists)
     def get_personalized_playlists(self) -> list[dict[str, Any]]:

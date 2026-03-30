@@ -1,10 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import _copy_docstring
 from ._shared import MusixmatchResourceAPI
 from .matcher import MatcherAPI
 from .artists import ArtistsAPI
 from .tracks import TracksAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class SearchAPI(MusixmatchResourceAPI):
@@ -22,6 +26,8 @@ class SearchAPI(MusixmatchResourceAPI):
        :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
+
+    __slots__ = ()
 
     @_copy_docstring(MatcherAPI.match_track_lyrics)
     def match_track_lyrics(

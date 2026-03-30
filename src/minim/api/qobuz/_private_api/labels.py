@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateLabelsAPI(PrivateQobuzResourceAPI):
@@ -17,13 +23,15 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
 
     _RELATIONSHIPS = {"albums", "focus", "focusAll"}
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="daily")
     def get_label(
         self,
         label_id: int | str,
         /,
         *,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
@@ -37,7 +45,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
 
             **Examples**: :code:`1385`, :code:`"8355112"`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"focus"`,
@@ -171,7 +179,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         """
-        Get available labels.
+        Get Qobuz catalog information for available labels.
 
         Parameters
         ----------

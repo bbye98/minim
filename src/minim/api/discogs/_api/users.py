@@ -1205,7 +1205,7 @@ class UsersAPI(DiscogsResourceAPI):
         self._validate_numeric("folder_id", folder_id, int, 0)
         if int(folder_id) == 0:
             self._client._require_authentication(
-                "users.get_user_collection_items_by_folder"
+                "users.get_user_collection_folder_releases"
             )
         return self._get_paginated_resources(
             f"users/{self._resolve_username(username)}"

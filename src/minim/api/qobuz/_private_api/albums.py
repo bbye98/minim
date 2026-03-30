@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
@@ -37,12 +43,14 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
     }
     _RELATIONSHIPS = {"albumsFromSameArtist", "focus", "focusAll"}
 
+    __slots__ = ()
+
     def get_album(
         self,
         album_id: str,
         /,
         *,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
@@ -57,7 +65,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             **Examples**: :code:`"0075679933652"`,
             :code:`"aaxy9wirwgn2a"`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albumsFromSameArtist"`,
@@ -312,7 +320,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         self,
         featured_type: str,
         *,
-        genre_ids: int | str | list[int | str] | None = None,
+        genre_ids: int | str | Collection[int | str] | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
@@ -335,7 +343,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             :code:`"album-of-the-week"`,
             :code:`"re-release-of-the-week"`.
 
-        genre_ids : int, str, or list[int | str]; optional
+        genre_ids : int, str, or Collection[int | str]; optional
             Qobuz IDs of the genres used to filter the featured albums
             to return.
 
@@ -467,10 +475,10 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         )
 
     def save_albums(
-        self, album_ids: str | list[str] | None = None, /
+        self, album_ids: str | Collection[str] | None = None, /
     ) -> dict[str, str]:
         """
-        Save one or more albums to the current user's favorites.
+        Favorite one or more albums.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -484,7 +492,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or list[str]; positional-only; optional
+        album_ids : str or Collection[str]; positional-only; optional
             Qobuz IDs of the albums.
 
             **Examples**: :code:`"0075679933652"`,
@@ -492,18 +500,18 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the albums were favorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
         return self._client.favorites.save_items(album_ids=album_ids)
 
     def remove_saved_albums(
-        self, album_ids: str | list[str] | None = None, /
+        self, album_ids: str | Collection[str] | None = None, /
     ) -> dict[str, str]:
         """
-        Remove one or more albums from the current user's favorites.
+        Unfavorite one or more albums.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -517,7 +525,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or list[str]; positional-only; optional
+        album_ids : str or Collection[str]; positional-only; optional
             Qobuz IDs of the albums.
 
             **Examples**: :code:`"0075679933652"`,
@@ -525,8 +533,8 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the albums were unfavorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -540,7 +548,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get the current user's saved albums.
+        Get the current user's favorite albums.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -572,8 +580,8 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Qobuz metadata for albums in the user's
-            favorites.
+            Page of Qobuz metadata for the current user's favorite
+            albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -668,7 +676,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
     def is_album_saved(self, album_id: str, /) -> dict[str, bool]:
         """
-        Check whether an album is in the current user's favorites.
+        Check whether the current user has an album favorited.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -691,8 +699,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         saved : dict[str, bool]
-            Whether the current user has the specified album in their
-            favorites.
+            Whether the current user has the album favorited.
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
@@ -700,7 +707,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
     def toggle_album_saved(self, album_id: str, /) -> dict[str, str]:
         """
-        Toggle the saved status of an album.
+        Toggle the favorite status of an album.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -722,9 +729,8 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        saved : dict[str, bool]
-            Whether the current user has the specified album in their
-            favorites.
+        status : dict[str, bool]
+            Whether the album is now favorited.
 
             **Sample response**: :code:`{"status": <bool>}`.
         """

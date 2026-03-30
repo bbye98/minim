@@ -1,8 +1,12 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import warnings
 
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class MatcherAPI(MusixmatchResourceAPI):
@@ -15,6 +19,8 @@ class MatcherAPI(MusixmatchResourceAPI):
        :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
+
+    __slots__ = ()
 
     def _match_resource(
         self,
@@ -88,7 +94,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         """
         `Matcher > matcher.lyrics.get <https://docs.musixmatch.com
         /lyrics-api/matcher/matcher-lyrics-get>`_: Match a track by
-        artist and track name (fuzzy search) or by ISRC, and get
+        artist and track name (fuzzy search) or by ISRC to get
         Musixmatch catalog information for its lyrics.
 
         .. admonition:: Subscription
@@ -118,7 +124,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         Returns
         -------
         lyrics : dict[str, Any]
-            Musixmatch metadata for the track's lyrics.
+            Musixmatch metadata for the matched track's lyrics.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -165,7 +171,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         """
         `Matcher > matcher.track.get <https://docs.musixmatch.com
         /lyrics-api/matcher/matcher-track-get>`_: Match a track by
-        artist and track name (fuzzy search) or by ISRC, and get
+        artist and track name (fuzzy search) or by ISRC to get
         Musixmatch catalog information for it.
 
         .. admonition:: Subscription
@@ -195,7 +201,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         Returns
         -------
         track : dict[str, Any]
-            Musixmatch metadata for the track.
+            Musixmatch metadata for the matched track.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -277,7 +283,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         """
         `Matcher > matcher.subtitle.get <https://docs.musixmatch.com
         /lyrics-api/matcher/matcher-subtitle-get>`_: Match a track by
-        artist and track name (fuzzy search) or by ISRC, and get
+        artist and track name (fuzzy search) or by ISRC to get
         Musixmatch catalog information for its subtitles.
 
         .. admonition:: Subscription
@@ -314,7 +320,7 @@ class MatcherAPI(MusixmatchResourceAPI):
         Returns
         -------
         subtitles : dict[str, Any]
-            Musixmatch metadata for the track's subtitles.
+            Musixmatch metadata for the matched track's subtitles.
 
             .. admonition:: Sample response
                :class: response dropdown

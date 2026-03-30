@@ -1,10 +1,14 @@
-from datetime import datetime
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import MusixmatchResourceAPI
 from .charts import ChartsAPI
 from .matcher import MatcherAPI
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from typing import Any
 
 
 class TracksAPI(MusixmatchResourceAPI):
@@ -19,6 +23,8 @@ class TracksAPI(MusixmatchResourceAPI):
     """
 
     _SUBTITLE_FORMATS = {"lrc", "dfxp", "mxm"}
+
+    __slots__ = ()
 
     def _get_track_resource(
         self,
@@ -232,8 +238,8 @@ class TracksAPI(MusixmatchResourceAPI):
               .. tab-item:: Required
 
                  Musixmatch Basic plan
-                    Access music metadata and static lyrics. `Learn more.
-                    <https://about.musixmatch.com/api-pricing>`__
+                    Access music metadata and static lyrics. `Learn
+                    more. <https://about.musixmatch.com/api-pricing>`__
 
         .. important::
 
@@ -318,9 +324,8 @@ class TracksAPI(MusixmatchResourceAPI):
     ) -> dict[str, Any]:
         """
         `Track > track.lyrics.mood.get <https://docs.musixmatch.com
-        /lyrics-api/track/track-lyrics-mood-get>`_: Get Musixmatch
-        catalog information on the five most prevalent moods associated
-        with a track's lyrics.
+        /lyrics-api/track/track-lyrics-mood-get>`_: Get the five most
+        prevalent moods associated with a track's lyrics.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -360,8 +365,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         moods : dict[str, Any]
-            Musixmatch metadata for the moods associated with
-            the track's lyrics.
+            Moods associated with the track's lyrics.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -578,8 +582,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         lyrics : dict[str, Any]
-            Musixmatch metadata for the track's Rich Sync
-            lyrics.
+            Musixmatch metadata for the track's Rich Sync lyrics.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -681,8 +684,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         snippet : dict[str, Any]
-            Musixmatch metadata for the snippet of the track's
-            lyrics.
+            Musixmatch metadata for the snippet of the track's lyrics.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -787,8 +789,8 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         translation : dict[str, Any]
-            Musixmatch metadata for the translation of the
-            track's lyrics.
+            Musixmatch metadata for the translation of the track's
+            lyrics.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -920,8 +922,8 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         translation : dict[str, Any]
-            Musixmatch metadata for the translation of the
-            track's subtitles.
+            Musixmatch metadata for the translation of the track's
+            subtitles.
 
             .. admonition:: Sample response
                :class: response dropdown

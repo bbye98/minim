@@ -1,10 +1,14 @@
+from __future__ import annotations
 import copy
-from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import MusixmatchResourceAPI
 from .tracks import TracksAPI
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from typing import Any
 
 
 class EnterpriseAPI(MusixmatchResourceAPI):
@@ -35,6 +39,8 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         "SR",
         "TR",
     }
+
+    __slots__ = ()
 
     @staticmethod
     def _process_work_rightsholders(
@@ -469,7 +475,8 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         Returns
         -------
         work : dict[str, Any]
-            Musixmatch catalog record for a musical work.
+            Musixmatch catalog record for the newly submitted musical
+            work.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -631,7 +638,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         Returns
         -------
         status : dict[str, Any]
-            Whether the request completed successfully.
+            Whether the work's validity was updated successfully.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -683,9 +690,9 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         """
         `Enterprise > track.lyrics.fingerprint.post
         <https://docs.musixmatch.com/enterprise-integration
-        /api-reference/track-lyrics-fingerprint-post>`_: Get Musixmatch
-        catalog information for tracks whose lyrics match a text string,
-        ranked by similarity.
+        /api-reference/track-lyrics-fingerprint-post>`_: Screen text
+        against the Musixmatch catalog to identify tracks with matching
+        lyrics.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -718,7 +725,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Tracks whose lyrics match the text string.
+            Musixmatch metadata for the identified tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -830,7 +837,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         Returns
         -------
         track : dict[str, Any]
-            Musixmatch catalog record for a track.
+            Musixmatch catalog record for the track.
 
             .. admonition:: Sample reponse
                :class: response dropdown
@@ -891,7 +898,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         """
         `Enterprise > tracks.dump.get <https://docs.musixmatch.com
         /enterprise-integration/api-reference/tracks-dump-get>`_: Get
-        the latest Musixmatch catalog feeds.
+        Musixmatch resource information for the latest catalog feeds.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -909,7 +916,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         Returns
         -------
         catalog_feeds : dict[str, Any]
-            Musixmatch catalog feeds.
+            Musixmatch metadata for the catalog feeds.
 
             .. admonition:: Sample reponse
                :class: response dropdown

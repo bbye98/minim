@@ -1,8 +1,12 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PrivatePurchasesAPI(PrivateQobuzResourceAPI):

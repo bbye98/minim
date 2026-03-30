@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class ChartsAPI(MusixmatchResourceAPI):
@@ -16,6 +20,8 @@ class ChartsAPI(MusixmatchResourceAPI):
     """
 
     _CHART_NAMES = {"top", "hot", "mxmweekly", "mxmweekly_new"}
+
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_top_tracks(

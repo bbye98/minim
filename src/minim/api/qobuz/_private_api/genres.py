@@ -1,8 +1,11 @@
-from functools import cached_property
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
-from ._shared import PrivateQobuzResourceAPI
 from ..._shared import TTLCache
+from ._shared import PrivateQobuzResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PrivateGenresAPI(PrivateQobuzResourceAPI):
@@ -16,7 +19,9 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    @cached_property
+    __slots__ = ()
+
+    @TTLCache.cached_method(ttl="static")
     def available_genres(self) -> dict[str, dict[str, Any]]:
         """
         Available genres.
@@ -66,7 +71,10 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
                 "Qobuz genre IDs must be integers or their string "
                 "representations."
             )
-        if "available_genres" in self.__dict__:
+
+        if (
+            cache := self._client._cache
+        ) and "available_genres" in cache._store:
             if genre_id not in self.available_genres:
                 raise ValueError(
                     f"Invalid genre ID {genre_id!r}. Valid values: "

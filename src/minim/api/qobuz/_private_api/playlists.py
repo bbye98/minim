@@ -1,10 +1,15 @@
-from functools import cached_property
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
@@ -22,7 +27,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     _RELATIONSHIPS = {"tracks", "getSimilarPlaylists", "focus", "focusAll"}
     _SORT_FIELDS = {"updated_at", "position"}
 
-    @cached_property
+    __slots__ = ()
+
+    @TTLCache.cached_method(ttl="static")
     def available_playlist_tags(self) -> dict[str, dict[str, Any]]:
         """
         Available playlist tags.
@@ -47,7 +54,10 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         """
         if not isinstance(playlist_tag_slug, str):
             raise ValueError("Qobuz playlist tag slugs must be strings.")
-        if "available_playlist_tags" in self.__dict__:
+
+        if (
+            cache := self._client._cache
+        ) and "available_playlist_tags" in cache._store:
             if playlist_tag_slug not in self.available_playlist_tags:
                 raise ValueError(
                     f"Invalid playlist tag slug {playlist_tag_slug!r}. "
@@ -59,7 +69,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self,
         playlist_id: int | str,
         /,
-        track_ids: int | str | list[int | str],
+        track_ids: int | str | Collection[int | str],
         *,
         allow_duplicates: bool | None = None,
     ) -> dict[str, Any]:
@@ -83,7 +93,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
             **Examples**: :code:`2776610`, :code:`"6754150"`.
 
-        track_ids : int, str, or list[int | str]
+        track_ids : int, str, or Collection[int | str]
             Qobuz IDs of the tracks.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`,
@@ -144,7 +154,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         public: bool | None = None,
         collaborative: bool | None = None,
         from_album_id: str | None = None,
-        from_track_ids: int | str | list[int | str] | None = None,
+        from_track_ids: int | str | Collection[int | str] | None = None,
     ) -> dict[str, Any]:
         """
         Create a playlist.
@@ -186,8 +196,8 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             **Examples**: :code:`"0075679933652"`,
             :code:`"aaxy9wirwgn2a"`.
 
-        from_track_ids : int, str, or list[int | str]; keyword-only; \
-        optional
+        from_track_ids : int, str, or Collection[int | str]; \
+        keyword-only; optional
             Qobuz IDs of the tracks to add.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`,
@@ -269,8 +279,8 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the playlist was deleted successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -284,7 +294,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self,
         playlist_id: int | str,
         /,
-        playlist_track_ids: int | str | list[int, str],
+        playlist_track_ids: int | str | Collection[int | str],
     ) -> dict[str, Any]:
         """
         Remove tracks from a playlist.
@@ -306,7 +316,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
             **Examples**: :code:`2776610`, :code:`"6754150"`.
 
-        playlist_track_ids : int, str, or list[int | str]
+        playlist_track_ids : int, str, or Collection[int | str]
             Playlist track IDs of the tracks to remove.
 
             **Examples**: :code:`3775131234`, :code:`"3775131243"`,
@@ -368,7 +378,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         playlist_id: int | str,
         /,
         *,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
@@ -392,7 +402,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
             **Examples**: :code:`2776610`, :code:`"6754150"`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"tracks"`,
@@ -659,13 +669,13 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self,
         playlist_type: str,
         *,
-        genre_ids: int | str | list[int | str] | None = None,
-        playlist_tag_slugs: str | list[str] | None = None,
+        genre_ids: int | str | Collection[int | str] | None = None,
+        playlist_tag_slugs: str | Collection[str] | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get featured playlists.
+        Get Qobuz catalog information for featured playlists.
 
         Parameters
         ----------
@@ -678,14 +688,16 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             * :code:`"editor-picks"` – Most recently created playlists
               by Qobuz.
 
-        genre_ids : int, str, or list[int | str]; keyword-only; optional
+        genre_ids : int, str, or Collection[int | str]; keyword-only; \
+        optional
             Qobuz IDs of the genres used to filter the playlists to
             return.
 
             **Examples**: :code:`10`, :code:`"64"`, :code:`"10,64"`,
             :code:`[10, "64"]`.
 
-        playlist_tag_slugs : str or list[str]; keyword-only; optional
+        playlist_tag_slugs : str or Collection[str]; keyword-only; \
+        optional
             Playlist tag slugs used to filter the playlists to return.
 
             **Examples**: :code:`"hi-res"`, :code:`"artist,label"`,
@@ -814,7 +826,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     @TTLCache.cached_method(ttl="static")
     def get_playlist_tags(self) -> dict[str, list[dict[str, Any]]]:
         """
-        Get available playlist tags.
+        Get Qobuz catalog information for available playlist tags.
 
         Returns
         -------
@@ -846,7 +858,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     def get_my_playlists(
         self,
         *,
-        playlist_types: str | list[str] | None = None,
+        playlist_types: str | Collection[str] | None = None,
         limit: int | None = None,
         offset: int | None = None,
         sort_by: str | None = None,
@@ -854,7 +866,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for playlists created and/or
-        followed by the current user.
+        favorited by the current user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -868,13 +880,13 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        playlist_types : str or list[str]; keyword-only; optional
+        playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return.
 
             **Valid values**:
 
             * :code:`"owner"` – Playlists created by the user.
-            * :code:`"subscriber"` – Playlists followed by the user.
+            * :code:`"subscriber"` – Playlists favorited by the user.
 
             **Examples**: :code:`"owner"`, :code:`"owner,subscriber"`,
             :code:`["owner", "subscriber"]`.
@@ -911,8 +923,8 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Qobuz metadata for the playlists in the
-            current user's collection.
+            Page of Qobuz metadata for the playlists in the current
+            user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1029,7 +1041,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         description: str | None = None,
         public: bool | None = None,
         collaborative: bool | None = None,
-        track_ids: str | list[str] | None = None,
+        track_ids: str | Collection[str] | None = None,
     ) -> dict[str, Any]:
         """
         Update the details of a playlist.
@@ -1067,7 +1079,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         collaborative : bool; keyword-only; optional
             Whether other users can modify the playlist.
 
-        track_ids : int, str, or list[int | str]; keyword-only; \
+        track_ids : int, str, or Collection[int | str]; keyword-only; \
         optional
             Qobuz IDs of the tracks to replace those currently in the
             playlist.
@@ -1134,7 +1146,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         ).json()
 
     def reorder_playlists(
-        self, playlist_ids: int | str | list[int | str], /
+        self, playlist_ids: int | str | Collection[int | str], /
     ) -> dict[str, str]:
         """
         Reorder playlists.
@@ -1151,7 +1163,8 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        playlist_ids : int, str, or list[int | str]; positional-only
+        playlist_ids : int, str, or Collection[int | str]; \
+        positional-only
             Qobuz IDs of the playlists.
 
             **Examples**: :code:`2776610`, :code:`"6754150"`,
@@ -1159,8 +1172,8 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the playlists were reordered successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -1179,7 +1192,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self,
         playlist_id: int | str,
         /,
-        playlist_track_ids: int | str | list[int | str],
+        playlist_track_ids: int | str | Collection[int | str],
         to_index: int,
     ) -> dict[str, Any]:
         """
@@ -1202,7 +1215,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
             **Examples**: :code:`2776610`, :code:`"6754150"`.
 
-        playlist_track_ids : int, str, or list[int | str]
+        playlist_track_ids : int, str, or Collection[int | str]
             Playlist track IDs of the tracks to be reordered.
 
             **Examples**: :code:`3775131234`, :code:`"3775131243"`,
@@ -1220,7 +1233,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            Qobuz metadata for the updated playlist.
+            Qobuz metadata for the reordered playlist.
 
             .. admonition:: Sample response
                :class: response dropdown

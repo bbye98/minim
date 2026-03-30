@@ -1,10 +1,11 @@
+from __future__ import annotations
 import base64
 from datetime import datetime, timezone
 import hashlib
 import hmac
 import json
 import re
-from typing import Any
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 from .._shared import APIClient
@@ -16,8 +17,10 @@ from ._lyrics_api.matcher import MatcherAPI
 from ._lyrics_api.search import SearchAPI
 from ._lyrics_api.tracks import TracksAPI
 
-
 import httpx
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class MusixmatchLyricsAPIClient(APIClient):
@@ -29,6 +32,18 @@ class MusixmatchLyricsAPIClient(APIClient):
     _PROVIDER = "Musixmatch"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
     BASE_URL = "https://www.musixmatch.com/ws/1.1"
+
+    __slot__ = (
+        "_api_key",
+        "_client_key",
+        "albums",
+        "artists",
+        "charts",
+        "enterprise",
+        "matcher",
+        "search",
+        "tracks",
+    )
 
     def __init__(
         self,
@@ -202,7 +217,8 @@ class MusixmatchLyricsAPIClient(APIClient):
 
         m = re.search(r'from\("(.*?)"', app)
         if m is None:
-            raise RuntimeError("...")
+            raise RuntimeError("A client key was not found in '_app*.js'.")
+
         return base64.b64decode(m.group(1)[::-1])
 
     def set_api_key(self, api_key: bytes | str | None, /) -> None:

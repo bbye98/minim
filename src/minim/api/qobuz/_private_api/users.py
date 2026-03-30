@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .favorites import PrivateFavoritesAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateUsersAPI(PrivateQobuzResourceAPI):
@@ -16,10 +22,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="user")
     def get_me(self) -> dict[str, Any]:
         """
-        Get detailed profile information for the current user.
+        Get Qobuz profile information for the current user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -34,7 +42,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         profile : dict[str, Any]
-            Current user's profile information.
+            Qobuz profile information for the current user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -123,8 +131,8 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
     @TTLCache.cached_method(ttl="user")
     def get_my_last_updates(self) -> dict[str, dict[str, int]]:
         """
-        Get the current user's last update timestamps for favorites,
-        playlists, and purchases.
+        Get the timestamps for the last updates to favorites, playlists,
+        and purchases performed by the current user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -139,7 +147,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         last_updates : dict[str, dict[str, int]]
-            Current user's last update timestamps.
+            Timestamps for the current user's last updates.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -208,7 +216,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         token : dict[str, Any]
-            User authentication token and profile information.
+            User authentication token and Qobuz profile information.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -329,9 +337,9 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
     def save_items(
         self,
         *,
-        album_ids: str | list[str] | None = None,
-        artist_ids: int | str | list[int | str] | None = None,
-        track_ids: int | str | list[int | str] | None = None,
+        album_ids: str | Collection[str] | None = None,
+        artist_ids: int | str | Collection[int | str] | None = None,
+        track_ids: int | str | Collection[int | str] | None = None,
     ) -> dict[str, str]:
         return self._client.favorites.save_items(
             album_ids=album_ids, artist_ids=artist_ids, track_ids=track_ids
@@ -341,9 +349,9 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
     def remove_saved_items(
         self,
         *,
-        album_ids: str | list[str] | None = None,
-        artist_ids: int | str | list[int | str] | None = None,
-        track_ids: int | str | list[int | str] | None = None,
+        album_ids: str | Collection[str] | None = None,
+        artist_ids: int | str | Collection[int | str] | None = None,
+        track_ids: int | str | Collection[int | str] | None = None,
     ) -> dict[str, str]:
         return self._client.favorites.remove_saved_items(
             album_ids=album_ids, artist_ids=artist_ids, track_ids=track_ids
@@ -416,8 +424,8 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         purchases : dict[str, Any]
-            Pages of Qobuz metadata for purchased albums and
-            tracks.
+            Page of Qobuz metadata for the current user's purchased
+            albums and tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -640,7 +648,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         item_ids : dict[str, Any]
-            Qobuz IDs of purchased albums and tracks.
+            Qobuz IDs of the current user's purchased albums and tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -680,7 +688,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
 
     def follow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
         """
-        Follow a playlist.
+        Favorite a playlist.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -701,8 +709,8 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the playlist was favorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -714,7 +722,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
 
     def unfollow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
         """
-        Unfollow a playlist.
+        Unfavorite a playlist.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -735,8 +743,8 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the playlist was unfavorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -749,7 +757,8 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
     @TTLCache.cached_method(ttl="daily")
     def get_personalized_playlists(self) -> list[dict[str, Any]]:
         """
-        Get Qobuz catalog information for personally curated playlists.
+        Get Qobuz catalog information for playlists curated for the
+        current user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -764,7 +773,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlists : list[dict[str, Any]]
-            Qobuz metadata for the personally curated playlists.
+            Qobuz metadata for the curated playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -804,8 +813,8 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for tracks in a personally curated
-        playlist.
+        Get Qobuz catalog information for tracks in a playlist curated
+        for the current user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -820,12 +829,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Parameters
         ----------
         playlist_type : str; positional-only
-            Type of the personally curated playlist.
+            Type of the curated playlist.
 
             .. seealso::
 
                :meth:`get_personalized_playlists` – Get types of
-               personally curated playlists.
+               curated playlists.
 
             **Example**: :code:`"weekly"`.
 
@@ -849,8 +858,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Qobuz metadata for tracks in the personally
-            curated playlist.
+            Page of Qobuz metadata for tracks in the curated playlist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -989,9 +997,9 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
     @TTLCache.cached_method(ttl="popularity")
     def get_track_recommendations(
         self,
-        seed_track_ids: int | str | list[int | str],
+        seed_track_ids: int | str | Collection[int | str],
         /,
-        exclude_track_ids: int | str | list[int | str] | None = None,
+        exclude_track_ids: int | str | Collection[int | str] | None = None,
         *,
         limit: int | None = None,
     ) -> dict[str, Any]:
@@ -1010,14 +1018,15 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        seed_track_ids : int | str | list[int | str]; positional-only
+        seed_track_ids : int | str | Collection[int | str]; \
+        positional-only
             Qobuz IDs of seed tracks.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`,
             :code:`"23929516,344521217"`,
             :code:`[23929516, "344521217"]`.
 
-        exclude_track_ids : int | str | list[int | str]; optional
+        exclude_track_ids : int | str | Collection[int | str]; optional
             Qobuz IDs of tracks to exclude.
 
             **Examples**: :code:`256316240`, :code:`"53859680"`,
@@ -1034,8 +1043,8 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         recommendations : dict[str, Any]
-            Qobuz metadata for the track recommendations
-            generated from the provided seeds.
+            Qobuz metadata for the tracks recommended based on the seed 
+            tracks.
 
             .. admonition:: Sample response
                :class: response dropdown

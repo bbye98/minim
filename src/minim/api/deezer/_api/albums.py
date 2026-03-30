@@ -351,13 +351,13 @@ class AlbumsAPI(DeezerResourceAPI):
         /,
         *,
         user_id: int | str = "me",
-    ) -> bool:
+    ) -> dict[str, str]:
         return self._client.users.save_albums(album_ids, user_id=user_id)
 
     @_copy_docstring(UsersAPI.remove_saved_album)
     def remove_saved_album(
         self, album_id: int | str, /, *, user_id: int | str = "me"
-    ) -> bool:
+    ) -> dict[str, str]:
         return self._client.users.remove_saved_album(album_id, user_id=user_id)
 
     @_copy_docstring(UsersAPI.get_user_top_albums)

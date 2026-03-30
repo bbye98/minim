@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateCatalogAPI(PrivateQobuzResourceAPI):
@@ -18,10 +24,14 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
 
     _FEATURED_TYPES = {"albums", "articles", "artists", "playlists"}
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="search")
-    def count_search_matches(self, query: str, /) -> dict[str, dict[str, int]]:
+    def get_num_search_matches(
+        self, query: str, /
+    ) -> dict[str, dict[str, int]]:
         """
-        Get the counts of catalog search results for a given query.
+        Get the number of Qobuz catalog search results for a query.
 
         Parameters
         ----------
@@ -30,8 +40,8 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        counts : dict[str, dict[str, int]]
-            Counts of the search results.
+        num_matches : dict[str, dict[str, int]]
+            Number of search results for the query.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -61,7 +71,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         self,
         item_type: str | None = None,
         /,
-        genre_ids: int | str | list[int | str] | None = None,
+        genre_ids: int | str | Collection[int | str] | None = None,
         *,
         limit: int | None = None,
         offset: int | None = None,
@@ -79,7 +89,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"articles"`,
             :code:`"artists"`, :code:`"playlists"`.
 
-        genre_ids : int, str, or list[int | str]; optional
+        genre_ids : int, str, or Collection[int | str]; optional
             Qobuz IDs of the genres used to filter the featured items to
             return.
 

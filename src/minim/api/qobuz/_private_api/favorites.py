@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
@@ -24,16 +30,17 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         "tracks",
     }
 
+    __slots__ = ()
+
     def save_items(
         self,
         *,
-        album_ids: str | list[str] | None = None,
-        artist_ids: int | str | list[int | str] | None = None,
-        track_ids: int | str | list[int | str] | None = None,
+        album_ids: str | Collection[str] | None = None,
+        artist_ids: int | str | Collection[int | str] | None = None,
+        track_ids: int | str | Collection[int | str] | None = None,
     ) -> dict[str, str]:
         """
-        Save one or more albums, artists, and/or tracks to the current
-        user's favorites.
+        Favorite one or more albums, artists, and/or tracks.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -52,20 +59,20 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or list[str]; keyword-only; optional
+        album_ids : str or Collection[str]; keyword-only; optional
             Qobuz IDs of the albums.
 
             **Examples**: :code:`"0075679933652"`,
             :code:`"0075679933652,aaxy9wirwgn2a"`.
 
-        artist_ids : int, str, or list[int | str]; keyword-only; \
+        artist_ids : int, str, or Collection[int | str]; keyword-only; \
         optional
             Qobuz IDs of the artists.
 
             **Examples**: :code:`865362`, :code:`"21473137"`,
             :code:`"865362,21473137"`, :code:`[865362, "21473137"]`.
 
-        track_ids : int, str, or list[int | str]; keyword-only; \
+        track_ids : int, str, or Collection[int | str]; keyword-only; \
         optional
             Qobuz IDs of the tracks.
 
@@ -75,8 +82,8 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the items were favorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -104,13 +111,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
     def remove_saved_items(
         self,
         *,
-        album_ids: str | list[str] | None = None,
-        artist_ids: int | str | list[int | str] | None = None,
-        track_ids: int | str | list[int | str] | None = None,
+        album_ids: str | Collection[str] | None = None,
+        artist_ids: int | str | Collection[int | str] | None = None,
+        track_ids: int | str | Collection[int | str] | None = None,
     ) -> dict[str, str]:
         """
-        Remove one or more albums, artists, and/or tracks from the
-        current user's favorites.
+        Unfavorite one or more albums, artists, and/or tracks.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -129,20 +135,20 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or list[str]; keyword-only; optional
+        album_ids : str or Collection[str]; keyword-only; optional
             Qobuz IDs of the albums.
 
             **Examples**: :code:`"0075679933652"`,
             :code:`"0075679933652,aaxy9wirwgn2a"`.
 
-        artist_ids : int, str, or list[int | str]; keyword-only;
+        artist_ids : int, str, or Collection[int | str]; keyword-only; \
         optional
             Qobuz IDs of the artists.
 
             **Examples**: :code:`865362`, :code:`"21473137"`,
             :code:`"865362,21473137"`, :code:`[865362, "21473137"]`.
 
-        track_ids : int, str, or list[int | str]; keyword-only;
+        track_ids : int, str, or Collection[int | str]; keyword-only; \
         optional
             Qobuz IDs of the tracks.
 
@@ -152,8 +158,8 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the items were unfavorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -188,8 +194,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for the items in the current
-        user's favorites.
+        Get Qobuz catalog information for the current user's favorites.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -229,8 +234,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz metadata for items in the user's
-            favorites.
+            Page of Qobuz metadata for the current user's favorites.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -464,7 +468,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
     @TTLCache.cached_method(ttl="user")
     def get_my_saved_item_ids(self) -> dict[str, Any]:
         """
-        Get Qobuz IDs of the items in the current user's favorites.
+        Get Qobuz IDs of the current user's favorites.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -479,7 +483,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         saved_ids : dict[str, Any]
-            Qobuz IDs of the items in the user's favorites.
+            Qobuz IDs of the current user's favorites.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -505,7 +509,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         self, item_type: str, item_id: int | str, /
     ) -> dict[str, bool]:
         """
-        Check whether an item is in the current user's favorites.
+        Check whether the current user has an item favorited.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -532,8 +536,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         saved : dict[str, bool]
-            Whether the current user has the specified item in their
-            favorites.
+            Whether the current user has the item favorited.
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
@@ -558,7 +561,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         self, item_type: str, item_id: int | str, /
     ) -> dict[str, bool]:
         """
-        Toggle the saved status of an item.
+        Toggle the favorite status of an item.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -585,8 +588,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         saved : dict[str, bool]
-            Whether the current user has the specified item in their
-            favorites.
+            Whether the item is now favorited.
 
             **Sample response**: :code:`{"status": <bool>}`.
         """

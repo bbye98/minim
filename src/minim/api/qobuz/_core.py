@@ -1,3 +1,4 @@
+from __future__ import annotations
 import base64
 from datetime import datetime
 import getpass
@@ -5,7 +6,7 @@ import hashlib
 import json
 import os
 import re
-from typing import Any
+from typing import TYPE_CHECKING
 
 import httpx
 
@@ -27,6 +28,11 @@ from ._private_api.users import PrivateUsersAPI
 if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ..._types import Collection
+
 
 class PrivateQobuzAPIClient(APIClient):
     """
@@ -44,6 +50,28 @@ class PrivateQobuzAPIClient(APIClient):
     BASE_URL = "https://www.qobuz.com/api.json/0.2"
     #: Web Player URL.
     WEB_PLAYER_URL = "https://play.qobuz.com"
+
+    __slots__ = (
+        "_auth_flow",
+        "_app_id",
+        "_app_secret",
+        "_user_identifier",
+        "_credential_handler",
+        "_store_tokens",
+        "_token_extras",
+        "albums",
+        "artists",
+        "catalog",
+        "dynamic",
+        "favorites",
+        "labels",
+        "genres",
+        "playlists",
+        "purchases",
+        "search",
+        "tracks",
+        "users",
+    )
 
     def __init__(
         self,
@@ -236,9 +264,9 @@ class PrivateQobuzAPIClient(APIClient):
     def get_tokens(
         cls,
         *,
-        auth_flows: str | list[str] | None = None,
-        app_ids: str | list[str] | None = None,
-        user_identifiers: str | list[str] | None = None,
+        auth_flows: str | Collection[str] | None = None,
+        app_ids: str | Collection[str] | None = None,
+        user_identifiers: str | Collection[str] | None = None,
     ) -> list[dict[str, Any]] | None:
         """
         Retrieve specific or all user authentication tokens and their
@@ -246,13 +274,14 @@ class PrivateQobuzAPIClient(APIClient):
 
         Parameters
         ----------
-        auth_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or Collection[str]; keyword-only; optional
             Authorization flows.
 
-        app_ids : str or list[str]; keyword-only; optional
+        app_ids : str or Collection[str]; keyword-only; optional
             Application IDs.
 
-        user_identifiers : str or list[str]; keyword-only; optional
+        user_identifiers : str or Collection[str]; keyword-only; \
+        optional
             Identifiers for the user accounts.
         """
         TokenDatabase.get_tokens(
@@ -266,9 +295,9 @@ class PrivateQobuzAPIClient(APIClient):
     def remove_tokens(
         cls,
         *,
-        auth_flows: str | list[str] | None = None,
-        app_ids: str | list[str] | None = None,
-        user_identifiers: str | list[str] | None = None,
+        auth_flows: str | Collection[str] | None = None,
+        app_ids: str | Collection[str] | None = None,
+        user_identifiers: str | Collection[str] | None = None,
     ) -> None:
         """
         Remove specific or all user authentication tokens and their
@@ -282,13 +311,14 @@ class PrivateQobuzAPIClient(APIClient):
 
         Parameters
         ----------
-        auth_flows : str or list[str]; keyword-only; optional
+        auth_flows : str or Collection[str]; keyword-only; optional
             Authorization flows.
 
-        app_ids : str or list[str]; keyword-only; optional
+        app_ids : str or Collection[str]; keyword-only; optional
             Application IDs.
 
-        user_identifiers : str or list[str]; keyword-only; optional
+        user_identifiers : str or Collection[str]; keyword-only; \
+        optional
             Identifiers for the user accounts.
         """
         TokenDatabase.remove_tokens(

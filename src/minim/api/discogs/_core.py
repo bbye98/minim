@@ -1,5 +1,4 @@
 from __future__ import annotations
-from functools import cached_property
 import time
 from typing import TYPE_CHECKING
 import warnings
@@ -211,7 +210,6 @@ class DiscogsAPIClient(OAuth1APIClient):
             user_agent=user_agent,
         )
 
-    @cached_property
     def _identity(self) -> dict[str, Any]:
         """
         Identity of the current user.

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..._shared import ResourceAPI
@@ -13,6 +14,8 @@ class MusixmatchResourceAPI(ResourceAPI):
 
     _client: "MusixmatchLyricsAPIClient"
 
+    __slots__ = ()
+
     @staticmethod
     def _validate_sort_order(
         sort_order: str, /, *, sort_by: str | None = None
@@ -25,8 +28,7 @@ class MusixmatchResourceAPI(ResourceAPI):
         sort_order : str; positional-only
             Sort order.
         """
-        allowed_sort_orders = {"asc", "desc"}
-        if sort_order.lower() not in allowed_sort_orders:
+        if sort_order.lower() not in (allowed_sort_orders := {"asc", "desc"}):
             raise ValueError(
                 f"Invalid {'' if sort_by is None else sort_by + ' '}"
                 f"sort order: {sort_order!r}. Valid values: "

@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PrivateSearchAPI(PrivateQobuzResourceAPI):
@@ -30,8 +34,8 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for albums, artists, playlists,
-        or tracks that match a keyword string.
+        Search for albums, artists, playlists, stories, and/or tracks in
+        the Qobuz catalog.
 
         Parameters
         ----------
@@ -63,7 +67,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            Page of Qobuz metadata for the matching items.
+            Page of Qobuz metadata for the matching catalog items.
         """
         return self._get_paginated_resources(
             f"{resource_type}/search",
@@ -121,7 +125,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Qobuz metadata for the matching items.
+            Page of Qobuz metadata for the matching catalog items.
 
             .. admonition:: Sample response
                :class: response dropdown

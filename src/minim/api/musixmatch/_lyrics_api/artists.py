@@ -1,8 +1,12 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import MusixmatchResourceAPI
 from .charts import ChartsAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class ArtistsAPI(MusixmatchResourceAPI):
@@ -15,6 +19,8 @@ class ArtistsAPI(MusixmatchResourceAPI):
        :class:`~minim.api.musixmatch.MusixmatchLyricsAPIClient` and
        should not be instantiated directly.
     """
+
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_artist(self, artist_id: int | str, /) -> dict[str, Any]:
@@ -44,7 +50,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
         Returns
         -------
         artist : dict[str, Any]
-            Musixmatch catalog information for the artist.
+            Musixmatch metadata for the artist.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -141,7 +147,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
         """
         `Artist > artist.albums.get <https://docs.musixmatch.com
         /lyrics-api/artist/artist-albums-get>`_: Get Musixmatch catalog
-        information for an artist's albums.
+        information for albums by an artist.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -293,8 +299,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Musixmatch metadata for the matching
-            artists.
+            Page of Musixmatch metadata for the matching artists.
 
             .. admonition:: Sample response
                :class: response dropdown

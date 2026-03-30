@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateArtistsAPI(PrivateQobuzResourceAPI):
@@ -35,13 +41,15 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
     }
     _SORT_FIELDS = {"relevant", "release_date"}
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="popularity")
     def get_artist(
         self,
         artist_id: int | str,
         /,
         *,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
         limit: int | None = None,
         offset: int | None = None,
         sort_by: str | None = None,
@@ -58,7 +66,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Examples**: :code:`865362`, :code:`"21473137"`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
             Only applicable when `subresource` is :code:`"get"`.
 
@@ -954,6 +962,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             return self._client._request(
                 "GET", "artist/page", params=params
             ).json()
+
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
         return self._get_paginated_resources(
@@ -966,8 +975,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         artist_id: int | str,
         /,
         *,
-        release_types: str | list[str] | None = None,
-        content_filters: str | list[str] | None = None,
+        release_types: str | Collection[str] | None = None,
+        content_filters: str | Collection[str] | None = None,
         limit: int | None = None,
         offset: int | None = None,
         sort_by: str | None = None,
@@ -996,14 +1005,14 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Examples**: :code:`865362`, :code:`"21473137"`.
 
-        release_types : str or list[str]; keyword-only; optional
+        release_types : str or Collection[str]; keyword-only; optional
             Release types to include in the response.
 
             **Valid values**: :code:`"all"`, :code:`"album"`,
             :code:`"live"`, :code:`"compilation"`, :code:`"epSingle"`,
             :code:`"other"`, :code:`"download"`, :code:`"composer"`.
 
-        content_filters : str or list[str]; keyword-only; optional
+        content_filters : str or Collection[str]; keyword-only; optional
             Content filters to apply to the releases.
 
             **Valid values**: :code:`"hires"`, :code:`"explicit"`.
@@ -1188,6 +1197,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                 offset=offset,
                 params=params,
             )
+
         return self._get_paginated_resources(
             "artist/getReleasesGrid", limit=limit, offset=offset, params=params
         )
@@ -1201,8 +1211,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for other artists that are similar
-        to an artist.
+        Get Qobuz catalog information for similar artists.
 
         Parameters
         ----------
@@ -1229,7 +1238,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Qobuz metadata for similar artists.
+            Page of Qobuz metadata for the similar artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1270,17 +1279,17 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
     def get_featured_artists(
         self,
-        genre_ids: int | str | list[int | str] | None = None,
+        genre_ids: int | str | Collection[int | str] | None = None,
         *,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for featured albums.
+        Get Qobuz catalog information for featured artists.
 
         Parameters
         ----------
-        genre_ids : int, str, or list[int | str]; optional
+        genre_ids : int, str, or Collection[int | str]; optional
             Qobuz IDs of the genres used to filter the featured artists
             toreturn.
 
@@ -1340,9 +1349,11 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             "artists", genre_ids=genre_ids, limit=limit, offset=offset
         )
 
-    def follow_artists(self, artist_ids: list[int | str], /) -> None:
+    def follow_artists(
+        self, artist_ids: Collection[int | str], /
+    ) -> dict[str, str]:
         """
-        Follow one or more artists.
+        Favorite one or more artists.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1356,7 +1367,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        artist_ids : int, str, or list[int | str]; positional-only
+        artist_ids : int, str, or Collection[int | str]; positional-only
             Qobuz IDs of the artists.
 
             **Examples**: :code:`865362`, :code:`"21473137"`,
@@ -1364,16 +1375,18 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the artists were favorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
         return self._client.favorites.save_items(artist_ids=artist_ids)
 
-    def unfollow_artists(self, artist_ids: list[int | str], /) -> None:
+    def unfollow_artists(
+        self, artist_ids: Collection[int | str], /
+    ) -> dict[str, str]:
         """
-        Unfollow one or more artists.
+        Unfavorite one or more artists.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1387,7 +1400,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        artist_ids : int, str, or list[int | str]; positional-only
+        artist_ids : int, str, or Collection[int | str]; positional-only
             Qobuz IDs of the artists.
 
             **Examples**: :code:`865362`, :code:`"21473137"`,
@@ -1395,8 +1408,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the artists were unfavorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -1410,7 +1423,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get the current user's followed artists.
+        Get the current user's favorite artists.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1484,7 +1497,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
     def is_following_artist(self, artist_id: int | str, /) -> dict[str, bool]:
         """
-        Check whether the current user is following a specific artist.
+        Check whether the current user has an artist favorited.
 
         Parameters
         ----------
@@ -1496,7 +1509,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         is_following : dict[str, bool]
-            Whether the current user follows the artist.
+            Whether the current user has the artist favorited.
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
@@ -1504,9 +1517,9 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
     def toggle_artist_followed(
         self, artist_id: int | str, /
-    ) -> dict[str, str]:
+    ) -> dict[str, bool]:
         """
-        Toggle the follow status of an artist.
+        Toggle the favorite status of an artist.
 
         Parameters
         ----------
@@ -1517,10 +1530,10 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, bool]
+            Whether the artist is now favorited.
 
-            **Sample response**: :code:`{"status": "success"}`.
+            **Sample response**: :code:`{"status": <bool>}`.
         """
         return self._client.favorites.toggle_item_saved("artist", artist_id)
 

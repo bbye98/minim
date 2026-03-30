@@ -783,7 +783,7 @@ class APIClient(ABC):
         )
         if user_agent is not None:
             self._client.headers["user-agent"] = ResourceAPI._prepare_string(
-                "user_agent", user_agent
+                "user_agent", user_agent, allow_blank=True
             )
 
     def __enter__(self) -> "APIClient":
