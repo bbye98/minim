@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class EpisodesAPI(SpotifyResourceAPI):
@@ -16,10 +22,12 @@ class EpisodesAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="playback")
     def get_episodes(
         self,
-        episode_ids: str | list[str],
+        episode_ids: str | Collection[str],
         /,
         *,
         country_code: str | None = None,
@@ -32,7 +40,8 @@ class EpisodesAPI(SpotifyResourceAPI):
         /documentation/web-api/reference/get-multiple-episodes>`_: Get
         Spotify catalog information for multiple show episodes.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -54,7 +63,7 @@ class EpisodesAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or list[str]; positional-only
+        episode_ids : str or Collection[str]; positional-only
             Spotify IDs of the show episodes. A maximum of 50 IDs can be
             sent in a request.
 
@@ -257,15 +266,17 @@ class EpisodesAPI(SpotifyResourceAPI):
         )
 
     @_copy_docstring(UsersAPI.save_episodes)
-    def save_episodes(self, episode_ids: str | list[str], /) -> None:
+    def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
         self._client.users.save_episodes(episode_ids)
 
     @_copy_docstring(UsersAPI.remove_saved_episodes)
-    def remove_saved_episodes(self, episode_ids: str | list[str], /) -> None:
+    def remove_saved_episodes(
+        self, episode_ids: str | Collection[str], /
+    ) -> None:
         self._client.users.remove_saved_episodes(episode_ids)
 
     @_copy_docstring(UsersAPI.are_episodes_saved)
     def are_episodes_saved(
-        self, episode_ids: str | list[str], /
+        self, episode_ids: str | Collection[str], /
     ) -> list[bool]:
         return self._client.users.are_episodes_saved(episode_ids)

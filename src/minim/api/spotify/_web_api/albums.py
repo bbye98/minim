@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class AlbumsAPI(SpotifyResourceAPI):
@@ -16,9 +22,15 @@ class AlbumsAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="popularity")
     def get_albums(
-        self, album_ids: str | list[str], /, *, country_code: str | None = None
+        self,
+        album_ids: str | Collection[str],
+        /,
+        *,
+        country_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Album <https://developer.spotify.com/documentation
@@ -42,7 +54,7 @@ class AlbumsAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or list[str]; positional-only
+        album_ids : str or Collection[str]; positional-only
             Spotify IDs of the albums. A maximum of 20 IDs can be sent
             in a request.
 
@@ -367,8 +379,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Spotify metadata for the tracks in the
-            album.
+            Page of Spotify metadata for the album's tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -450,15 +461,17 @@ class AlbumsAPI(SpotifyResourceAPI):
         )
 
     @_copy_docstring(UsersAPI.save_albums)
-    def save_albums(self, album_ids: str | list[str], /) -> None:
+    def save_albums(self, album_ids: str | Collection[str], /) -> None:
         self._client.users.save_albums(album_ids)
 
     @_copy_docstring(UsersAPI.remove_saved_albums)
-    def remove_saved_albums(self, album_ids: str | list[str], /) -> None:
+    def remove_saved_albums(self, album_ids: str | Collection[str], /) -> None:
         self._client.users.remove_saved_albums(album_ids)
 
     @_copy_docstring(UsersAPI.are_albums_saved)
-    def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
+    def are_albums_saved(
+        self, album_ids: str | Collection[str], /
+    ) -> list[bool]:
         return self._client.users.are_albums_saved(album_ids)
 
     @TTLCache.cached_method(ttl="daily")
@@ -490,8 +503,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of Spotify metadata for the featured new
-            releases.
+            Page of Spotify metadata for the featured new releases.
 
             .. admonition:: Sample response
                :class: response dropdown

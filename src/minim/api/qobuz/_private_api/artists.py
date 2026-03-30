@@ -1455,8 +1455,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Qobuz metadata for artists in the user's
-            favorites.
+            Page of Qobuz metadata for artists in the user's favorites.
 
             .. admonition:: Sample response
                :class: response dropdown

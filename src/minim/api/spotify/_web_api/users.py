@@ -1,8 +1,14 @@
+from __future__ import annotations
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class UsersAPI(SpotifyResourceAPI):
@@ -28,6 +34,8 @@ class UsersAPI(SpotifyResourceAPI):
     }
     _TIME_RANGES = {"long_term", "medium_term", "short_term"}
 
+    __slots__ = ()
+
     @classmethod
     def _validate_time_range(cls, time_range: str, /) -> None:
         """
@@ -48,7 +56,11 @@ class UsersAPI(SpotifyResourceAPI):
             )
 
     def _manage_followed_people(
-        self, method: str, resource_type: str, resource_ids: str | list[str], /
+        self,
+        method: str,
+        resource_type: str,
+        resource_ids: str | Collection[str],
+        /,
     ) -> None:
         """
         Follow or unfollow one or more artists or Spotify users.
@@ -77,7 +89,7 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Valid values**: :code:`"artists"`, :code:`"users"`.
 
-        resource_ids : str or list[str]; positional-only
+        resource_ids : str or Collection[str]; positional-only
             Spotify IDs of the artists or users. A maximum of 50 IDs can
             be sent in a request.
         """
@@ -95,7 +107,7 @@ class UsersAPI(SpotifyResourceAPI):
         )
 
     def _is_following_people(
-        self, resource_type: str, resource_ids: str | list[str], /
+        self, resource_type: str, resource_ids: str | Collection[str], /
     ) -> list[bool]:
         """
         Check whether the current user is following one or more artists
@@ -121,7 +133,7 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Valid values**: :code:`"artists"`, :code:`"users"`.
 
-        resource_ids : str or list[str]; positional-only
+        resource_ids : str or Collection[str]; positional-only
             Spotify IDs of the artists or users. A maximum of 50 IDs can
             be sent in a request.
 
@@ -159,7 +171,8 @@ class UsersAPI(SpotifyResourceAPI):
         Get Spotify catalog information for items of a resource type
         saved in the current user's library.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -216,8 +229,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify metadata for the user's saved
-            items.
+            Page of Spotify metadata for the user's saved items.
         """
         params = {}
         if country_code is not None:
@@ -237,7 +249,7 @@ class UsersAPI(SpotifyResourceAPI):
         self,
         method: str,
         resource_type: str,
-        resource_ids: str | list[str],
+        resource_ids: str | Collection[str],
         /,
         *,
         limit: int = 50,
@@ -271,7 +283,7 @@ class UsersAPI(SpotifyResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
             :code:`"episodes"`, :code:`"shows"`.
 
-        resource_ids : str or list[str]; positional-only
+        resource_ids : str or Collection[str]; positional-only
             Spotify IDs of the items, provided as either a
             comma-separated string or a list of strings.
 
@@ -290,7 +302,7 @@ class UsersAPI(SpotifyResourceAPI):
     def _are_entities_saved(
         self,
         resource_type: str,
-        resource_ids: str | list[str],
+        resource_ids: str | Collection[str],
         /,
         *,
         limit: int = 50,
@@ -319,7 +331,7 @@ class UsersAPI(SpotifyResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
             :code:`"episodes"`, :code:`"shows"`, :code:`"tracks"`.
 
-        resource_ids : str or list[str]; positional-only
+        resource_ids : str or Collection[str]; positional-only
             Spotify IDs of the items, provided as either a
             comma-separated string or a list of strings.
 
@@ -346,7 +358,7 @@ class UsersAPI(SpotifyResourceAPI):
         """
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-current-users-profile>`__: Get detailed profile information
+        /get-current-users-profile>`__: Get Spotify profile information
         for the current user.
 
         .. admonition:: Authorization scopes and user authentication
@@ -374,7 +386,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         profile : dict[str, Any]
-            Current user's profile information.
+            Spotify profile information for the current user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -418,11 +430,11 @@ class UsersAPI(SpotifyResourceAPI):
         """
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-current-users-profile>`__: Get detailed profile information
+        /get-current-users-profile>`__: Get Spotify profile information
         for the current user․
         `Users > Get User's Profile <https://developer.spotify.com
         /documentation/web-api/reference/get-users-profile>`__: Get
-        public profile information for a Spotify user.
+        Spotify profile information for a user.
 
         .. admonition:: Authorization scopes
            :class: entitlement
@@ -457,7 +469,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         profile : dict[str, Any]
-            User's profile information.
+            Spotify profile information for the user.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -545,7 +557,8 @@ class UsersAPI(SpotifyResourceAPI):
         /get-users-top-artists-and-tracks>`_: Get Spotify catalog
         information for the current user's top artists or tracks.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -604,8 +617,8 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify metadata for the current user's top
-            artists or tracks.
+            Page of Spotify metadata for the current user's top artists
+            or tracks.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -889,8 +902,8 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Spotify metadata for the artists followed by the
-            current user.
+            Spotify metadata for the artists followed by the current
+            user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -949,7 +962,7 @@ class UsersAPI(SpotifyResourceAPI):
             "GET", "me/following", params=params
         ).json()
 
-    def follow_artists(self, artist_ids: str | list[str], /) -> None:
+    def follow_artists(self, artist_ids: str | Collection[str], /) -> None:
         """
         `Users > Follow Artists <https://developer.spotify.com
         /documentation/web-api/reference/follow-artists-users>`_: Follow
@@ -969,7 +982,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        artist_ids : str or list[str]; positional-only
+        artist_ids : str or Collection[str]; positional-only
             Spotify IDs of the artists. A maximum of 50 IDs can be sent
             in a request.
 
@@ -985,7 +998,7 @@ class UsersAPI(SpotifyResourceAPI):
         )
         return self._manage_followed_people("PUT", "artists", artist_ids)
 
-    def follow_users(self, user_ids: str | list[str], /) -> None:
+    def follow_users(self, user_ids: str | Collection[str], /) -> None:
         """
         `Users > Follow Users <https://developer.spotify.com
         /documentation/web-api/reference/follow-artists-users>`_: Follow
@@ -1005,7 +1018,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        user_ids : str or list[str]; positional-only
+        user_ids : str or Collection[str]; positional-only
             Spotify user IDs. A maximum of 50 IDs can be sent in a
             request.
 
@@ -1017,7 +1030,7 @@ class UsersAPI(SpotifyResourceAPI):
         )
         return self._manage_followed_people("PUT, users", user_ids)
 
-    def unfollow_artists(self, artist_ids: str | list[str], /) -> None:
+    def unfollow_artists(self, artist_ids: str | Collection[str], /) -> None:
         """
         `Users > Unfollow Artists <https://developer.spotify.com
         /documentation/web-api/reference/unfollow-artists-users>`_:
@@ -1037,7 +1050,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        artist_ids : str or list[str]; positional-only
+        artist_ids : str or Collection[str]; positional-only
             Spotify IDs of the artists. A maximum of 50 IDs can be sent
             in a request.
 
@@ -1053,7 +1066,7 @@ class UsersAPI(SpotifyResourceAPI):
         )
         return self._manage_followed_people("DELETE", "artists", artist_ids)
 
-    def unfollow_users(self, user_ids: str | list[str], /) -> None:
+    def unfollow_users(self, user_ids: str | Collection[str], /) -> None:
         """
         `Users > Unfollow Users <https://developer.spotify.com
         /documentation/web-api/reference/unfollow-artists-users>`_:
@@ -1073,7 +1086,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        user_ids : str or list[str]; positional-only
+        user_ids : str or Collection[str]; positional-only
             Spotify user IDs. A maximum of 50 IDs can be sent in a
             request.
 
@@ -1087,7 +1100,7 @@ class UsersAPI(SpotifyResourceAPI):
 
     @TTLCache.cached_method(ttl="user")
     def is_following_artists(
-        self, artist_ids: str | list[str], /
+        self, artist_ids: str | Collection[str], /
     ) -> list[bool]:
         """
         `Users > Check If Current User Follows Artists
@@ -1110,7 +1123,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        artist_ids : str or list[str]; positional-only
+        artist_ids : str or Collection[str]; positional-only
             Spotify IDs of the artists. A maximum of 50 IDs can be sent
             in a request.
 
@@ -1134,7 +1147,9 @@ class UsersAPI(SpotifyResourceAPI):
         return self._is_following_people("artists", artist_ids)
 
     @TTLCache.cached_method(ttl="user")
-    def is_following_users(self, user_ids: str | list[str], /) -> list[bool]:
+    def is_following_users(
+        self, user_ids: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Users > Check If Current User Follows Users
         <https://developer.spotify.com/documentation/web-api/reference
@@ -1156,7 +1171,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        user_ids : str or list[str]; positional-only
+        user_ids : str or Collection[str]; positional-only
             Spotify user IDs. A maximum of 50 IDs can be sent in a
             request.
 
@@ -1234,7 +1249,8 @@ class UsersAPI(SpotifyResourceAPI):
         Spotify catalog information for the albums saved in the current
         user's library.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -1419,7 +1435,7 @@ class UsersAPI(SpotifyResourceAPI):
             "albums", country_code=country_code, limit=limit, offset=offset
         )
 
-    def save_albums(self, album_ids: str | list[str], /) -> None:
+    def save_albums(self, album_ids: str | Collection[str], /) -> None:
         """
         `Albums > Save Albums for Current User
         <https://developer.spotify.com/documentation/web-api/reference
@@ -1440,7 +1456,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or list[str]; positional-only
+        album_ids : str or Collection[str]; positional-only
             Spotify IDs of the albums. A maximum of 20 IDs can be sent
             in a request.
 
@@ -1456,7 +1472,7 @@ class UsersAPI(SpotifyResourceAPI):
         )
         self._manage_saved_entities("PUT", "albums", album_ids, limit=20)
 
-    def remove_saved_albums(self, album_ids: str | list[str], /) -> None:
+    def remove_saved_albums(self, album_ids: str | Collection[str], /) -> None:
         """
         `Albums > Remove User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
@@ -1477,7 +1493,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or list[str]; positional-only
+        album_ids : str or Collection[str]; positional-only
             Spotify IDs of the albums. A maximum of 20 IDs can be sent
             in a request.
 
@@ -1494,7 +1510,9 @@ class UsersAPI(SpotifyResourceAPI):
         self._manage_saved_entities("DELETE", "albums", album_ids, limit=20)
 
     @TTLCache.cached_method(ttl="user")
-    def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
+    def are_albums_saved(
+        self, album_ids: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Albums > Check User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
@@ -1515,7 +1533,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or list[str]; positional-only
+        album_ids : str or Collection[str]; positional-only
             Spotify IDs of the albums. A maximum of 20 IDs can be sent
             in a request.
 
@@ -1665,7 +1683,7 @@ class UsersAPI(SpotifyResourceAPI):
             "audiobooks", country_code=country_code, limit=limit, offset=offset
         )
 
-    def save_audiobooks(self, audiobook_ids: str | list[str], /) -> None:
+    def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
         """
         `Audiobooks > Save Audiobooks for Current User
         <https://developer.spotify.com/documentation/web-api/reference
@@ -1686,7 +1704,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        audiobook_ids : str or list[str]; positional-only
+        audiobook_ids : str or Collection[str]; positional-only
             Spotify IDs of the audiobooks. A maximum of 50 IDs can be
             sent in a request.
 
@@ -1703,7 +1721,7 @@ class UsersAPI(SpotifyResourceAPI):
         self._manage_saved_entities("PUT", "audiobooks", audiobook_ids)
 
     def remove_saved_audiobooks(
-        self, audiobook_ids: str | list[str], /
+        self, audiobook_ids: str | Collection[str], /
     ) -> None:
         """
         `Audiobooks > Remove User's Saved Audiobooks
@@ -1725,7 +1743,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        audiobook_ids : str or list[str]; positional-only
+        audiobook_ids : str or Collection[str]; positional-only
             Spotify IDs of the audiobooks. A maximum of 50 IDs can be
             sent in a request.
 
@@ -1743,7 +1761,7 @@ class UsersAPI(SpotifyResourceAPI):
 
     @TTLCache.cached_method(ttl="user")
     def are_audiobooks_saved(
-        self, audiobook_ids: str | list[str], /
+        self, audiobook_ids: str | Collection[str], /
     ) -> list[bool]:
         """
         `Audiobooks > Check User's Saved Audiobooks
@@ -1765,7 +1783,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        audiobook_ids : str or list[str]; positional-only
+        audiobook_ids : str or Collection[str]; positional-only
             Spotify IDs of the audiobooks. A maximum of 50 IDs can be
             sent in a request.
 
@@ -1801,7 +1819,8 @@ class UsersAPI(SpotifyResourceAPI):
         /get-multiple-episodes>`_: Get Spotify catalog information for
         the show episodes saved in the current user's library.
 
-        .. admonition:: Authorization scopes and third-party application mode
+        .. admonition:: Authorization scopes and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -1960,7 +1979,7 @@ class UsersAPI(SpotifyResourceAPI):
             offset=offset,
         )
 
-    def save_episodes(self, episode_ids: str | list[str], /) -> None:
+    def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
         """
         `Episodes > Save Episodes for Current User
         <https://developer.spotify.com/documentation/web-api/reference
@@ -1981,7 +2000,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or list[str]; positional-only
+        episode_ids : str or Collection[str]; positional-only
             Spotify IDs of the show episodes. A maximum of 50 IDs can be
             sent in a request.
 
@@ -1997,7 +2016,9 @@ class UsersAPI(SpotifyResourceAPI):
         )
         self._manage_saved_entities("PUT", "episodes", episode_ids)
 
-    def remove_saved_episodes(self, episode_ids: str | list[str], /) -> None:
+    def remove_saved_episodes(
+        self, episode_ids: str | Collection[str], /
+    ) -> None:
         """
         `Episodes > Remove User's Saved Episodes
         <https://developer.spotify.com/documentation/web-api/reference
@@ -2018,7 +2039,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or list[str]; positional-only
+        episode_ids : str or Collection[str]; positional-only
             Spotify IDs of the show episodes. A maximum of 50 IDs can be
             sent in a request.
 
@@ -2036,7 +2057,7 @@ class UsersAPI(SpotifyResourceAPI):
 
     @TTLCache.cached_method(ttl="user")
     def are_episodes_saved(
-        self, episode_ids: str | list[str], /
+        self, episode_ids: str | Collection[str], /
     ) -> list[bool]:
         """
         `Episodes > Check User's Saved Episodes
@@ -2058,7 +2079,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or list[str]; positional-only
+        episode_ids : str or Collection[str]; positional-only
             Spotify IDs of the show episodes. A maximum of 50 IDs can be
             sent in a request.
 
@@ -2122,8 +2143,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Spotify metadata for the current user's
-            playlists.
+            Page of Spotify metadata for the current user's playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2329,7 +2349,8 @@ class UsersAPI(SpotifyResourceAPI):
         """
         `Shows > Get User's Saved Shows <https://developer.spotify.com
         /documentation/web-api/reference/get-users-saved-shows>`_: Get
-        the shows saved in the current user's library.
+        Spotify catalog information for shows saved in the current
+        user's library.
 
         .. admonition:: Authorization scope
            :class: entitlement
@@ -2421,7 +2442,7 @@ class UsersAPI(SpotifyResourceAPI):
         )
         return self._get_my_saved_entities("shows", limit=limit, offset=offset)
 
-    def save_shows(self, show_ids: str | list[str], /) -> None:
+    def save_shows(self, show_ids: str | Collection[str], /) -> None:
         """
         `Shows > Save Shows for Current User
         <https://developer.spotify.com/documentation/web-api/reference
@@ -2442,7 +2463,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        show_ids : str or list[str]; positional-only
+        show_ids : str or Collection[str]; positional-only
             Spotify IDs of the shows. A maximum of 50 IDs can be sent in
             a request.
 
@@ -2456,7 +2477,7 @@ class UsersAPI(SpotifyResourceAPI):
         self._client._require_scopes("shows.save_shows", "user-library-modify")
         self._manage_saved_entities("PUT", "shows", show_ids)
 
-    def remove_saved_shows(self, show_ids: str | list[str], /) -> None:
+    def remove_saved_shows(self, show_ids: str | Collection[str], /) -> None:
         """
         `Shows > Remove User's Saved Shows
         <https://developer.spotify.com/documentation/web-api/reference
@@ -2477,7 +2498,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        show_ids : str or list[str]; positional-only
+        show_ids : str or Collection[str]; positional-only
             Spotify IDs of the shows. A maximum of 50 IDs can be sent in
             a request.
 
@@ -2494,7 +2515,9 @@ class UsersAPI(SpotifyResourceAPI):
         self._manage_saved_entities("DELETE", "shows", show_ids)
 
     @TTLCache.cached_method(ttl="user")
-    def are_shows_saved(self, show_ids: str | list[str], /) -> list[bool]:
+    def are_shows_saved(
+        self, show_ids: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Shows > Check User's Saved Shows
         <https://developer.spotify.com/documentation/web-api/reference
@@ -2515,7 +2538,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        show_ids : str or list[str]; positional-only
+        show_ids : str or Collection[str]; positional-only
             Spotify IDs of the shows. A maximum of 50 IDs can be sent in
             a request.
 
@@ -2548,9 +2571,11 @@ class UsersAPI(SpotifyResourceAPI):
         """
         `Tracks > Get User's Saved Tracks <https://developer.spotify.com
         /documentation/web-api/reference/get-users-saved-tracks>`_: Get
-        the tracks saved in the current user's library.
+        Spotify catalog information for tracks saved in the current
+        user's library.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -2603,8 +2628,7 @@ class UsersAPI(SpotifyResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Spotify metadata for the user's saved
-            tracks.
+            Page of Spotify metadata for the user's saved tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2811,7 +2835,7 @@ class UsersAPI(SpotifyResourceAPI):
             "PUT", "me/tracks", json={"timestamped_ids": track_ids}
         )
 
-    def remove_saved_tracks(self, track_ids: str | list[str], /) -> None:
+    def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
         """
         `Tracks > Remove User's Saved Tracks
         <https://developer.spotify.com/documentation/web-api/reference
@@ -2832,7 +2856,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        track_ids : str or list[str]; positional-only
+        track_ids : str or Collection[str]; positional-only
             Spotify IDs of the tracks. A maximum of 50 IDs can be sent
             in a request.
 
@@ -2849,7 +2873,9 @@ class UsersAPI(SpotifyResourceAPI):
         self._manage_saved_entities("DELETE", "tracks", track_ids)
 
     @TTLCache.cached_method(ttl="user")
-    def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
+    def are_tracks_saved(
+        self, track_ids: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Tracks > Check User's Saved Tracks
         <https://developer.spotify.com/documentation/web-api/reference
@@ -2870,7 +2896,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        track_ids : str or list[str]; positional-only
+        track_ids : str or Collection[str]; positional-only
             Spotify IDs of the tracks. A maximum of 50 IDs can be sent
             in a request.
 
@@ -2892,7 +2918,7 @@ class UsersAPI(SpotifyResourceAPI):
         )
         return self._are_entities_saved("tracks", track_ids)
 
-    def save_items(self, spotify_uris: str | list[str], /) -> None:
+    def save_items(self, spotify_uris: str | Collection[str], /) -> None:
         """
         `Library > Save Items to Library <https://developer.spotify.com
         /documentation/web-api/reference/save-library-items>`_: Save one
@@ -2922,7 +2948,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        spotify_uris : str or list[str]; positional-only
+        spotify_uris : str or Collection[str]; positional-only
             Comma-separated string or list of Spotify URIs. A maximum of
             40 URIs can be sent in a request.
         """
@@ -2948,7 +2974,9 @@ class UsersAPI(SpotifyResourceAPI):
             },
         )
 
-    def remove_saved_items(self, spotify_uris: str | list[str], /) -> None:
+    def remove_saved_items(
+        self, spotify_uris: str | Collection[str], /
+    ) -> None:
         """
         `Library > Remove Items from Library
         <https://developer.spotify.com/documentation/web-api/reference
@@ -2979,7 +3007,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        spotify_uris : str or list[str]; positional-only
+        spotify_uris : str or Collection[str]; positional-only
             Comma-separated string or list of Spotify URIs. A maximum of
             40 URIs can be sent in a request.
         """
@@ -3006,7 +3034,9 @@ class UsersAPI(SpotifyResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def are_items_saved(self, spotify_uris: str | list[str], /) -> list[bool]:
+    def are_items_saved(
+        self, spotify_uris: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Library > Check User's Saved Items
         <https://developer.spotify.com/documentation/web-api/reference
@@ -3038,7 +3068,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        spotify_uris : str or list[str]; positional-only
+        spotify_uris : str or Collection[str]; positional-only
             Comma-separated string or list of Spotify URIs. A maximum of
             40 URIs can be sent in a request.
 

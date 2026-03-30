@@ -1,8 +1,14 @@
+from __future__ import annotations
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PlayerAPI(SpotifyResourceAPI):
@@ -18,6 +24,8 @@ class PlayerAPI(SpotifyResourceAPI):
 
     _CONTEXT_TYPES = {"album", "artist", "playlist"}
     _REPEAT_MODES = {"track", "context", "off"}
+
+    __slots__ = ()
 
     def _control_playback(
         self,
@@ -63,7 +71,7 @@ class PlayerAPI(SpotifyResourceAPI):
     def get_playback_state(
         self,
         *,
-        supported_item_types: str | list[str] | None = None,
+        supported_item_types: str | Collection[str] | None = None,
         country_code: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -72,7 +80,8 @@ class PlayerAPI(SpotifyResourceAPI):
         /get-information-about-the-users-current-playback>`_: Get the
         current playback state.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -95,7 +104,8 @@ class PlayerAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        supported_item_types : str or list[str]; keyword-only; optional
+        supported_item_types : str or Collection[str]; keyword-only; \
+        optional
             Item types supported by the client.
 
             .. note::
@@ -128,8 +138,8 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         state : dict[str, Any]
-            Playback state and Spotify metadata for the
-            currently playing item.
+            Playback state and Spotify metadata for the currently 
+            playing item.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -387,7 +397,7 @@ class PlayerAPI(SpotifyResourceAPI):
     def get_currently_playing(
         self,
         *,
-        supported_item_types: str | list[str] | None = None,
+        supported_item_types: str | Collection[str] | None = None,
         country_code: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -396,7 +406,8 @@ class PlayerAPI(SpotifyResourceAPI):
         /get-the-users-currently-playing-track>`_: Get playback state
         and Spotify catalog information for the currently playing item.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -417,7 +428,7 @@ class PlayerAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        supported_item_types : str or list[str]; keyword-only; optional
+        supported_item_types : str or Collection[str]; keyword-only; optional
             Item types supported by the client.
 
             .. note::
@@ -450,8 +461,8 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         item : dict[str, Any]
-            Playback state and Spotify metadata for the
-            currently playing item.
+            Playback state and Spotify metadata for the currently
+            playing item.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -601,7 +612,7 @@ class PlayerAPI(SpotifyResourceAPI):
 
     def start_playback(
         self,
-        uris: str | list[str],
+        uris: str | Collection[str],
         /,
         *,
         device_id: str | None = None,
@@ -632,7 +643,7 @@ class PlayerAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        uris : str or list[str]; positional-only
+        uris : str or Collection[str]; positional-only
             Spotify URIs to play. For context playback, provide an
             album, artist, or playlist URI. For item playback, provide
             one or more track URIs.
@@ -1089,7 +1100,8 @@ class PlayerAPI(SpotifyResourceAPI):
         /get-recently-played>`_: Get Spotify catalog information for
         items recently played by the current user.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -1137,8 +1149,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify metadata for the recently played
-            items.
+            Page of Spotify metadata for the recently played items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1284,10 +1295,11 @@ class PlayerAPI(SpotifyResourceAPI):
     def get_queue(self) -> dict[str, Any]:
         """
         `Player > Get the User's Queue <https://developer.spotify.com
-        /documentation/web-api/reference/get-queue>`_: Get the currently
-        playing item and queued items.
+        /documentation/web-api/reference/get-queue>`_: Get Spotify
+        catalog information for the currently playing and queued items.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -1317,8 +1329,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         queue : dict[str, Any]
-            Spotify metadata for the currently playing item and
-            queued items.
+            Spotify metadata for the currently playing and queued items.
 
             .. admonition:: Sample response
                :class: response dropdown

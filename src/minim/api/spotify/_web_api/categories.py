@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class CategoriesAPI(SpotifyResourceAPI):
@@ -14,6 +18,8 @@ class CategoriesAPI(SpotifyResourceAPI):
        :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
+
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_category(
@@ -125,7 +131,7 @@ class CategoriesAPI(SpotifyResourceAPI):
         Returns
         -------
         categories : dict[str, Any]
-            Page of Spotify metadata for available categories.
+            Page of Spotify metadata for the available categories.
 
             .. admonition:: Sample response
                :class: response dropdown

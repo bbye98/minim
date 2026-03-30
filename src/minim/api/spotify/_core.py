@@ -1,7 +1,8 @@
+from __future__ import annotations
 from datetime import datetime
 from json.decoder import JSONDecodeError
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 import warnings
 
@@ -23,7 +24,11 @@ from ._web_api.tracks import TracksAPI
 from ._web_api.users import UsersAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
     import httpx
+
+    from ..._types import Collection
 
 
 class SpotifyWebAPIClient(OAuth2APIClient):
@@ -62,6 +67,24 @@ class SpotifyWebAPIClient(OAuth2APIClient):
     BASE_URL = "https://api.spotify.com/v1"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
 
+    __slots__ = (
+        "albums",
+        "artists",
+        "audiobooks",
+        "categories",
+        "chapters",
+        "episodes",
+        "genres",
+        "library",
+        "markets",
+        "player",
+        "playlists",
+        "search",
+        "shows",
+        "tracks",
+        "users",
+    )
+
     def __init__(
         self,
         *,
@@ -70,7 +93,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | set[str] = "",
+        scopes: str | Collection[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
         expires_at: str | datetime | None = None,
@@ -138,7 +161,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
             Redirect URI. Required for the Authorization Code and
             Authorization Code with PKCE flows.
 
-        scopes : str or set[str]; keyword-only; optional
+        scopes : str or Collection[str]; keyword-only; optional
             Authorization scopes requested by the client to access user
             resources.
 
@@ -270,7 +293,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
 
     @classmethod
     def resolve_scopes(
-        cls, matches: str | list[str] | None = None
+        cls, matches: str | Collection[str] | None = None
     ) -> set[str]:
         """
         Resolve one or more scope categories or substrings into a set of
@@ -278,7 +301,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
 
         Parameters
         ----------
-        matches : str or list[str]; optional
+        matches : str or Collection[str]; optional
             Categories and/or substrings to filter scopes by. If not
             specified, all available scopes are returned.
 

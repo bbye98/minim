@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class SearchAPI(SpotifyResourceAPI):
@@ -25,12 +31,14 @@ class SearchAPI(SpotifyResourceAPI):
         "track",
     }
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="search")
     def search(
         self,
         query: str,
         /,
-        item_types: str | list[str],
+        item_types: str | Collection[str],
         *,
         external_content: str | None = None,
         country_code: str | None = None,
@@ -96,7 +104,7 @@ class SearchAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"remaster track:Doxy artist:Miles Davis"`.
 
-        item_types : str or list[str]
+        item_types : str or Collection[str]
             Types of items to return.
 
             **Valid values**: :code:`"album"`, :code:`"artist"`,

@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class ShowsAPI(SpotifyResourceAPI):
@@ -16,9 +22,15 @@ class ShowsAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="playback")
     def get_shows(
-        self, show_ids: str | list[str], /, *, country_code: str | None = None
+        self,
+        show_ids: str | Collection[str],
+        /,
+        *,
+        country_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Shows > Get Show <https://developer.spotify.com/documentation
@@ -48,7 +60,7 @@ class ShowsAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        show_ids : str or list[str]; positional-only
+        show_ids : str or Collection[str]; positional-only
             Spotify IDs of the shows. A maximum of 50 IDs can be sent in
             a request.
 
@@ -270,7 +282,8 @@ class ShowsAPI(SpotifyResourceAPI):
         /documentation/web-api/reference/get-a-shows-episodes>`_: Get
         Spotify catalog information for episodes in a show.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -403,13 +416,15 @@ class ShowsAPI(SpotifyResourceAPI):
         )
 
     @_copy_docstring(UsersAPI.save_shows)
-    def save_shows(self, show_ids: str | list[str], /) -> None:
+    def save_shows(self, show_ids: str | Collection[str], /) -> None:
         self._client.users.save_shows(show_ids)
 
     @_copy_docstring(UsersAPI.remove_saved_shows)
-    def remove_saved_shows(self, show_ids: str | list[str], /) -> None:
+    def remove_saved_shows(self, show_ids: str | Collection[str], /) -> None:
         self._client.users.remove_saved_shows(show_ids)
 
     @_copy_docstring(UsersAPI.are_shows_saved)
-    def are_shows_saved(self, show_ids: str | list[str], /) -> list[bool]:
+    def are_shows_saved(
+        self, show_ids: str | Collection[str], /
+    ) -> list[bool]:
         return self._client.users.are_shows_saved(show_ids)

@@ -1,8 +1,12 @@
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
     from .. import SpotifyWebAPIClient
 
 
@@ -14,9 +18,11 @@ class SpotifyResourceAPI(ResourceAPI):
     _AUDIO_TYPES = {"episode", "track"}
     _client: "SpotifyWebAPIClient"
 
+    __slots__ = ()
+
     @staticmethod
     def _prepare_spotify_ids(
-        spotify_ids: str | list[str],
+        spotify_ids: str | Collection[str],
         /,
         *,
         limit: int,
@@ -27,7 +33,7 @@ class SpotifyResourceAPI(ResourceAPI):
 
         Parameters
         ----------
-        spotify_ids : str or list[str]; positional-only
+        spotify_ids : str or Collection[str]; positional-only
             Comma-separated string or list of Spotify IDs.
 
         limit : int; keyword-only

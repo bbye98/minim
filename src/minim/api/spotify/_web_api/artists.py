@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class ArtistsAPI(SpotifyResourceAPI):
@@ -18,8 +24,12 @@ class ArtistsAPI(SpotifyResourceAPI):
 
     _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="popularity")
-    def get_artists(self, artist_ids: str | list[str], /) -> dict[str, Any]:
+    def get_artists(
+        self, artist_ids: str | Collection[str], /
+    ) -> dict[str, Any]:
         """
         `Artists > Get Artist <https://developer.spotify.com
         /documentation/web-api/reference/get-an-artist>`_: Get
@@ -30,7 +40,7 @@ class ArtistsAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        artist_ids : str or list[str]; positional-only
+        artist_ids : str or Collection[str]; positional-only
             Spotify IDs of the artists. A maximum of 50 IDs can be sent
             in a request.
 
@@ -119,7 +129,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         artist_id: str,
         /,
         *,
-        album_types: str | list[str] | None = None,
+        album_types: str | Collection[str] | None = None,
         country_code: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
@@ -127,7 +137,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         """
         `Artists > Get Artist's Albums <https://developer.spotify.com
         /documentation/web-api/reference/get-an-artists-albums>`_: Get
-        Spotify catalog information for an artist's albums.
+        Spotify catalog information for albums by an artist.
 
         Parameters
         ----------
@@ -136,7 +146,7 @@ class ArtistsAPI(SpotifyResourceAPI):
 
             **Example**: :code:`"0TnOYISbd1XYRBk9myaseg"`.
 
-        album_types : str or list[str]; optional
+        album_types : str or Collection[str]; optional
             Album types to return. If not provided, all album types
             will be returned.
 
@@ -260,7 +270,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         `Artists > Get Artist's Top Tracks
         <https://developer.spotify.com/documentation/web-api/reference
         /get-an-artists-top-tracks>`_: Get Spotify catalog information
-        for an artist's top tracks.
+        for top tracks by an artist.
 
         .. admonition:: Third-party application mode
            :class: entitlement dropdown
@@ -397,7 +407,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         `Artists > Get Artist's Related Artists
         <https://developer.spotify.com/documentation/web-api/reference
         /get-an-artists-related-artists>`_: Get Spotify catalog
-        information for artists similar to a given artist.
+        information for related artists.
 
         .. admonition:: Third-party application mode
            :class: entitlement
@@ -475,7 +485,8 @@ class ArtistsAPI(SpotifyResourceAPI):
         /get-users-top-artists-and-tracks>`_: Get Spotify catalog
         information for the current user's top artists.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -529,8 +540,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of Spotify metadata for the current user's top
-            artists.
+            Page of Spotify metadata for the current user's top artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -586,15 +596,15 @@ class ArtistsAPI(SpotifyResourceAPI):
         )
 
     @_copy_docstring(UsersAPI.follow_artists)
-    def follow_artists(self, artist_ids: str | list[str], /) -> None:
+    def follow_artists(self, artist_ids: str | Collection[str], /) -> None:
         self._client.users.follow_artists(artist_ids)
 
     @_copy_docstring(UsersAPI.unfollow_artists)
-    def unfollow_artists(self, artist_ids: str | list[str], /) -> None:
+    def unfollow_artists(self, artist_ids: str | Collection[str], /) -> None:
         self._client.users.unfollow_artists(artist_ids)
 
     @_copy_docstring(UsersAPI.is_following_artists)
     def is_following_artists(
-        self, artist_ids: str | list[str], /
+        self, artist_ids: str | Collection[str], /
     ) -> list[bool]:
         return self._client.users.is_following_artists(artist_ids)

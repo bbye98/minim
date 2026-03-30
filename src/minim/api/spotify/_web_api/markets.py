@@ -1,4 +1,5 @@
-from functools import cached_property
+from __future__ import annotations
+
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
@@ -14,7 +15,9 @@ class MarketsAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
-    @cached_property
+    __slots__ = ()
+
+    @TTLCache.cached_method(ttl="static")
     def available_markets(self) -> set[str]:
         """
         Markets where Spotify is available.
@@ -36,7 +39,11 @@ class MarketsAPI(SpotifyResourceAPI):
             ISO 3166-1 alpha-2 country code.
         """
         self._validate_country_code(market)
-        if "markets" in self.__dict__ and market not in self.available_markets:
+        if (
+            (cache := self._client._cache)
+            and "markets" in cache._store
+            and market not in self.available_markets
+        ):
             markets_str = "', '".join(self.available_markets)
             raise ValueError(
                 f"{market!r} is not a market in which Spotify is "

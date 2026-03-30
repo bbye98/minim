@@ -1,4 +1,4 @@
-from functools import cached_property
+from __future__ import annotations
 
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
@@ -15,7 +15,9 @@ class GenresAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
-    @cached_property
+    __slots__ = ()
+
+    @TTLCache.cached_property(ttl="static")
     def available_seed_genres(self) -> set[str]:
         """
         Available seed genres for track recommendations.
@@ -49,7 +51,9 @@ class GenresAPI(SpotifyResourceAPI):
         seed_genre : str; positional-only
             Seed genre.
         """
-        if "available_seed_genres" in self.__dict__:
+        if (
+            cache := self._client._cache
+        ) and "available_seed_genres" in cache._store:
             if seed_genre not in self.available_seed_genres:
                 raise ValueError(
                     f"Invalid seed genre {seed_genre!r}. Valid values: "

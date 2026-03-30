@@ -1,9 +1,15 @@
+from __future__ import annotations
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PlaylistsAPI(SpotifyResourceAPI):
@@ -17,14 +23,16 @@ class PlaylistsAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="user")
     def get_playlist(
         self,
         playlist_id: str,
         /,
         *,
-        supported_item_types: str | list[str] | None = None,
-        fields: str | list[str] | None = None,
+        supported_item_types: str | Collection[str] | None = None,
+        fields: str | Collection[str] | None = None,
         country_code: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -32,7 +40,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /documentation/web-api/reference/get-playlist>`_: Get Spotify
         catalog information for a playlist.
 
-        .. admonition:: Authorization scopes and third-party application mode
+        .. admonition:: Authorization scopes and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -63,7 +72,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        supported_item_types : str or list[str]; keyword-only; optional
+        supported_item_types : str or Collection[str]; keyword-only; optional
             Item types supported by the client.
 
             .. note::
@@ -79,7 +88,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             **Examples**: :code:`"track"`, :code:`"track,episode"`,
             :code:`["track", "episode"]`.
 
-        fields : str or list[str]; keyword-only; optional
+        fields : str or Collection[str]; keyword-only; optional
             Fields to return. Use a dot separator to specify
             non-recurring fields and parentheses to specify recurring
             fields within objects. Multiple levels of parentheses can be
@@ -443,8 +452,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
         playlist_id: str,
         /,
         *,
-        supported_item_types: str | list[str] | None = None,
-        fields: str | list[str] | None = None,
+        supported_item_types: str | Collection[str] | None = None,
+        fields: str | Collection[str] | None = None,
         country_code: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
@@ -454,7 +463,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /documentation/web-api/reference/get-playlists-tracks>`_: Get
         Spotify catalog information for items in a playlist.
 
-        .. admonition:: Authorization scopes and third-party application mode
+        .. admonition:: Authorization scopes and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -485,7 +495,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        supported_item_types : str or list[str]; keyword-only; optional
+        supported_item_types : str or Collection[str]; keyword-only; \
+        optional
             Item types supported by the client.
 
             .. note::
@@ -501,7 +512,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             **Examples**: :code:`"track"`, :code:`"track,episode"`,
             :code:`["track", "episode"]`.
 
-        fields : str or list[str]; keyword-only; optional
+        fields : str or Collection[str]; keyword-only; optional
             Fields to return. Use a dot separator to specify
             non-recurring fields and parentheses to specify recurring
             fields within objects. Multiple levels of parentheses can be
@@ -770,7 +781,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self,
         playlist_id: str,
         /,
-        uris: str | list[str],
+        uris: str | Collection[str],
         *,
         to_index: int | None = None,
     ) -> dict[str, str]:
@@ -808,7 +819,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        uris : str or list[str]
+        uris : str or Collection[str]
             Spotify URIs of tracks and/or show episodes. A maximum of
             100 URIs can be sent in a request.
 
@@ -958,7 +969,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         ).json()
 
     def replace_playlist_items(
-        self, playlist_id: str, /, uris: str | list[str]
+        self, playlist_id: str, /, uris: str | Collection[str]
     ) -> dict[str, str]:
         """
         `Playlists > Update Playlist Items
@@ -995,7 +1006,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        uris : str or list[str]
+        uris : str or Collection[str]
             Spotify URIs of tracks and/or show episodes. A maximum of
             100 URIs can be sent in a request.
 
@@ -1040,7 +1051,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self,
         playlist_id: str,
         /,
-        uris: str | list[str],
+        uris: str | Collection[str],
         *,
         snapshot_id: str | None = None,
     ) -> dict[str, str]:
@@ -1078,7 +1089,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        uris : str or list[str]
+        uris : str or Collection[str]
             Spotify URIs of tracks and/or show episodes. A maximum of
             100 URIs can be sent in a request.
 
@@ -1293,7 +1304,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         `Playlists > Get Featured Playlists
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-featured-playlists>`_: Get featured playlists.
+        /get-featured-playlists>`_: Get Spotify catalog information for
+        featured playlists.
 
         .. admonition:: Third-party application mode
            :class: entitlement dropdown
@@ -1423,8 +1435,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         `Playlists > Get Category's Playlist
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-a-categories-playlists>`_: Get playlists tagged with a
-        particular category.
+        /get-a-categories-playlists>`_: Get Spotify catalog information
+        for playlists tagged with a particular category.
 
         .. admonition:: Third-party application mode
            :class: entitlement dropdown
@@ -1468,8 +1480,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of Spotify metadata for the playlists in the
-            specified category.
+            Page of Spotify metadata for the playlists in the specified
+            category.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1543,8 +1555,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         `Playlists > Get Playlist Cover Image
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-playlist-cover>`_: Get the cover image associated with a
-        playlist.
+        /get-playlist-cover>`_: Get the cover image for a playlist.
 
         Parameters
         ----------

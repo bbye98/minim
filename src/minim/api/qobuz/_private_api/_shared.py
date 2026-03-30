@@ -39,11 +39,13 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             return PrivateQobuzResourceAPI._prepare_album_ids(
                 album_ids.strip().split(",")
             )
+
         if not isinstance(album_ids, COLLECTION_TYPES):
             raise TypeError(
                 "Qobuz album IDs must be provided as integers, "
                 "strings, or lists of integers and/or strings."
             )
+
         for album_id in album_ids:
             PrivateQobuzResourceAPI._validate_album_id(album_id)
         return ",".join(album_ids)

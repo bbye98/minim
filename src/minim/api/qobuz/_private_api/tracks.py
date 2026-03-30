@@ -11,6 +11,8 @@ from .users import PrivateUsersAPI
 if TYPE_CHECKING:
     from typing import Any
 
+    from ...._types import Collection
+
 
 class PrivateTracksAPI(PrivateQobuzResourceAPI):
     """
@@ -28,16 +30,147 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
     __slots__ = ()
 
+    def _report_streaming_event(
+        self,
+        track_id: int | str,
+        /,
+        *,
+        format_id: int | str,
+        started_at: int | datetime,
+        online: bool,
+        local: bool,
+        user_id: int | str | None = None,
+        credential_id: int | str | None = None,
+        device_id: int | str | None = None,
+        intent: str | None = None,
+        duration: int = 0,
+        purchased: bool | None = None,
+        preview: bool | None = None,
+    ) -> dict[str, str]:
+        """
+        Report a streaming event.
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            Qobuz ID of the track.
+
+            **Examples**: :code:`23929516`, :code:`"344521217"`.
+
+        format_id : int or str; keyword-only
+            Audio format identifier.
+
+            **Valid values**:
+
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+
+        started_at : int or datetime.datetime; keyword-only
+            Unix time at which the streaming started.
+
+        online : bool; keyword-only
+            Whether the streaming was performed online.
+
+        local : bool; keyword-only
+            Whether the streaming was played from a local source
+            (:code:`True`) or from Qobuz servers (:code:`False`).
+
+        user_id : int or str; keyword-only; optional
+            Qobuz ID of the user who streamed the track. If not
+            specified, the current user's Qobuz ID is used.
+
+        credential_id : int or str; keyword-only; optional
+           Qobuz ID of the credentials used for the streaming event.
+
+        device_id : int or str; keyword-only; optional
+           Qobuz ID of the streaming device.
+
+        intent : str; keyword-only; optional
+            Playback mode or intended use of the track.
+
+            **Valid values**:
+
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
+
+            **API default**: :code:`"stream"`.
+
+        duration : int; keyword-only; default: :code:`0`
+            Duration of the streaming event, in seconds.
+
+        purchased : bool; keyword-only; optional
+            Whether the streamed track was purchased.
+
+        preview : bool; keyword-only; optional
+            Whether the streamed track is a 30-second preview instead of
+            the full track.
+
+        Returns
+        -------
+        response : dict[str, str]
+            API JSON response.
+        """
+        self._validate_qobuz_ids(track_id, recursive=False)
+        self._validate_qobuz_ids(format_id, recursive=False)
+        if isinstance(started_at, datetime):
+            started_at = int(started_at.timestamp())
+        self._validate_number("started_at", started_at, int, 0, time.time())
+        self._validate_type("online", online, bool)
+        self._validate_type("local", local, bool)
+        if user_id is None:
+            user_id = self._client._resolve_user_identifier()
+        else:
+            self._validate_qobuz_ids(user_id, recursive=False)
+        event = {
+            "user_id": int(user_id),
+            "track_id": int(track_id),
+            "format_id": int(format_id),
+            "date": started_at,
+            "duration": duration,
+            "online": online,
+            "local": local,
+        }
+        if credential_id is not None:
+            self._validate_qobuz_ids(credential_id, recursive=False)
+            event["credential_id"] = credential_id
+        if device_id is not None:
+            self._validate_qobuz_ids(device_id, recursive=False)
+            event["device_id"] = device_id
+        if intent is not None:
+            intent = self._prepare_string("intent", intent).lower()
+            if intent not in self._INTENTS:
+                raise ValueError(
+                    f"Invalid intent {intent!r}. "
+                    f"Valid values: {self._join_values(self._INTENTS)}."
+                )
+            event["intent"] = intent
+        if purchased is not None:
+            self._validate_type("purchased", purchased, bool)
+            event["purchased"] = purchased
+        if preview is not None:
+            self._validate_type("preview", preview, bool)
+            event["sample"] = preview
+        return self._client._request(
+            "POST",
+            f"track/reportStreaming{'Start' if duration == 0 else 'End'}",
+            json={"events": [event]},
+            signed=True,
+            sig_params=event,
+        ).json()
+
     @TTLCache.cached_method(ttl="popularity")
     def get_tracks(
-        self, track_ids: int | str | list[int | str], /
+        self, track_ids: int | str | Collection[int | str], /
     ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for one or more tracks.
 
         Parameters
         ----------
-        track_ids : int, str, or list[int | str]; positional-only
+        track_ids : int, str, or Collection[int | str]; positional-only
             Qobuz IDs of the tracks.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`,
@@ -515,7 +648,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         intent: str | None = None,
         purchased: bool | None = None,
         preview: bool | None = None,
-    ) -> dict[str, str]:
+    ) -> dict[str, int | str]:
         """
         Report the start of a streaming event.
 
@@ -586,8 +719,8 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, int | str]
+            Whether the streaming start event was reported successfully.
 
             **Sample response**: :code:`{"code": 200,
             "status": "success", "transUId": <str>}`.
@@ -697,8 +830,8 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the streaming end event was reported successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -719,10 +852,10 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         )
 
     def save_tracks(
-        self, track_ids: int | str | list[int | str], /
+        self, track_ids: int | str | Collection[int | str], /
     ) -> dict[str, str]:
         """
-        Save one or more tracks to the current user's favorites.
+        Favorite one or more tracks.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -736,7 +869,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        track_ids : int, str, or list[int | str]; positional-only
+        track_ids : int, str, or Collection[int | str]; positional-only
             Qobuz IDs of the tracks.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`,
@@ -745,18 +878,18 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the tracks were favorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
         return self._client.favorites.save_items(track_ids=track_ids)
 
     def remove_saved_tracks(
-        self, track_ids: int | str | list[int | str], /
+        self, track_ids: int | str | Collection[int | str], /
     ) -> dict[str, str]:
         """
-        Remove one or more tracks from the current user's favorites.
+        Unfavorite one or more tracks.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -770,7 +903,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        track_ids : int, str, or list[int | str]; positional-only
+        track_ids : int, str, or Collection[int | str]; positional-only
             Qobuz IDs of the tracks.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`,
@@ -779,8 +912,8 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API JSON response.
+        status : dict[str, str]
+            Whether the tracks were unfavorited successfully.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -790,8 +923,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for the tracks in the current
-        user's favorites.
+        Get the current user's favorite tracks.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -822,9 +954,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        saved_items : dict[str, Any]
-            Page of Qobuz metadata for tracks in the user's
-            favorites.
+        tracks : dict[str, Any]
+            Page of Qobuz metadata for the current user's favorite
+            tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -949,7 +1081,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
     def is_track_saved(self, track_id: int | str, /) -> dict[str, bool]:
         """
-        Check whether a track is in the current user's favorites.
+        Check whether the current user has a track favorited.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -971,8 +1103,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         saved : dict[str, bool]
-            Whether the current user has the specified track in their
-            favorites.
+            Whether the current user has the track favorited.
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
@@ -980,7 +1111,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
     def toggle_track_saved(self, track_id: int | str, /) -> dict[str, bool]:
         """
-        Toggle the saved status of a track.
+        Toggle the favorite status of a track.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -1001,9 +1132,8 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        saved : dict[str, bool]
-            Whether the current user has the specified track in their
-            favorites.
+        status : dict[str, bool]
+            Whether the track is now favorited.
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
@@ -1034,134 +1164,3 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         return self._client.users.get_track_recommendations(
             seed_track_ids, exclude_track_ids=exclude_track_ids, limit=limit
         )
-
-    def _report_streaming_event(
-        self,
-        track_id: int | str,
-        /,
-        *,
-        format_id: int | str,
-        started_at: int | datetime,
-        online: bool,
-        local: bool,
-        user_id: int | str | None = None,
-        credential_id: int | str | None = None,
-        device_id: int | str | None = None,
-        intent: str | None = None,
-        duration: int = 0,
-        purchased: bool | None = None,
-        preview: bool | None = None,
-    ) -> dict[str, str]:
-        """
-        Report a streaming event.
-
-        Parameters
-        ----------
-        track_id : int or str; positional-only
-            Qobuz ID of the track.
-
-            **Examples**: :code:`23929516`, :code:`"344521217"`.
-
-        format_id : int or str; keyword-only
-            Audio format identifier.
-
-            **Valid values**:
-
-            * :code:`5` – Constant 320 kbps bitrate MP3.
-            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
-
-        started_at : int or datetime.datetime; keyword-only
-            Unix time at which the streaming started.
-
-        online : bool; keyword-only
-            Whether the streaming was performed online.
-
-        local : bool; keyword-only
-            Whether the streaming was played from a local source
-            (:code:`True`) or from Qobuz servers (:code:`False`).
-
-        user_id : int or str; keyword-only; optional
-            Qobuz ID of the user who streamed the track. If not
-            specified, the current user's Qobuz ID is used.
-
-        credential_id : int or str; keyword-only; optional
-           Qobuz ID of the credentials used for the streaming event.
-
-        device_id : int or str; keyword-only; optional
-           Qobuz ID of the streaming device.
-
-        intent : str; keyword-only; optional
-            Playback mode or intended use of the track.
-
-            **Valid values**:
-
-            * :code:`"download"` – Offline download.
-            * :code:`"import"` – Library import.
-            * :code:`"stream"` – Streaming playback.
-
-            **API default**: :code:`"stream"`.
-
-        duration : int; keyword-only; default: :code:`0`
-            Duration of the streaming event, in seconds.
-
-        purchased : bool; keyword-only; optional
-            Whether the streamed track was purchased.
-
-        preview : bool; keyword-only; optional
-            Whether the streamed track is a 30-second preview instead of
-            the full track.
-
-        Returns
-        -------
-        response : dict[str, str]
-            API JSON response.
-        """
-        self._validate_qobuz_ids(track_id, recursive=False)
-        self._validate_qobuz_ids(format_id, recursive=False)
-        if isinstance(started_at, datetime):
-            started_at = int(started_at.timestamp())
-        self._validate_number("started_at", started_at, int, 0, time.time())
-        self._validate_type("online", online, bool)
-        self._validate_type("local", local, bool)
-        if user_id is None:
-            user_id = self._client._resolve_user_identifier()
-        else:
-            self._validate_qobuz_ids(user_id, recursive=False)
-        event = {
-            "user_id": int(user_id),
-            "track_id": int(track_id),
-            "format_id": int(format_id),
-            "date": started_at,
-            "duration": duration,
-            "online": online,
-            "local": local,
-        }
-        if credential_id is not None:
-            self._validate_qobuz_ids(credential_id, recursive=False)
-            event["credential_id"] = credential_id
-        if device_id is not None:
-            self._validate_qobuz_ids(device_id, recursive=False)
-            event["device_id"] = device_id
-        if intent is not None:
-            intent = self._prepare_string("intent", intent).lower()
-            if intent not in self._INTENTS:
-                raise ValueError(
-                    f"Invalid intent {intent!r}. "
-                    f"Valid values: {self._join_values(self._INTENTS)}."
-                )
-            event["intent"] = intent
-        if purchased is not None:
-            self._validate_type("purchased", purchased, bool)
-            event["purchased"] = purchased
-        if preview is not None:
-            self._validate_type("preview", preview, bool)
-            event["sample"] = preview
-        return self._client._request(
-            "POST",
-            f"track/reportStreaming{'Start' if duration == 0 else 'End'}",
-            json={"events": [event]},
-            signed=True,
-            sig_params=event,
-        ).json()

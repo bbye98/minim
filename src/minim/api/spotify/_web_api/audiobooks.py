@@ -1,8 +1,14 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class AudiobooksAPI(SpotifyResourceAPI):
@@ -21,10 +27,12 @@ class AudiobooksAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="playback")
     def get_audiobooks(
         self,
-        audiobook_ids: str | list[str],
+        audiobook_ids: str | Collection[str],
         /,
         *,
         country_code: str | None = None,
@@ -57,7 +65,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        audiobook_ids : str or list[str]; positional-only
+        audiobook_ids : str or Collection[str]; positional-only
             Spotify IDs of the audiobooks. A maximum of 50 IDs can be
             sent in a request.
 
@@ -359,8 +367,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
         Returns
         -------
         chapters : dict[str, Any]
-            Page of Spotify metadata for the audiobook's
-            chapters.
+            Page of Spotify metadata for the audiobook's chapters.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -435,17 +442,17 @@ class AudiobooksAPI(SpotifyResourceAPI):
         )
 
     @_copy_docstring(UsersAPI.save_audiobooks)
-    def save_audiobooks(self, audiobook_ids: str | list[str], /) -> None:
+    def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
         self._client.users.save_audiobooks(audiobook_ids)
 
     @_copy_docstring(UsersAPI.remove_saved_audiobooks)
     def remove_saved_audiobooks(
-        self, audiobook_ids: str | list[str], /
+        self, audiobook_ids: str | Collection[str], /
     ) -> None:
         self._client.users.remove_saved_audiobooks(audiobook_ids)
 
     @_copy_docstring(UsersAPI.are_audiobooks_saved)
     def are_audiobooks_saved(
-        self, audiobook_ids: str | list[str], /
+        self, audiobook_ids: str | Collection[str], /
     ) -> list[bool]:
         return self._client.users.are_audiobooks_saved(audiobook_ids)

@@ -1,10 +1,16 @@
-from datetime import datetime
+from __future__ import annotations
 from numbers import Number
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from typing import Any
+
+    from ...._types import Collection
 
 
 IntAttributeSpec = (
@@ -29,6 +35,8 @@ class TracksAPI(SpotifyResourceAPI):
        :class:`~minim.api.spotify.SpotifyWebAPIClient` and should not be
        instantiated directly.
     """
+
+    __slots__ = ()
 
     def _parse_attribute(
         self,
@@ -131,7 +139,7 @@ class TracksAPI(SpotifyResourceAPI):
     def _parse_seeds(
         self,
         seed_type: str,
-        seeds: str | list[str] | None,
+        seeds: str | Collection[str] | None,
         n_seeds: int,
         params: dict[str, Any],
     ) -> int:
@@ -147,7 +155,7 @@ class TracksAPI(SpotifyResourceAPI):
             **Valid values**: :code:`"seed_artists"`,
             :code:`"seed_genres"`, :code:`"seed_tracks"`.
 
-        seeds : str, list[str], or None
+        seeds : str, Collection[str], or None
             Seed values.
 
         n_seeds : int
@@ -167,25 +175,26 @@ class TracksAPI(SpotifyResourceAPI):
         """
         if seeds is None:
             return n_seeds
-        if seed_type != "seed_genres":
-            params[seed_type], new_n_seeds = self._prepare_seed_genres(
+
+        if seed_type == "seed_genres":
+            params[seed_type], new_n_seeds = self._prepare_spotify_ids(
                 seeds, limit=5
             )
         else:
-            params[seed_type], new_n_seeds = self._prepare_spotify_ids(
+            params[seed_type], new_n_seeds = self._prepare_seed_genres(
                 seeds, limit=5
             )
         return n_seeds + new_n_seeds
 
     def _prepare_seed_genres(
-        self, seed_genres: str | list[str], /, limit: int
+        self, seed_genres: str | Collection[str], /, limit: int
     ) -> tuple[str, int]:
         """
         Validate, normalize, and serialize seed genres.
 
         Parameters
         ----------
-        seed_genres : str or list[str]; positional-only
+        seed_genres : str or Collection[str]; positional-only
             Seed genres.
 
         limit : int; keyword-only
@@ -215,7 +224,11 @@ class TracksAPI(SpotifyResourceAPI):
 
     @TTLCache.cached_method(ttl="popularity")
     def get_tracks(
-        self, track_ids: str | list[str], /, *, country_code: str | None = None
+        self,
+        track_ids: str | Collection[str],
+        /,
+        *,
+        country_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track <https://developer.spotify.com/documentation
@@ -239,7 +252,7 @@ class TracksAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        track_ids : str or list[str]; positional-only
+        track_ids : str or Collection[str]; positional-only
             Spotify IDs of the tracks. A maximum of 50 IDs can be sent
             in a request.
 
@@ -470,16 +483,18 @@ class TracksAPI(SpotifyResourceAPI):
         self._client.users.save_tracks(track_ids)
 
     @_copy_docstring(UsersAPI.remove_saved_tracks)
-    def remove_saved_tracks(self, track_ids: str | list[str], /) -> None:
+    def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
         self._client.users.remove_saved_tracks(track_ids)
 
     @_copy_docstring(UsersAPI.are_tracks_saved)
-    def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
+    def are_tracks_saved(
+        self, track_ids: str | Collection[str], /
+    ) -> list[bool]:
         return self._client.users.are_tracks_saved(track_ids)
 
     @TTLCache.cached_method(ttl="static")
     def get_track_audio_features(
-        self, track_ids: str | list[str], /
+        self, track_ids: str | Collection[str], /
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track's Audio Features
@@ -505,7 +520,7 @@ class TracksAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        track_ids : str or list[str]; positional-only
+        track_ids : str or Collection[str]; positional-only
             Spotify IDs of the tracks. A maximum of 50 IDs can be sent
             in a request.
 
@@ -718,9 +733,9 @@ class TracksAPI(SpotifyResourceAPI):
     @TTLCache.cached_method(ttl="recommendation")
     def get_track_recommendations(
         self,
-        seed_artist_ids: str | list[str] | None = None,
-        seed_genres: str | list[str] | None = None,
-        seed_track_ids: str | list[str] | None = None,
+        seed_artist_ids: str | Collection[str] | None = None,
+        seed_genres: str | Collection[str] | None = None,
+        seed_track_ids: str | Collection[str] | None = None,
         *,
         country_code: str | None = None,
         limit: int | None = None,
@@ -786,7 +801,7 @@ class TracksAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        seed_artist_ids : str or list[str]; optional
+        seed_artist_ids : str or Collection[str]; optional
             Spotify IDs of seed artists.
 
             **Examples**:
@@ -796,7 +811,7 @@ class TracksAPI(SpotifyResourceAPI):
             * :code:`["0TnOYISbd1XYRBk9myaseg",
               "57dN52uHvrHOxijzpIgu3E"]`
 
-        seed_genres : str or list[str]; optional
+        seed_genres : str or Collection[str]; optional
             Spotify IDs of seed genres.
 
             .. seealso::
@@ -804,7 +819,7 @@ class TracksAPI(SpotifyResourceAPI):
                 :meth:`~minim.api.spotify.GenresAPI.get_seed_genres`
                 – Get available seed genres.
 
-        seed_track_ids : str or list[str]; optional
+        seed_track_ids : str or Collection[str]; optional
             Spotify IDs of seed tracks.
 
             **Examples**:
@@ -1131,7 +1146,8 @@ class TracksAPI(SpotifyResourceAPI):
         /get-users-top-artists-and-tracks>`_: Get Spotify catalog
         information for the current user's top tracks.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope and third-party application
+                        mode
            :class: entitlement
 
            .. tab-set::
@@ -1185,8 +1201,7 @@ class TracksAPI(SpotifyResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of Spotify metadata for the current user's top
-            tracks.
+            Page of Spotify metadata for the current user's top tracks.
 
             .. admonition:: Sample response
                :class: response dropdown

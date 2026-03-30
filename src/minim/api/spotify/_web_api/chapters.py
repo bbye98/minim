@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class ChaptersAPI(SpotifyResourceAPI):
@@ -20,9 +26,11 @@ class ChaptersAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="playback")
     def get_chapters(
-        self, chapter_ids: str | list[str], /, *, country_code: str
+        self, chapter_ids: str | Collection[str], /, *, country_code: str
     ) -> dict[str, Any]:
         """
         `Chapters > Get a Chapter <https://developer.spotify.com
@@ -52,7 +60,7 @@ class ChaptersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        chapter_ids : str or list[str]; positional-only
+        chapter_ids : str or Collection[str]; positional-only
             Spotify IDs of the audiobook chapters. A maximum of 50 IDs
             can be sent in a request.
 
