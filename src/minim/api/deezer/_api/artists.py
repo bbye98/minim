@@ -9,6 +9,8 @@ from .users import UsersAPI
 if TYPE_CHECKING:
     from typing import Any
 
+    from ...._types import Collection
+
 
 class ArtistsAPI(DeezerResourceAPI):
     """
@@ -585,7 +587,7 @@ class ArtistsAPI(DeezerResourceAPI):
     @_copy_docstring(UsersAPI.follow_artists)
     def follow_artists(
         self,
-        artist_ids: int | str | list[int | str],
+        artist_ids: int | str | Collection[int | str],
         /,
         *,
         user_id: int | str = "me",

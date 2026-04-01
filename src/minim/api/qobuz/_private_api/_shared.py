@@ -91,8 +91,8 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         qobuz_ids: int | str | Collection[int | str], /, *, data_type: type
     ) -> list[int]:
         """
-        Validate, normalize, and serialize or prepare a list of Qobuz
-        IDs.
+        Validate, normalize, and serialize or prepare a collection of
+        Qobuz IDs.
 
         Parameters
         ----------
@@ -227,7 +227,9 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             return cls._prepare_expand(expand.strip().split(","))
 
         if not isinstance(expand, str | COLLECTION_TYPES):
-            raise ValueError("`expand` must be a string or a list of strings.")
+            raise ValueError(
+                "`expand` must be a string or a collection of strings."
+            )
 
         for resource in expand:
             if resource not in relationships:

@@ -34,7 +34,7 @@ class SpotifyResourceAPI(ResourceAPI):
         Parameters
         ----------
         spotify_ids : str or Collection[str]; positional-only
-            Comma-separated string or list of Spotify IDs.
+            Comma-separated string or collection of Spotify IDs.
 
         limit : int; keyword-only
             Maximum number of Spotify IDs that can be sent in the
@@ -78,7 +78,7 @@ class SpotifyResourceAPI(ResourceAPI):
 
     @staticmethod
     def _prepare_spotify_uris(
-        spotify_uris: str | list[str],
+        spotify_uris: str | Collection[str],
         /,
         *,
         limit: int,
@@ -90,8 +90,8 @@ class SpotifyResourceAPI(ResourceAPI):
 
         Parameters
         ----------
-        spotify_uris : str or list[str]; positional-only
-            Comma-separated string or list of Spotify URIs.
+        spotify_uris : str or Collection[str]; positional-only
+            Comma-separated string or collection of Spotify URIs.
 
         limit : int; keyword-only
             Maximum number of Spotify URIs that can be sent in the
@@ -126,7 +126,7 @@ class SpotifyResourceAPI(ResourceAPI):
                 uri, resource_types=resource_types
             )
             spotify_uris_.append(uri)
-        return spotify_uris
+        return spotify_uris_
 
     @staticmethod
     def _validate_spotify_id(

@@ -8,7 +8,7 @@ from .search import PrivateSearchAPI
 if TYPE_CHECKING:
     from typing import Any
 
-    from ...._types import Collection
+    from ...._types import COLLECTION_TYPES, Collection
 
 
 class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
@@ -461,7 +461,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         params = {"type": featured_type}
         if genre_ids is not None:
             self._validate_type(
-                "genre_ids", genre_ids, int | str | tuple | list | set
+                "genre_ids", genre_ids, int | str | COLLECTION_TYPES
             )
             if not isinstance(genre_ids, int):
                 if isinstance(genre_ids, str):

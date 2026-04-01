@@ -17,7 +17,7 @@ class GenresAPI(SpotifyResourceAPI):
 
     __slots__ = ()
 
-    @TTLCache.cached_property(ttl="static")
+    @TTLCache.cached_method(ttl="static")
     def available_seed_genres(self) -> set[str]:
         """
         Available seed genres for track recommendations.

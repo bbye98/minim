@@ -630,7 +630,9 @@ class iTunesSearchAPIClient(APIClient):
                     [arg] if isinstance(arg, int | str) else arg
                 ):
                     _validate(f"{arg_name}[{idx}]", val, dtype)
-                params[param_name] = self._join_values(arg, whitespace=False)
+                params[param_name] = self._join_values(
+                    arg, fmt=str, whitespace=False
+                )
         if not len(params):
             raise ValueError(emsg)
 

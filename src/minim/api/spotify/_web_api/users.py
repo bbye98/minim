@@ -285,7 +285,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         resource_ids : str or Collection[str]; positional-only
             Spotify IDs of the items, provided as either a
-            comma-separated string or a list of strings.
+            comma-separated string or a collection of strings.
 
         limit : int; keyword-only; default: :code:`50`
             Maximum number of Spotify IDs that can be sent in the
@@ -333,7 +333,7 @@ class UsersAPI(SpotifyResourceAPI):
 
         resource_ids : str or Collection[str]; positional-only
             Spotify IDs of the items, provided as either a
-            comma-separated string or a list of strings.
+            comma-separated string or a collection of strings.
 
         limit : int; keyword-only; default: :code:`50`
             Maximum number of Spotify IDs that can be sent in the
@@ -2949,8 +2949,8 @@ class UsersAPI(SpotifyResourceAPI):
         Parameters
         ----------
         spotify_uris : str or Collection[str]; positional-only
-            Comma-separated string or list of Spotify URIs. A maximum of
-            40 URIs can be sent in a request.
+            Comma-separated string or collection of Spotify URIs. A
+            maximum of 40 URIs can be sent in a request.
         """
         self._client._require_scopes(
             "library.save_items",
@@ -3008,8 +3008,8 @@ class UsersAPI(SpotifyResourceAPI):
         Parameters
         ----------
         spotify_uris : str or Collection[str]; positional-only
-            Comma-separated string or list of Spotify URIs. A maximum of
-            40 URIs can be sent in a request.
+            Comma-separated string or collection of Spotify URIs. A
+            maximum of 40 URIs can be sent in a request.
         """
         self._client._require_scopes(
             "library.remove_saved_items",
@@ -3069,8 +3069,8 @@ class UsersAPI(SpotifyResourceAPI):
         Parameters
         ----------
         spotify_uris : str or Collection[str]; positional-only
-            Comma-separated string or list of Spotify URIs. A maximum of
-            40 URIs can be sent in a request.
+            Comma-separated string or collection of Spotify URIs. A
+            maximum of 40 URIs can be sent in a request.
 
         Returns
         -------
