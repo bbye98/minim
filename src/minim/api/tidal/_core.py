@@ -1,7 +1,8 @@
+from __future__ import annotations
 from abc import abstractmethod
 from datetime import datetime
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 import warnings
 
 from .._shared import TTLCache, OAuth2APIClient, ResourceAPI
@@ -26,7 +27,11 @@ from ._private_api.users import PrivateUsersAPI
 from ._private_api.videos import PrivateVideosAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
     import httpx
+
+    from ..._types import Collection
 
 
 class BaseTIDALAPIClient(OAuth2APIClient):
@@ -45,9 +50,11 @@ class BaseTIDALAPIClient(OAuth2APIClient):
     AUTH_URL = "https://login.tidal.com/authorize"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
 
+    __slots__ = ()
+
     @classmethod
     def resolve_scopes(
-        cls, matches: str | list[str] | None = None
+        cls, matches: str | Collection[str] | None = None
     ) -> set[str]:
         """
         Resolve one or more scope categories or substrings into a set of
@@ -55,7 +62,7 @@ class BaseTIDALAPIClient(OAuth2APIClient):
 
         Parameters
         ----------
-        matches : str or list[str]; optional
+        matches : str or Collection[str]; optional
             Substrings to match in the available scopes. If not
             specified, all available scopes are returned.
 
@@ -181,6 +188,18 @@ class TIDALAPIClient(BaseTIDALAPIClient):
     _VERSION = "1.0.37"
     BASE_URL = "https://openapi.tidal.com/v2"
 
+    __slots__ = (
+        "albums",
+        "artists",
+        "artworks",
+        "playlists",
+        "providers",
+        "search",
+        "tracks",
+        "users",
+        "videos",
+    )
+
     def __init__(
         self,
         *,
@@ -189,7 +208,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | set[str] = "",
+        scopes: str | Collection[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
         expires_at: str | datetime | None = None,
@@ -244,7 +263,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
             Redirect URI. Required for the Authorization Code with PKCE
             flow.
 
-        scopes : str or set[str]; keyword-only; optional
+        scopes : str or Collection[str]; keyword-only; optional
             Authorization scopes requested by the client to access user
             resources.
 
@@ -437,19 +456,23 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         if status == 401 and not self._expires_at and retry:
             self._refresh_access_token()
             return self._request(method, endpoint, retry=False, **kwargs)
+
         if status == 429 and retry:
             try:
                 retry_after = float(resp.headers["retry-after"]) + 1.0
             except (KeyError, ValueError):
                 retry_after = 1.0
             warnings.warn(
-                f"Rate limit exceeded. Retrying after {retry_after:.3f} second(s)."
+                "Rate limit exceeded. Retrying after "
+                f"{retry_after:.3f} second(s)."
             )
             time.sleep(retry_after)
             return self._request(method, endpoint, retry=False, **kwargs)
+
         error = resp.json()["errors"][0]
         raise RuntimeError(
-            f"{status} {resp.reason_phrase} ({error['code']}) – {error['detail']}"
+            f"{status} {resp.reason_phrase} "
+            f"({error['code']}) – {error['detail']}"
         )
 
     def _resolve_user_identifier(self) -> str:
@@ -508,6 +531,19 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
     #: URL for image resources.
     RESOURCE_URL = "https://resources.tidal.com"
 
+    __slots__ = (
+        "albums",
+        "artists",
+        "feed",
+        "mixes",
+        "pages",
+        "playlists",
+        "search",
+        "tracks",
+        "users",
+        "videos",
+    )
+
     def __init__(
         self,
         *,
@@ -516,7 +552,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | set[str] = "",
+        scopes: str | Collection[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
         expires_at: str | datetime | None = None,
@@ -575,7 +611,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             **Valid values**: :code:`"tidal://login/auth"`,
             :code:`"https://tidal.com/login/auth"`.
 
-        scopes : str or set[str]; keyword-only; optional
+        scopes : str or Collection[str]; keyword-only; optional
             Authorization scopes requested by the client to access user
             resources.
 
@@ -783,6 +819,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         """
         if self._auth_flow is None:
             return self.get_country_code()["countryCode"]
+
         return self._my_profile.get(
             "countryCode", self.get_country_code()["countryCode"]
         )
@@ -850,21 +887,26 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         if status == 401 and not self._expires_at and retry:
             self._refresh_access_token()
             return self._request(method, endpoint, retry=False, **kwargs)
+
         error = resp.json()
         if isinstance(error, str):
             raise RuntimeError(f"{resp.status_code} {error}")
+
         if "status" in error:
             if "subStatus" in error:
                 raise RuntimeError(
                     f"{error['status']}.{error['subStatus']} – {error['userMessage']}"
                 )
+
             if "path" in error:
                 raise RuntimeError(
                     f"{error['status']} {error['error']} – {error['path']}"
                 )
+
             raise RuntimeError(
                 f"{error['status']} {error['title']} – {error['detail']}"
             )
+
         raise RuntimeError(
             f"{error['httpStatus']}.{error['subStatus']} {error['error']} – {error['description']}"
         )
@@ -928,7 +970,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | set[str] = "",
+        scopes: str | Collection[str] = "",
         redirect_handler: str | None = None,
         open_browser: bool = False,
         store_tokens: bool = True,
@@ -989,7 +1031,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             **Valid values**: :code:`"tidal://login/auth"`,
             :code:`"https://tidal.com/login/auth"`.
 
-        scopes : str or set[str]; keyword-only; optional
+        scopes : str or Collection[str]; keyword-only; optional
             Authorization scopes requested by the client to access user
             resources.
 

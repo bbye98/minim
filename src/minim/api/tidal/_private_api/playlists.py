@@ -1,8 +1,15 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
+from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection, OrderedCollection
 
 
 class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
@@ -25,13 +32,15 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     _SORT_FIELDS = {"DATE", "NAME"}
 
     @classmethod
-    def _validate_types(cls, playlist_types: str | list[str], /) -> None:
+    def _validate_types(
+        cls, playlist_types: str | OrderedCollection[str], /
+    ) -> None:
         """
         Validate one or more playlist types to filter by.
 
         Parameters
         ----------
-        playlist_types : str or list[str]; positional-only; optional
+        playlist_types : str or Collection[str]; positional-only; optional
             Playlist types to return.
         """
         if not playlist_types:
@@ -39,7 +48,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
         if isinstance(playlist_types, str):
             cls._validate_types(playlist_types.split(","))
-        elif isinstance(playlist_types, tuple | list):
+        elif isinstance(playlist_types, ORDERED_COLLECTION_TYPES):
             for playlist_type in playlist_types:
                 if playlist_type not in cls._PLAYLIST_TYPES:
                     raise ValueError(
@@ -309,8 +318,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of TIDAL metadata for the tracks and videos in
-            the playlist.
+            Page of TIDAL metadata for the playlist's tracks and videos.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -473,7 +481,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for tracks recommended based on a
-        given playlist.
+        playlist.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -646,8 +654,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         folder : dict[str, Any]
-            TIDAL metadata for the newly created playlist
-            folder.
+            TIDAL metadata for the newly created playlist folder.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -687,7 +694,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             params=params,
         ).json()
 
-    def delete_folders(self, folder_uuids: str | list[str], /) -> None:
+    def delete_folders(self, folder_uuids: str | Collection[str], /) -> None:
         """
         Delete playlist folders.
 
@@ -703,7 +710,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        folder_uuids : str; positional-only
+        folder_uuids : str or Collection[str]; positional-only
             UUIDs or TIDAL resource names of the playlist folders.
 
             **Examples**:
@@ -853,7 +860,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
     def move_playlists(
         self,
-        playlist_uuids: str | list[str],
+        playlist_uuids: str | Collection[str],
         /,
         folder_uuid: str | None = None,
     ) -> None:
@@ -872,7 +879,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuids : str or list[str]; positional-only
+        playlist_uuids : str or Collection[str]; positional-only
             UUIDs or TIDAL resource names of the playlists.
 
             **Examples**:
@@ -990,7 +997,9 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             "POST", f"v1/playlists/{playlist_uuid}", data=payload
         )
 
-    def delete_playlists(self, playlist_uuids: str | list[str], /) -> None:
+    def delete_playlists(
+        self, playlist_uuids: str | Collection[str], /
+    ) -> None:
         """
         Delete playlists.
 
@@ -1006,7 +1015,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuids : str; positional-only
+        playlist_uuids : str or Collection[str]; positional-only
             UUIDs or TIDAL resource names of the playlists.
 
             **Examples**:
@@ -1033,7 +1042,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        item_ids: int | str | list[int | str] | None = None,
+        item_ids: int | str | Collection[int | str] | None = None,
         from_album_id: int | str | None = None,
         from_playlist_uuid: str | None = None,
         on_duplicate: str | None = None,
@@ -1070,7 +1079,8 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Example**: :code:`"US"`.
 
-        item_ids : int, str, or list[int | str]; keyword-only; optional
+        item_ids : int, str, or Collection[int | str]; keyword-only; \
+        optional
             TIDAL IDs of the tracks and videos.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`,
@@ -1111,7 +1121,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             if isinstance(item_ids, str) and "," in item_ids:
                 item_ids = item_ids.split(",")
             self._validate_tidal_ids(item_ids)
-            if isinstance(item_ids, tuple | list):
+            if isinstance(item_ids, COLLECTION_TYPES):
                 item_ids = ",".join(str(item_id) for item_id in item_ids)
             data["itemIds"] = str(item_ids)
         elif from_album_id is not None:
@@ -1122,10 +1132,9 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             data["fromPlaylistUuid"] = from_playlist_uuid
         if on_duplicate is not None:
             if on_duplicate not in (options := {"ADD", "FAIL", "SKIP"}):
-                _options = "', '".join(options)
                 raise ValueError(
-                    "Invalid duplicate-handling behavior "
-                    f"{on_duplicate!r}. Valid values: '{_options}'."
+                    f"Invalid duplicate-handling behavior {on_duplicate!r}."
+                    f"Valid values: {self._join_values(options)}."
                 )
             data["onDupes"] = on_duplicate
         self._client._request(
@@ -1143,7 +1152,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         self,
         playlist_uuid: str,
         /,
-        from_item_indices: int | str | list[int | str],
+        from_item_indices: int | str | OrderedCollection[int | str],
         to_index: int | str,
         country_code: str | None = None,
     ) -> None:
@@ -1167,7 +1176,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
 
-        from_item_indices : int, str, or list[int | str]
+        from_item_indices : int, str, or OrderedCollection[int | str]
             Zero-based indices of items to move.
 
             **Examples**: :code:`1`, :code:`"2"`, :code:`"3,4"`,
@@ -1191,7 +1200,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         if isinstance(from_item_indices, str) and "," in from_item_indices:
             from_item_indices = from_item_indices.split(",")
         self._validate_tidal_ids(from_item_indices)
-        if isinstance(from_item_indices, tuple | list):
+        if isinstance(from_item_indices, ORDERED_COLLECTION_TYPES):
             from_item_indices = ",".join(
                 str(item_idx) for item_idx in from_item_indices
             )
@@ -1273,7 +1282,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         self,
         playlist_uuid: str,
         /,
-        item_indices: int | str | list[int | str],
+        item_indices: int | str | OrderedCollection[int | str],
         country_code: str | None = None,
     ) -> None:
         """
@@ -1296,7 +1305,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
 
-        item_indices : int, str, or list[int | str]
+        item_indices : int, str, or OrderedCollection[int | str]
             Zero-based indices of items to remove.
 
             **Examples**: :code:`1`, :code:`"2"`, :code:`"3,4"`,
@@ -1313,7 +1322,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         if isinstance(item_indices, str) and "," in item_indices:
             item_indices = item_indices.split(",")
         self._validate_tidal_ids(item_indices)
-        if isinstance(item_indices, tuple | list):
+        if isinstance(item_indices, ORDERED_COLLECTION_TYPES):
             item_indices = ",".join(str(item_idx) for item_idx in item_indices)
         self._client._request(
             "DELETE",
@@ -1349,7 +1358,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.follow_playlists)
     def follow_playlists(
         self,
-        playlist_uuids: str | list[str],
+        playlist_uuids: str | Collection[str],
         /,
         *,
         user_id: int | str | None = None,
@@ -1368,7 +1377,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.unfollow_playlists)
     def unfollow_playlists(
         self,
-        playlist_uuids: str | list[str],
+        playlist_uuids: str | Collection[str],
         /,
         *,
         user_id: int | str | None = None,
@@ -1384,7 +1393,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         *,
         cursor: str | None = None,
         limit: int = 50,
-        playlist_types: str | list[str] | None = None,
+        playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
@@ -1404,7 +1413,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         *,
         cursor: str | None = None,
         limit: int = 50,
-        playlist_types: str | list[str] | None = None,
+        playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
@@ -1423,7 +1432,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         *,
         cursor: str | None = None,
         limit: int = 50,
-        playlist_types: str | list[str] | None = None,
+        playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:

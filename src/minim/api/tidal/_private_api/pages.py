@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PrivatePagesAPI(PrivateTIDALResourceAPI):
@@ -87,7 +91,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         ).json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_home_page(
+    def get_my_home_page(
         self,
         country_code: str | None = None,
         *,
@@ -346,7 +350,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_explore_page(
+    def get_my_explore_page(
         self,
         country_code: str | None = None,
         *,

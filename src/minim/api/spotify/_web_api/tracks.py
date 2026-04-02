@@ -983,8 +983,8 @@ class TracksAPI(SpotifyResourceAPI):
         Returns
         -------
         recommendations : dict[str, Any]
-            Spotify metadata for the track recommendations
-            generated from the provided seeds and tuning parameters.
+            Spotify metadata for the tracks recommended based on the
+            provided seeds and tuning parameters.
 
             .. admonition:: Sample response
                :class: response dropdown

@@ -228,7 +228,7 @@ class TracksAPI(MusixmatchResourceAPI):
         """
         `Track > track.lyrics.get <https://docs.musixmatch.com
         /lyrics-api/track/track-lyrics-get>`_: Get Musixmatch catalog
-        information for a track's lyrics.
+        information for lyrics for a track.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -411,7 +411,7 @@ class TracksAPI(MusixmatchResourceAPI):
         """
         `Track > track.subtitle.get <https://docs.musixmatch.com
         /lyrics-api/track/track-subtitle-get>`_: Get Musixmatch catalog
-        information for a track's subtitles.
+        information for subtitles for a track.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -535,7 +535,8 @@ class TracksAPI(MusixmatchResourceAPI):
         """
         `Track > track.richsync.get <https://docs.musixmatch.com
         /lyrics-api/track/track-richsync-get>`_: Get Musixmatch catalog
-        information for a track's Rich Sync (word-synchronized) lyrics.
+        information for Rich Sync (word-synchronized) lyrics for a
+        track.
 
         .. admonition:: Subscription
            :class: entitlement

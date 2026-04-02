@@ -1,9 +1,15 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateArtistsAPI(PrivateTIDALResourceAPI):
@@ -88,7 +94,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for an artist's albums.
+        Get TIDAL catalog information for albums by an artist.
 
         Parameters
         ----------
@@ -107,7 +113,8 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         album_type : str; keyword-only; optional
             Album type to return.
 
-            **Valid values**: :code:`"COMPILATIONS"`, :code:`"EPSANDSINGLES"`.
+            **Valid values**: :code:`"COMPILATIONS"`,
+            :code:`"EPSANDSINGLES"`.
 
         limit : int; keyword-only; optional
             Maximum number of albums to return.
@@ -214,7 +221,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         self, artist_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for an artist's biography.
+        Get an artist's biography.
 
         Parameters
         ----------
@@ -233,7 +240,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         biography : dict[str, Any]
-            TIDAL metadata for the artist's biography.
+            Metadata for the artist's biography.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -297,8 +304,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         links : dict[str, Any]
-            Page of TIDAL metadata for links to websites
-            associated with an artist.
+            Page of TIDAL metadata for links to the artist's websites.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -403,9 +409,8 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
 
         Returns
         -------
-        radio : dict[str, Any]
-            Page of TIDAL metadata for the tracks in the artist
-            radio.
+        mix : dict[str, Any]
+            Page of TIDAL metadata for the tracks in the artist's mix.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -501,7 +506,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for an artist's top tracks.
+        Get TIDAL catalog information for top tracks by an artist.
 
         Parameters
         ----------
@@ -631,7 +636,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for an artist's videos.
+        Get TIDAL catalog information for videos by an artist.
 
         Parameters
         ----------
@@ -746,8 +751,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for other artists that are similar
-        to an artist.
+        Get TIDAL catalog information for similar artists.
 
         Parameters
         ----------
@@ -780,7 +784,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         similar_artists : dict[str, Any]
-            Page of TIDAL catalog information for the similar artists.
+            Page of TIDAL metadata for the similar artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -838,8 +842,8 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             artist_id, country_code, device_type=device_type, locale=locale
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_blocked_artists)
-    def get_blocked_artists(
+    @_copy_docstring(PrivateUsersAPI.get_user_blocked_artists)
+    def get_user_blocked_artists(
         self,
         user_id: int | str | None = None,
         /,
@@ -847,7 +851,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_blocked_artists(
+        return self._client.users.get_user_blocked_artists(
             user_id, limit=limit, offset=offset
         )
 
@@ -864,7 +868,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         self._client.users.unblock_artists(artist_id, user_id)
 
     @_copy_docstring(PrivateUsersAPI.follow_artists)
-    def get_followed_artists(
+    def get_user_followed_artists(
         self,
         user_id: int | str | None = None,
         /,
@@ -875,7 +879,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_followed_artists(
+        return self._client.users.get_user_followed_artists(
             user_id,
             country_code,
             limit=limit,
@@ -887,7 +891,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.follow_artists)
     def follow_artists(
         self,
-        artist_ids: int | str | list[int | str],
+        artist_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -904,7 +908,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.unfollow_artists)
     def unfollow_artists(
         self,
-        artist_ids: int | str | list[int | str],
+        artist_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:

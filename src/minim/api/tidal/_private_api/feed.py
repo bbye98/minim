@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PrivateFeedAPI(PrivateTIDALResourceAPI):

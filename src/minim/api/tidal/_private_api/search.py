@@ -1,7 +1,11 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class PrivateSearchAPI(PrivateTIDALResourceAPI):
@@ -26,8 +30,8 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for albums, artists, playlists,
-        tracks, or videos that match a keyword string.
+        Search for albums, artists, playlists, tracks, or videos in the
+        TIDAL catalog.
 
         Parameters
         ----------

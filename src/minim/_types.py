@@ -7,8 +7,8 @@ T = TypeVar("T")
 if TYPE_CHECKING:
     from typing import TypeAlias
 
-    Collection: TypeAlias = list[T] | tuple[T, ...] | set[T]
     OrderedCollection: TypeAlias = list[T] | tuple[T, ...]
+    Collection: TypeAlias = OrderedCollection | set[T]
 
-COLLECTION_TYPES = list, tuple, set
 ORDERED_COLLECTION_TYPES = list, tuple
+COLLECTION_TYPES = list, tuple, set

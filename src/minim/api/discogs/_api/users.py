@@ -100,7 +100,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         user : dict[str, Any]
-            Deezer profile information for the user.
+            Discogs profile information for the user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -221,7 +221,7 @@ class UsersAPI(DiscogsResourceAPI):
         Returns
         -------
         profile : dict[str, Any]
-            Updated Deezer profile information for the user.
+            Updated Discogs profile information for the user.
 
             .. admonition:: Sample resposne
                :class: response dropdown

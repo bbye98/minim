@@ -26,8 +26,8 @@ class UsersAPI(DeezerResourceAPI):
     @TTLCache.cached_method(ttl="user")
     def get_user(self, user_id: int | str = "me", /) -> dict[str, Any]:
         """
-        `User <https://developers.deezer.com/api/user>`_: Get profile
-        information for a Deezer user.
+        `User <https://developers.deezer.com/api/user>`_: Get Deezer
+        profile information for a user.
 
         .. admonition:: Permission and user authentication
            :class: entitlement
@@ -3246,7 +3246,7 @@ class UsersAPI(DeezerResourceAPI):
         """
         `User > Followings <https://developers.deezer.com/api/user
         /followings>`_: Get Deezer profile information for users
-        followed by the specified user.
+        followed by a specified user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -3327,7 +3327,7 @@ class UsersAPI(DeezerResourceAPI):
         """
         `User > Followers <https://developers.deezer.com/api/user
         /followers>`_: Get Deezer profile information for users
-        following the specified user.
+        following a specified user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -3365,7 +3365,7 @@ class UsersAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer profile information for the followers.
+            Page of Deezer profile information for the user's followers.
 
             .. admonition:: Sample response
                :class: response dropdown

@@ -1,5 +1,6 @@
+from __future__ import annotations
 import base64
-from typing import Any
+from typing import TYPE_CHECKING
 import xml.etree.ElementTree as ET
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -9,6 +10,11 @@ import json
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateTracksAPI(PrivateTIDALResourceAPI):
@@ -215,7 +221,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for an track's contributors.
+        Get TIDAL catalog information for contributors to a track.
 
         Parameters
         ----------
@@ -282,7 +288,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         self, track_id: int | str, /, country_code: str | None = None
     ) -> list[dict[str, Any]]:
         """
-        Get TIDAL catalog information for an track's credits.
+        Get TIDAL catalog information for credits for a track.
 
         Parameters
         ----------
@@ -329,7 +335,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         self, track_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a track's lyrics.
+        Get TIDAL catalog information for lyrics for a track.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -425,8 +431,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for tracks recommended based on a
-        given track.
+        Get track recommendations based on a given track.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -470,7 +475,8 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of TIDAL metadata for the recommended tracks.
+            Page of TIDAL metadata for the tracks recommended based on
+            the given track.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -670,8 +676,8 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             },
         ).json()
 
-    @_copy_docstring(PrivateUsersAPI.get_saved_tracks)
-    def get_saved_tracks(
+    @_copy_docstring(PrivateUsersAPI.get_user_saved_tracks)
+    def get_user_saved_tracks(
         self,
         user_id: int | str | None = None,
         /,
@@ -682,7 +688,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_tracks(
+        return self._client.users.get_user_saved_tracks(
             user_id,
             country_code=country_code,
             limit=limit,
@@ -694,7 +700,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.save_tracks)
     def save_tracks(
         self,
-        track_ids: int | str | list[int | str],
+        track_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -711,14 +717,14 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.remove_saved_tracks)
     def remove_saved_tracks(
         self,
-        track_ids: int | str | list[int | str],
+        track_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
         self._client.users.remove_saved_tracks(track_ids, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.get_blocked_tracks)
-    def get_blocked_tracks(
+    @_copy_docstring(PrivateUsersAPI.get_user_blocked_tracks)
+    def get_user_blocked_tracks(
         self,
         user_id: int | str | None = None,
         /,
@@ -726,7 +732,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_blocked_tracks(
+        return self._client.users.get_user_blocked_tracks(
             user_id, limit=limit, offset=offset
         )
 

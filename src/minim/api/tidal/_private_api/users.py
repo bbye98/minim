@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateUsersAPI(PrivateTIDALResourceAPI):
@@ -19,14 +25,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     @staticmethod
     def _prepare_mix_ids(
-        mix_ids: str | list[str], /, *, limit: int = 100
+        mix_ids: str | Collection[str], /, *, limit: int = 100
     ) -> str:
         """
         Validate, normalize, and serialize TIDAL mix IDs.
 
         Parameters
         ----------
-        mix_ids : int, str, or list[str]; positional-only
+        mix_ids : str or Collection[str]; positional-only
             Comma-separated string or list of mix IDs.
 
         limit : int; keyword-only, default: :code:`100`
@@ -91,8 +97,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         resources : dict[str, Any]
-            Page of TIDAL metadata for resources blocked by the
-            user.
+            Page of TIDAL metadata for resources blocked by the user.
         """
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
@@ -251,7 +256,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
     def _save_resources(
         self,
         resource_type: str,
-        item_ids: int | str | list[int | str],
+        item_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -269,7 +274,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"tracks"`, :code:`"videos"`.
 
-        item_ids : int, str, or list[int | str]; positional-only
+        item_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the items.
 
         user_id : int or str; optional
@@ -318,7 +323,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
     def _remove_saved_resources(
         self,
         resource_type: str,
-        item_ids: int | str | list[int | str],
+        item_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
@@ -334,7 +339,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"tracks"`, :code:`"videos"`.
 
-        item_ids : int, str, or list[int | str]; positional-only
+        item_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the items.
 
         user_id : int or str; optional
@@ -404,7 +409,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         *,
         cursor: str | None = None,
         limit: int = 50,
-        playlist_types: str | list[str] | None = None,
+        playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
         params: dict[str, Any] | None = None,
@@ -426,7 +431,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-        playlist_types : str or list[str]; keyword-only; optional
+        playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return. If not specified, all playlists
             are returned.
 
@@ -467,8 +472,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL metadata for the playlist folders
-            and/or playlists in the current user's collection.
+            Page of TIDAL metadata for the playlist folders and/or
+            playlists in the current user's collection.
         """
         self._validate_number("limit", limit, int, 1, 50)
         if params is None:
@@ -647,7 +652,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
     @TTLCache.cached_method(ttl="static")
     def get_me(self) -> dict[str, Any]:
         """
-        Get profile information for the current user.
+        Get TIDAL profile information for the current user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -746,7 +751,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         return self._client._request("GET", "v1/sessions").json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_clients(
+    def get_user_clients(
         self,
         user_id: int | str | None = None,
         /,
@@ -815,7 +820,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_clients")
+        self._client._require_authentication("users.get_user_clients")
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
         return self._get_resource_relationship(
@@ -823,7 +828,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_subscription(
+    def get_user_subscription(
         self,
         user_id: int | str | None = None,
         /,
@@ -881,7 +886,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "validUntil": <str>
                   }
         """
-        self._client._require_authentication("users.get_subscription")
+        self._client._require_authentication("users.get_user_subscription")
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
         return self._get_resource_relationship(
@@ -889,7 +894,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_saved_item_ids(
+    def get_user_saved_item_ids(
         self, user_id: int | str | None = None, /
     ) -> dict[str, list[str]]:
         """
@@ -930,11 +935,11 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "VIDEO": <list[str]>,
                   }
         """
-        self._client._require_authentication("users.get_saved_item_ids")
+        self._client._require_authentication("users.get_user_saved_item_ids")
         return self._get_saved_resources("ids", user_id)
 
     @TTLCache.cached_method(ttl="user")
-    def get_saved_albums(
+    def get_user_saved_albums(
         self,
         user_id: int | str | None = None,
         /,
@@ -1004,7 +1009,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Page of TIDAL metadata for albums in the user's
+            Page of TIDAL metadata for the albums in the user's
             collection.
 
             .. admonition:: Sample response
@@ -1071,7 +1076,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_saved_albums")
+        self._client._require_authentication("users.get_user_saved_albums")
         return self._get_saved_resources(
             "albums",
             user_id,
@@ -1084,7 +1089,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def save_albums(
         self,
-        album_ids: int | str | list[int | str],
+        album_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -1106,7 +1111,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        album_ids : int, str, or list[int | str]; positional-only
+        album_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the albums.
 
             **Examples**: :code:`46369321`, :code:`"251380836"`,
@@ -1141,7 +1146,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def remove_saved_albums(
         self,
-        album_ids: int | str | list[int | str],
+        album_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
@@ -1160,7 +1165,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        album_ids : int, str, or list[int | str]; positional-only
+        album_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the albums.
 
             **Examples**: :code:`46369321`, :code:`"251380836"`,
@@ -1177,7 +1182,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_blocked_artists(
+    def get_user_blocked_artists(
         self,
         user_id: int | str | None = None,
         /,
@@ -1222,8 +1227,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of TIDAL metadata for artists blocked by the
-            user.
+            Page of TIDAL metadata for artists blocked by the user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1265,7 +1269,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_blocked_artists")
+        self._client._require_authentication("users.get_user_blocked_artists")
         return self._get_blocked_resources(
             "artists", user_id, limit=limit, offset=offset
         )
@@ -1335,7 +1339,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_followed_artists(
+    def get_user_followed_artists(
         self,
         user_id: int | str | None = None,
         /,
@@ -1406,7 +1410,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of TIDAL metadata for artists in the user's
+            Page of TIDAL metadata for the artists in the user's
             collection.
 
             .. admonition:: Sample response
@@ -1445,7 +1449,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_followed_artists")
+        self._client._require_authentication("users.get_user_followed_artists")
         return self._get_saved_resources(
             "artists",
             user_id,
@@ -1458,7 +1462,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def follow_artists(
         self,
-        artist_ids: int | str | list[int | str],
+        artist_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -1480,7 +1484,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        artist_ids : int, str, or list[int | str]; positional-only
+        artist_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the artists.
 
             **Examples**: :code:`1566`, :code:`"4676988"`,
@@ -1514,7 +1518,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def unfollow_artists(
         self,
-        artist_ids: int | str | list[int | str],
+        artist_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
@@ -1533,7 +1537,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        artist_ids : int, str, or list[int | str]; positional-only
+        artist_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the artists.
 
             **Examples**: :code:`1566`, :code:`"4676988"`,
@@ -1599,8 +1603,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         mixes : dict[str, Any]
-            Page of TIDAL metadata for mixes in the current
-            user's collection.
+            Page of TIDAL metadata for the mixes in the current user's
+            collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1729,7 +1733,11 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         ).json()
 
     def follow_mixes(
-        self, mix_ids: str | list[str], /, *, on_missing: str | None = None
+        self,
+        mix_ids: str | Collection[str],
+        /,
+        *,
+        on_missing: str | None = None,
     ) -> None:
         """
         Add mixes to the current user's collection.
@@ -1746,7 +1754,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        mix_ids : str or list[str]; positional-only
+        mix_ids : str or Collection[str]; positional-only
             TIDAL IDs of the mixes.
 
             **Examples**:
@@ -1774,7 +1782,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             data["onArtifactNotFound"] = on_missing
         self._client._request("PUT", "v2/favorites/mixes/add", data=data)
 
-    def unfollow_mixes(self, mix_ids: str | list[str], /) -> None:
+    def unfollow_mixes(self, mix_ids: str | Collection[str], /) -> None:
         """
         Remove mixes from the current user's collection.
 
@@ -1790,7 +1798,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        mix_ids : str or list[str]; positional-only
+        mix_ids : str or Collection[str]; positional-only
             TIDAL IDs of the mixes.
 
             **Examples**:
@@ -1879,8 +1887,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL metadata for editorial playlists in
-            the user's collection.
+            Page of TIDAL metadata for the editorial playlists in the
+            user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1944,7 +1952,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def follow_playlists(
         self,
-        playlist_uuids: str | list[str],
+        playlist_uuids: str | Collection[str],
         /,
         *,
         user_id: int | str | None = None,
@@ -1968,7 +1976,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuids : str or list[str]; positional-only; optional
+        playlist_uuids : str or Collection[str]; positional-only; optional
             Playlist UUIDs.
 
             **Examples**:
@@ -2032,7 +2040,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def unfollow_playlists(
         self,
-        playlist_uuids: str | list[str],
+        playlist_uuids: str | Collection[str],
         /,
         *,
         user_id: int | str | None = None,
@@ -2053,7 +2061,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuids : str or list[str]; positional-only; optional
+        playlist_uuids : str or Collection[str]; positional-only; optional
             Playlist UUIDs. TIDAL resource names may be provided
             only when :code:`version=2`.
 
@@ -2108,7 +2116,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         *,
         cursor: str | None = None,
         limit: int = 50,
-        playlist_types: str | list[str] | None = None,
+        playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
@@ -2136,7 +2144,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-        playlist_types : str or list[str]; keyword-only; optional
+        playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return. If not specified, all playlists
             are returned.
 
@@ -2169,8 +2177,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL metadata for the playlists in the
-            current user's collection.
+            Page of TIDAL metadata for the playlists in the current
+            user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2276,7 +2284,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         *,
         cursor: str | None = None,
         limit: int = 50,
-        playlist_types: str | list[str] | None = None,
+        playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
@@ -2309,7 +2317,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-        playlist_types : str or list[str]; keyword-only; optional
+        playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return. If not specified, all playlists
             are returned.
 
@@ -2342,8 +2350,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL metadata for the playlists in the
-            specified playlist folder in the current user's collection.
+            Page of TIDAL metadata for the playlists in the playlist
+            folder in the current user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2454,7 +2462,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         *,
         cursor: str | None = None,
         limit: int = 50,
-        playlist_types: str | list[str] | None = None,
+        playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
@@ -2482,7 +2490,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-        playlist_types : str or list[str]; keyword-only; optional
+        playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return. If not specified, all playlists
             are returned.
 
@@ -2688,8 +2696,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL metadata for editorial and
-            user-created playlists in the user's collection.
+            Page of TIDAL metadata for the editorial and user-created
+            playlists in the user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2861,8 +2869,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL metadata for user-created playlists in
-            the user's collection.
+            Page of TIDAL metadata for the user-created playlists in the
+            user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2967,7 +2975,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL metadata for the public playlists in a
+            Page of TIDAL metadata for the public playlists in the
             user's collection.
 
             .. admonition:: Sample response
@@ -3061,7 +3069,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         limit: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a user's followers.
+        Get TIDAL profile information for users following the specified
+        user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -3090,7 +3099,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         followers : dict[str, Any]
-            TIDAL metadata for the user's followers.
+            TIDAL profile information for the user's followers.
 
             **Sample response**: :code:`{'cursor': None, 'items': {}}`.
         """
@@ -3104,7 +3113,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_followings(
+    def get_user_followings(
         self,
         user_id: int | str | None = None,
         /,
@@ -3113,7 +3122,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         limit: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for the people followed by a user.
+        Get TIDAL catalog information for the users followed by a
+        specified user.
 
         .. admonition:: User authentication
            :class: entitlement
@@ -3142,7 +3152,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         following : dict[str, Any]
-            TIDAL metadata for the people followed by the user.
+            TIDAL profile information for the followed users.
 
             **Sample response**: :code:`{'cursor': None, 'items': {}}`.
         """
@@ -3210,7 +3220,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for the users blocked by the
+        Get TIDAL profile information for the users blocked by the
         current user.
 
         .. caution::
@@ -3247,8 +3257,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of TIDAL metadata for users blocked by the
-            current user.
+            Page of TIDAL profile information for the users blocked by
+            the current user.
 
             **Sample response**: :code:`{'items': [], 'limit': 0,
             'offset': 0, 'totalNumberOfItems': 0}`.
@@ -3316,7 +3326,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._manage_blocked_users("DELETE", user_id)
 
     @TTLCache.cached_method(ttl="user")
-    def get_saved_tracks(
+    def get_user_saved_tracks(
         self,
         user_id: int | str | None = None,
         /,
@@ -3386,7 +3396,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of TIDAL metadata for tracks in the user's
+            Page of TIDAL metadata for the tracks in the user's
             collection.
 
             .. admonition:: Sample response
@@ -3466,7 +3476,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_saved_tracks")
+        self._client._require_authentication("users.get_user_saved_tracks")
         return self._get_saved_resources(
             "tracks",
             user_id,
@@ -3479,7 +3489,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def save_tracks(
         self,
-        track_ids: int | str | list[int | str],
+        track_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -3501,7 +3511,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        track_ids : int, str, or list[int | str]; positional-only
+        track_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the tracks.
 
             **Examples**: :code:`46369325`, :code:`"251380837"`,
@@ -3536,7 +3546,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def remove_saved_tracks(
         self,
-        track_ids: int | str | list[int | str],
+        track_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
@@ -3555,7 +3565,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        track_ids : int, str, or list[int | str]; positional-only
+        track_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the tracks.
 
             **Examples**: :code:`46369325`, :code:`"251380837"`,
@@ -3572,7 +3582,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_blocked_tracks(
+    def get_user_blocked_tracks(
         self,
         user_id: int | str | None = None,
         /,
@@ -3617,8 +3627,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of TIDAL metadata for tracks blocked by the
-            user.
+            Page of TIDAL metadata for the user's blocked tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -3698,7 +3707,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_blocked_tracks")
+        self._client._require_authentication("users.get_user_blocked_tracks")
         return self._get_blocked_resources(
             "tracks", user_id, limit=limit, offset=offset
         )
@@ -3768,7 +3777,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_saved_videos(
+    def get_user_saved_videos(
         self,
         user_id: int | str | None = None,
         /,
@@ -3838,7 +3847,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            Page of TIDAL metadata for videos in the user's
+            Page of TIDAL metadata for the videos in the user's
             collection.
 
             .. admonition:: Sample response
@@ -3897,7 +3906,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_saved_videos")
+        self._client._require_authentication("users.get_user_saved_videos")
         return self._get_saved_resources(
             "videos",
             user_id,
@@ -3910,7 +3919,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def save_videos(
         self,
-        video_ids: int | str | list[int | str],
+        video_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -3932,7 +3941,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        video_ids : int, str, or list[int | str]; positional-only
+        video_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the videos.
 
             **Examples**: :code:`29597422`, :code:`"59727844"`,
@@ -3966,7 +3975,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     def remove_saved_videos(
         self,
-        video_ids: int | str | list[int | str],
+        video_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
@@ -3985,7 +3994,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        video_ids : int, str, or list[int | str]; positional-only
+        video_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs of the videos.
 
             **Examples**: :code:`29597422`, :code:`"59727844"`,
@@ -4001,7 +4010,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_blocked_videos(
+    def get_user_blocked_videos(
         self,
         user_id: int | str | None = None,
         /,
@@ -4046,8 +4055,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            Page of TIDAL metadata for videos blocked by the
-            user.
+            Page of TIDAL metadata for the videos blocked by the user.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -4106,7 +4114,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_blocked_videos")
+        self._client._require_authentication("users.get_user_blocked_videos")
         return self._get_blocked_resources(
             "videos", user_id, limit=limit, offset=offset
         )

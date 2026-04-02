@@ -1,7 +1,8 @@
+from __future__ import annotations
 import base64
 import json
 import re
-from typing import Any
+from typing import TYPE_CHECKING
 
 import httpx
 
@@ -9,6 +10,11 @@ from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateVideosAPI(PrivateTIDALResourceAPI):
@@ -156,7 +162,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a video's contributors.
+        Get TIDAL catalog information for contributors to a video.
 
         Parameters
         ----------
@@ -336,8 +342,8 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             },
         ).json()
 
-    @_copy_docstring(PrivateUsersAPI.get_saved_videos)
-    def get_saved_videos(
+    @_copy_docstring(PrivateUsersAPI.get_user_saved_videos)
+    def get_user_saved_videos(
         self,
         user_id: int | str | None = None,
         /,
@@ -348,7 +354,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_videos(
+        return self._client.users.get_user_saved_videos(
             user_id,
             country_code=country_code,
             limit=limit,
@@ -360,7 +366,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.save_videos)
     def save_videos(
         self,
-        video_ids: int | str | list[int | str],
+        video_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -377,14 +383,14 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.remove_saved_videos)
     def remove_saved_videos(
         self,
-        video_ids: int | str | list[int | str],
+        video_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
         self._client.users.remove_saved_videos(video_ids, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.get_blocked_videos)
-    def get_blocked_videos(
+    @_copy_docstring(PrivateUsersAPI.get_user_blocked_videos)
+    def get_user_blocked_videos(
         self,
         user_id: int | str | None = None,
         /,
@@ -392,7 +398,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_blocked_videos(
+        return self._client.users.get_user_blocked_videos(
             user_id, limit=limit, offset=offset
         )
 

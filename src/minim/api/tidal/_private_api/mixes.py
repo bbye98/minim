@@ -1,9 +1,15 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateMixesAPI(PrivateTIDALResourceAPI):
@@ -177,10 +183,14 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
 
     @_copy_docstring(PrivateUsersAPI.follow_mixes)
     def follow_mixes(
-        self, mix_ids: str | list[str], /, *, on_missing: str | None = None
+        self,
+        mix_ids: str | Collection[str],
+        /,
+        *,
+        on_missing: str | None = None,
     ) -> None:
         return self._client.mixes.follow_mixes(mix_ids, on_missing=on_missing)
 
     @_copy_docstring(PrivateUsersAPI.unfollow_mixes)
-    def unfollow_mixes(self, mix_ids: str | list[str], /) -> None:
+    def unfollow_mixes(self, mix_ids: str | Collection[str], /) -> None:
         return self._client.mixes.unfollow_mixes(mix_ids)

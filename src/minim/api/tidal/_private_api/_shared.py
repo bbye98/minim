@@ -1,9 +1,13 @@
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import ResourceAPI
 from .._api._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
     from .. import PrivateTIDALAPIClient
 
 
@@ -15,19 +19,21 @@ class PrivateTIDALResourceAPI(ResourceAPI):
     _PLAYBACK_MODES = {"STREAM", "OFFLINE"}
     _client: "PrivateTIDALAPIClient"
 
+    __slots__ = ()
+
     _validate_tidal_ids = TIDALResourceAPI._validate_tidal_ids
 
     @staticmethod
     def _prepare_tidal_ids(
-        tidal_ids: str | list[str], /, *, limit: int = 500
+        tidal_ids: str | Collection[str], /, *, limit: int = 500
     ) -> str:
         """
         Validate, normalize, and serialize TIDAL IDs.
 
         Parameters
         ----------
-        tidal_ids : int, str, or list[str]; positional-only
-            Comma-separated string or list of TIDAL IDs.
+        tidal_ids : int, str, or Collection[str]; positional-only
+            Comma-separated string or collection of TIDAL IDs.
 
         limit : int; keyword-only, default: :code:`500`
             Maximum number of TIDAL IDs that can be sent in the
@@ -63,12 +69,13 @@ class PrivateTIDALResourceAPI(ResourceAPI):
                     raise ValueError(f"Invalid TIDAL ID {id_!r}.")
             else:
                 raise ValueError(f"Invalid TIDAL ID {id_!r}.")
+
         return ",".join(tidal_ids)
 
     @staticmethod
     def _prepare_uuids(
         resource_type: str,
-        resource_uuids: str | list[str],
+        resource_uuids: str | Collection[str],
         /,
         *,
         has_prefix: bool = False,
@@ -83,7 +90,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
 
             **Valid values**: :code:`"folder"`, :code:`"playlist"`.
 
-        resource_uuids : str or list[str]; positional-only
+        resource_uuids : str or Collection[str]; positional-only
             UUIDs of playlists or playlist folders.
 
         has_prefix : bool; keyword-only; default: :code:`False`

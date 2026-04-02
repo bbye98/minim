@@ -1,9 +1,15 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
@@ -107,7 +113,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         self, album_id: int | str, /, country_code: str | None = None
     ) -> list[dict[str, Any]]:
         """
-        Get TIDAL catalog information for an album's credits.
+        Get TIDAL catalog information for credits for an album.
 
         Parameters
         ----------
@@ -194,8 +200,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of TIDAL metadata for the tracks and videos in
-            the album.
+            Page of TIDAL metadata for the album's tracks and videos.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -343,7 +348,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for the credits of the tracks and
+        Get TIDAL catalog information for credits for the tracks and
         videos in an album.
 
         Parameters
@@ -378,8 +383,8 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         credits : dict[str, Any]
-            Page of TIDAL metadata for the credits of the tracks
-            and videos in the album.
+            Page of TIDAL metadata for the credits for the album's
+            tracks and videos.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -541,8 +546,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         self, album_id: int | str, /, country_code: str | None = None
     ) -> dict[str, str]:
         """
-        Get TIDAL catalog information for a review of or synopsis for an
-        album.
+        Get a review of or synopsis for an album.
 
         Parameters
         ----------
@@ -561,8 +565,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         review : dict[str, Any]
-            TIDAL metadata for the review of or synopsis for the
-            album.
+            Metadata for the album's review or synopsis.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -591,8 +594,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for albums similar to the
-        specified album.
+        Get TIDAL catalog information for similar albums.
 
         Parameters
         ----------
@@ -714,8 +716,8 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             album_id, country_code, device_type=device_type, locale=locale
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_saved_albums)
-    def get_saved_albums(
+    @_copy_docstring(PrivateUsersAPI.get_user_saved_albums)
+    def get_user_saved_albums(
         self,
         user_id: int | str | None = None,
         /,
@@ -726,7 +728,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_albums(
+        return self._client.users.get_user_saved_albums(
             user_id,
             country_code,
             limit=limit,
@@ -738,7 +740,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.save_albums)
     def save_albums(
         self,
-        album_ids: int | str | list[int | str],
+        album_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -755,7 +757,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
     @_copy_docstring(PrivateUsersAPI.remove_saved_albums)
     def remove_saved_albums(
         self,
-        album_ids: int | str | list[int | str],
+        album_ids: int | str | Collection[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:

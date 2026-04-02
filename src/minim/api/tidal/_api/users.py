@@ -2853,7 +2853,8 @@ class UsersAPI(TIDALResourceAPI):
         """
         `Users > Get Current User's Profile
         <https://tidal-music.github.io/tidal-api-reference/#/users
-        /get_users_me>`_: Get profile information for the current user.
+        /get_users_me>`_: Get TIDAL profile information for the current
+        user.
 
         .. admonition:: Authorization scope
            :class: entitlement
