@@ -1155,9 +1155,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
     @_copy_docstring(PrivateUsersAPI.get_track_recommendations)
     def get_track_recommendations(
         self,
-        seed_track_ids: int | str | list[int | str],
+        seed_track_ids: int | str | Collection[int | str],
         /,
-        exclude_track_ids: int | str | list[int | str] | None = None,
+        exclude_track_ids: int | str | Collection[int | str] | None = None,
         *,
         limit: int | None = None,
     ) -> dict[str, Any]:

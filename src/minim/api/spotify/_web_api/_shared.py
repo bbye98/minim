@@ -180,7 +180,7 @@ class SpotifyResourceAPI(ResourceAPI):
     @classmethod
     def _prepare_types(
         cls,
-        types: str | list[str],
+        types: str | Collection[str],
         /,
         *,
         allowed_types: set[str],
@@ -191,7 +191,7 @@ class SpotifyResourceAPI(ResourceAPI):
 
         Parameters
         ----------
-        types : str or list[str]; positional-only
+        types : str or Collection[str]; positional-only
             Types.
 
         allowed_types : set[str]; keyword-only
@@ -226,7 +226,7 @@ class SpotifyResourceAPI(ResourceAPI):
     def _get_resources(
         self,
         resource_type: str,
-        resource_ids: str | list[str],
+        resource_ids: str | Collection[str],
         /,
         *,
         country_code: str | None = None,
@@ -246,7 +246,7 @@ class SpotifyResourceAPI(ResourceAPI):
             :code:`"chapters"`, :code:`"episodes"`, :code:`"shows"`,
             :code:`"tracks"`.
 
-        resource_ids : str or list[str]; positional-only
+        resource_ids : str or Collection[str]; positional-only
             Spotify IDs of the resources.
 
         country_code : str; keyword-only; optional
