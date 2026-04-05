@@ -295,14 +295,14 @@ class iTunesSearchAPIClient(APIClient):
             **Examples**: :code:`2025410`, :code:`"2844399"`,
             :code:`[2025410, "2844399"]`.
 
-        amg_artist_ids : int, str, or Collection[int | str];
+        amg_artist_ids : int, str, or Collection[int | str]; \
         keyword-only; optional
             AMG artist IDs.
 
             **Examples**: :code:`472102`, :code:`"2913530"`,
             :code:`[472102, "2913530"]`.
 
-        amg_video_ids : int, str, or Collection[int | str];
+        amg_video_ids : int, str, or Collection[int | str]; \
         keyword-only; optional
             AMG video IDs.
 
