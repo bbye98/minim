@@ -1964,6 +1964,8 @@ class AlbumsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    # TODO: def get_user_album_collection(self, ...): pass
+
     @_copy_docstring(UsersAPI.get_user_saved_albums)
     def get_user_saved_albums(
         self,
