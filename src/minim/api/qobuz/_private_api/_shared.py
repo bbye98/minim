@@ -1,12 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._types import COLLECTION_TYPES
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
     from typing import Any
 
-    from ...._types import COLLECTION_TYPES, Collection
+    from ...._types import Collection
     from .. import PrivateQobuzAPIClient
 
 
@@ -43,7 +44,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         if not isinstance(album_ids, COLLECTION_TYPES):
             raise TypeError(
                 "Qobuz album IDs must be provided as integers, "
-                "strings, or lists of integers and/or strings."
+                "strings, or collections of integers and/or strings."
             )
 
         for album_id in album_ids:

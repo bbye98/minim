@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._types import COLLECTION_TYPES
 from ..._shared import ResourceAPI
 from .._api._shared import TIDALResourceAPI
 
@@ -111,18 +112,18 @@ class PrivateTIDALResourceAPI(ResourceAPI):
             return PrivateTIDALResourceAPI._prepare_uuids(
                 resource_uuids.split(",")
             )
-        elif isinstance(resource_uuids, tuple | list):
+        elif isinstance(resource_uuids, COLLECTION_TYPES):
             for idx, uuid in enumerate(resource_uuids):
                 if has_prefix:
                     if uuid.startswith(f"trn:{resource_type}:"):
                         uuid = uuid[13:]
                     else:
                         resource_uuids[idx] = f"trn:{resource_type}:{uuid}"
-                ResourceAPI._validate_uuid(uuid)
+                ResourceAPI._validate_uuids(uuid)
         else:
             raise TypeError(
                 f"`{resource_type}_uuids` must be a comma-separated "
-                "string or a list of strings."
+                "string or a collection of strings."
             )
 
         return ",".join(resource_uuids)

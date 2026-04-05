@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._types import COLLECTION_TYPES
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
@@ -8,7 +9,7 @@ from .search import PrivateSearchAPI
 if TYPE_CHECKING:
     from typing import Any
 
-    from ...._types import COLLECTION_TYPES, Collection
+    from ...._types import Collection
 
 
 class PrivateAlbumsAPI(PrivateQobuzResourceAPI):

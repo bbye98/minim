@@ -33,7 +33,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Parameters
         ----------
         mix_ids : str or Collection[str]; positional-only
-            Comma-separated string or list of mix IDs.
+            Comma-separated string or collection of mix IDs.
 
         limit : int; keyword-only, default: :code:`100`
             Maximum number of mix IDs that can be sent in the request.
@@ -2030,7 +2030,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         else:
             if folder_uuid is not None:
                 if folder_uuid != "root":
-                    self._validate_uuid(folder_uuid)
+                    self._validate_uuids(folder_uuid)
                 params["folderId"] = folder_uuid
             self._client._request(
                 "PUT",
@@ -2444,7 +2444,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         params = {}
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._validate_uuid(folder_uuid)
+                self._validate_uuids(folder_uuid)
             params["folderId"] = folder_uuid
         return self._get_my_playlists(
             "playlists/folders",

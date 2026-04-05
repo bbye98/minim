@@ -875,7 +875,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         if country_code is not None:
             self._validate_country_code(country_code)
             params["countryCode"] = country_code
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         payload = {
             "data": {
                 "attributes": {},
@@ -925,7 +925,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.delete_playlist", "playlists.write"
         )
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         self._client._request("DELETE", f"playlist/{playlist_uuid}")
 
     @TTLCache.cached_method(ttl="user")
@@ -1313,7 +1313,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.add_playlist_items", "playlists.write"
         )
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         params = {}
         if country_code is not None:
             self._validate_country_code(country_code)
@@ -1415,7 +1415,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.reorder_playlist_items", "playlists.write"
         )
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         payload = {"data": self._process_playlist_items(items)}
         if insert_before is not None:
             payload["meta"] = {"positionBefore": insert_before}
@@ -1505,7 +1505,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.remove_playlist_items", "playlists.write"
         )
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         self._client._request(
             "DELETE",
             f"playlists/{playlist_uuid}/relationships/items",

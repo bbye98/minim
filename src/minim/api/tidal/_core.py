@@ -348,7 +348,8 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         self.playlists: PlaylistsAPI = PlaylistsAPI(self)
         #: Providers API endpoints for the TIDAL API.
         self.providers: ProvidersAPI = ProvidersAPI(self)
-        #: Search Results and Search Suggestions API endpoints for the TIDAL API.
+        #: Search Results and Search Suggestions API endpoints for the
+        #: TIDAL API.
         self.search: SearchAPI = SearchAPI(self)
         #: Tracks API endpoints for the TIDAL API.
         self.tracks: TracksAPI = TracksAPI(self)
@@ -383,8 +384,8 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.tidal.UsersAPI.get_me` and
-           make a request to the TIDAL API.
+           :meth:`~minim.api.tidal.UsersAPI.get_me` and make a request
+           to the TIDAL API.
         """
         country_code = self._my_profile.get("attributes", {}).get("country")
         if country_code is None:
@@ -404,8 +405,8 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.tidal.UsersAPI.get_me` and
-           make a request to the TIDAL API.
+           :meth:`~minim.api.tidal.UsersAPI.get_me` and make a request
+           to the TIDAL API.
         """
         return (
             {}
@@ -477,8 +478,8 @@ class TIDALAPIClient(BaseTIDALAPIClient):
 
     def _resolve_user_identifier(self) -> str:
         """
-        Return the TIDAL user ID as the user identifier for the
-        current account.
+        Return the TIDAL user ID as the user identifier for the current
+        account.
 
         .. note::
 
@@ -814,8 +815,8 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         .. note::
 
            Accessing this property may call :meth:`get_country_code` or
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and
-           make requests to the private TIDAL API.
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and make
+           requests to the private TIDAL API.
         """
         if self._auth_flow is None:
             return self.get_country_code()["countryCode"]
@@ -832,8 +833,8 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and
-           make a request to the private TIDAL API.
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and make a
+           request to the private TIDAL API.
         """
         if self._auth_flow is not None:
             return self.users.get_me()
@@ -895,7 +896,8 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         if "status" in error:
             if "subStatus" in error:
                 raise RuntimeError(
-                    f"{error['status']}.{error['subStatus']} – {error['userMessage']}"
+                    f"{error['status']}.{error['subStatus']} "
+                    f"– {error['userMessage']}"
                 )
 
             if "path" in error:
@@ -908,7 +910,8 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             )
 
         raise RuntimeError(
-            f"{error['httpStatus']}.{error['subStatus']} {error['error']} – {error['description']}"
+            f"{error['httpStatus']}.{error['subStatus']} "
+            f"{error['error']} – {error['description']}"
         )
 
     def _require_subscription(self, endpoint_method: str, /) -> None:
@@ -919,8 +922,8 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_subscription`
-           and make a request to the private TIDAL API.
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_subscription` and
+           make a request to the private TIDAL API.
 
         Parameters
         ----------
@@ -935,14 +938,14 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
 
     def _resolve_user_identifier(self) -> str:
         """
-        Return the TIDAL user ID as the user identifier for the
-        current account.
+        Return the TIDAL user ID as the user identifier for the current
+        account.
 
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and
-           make a request to the private TIDAL API.
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and make a
+           request to the private TIDAL API.
         """
         return self._token_extras.get("user_id", self._my_profile["userId"])
 
@@ -1069,8 +1072,8 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
                access tokens for this client.
 
         authenticate : bool; keyword-only; default: :code:`True`
-            Whether to immediately initiate the authorization
-            flow to acquire an access token.
+            Whether to immediately initiate the authorization flow to
+            acquire an access token.
 
             .. important::
 

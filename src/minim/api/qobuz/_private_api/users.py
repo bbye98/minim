@@ -315,7 +315,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             "password": password,
         }
         if device_uuid is not None:
-            self._validate_uuid(device_uuid)
+            self._validate_uuids(device_uuid)
             params["device_manufacturer_id"] = device_uuid
         if device_model is not None:
             params["device_model"] = self._prepare_string(
@@ -1043,7 +1043,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         recommendations : dict[str, Any]
-            Qobuz metadata for the tracks recommended based on the seed 
+            Qobuz metadata for the tracks recommended based on the seed
             tracks.
 
             .. admonition:: Sample response

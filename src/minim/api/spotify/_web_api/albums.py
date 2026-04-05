@@ -326,7 +326,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         """
         `Albums > Get Album Tracks <https://developer.spotify.com
         /documentation/web-api/reference/get-an-albums-tracks>`_: Get
-        Spotify catalog information for tracks in an album.
+        Spotify catalog information for tracks on an album.
 
         .. admonition:: Third-party application mode
            :class: entitlement dropdown

@@ -1,8 +1,13 @@
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
+from ...._types import COLLECTION_TYPES
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
     from .. import TIDALAPIClient
 
 
@@ -60,14 +65,17 @@ class TIDALResourceAPI(ResourceAPI):
 
     @staticmethod
     def _validate_tidal_ids(
-        tidal_ids: int | str | list[int | str], /, *, recursive: bool = True
+        tidal_ids: int | str | Collection[int | str],
+        /,
+        *,
+        recursive: bool = True,
     ) -> None:
         """
         Validate one or more TIDAL IDs.
 
         Parameters
         ----------
-        tidal_ids : int, str, or list[int | str]; positional-only
+        tidal_ids : int, str, or Collection[int | str]; positional-only
             TIDAL IDs.
         """
         if not isinstance(tidal_ids, int) and not tidal_ids:
@@ -76,10 +84,12 @@ class TIDALResourceAPI(ResourceAPI):
         if isinstance(tidal_ids, str):
             if not tidal_ids.isdecimal():
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+
         elif not isinstance(tidal_ids, int):
             if recursive:
                 if not isinstance(tidal_ids, tuple | list | str):
                     raise ValueError("TIDAL IDs must be integers or strings.")
+
                 for tidal_id in tidal_ids:
                     TIDALResourceAPI._validate_tidal_ids(
                         tidal_id, recursive=False
@@ -87,40 +97,21 @@ class TIDALResourceAPI(ResourceAPI):
             else:
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
 
-    @staticmethod
-    def _validate_uuids(uuids: str | list[str], /) -> None:
-        """
-        Validate universally unique identifiers (UUIDs).
-
-        Parameters
-        ----------
-        uuids : str or list[str]; positional-only
-            UUIDs.
-        """
-        if isinstance(uuids, str):
-            ResourceAPI._validate_uuid(uuids)
-        elif isinstance(uuids, list | tuple):
-            for uuid in uuids:
-                ResourceAPI._validate_uuid(uuid)
-        else:
-            raise ValueError(
-                "UUIDs must be provided as a string or a list of strings."
-            )
-
     @classmethod
     def _prepare_expand(
         cls,
-        expand: str | list[str],
+        expand: str | Collection[str],
         /,
         *,
         relationships: set[str] | None = None,
     ) -> list[str]:
         """
-        Validate, normalize, and prepare a list of related resources.
+        Validate, normalize, and prepare a collection of related
+        resources.
 
         Parameters
         ----------
-        expand : str | list[str]; positional-only
+        expand : str | Collection[str]; positional-only
             Related resources to include metadata for in the response.
 
         resources : set[str]; keyword-only; optional
@@ -136,27 +127,28 @@ class TIDALResourceAPI(ResourceAPI):
             relationships = getattr(cls, "_RELATIONSHIPS", {})
         if isinstance(expand, str):
             expand = [expand]
-        elif not isinstance(expand, tuple | list | set):
-            raise ValueError("`expand` must be a string or a list of strings.")
+        elif not isinstance(expand, COLLECTION_TYPES):
+            raise ValueError(
+                "`expand` must be a string or a collection of strings."
+            )
         for resource in expand:
             if resource not in relationships:
-                relationships_str = "', '".join(sorted(relationships))
                 raise ValueError(
-                    f"Invalid related resource {resource!r}. "
-                    f"Valid values: {ResourceAPI._join_values(relationships)}."
+                    f"Invalid related resource {resource!r}. Valid "
+                    f"values: {ResourceAPI._join_values(relationships)}."
                 )
         return expand
 
     def _get_resources(
         self,
         resource_type: str,
-        resource_identifiers: str | list[str] | None,
+        resource_identifiers: str | Collection[str] | None,
         /,
         country_code: str | None = None,
         *,
         locale: str | None = None,
         include_explicit: bool | None = None,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
         cursor: str | None = None,
         share_code: str | None = None,
         relationships: set[str] | None = None,
@@ -172,7 +164,7 @@ class TIDALResourceAPI(ResourceAPI):
         resource_type : str; positional-only
             Resource type.
 
-        resource_identifiers : str or list[str]; positional-only
+        resource_identifiers : str or Collection[str]; positional-only
             TIDAL IDs or UUIDs of the resources, or a search query.
 
         country_code : str; optional
@@ -186,7 +178,7 @@ class TIDALResourceAPI(ResourceAPI):
 
             **API default**: :code:`True`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
         cursor : str; keyword-only; optional
@@ -250,6 +242,7 @@ class TIDALResourceAPI(ResourceAPI):
                     f"{resource_type}/{resource_identifiers}",
                     params=params,
                 ).json()
+
             params["filter[id]"] = resource_identifiers
         if cursor is not None:
             params["page[cursor]"] = self._prepare_string("cursor", cursor)
@@ -336,7 +329,7 @@ class TIDALResourceAPI(ResourceAPI):
         if resource_identifier_type == "id":
             self._validate_tidal_ids(resource_identifier, recursive=False)
         elif resource_identifier_type == "uuid":
-            self._validate_uuid(resource_identifier)
+            self._validate_uuids(resource_identifier)
         else:
             self._validate_type("query", resource_identifier, str)
         if params is None:

@@ -29,6 +29,7 @@ from cryptography.x509.oid import NameOID
 import httpx
 
 from .. import FOUND, MINIM_DIR
+from .._types import COLLECTION_TYPES
 from .._utility import join_values, prepare_datetime
 from . import db_connection, db_cursor
 
@@ -39,7 +40,7 @@ if TYPE_CHECKING:
     import types
     from typing import Any, Callable
 
-    from .._types import COLLECTION_TYPES, Collection
+    from .._types import Collection
 
 
 def _copy_docstring(
@@ -861,7 +862,7 @@ class APIClient(ABC):
 
         .. warning::
 
-           If `endpoint_methods` is not provided, all cache entries are 
+           If `endpoint_methods` is not provided, all cache entries are
            cleared.
 
         Parameters
@@ -2083,7 +2084,7 @@ class OAuth1APIClient(OAuthAPIClient):
         if signature_method not in self._SIGNATURE_METHODS:
             raise ValueError(
                 f"Invalid OAuth signature method {signature_method!r}. "
-                f"Valid values: {self._join_values(self._SIGNATURE_METHODS)}."
+                f"Valid values: {join_values(self._SIGNATURE_METHODS)}."
             )
         self._oauth["oauth_signature_method"] = signature_method
         super().set_auth_flow(
@@ -3294,16 +3295,28 @@ class ResourceAPI:
             )
 
     @staticmethod
-    def _validate_uuid(uuid_: str, /) -> None:
+    def _validate_uuids(
+        uuids: str | Collection[str], /, *, recursive: bool = True
+    ) -> None:
         """
-        Validate a universally unique identifier (UUID).
+        Validate universally unique identifiers (UUIDs).
 
         Parameters
         ----------
-        uuid_ : str; positional-only
-            UUID.
+        uuids : str or Collection[str]; positional-only
+            UUIDs.
         """
-        try:
-            uuid.UUID(uuid_)
-        except (TypeError, ValueError):
-            raise ValueError(f"{uuid_!r} is not a valid UUID.")
+        if isinstance(uuids, str):
+            try:
+                uuid.UUID(uuids)
+            except (TypeError, ValueError):
+                raise ValueError(f"{uuids!r} is not a valid UUID.")
+
+        elif recursive and isinstance(uuids, COLLECTION_TYPES):
+            for uuid_ in uuids:
+                ResourceAPI._validate_uuids(uuid_, recursive=False)
+        else:
+            raise ValueError(
+                "UUIDs must be provided as a string or a collection of "
+                "strings."
+            )

@@ -129,7 +129,7 @@ class AlbumsAPI(MusixmatchResourceAPI):
         """
         `Album > album.tracks.get <https://docs.musixmatch.com
         /lyrics-api/album/album-tracks-get>`_: Get Musixmatch catalog
-        information for the tracks in an album.
+        information for the tracks on an album.
 
         .. admonition:: Subscription
            :class: entitlement

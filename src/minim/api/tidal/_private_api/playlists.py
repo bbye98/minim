@@ -32,9 +32,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     _SORT_FIELDS = {"DATE", "NAME"}
 
     @classmethod
-    def _validate_types(
-        cls, playlist_types: str | OrderedCollection[str], /
-    ) -> None:
+    def _validate_types(cls, playlist_types: str | Collection[str], /) -> None:
         """
         Validate one or more playlist types to filter by.
 
@@ -58,7 +56,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         else:
             raise TypeError(
                 "`playlist_types` must be a comma-separated string or "
-                "a list of strings."
+                "a collection of strings."
             )
 
     def _get_playlist_etag(
@@ -84,7 +82,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Example**: :code:`"1765846447570"`.
         """
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         if country_code is None:
             country_code = self._client._my_country_code
         else:
@@ -255,7 +253,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                           "uuid": <str>
                         }
         """
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         self._validate_number("version", api_version, int, 1, 2)
         if api_version == 1:
             if country_code is None:
@@ -456,7 +454,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
@@ -608,7 +606,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication(
             "playlists.get_playlist_recommended_tracks"
         )
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
@@ -686,7 +684,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         params = {"name": self._prepare_string("name", name)}
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._validate_uuid(folder_uuid)
+                self._validate_uuids(folder_uuid)
             params["folderId"] = folder_uuid
         return self._client._request(
             "PUT",
@@ -850,7 +848,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             params["isPublic"] = public
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._validate_uuid(folder_uuid)
+                self._validate_uuids(folder_uuid)
             params["folderId"] = folder_uuid
         return self._client._request(
             "PUT",
@@ -902,7 +900,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         }
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._validate_uuid(folder_uuid)
+                self._validate_uuids(folder_uuid)
             params["folderId"] = folder_uuid
         self._client._request(
             "PUT", "v2/my-collection/playlists/folders/move", params=params
@@ -935,7 +933,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             Whether the playlist is displayed on the user's profile.
         """
         self._client._require_authentication("playlists.set_playlist_privacy")
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         self._client._request(
             "PUT",
             f"v2/playlists/{playlist_uuid}/set-"
@@ -983,7 +981,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication(
             "playlists.update_playlist_details"
         )
-        self._validate_uuid(playlist_uuid)
+        self._validate_uuids(playlist_uuid)
         payload = {}
         if name is not None:
             payload["title"] = self._prepare_string("name", name)
@@ -1128,7 +1126,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             self._validate_tidal_ids(from_album_id, recursive=False)
             data["fromAlbumId"] = from_album_id
         else:
-            self._validate_uuid(from_playlist_uuid)
+            self._validate_uuids(from_playlist_uuid)
             data["fromPlaylistUuid"] = from_playlist_uuid
         if on_duplicate is not None:
             if on_duplicate not in (options := {"ADD", "FAIL", "SKIP"}):
