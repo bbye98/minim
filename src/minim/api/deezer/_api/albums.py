@@ -213,7 +213,7 @@ class AlbumsAPI(DeezerResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            Page of Deezer profile information for the album fans.
+            Page of Deezer profile information for the album's fans.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -282,7 +282,7 @@ class AlbumsAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Page of Deezer metadata for the album tracks.
+            Page of Deezer metadata for the album's tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
