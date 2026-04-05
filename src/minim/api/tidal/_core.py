@@ -493,6 +493,15 @@ class TIDALAPIClient(BaseTIDALAPIClient):
 class PrivateTIDALAPIClient(BaseTIDALAPIClient):
     """
     Private TIDAL API client.
+
+    .. admonition:: attention
+
+       As the private TIDAL API is not designed to be publicly
+       accessible, this client may break without warning if TIDAL makes
+       internal changes or be disabled and removed at any time to ensure
+       compliance with the `TIDAL Developer Terms of Service
+       <https://developer.tidal.com/documentation/guidelines
+       /guidelines-developer-terms>`_.
     """
 
     _ALLOWED_AUTH_FLOWS = {None, "pkce", "device"}

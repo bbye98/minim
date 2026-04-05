@@ -37,6 +37,14 @@ if TYPE_CHECKING:
 class PrivateQobuzAPIClient(APIClient):
     """
     Private Qobuz API client.
+
+    .. admonition:: attention
+
+       As the private Qobuz API is not designed to be publicly
+       accessible, this client may break without warning if Qobuz makes
+       internal changes or be disabled and removed at any time to ensure
+       compliance with the `Qobuz API Terms of Use
+       <https://static.qobuz.com/apps/api/QobuzAPI-TermsofUse.pdf>`_.
     """
 
     _ALLOWED_AUTH_FLOWS = {
