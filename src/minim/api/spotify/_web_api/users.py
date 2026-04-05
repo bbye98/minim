@@ -625,7 +625,7 @@ class UsersAPI(SpotifyResourceAPI):
 
                .. tab-set::
 
-                  .. tab-item:: :code:`resource_type="artists"`
+                  .. tab-item:: Top artists
 
                      .. code-block::
 
@@ -662,7 +662,7 @@ class UsersAPI(SpotifyResourceAPI):
                           "total": <int>
                         }
 
-                  .. tab-item:: :code:`resource_type="tracks"`
+                  .. tab-item:: Top tracks
 
                      .. code-block::
 

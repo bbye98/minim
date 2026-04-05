@@ -2638,7 +2638,7 @@ class OAuth2APIClient(OAuthAPIClient):
         self.set_access_token(
             access_token,
             token_type,
-            refresh_token=resp_json.pop("refresh_token", self._refresh_token),
+            refresh_token=resp_json.pop("refresh_token", None),
             expires_at=datetime.now()
             + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )

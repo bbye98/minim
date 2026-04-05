@@ -671,7 +671,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the albums
+            Whether to include metadata for the albums
             containing the video.
 
         cursor : str; keyword-only; optional
@@ -816,7 +816,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the video's
+            Whether to include metadata for the video's
             artists.
 
         cursor : str; keyword-only; optional
@@ -970,7 +970,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the video's
+            Whether to include metadata for the video's
             providers.
 
         cursor : str; keyword-only; optional
@@ -1051,7 +1051,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the video's
+            Whether to include metadata for the video's
             thumbnail.
 
         cursor : str; keyword-only; optional

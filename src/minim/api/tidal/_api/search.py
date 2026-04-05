@@ -498,7 +498,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the direct hits.
 
         cursor : str; keyword-only; optional
@@ -1441,7 +1441,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the matching albums.
 
         cursor : str; keyword-only; optional
@@ -1602,7 +1602,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the matching artists.
 
         cursor : str; keyword-only; optional
@@ -1773,7 +1773,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the matching playlists.
 
         cursor : str; keyword-only; optional
@@ -1904,7 +1904,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the matching top hits.
 
         cursor : str; keyword-only; optional
@@ -2337,7 +2337,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the matching tracks.
 
         cursor : str; keyword-only; optional
@@ -2516,7 +2516,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the matching videos.
 
         cursor : str; keyword-only; optional

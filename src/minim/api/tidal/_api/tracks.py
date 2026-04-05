@@ -1039,7 +1039,7 @@ class TracksAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the albums
+            Whether to include metadata for the albums
             containing the track.
 
         cursor : str; keyword-only; optional
@@ -1189,7 +1189,7 @@ class TracksAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the track's
+            Whether to include metadata for the track's
             artists.
 
         cursor : str; keyword-only; optional
@@ -1342,7 +1342,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the track's
+            Whether to include metadata for the track's
             owners.
 
         cursor : str; keyword-only; optional
@@ -1415,7 +1415,7 @@ class TracksAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the track's
+            Whether to include metadata for the track's
             providers.
 
         cursor : str; keyword-only; optional
@@ -1495,7 +1495,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the track's
+            Whether to include metadata for the track's
             mix.
 
         cursor : str; keyword-only; optional
@@ -1606,7 +1606,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the track's
+            Whether to include metadata for the track's
             shares.
 
         cursor : str; keyword-only; optional
@@ -1679,7 +1679,7 @@ class TracksAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the similar
+            Whether to include metadata for the similar
             tracks.
 
         cursor : str; keyword-only; optional
@@ -1840,7 +1840,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the track's
+            Whether to include metadata for the track's
             source file.
 
         cursor : str; keyword-only; optional
@@ -1904,7 +1904,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the track's
+            Whether to include metadata for the track's
             statistics.
 
         share_code : str; keyword-only; optional

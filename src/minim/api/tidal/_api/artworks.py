@@ -183,7 +183,7 @@ class ArtworksAPI(TIDALResourceAPI):
             **Example**: :code:`"2xpmpI1s9DzeAPMlmNh9kM"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artwork's
+            Whether to include metadata for the artwork's
             owners.
 
         cursor : str; keyword-only; optional

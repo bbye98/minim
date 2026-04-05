@@ -59,7 +59,7 @@ class TIDALResourceAPI(ResourceAPI):
         if sort_by not in sort_fields:
             raise ValueError(
                 f"Cannot sort by '{prefix}{sort_by}'. Valid values: "
-                f"{ResourceAPI._join_values(f'{prefix}{sort_field}' for sort_field in sort_fields)}."
+                f"{ResourceAPI._join_values([f'{prefix}{sort_field}' for sort_field in sort_fields])}."
             )
         params["sort"] = f"{'-' if descending else ''}{prefix}{sort_by}"
 
@@ -82,12 +82,12 @@ class TIDALResourceAPI(ResourceAPI):
             raise ValueError("At least one TIDAL ID must be specified.")
 
         if isinstance(tidal_ids, str):
-            if not tidal_ids.isdecimal():
+            if not tidal_ids == "me" and not tidal_ids.isdecimal():
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
 
         elif not isinstance(tidal_ids, int):
             if recursive:
-                if not isinstance(tidal_ids, tuple | list | str):
+                if not isinstance(tidal_ids, str | COLLECTION_TYPES):
                     raise ValueError("TIDAL IDs must be integers or strings.")
 
                 for tidal_id in tidal_ids:
@@ -296,7 +296,7 @@ class TIDALResourceAPI(ResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the related
+            Whether to include metadata for the related
             resource.
 
         cursor : str; keyword-only; optional

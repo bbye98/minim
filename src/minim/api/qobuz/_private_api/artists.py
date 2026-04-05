@@ -127,7 +127,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
                .. tab-set::
 
-                  .. tab-item:: Current (:code:`subresource="page"`) endpoint
+                  .. tab-item:: Current endpoint
 
                      .. code-block::
 
@@ -491,7 +491,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                           ]
                         }
 
-                  .. tab-item:: Legacy (:code:`subresource="get"`) endpoint
+                  .. tab-item:: Legacy endpoint
 
                      .. code-block::
 

@@ -1097,7 +1097,7 @@ class AlbumsAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album Artists
+        `Albums > Get Artists Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_artists>`_: Get TIDAL catalog
         information for the artists of an album.
@@ -1115,7 +1115,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the album artists.
+            Whether to include metadata for the album artists.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1255,7 +1255,7 @@ class AlbumsAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album Cover Art
+        `Albums > Get Cover Art Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_coverArt>`_: Get TIDAL
         catalog information for the cover art of an album.
@@ -1273,7 +1273,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the album cover art.
+            Whether to include metadata for the album cover art.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1356,7 +1356,7 @@ class AlbumsAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album Items
+        `Albums > Get Items Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_items>`_: Get TIDAL catalog
         information for tracks and videos on an album.
@@ -1374,7 +1374,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the tracks and videos
+            Whether to include metadata for the tracks and videos
             in the album.
 
         cursor : str; keyword-only; optional
@@ -1580,7 +1580,7 @@ class AlbumsAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album Owners
+        `Albums > Get Owners Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_owners>`_: Get TIDAL catalog
         information for owners of an album.
@@ -1603,7 +1603,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the album's owners.
+            Whether to include metadata for the album's owners.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1657,7 +1657,7 @@ class AlbumsAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album Providers
+        `Albums > Get Providers Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_providers>`_: Get TIDAL catalog
         information for the providers of an album.
@@ -1675,7 +1675,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the album's providers.
+            Whether to include metadata for the album's providers.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1742,7 +1742,7 @@ class AlbumsAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Similar Albums
+        `Albums > Get Similar Albums Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_similarAlbums>`_: Get TIDAL
         catalog information for similar albums.
@@ -1760,7 +1760,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the similar albums.
+            Whether to include metadata for the similar albums.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1890,7 +1890,7 @@ class AlbumsAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album's Usage Rules
+        `Albums > Get Album Usage Rules Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_usageRules>`_: Get TIDAL
         catalog information for the usage rules for an album.
@@ -1908,7 +1908,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the album's usage
+            Whether to include metadata for the album's usage
             rules.
 
         share_code : str; keyword-only; optional
@@ -1964,8 +1964,8 @@ class AlbumsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_saved_albums)
-    def get_saved_albums(  # TODO
+    @_copy_docstring(UsersAPI.get_user_saved_albums)
+    def get_user_saved_albums(
         self,
         *,
         user_id: int | str | None = None,
@@ -1976,7 +1976,7 @@ class AlbumsAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_albums(
+        return self._client.users.get_user_saved_albums(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -1987,12 +1987,12 @@ class AlbumsAPI(TIDALResourceAPI):
         )
 
     @_copy_docstring(UsersAPI.save_albums)
-    def save_albums(  # TODO
+    def save_albums(
         self,
         album_ids: int
         | str
         | dict[str, int | str]
-        | list[int | str | dict[str, int | str]],
+        | Collection[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -2003,12 +2003,12 @@ class AlbumsAPI(TIDALResourceAPI):
         )
 
     @_copy_docstring(UsersAPI.remove_saved_albums)
-    def remove_saved_albums(  # TODO
+    def remove_saved_albums(
         self,
         album_ids: int
         | str
         | dict[str, int | str]
-        | list[int | str | dict[str, int | str]],
+        | Collection[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,

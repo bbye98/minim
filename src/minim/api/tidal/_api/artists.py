@@ -1026,7 +1026,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             albums.
 
         cursor : str; keyword-only; optional
@@ -1170,7 +1170,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             biography.
 
         Returns
@@ -1235,7 +1235,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             owners.
 
         cursor : str; keyword-only; optional
@@ -1302,7 +1302,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             profile art.
 
         cursor : str; keyword-only; optional
@@ -1399,7 +1399,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             mix.
 
         cursor : str; keyword-only; optional
@@ -1505,7 +1505,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             roles.
 
         cursor : str; keyword-only; optional
@@ -1587,7 +1587,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the similar
+            Whether to include metadata for the similar
             artists.
 
         cursor : str; keyword-only; optional
@@ -1740,7 +1740,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             track providers.
 
         cursor : str; keyword-only; optional
@@ -1834,7 +1834,7 @@ class ArtistsAPI(TIDALResourceAPI):
             * :code:`"ID"` – Returns every track as a separate item.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             tracks.
 
         cursor : str; keyword-only; optional
@@ -2003,7 +2003,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for the artist's
+            Whether to include metadata for the artist's
             videos.
 
         cursor : str; keyword-only; optional

@@ -154,7 +154,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
                .. tab-set::
 
-                  .. tab-item:: Current (:code:`v2`) endpoint
+                  .. tab-item:: Current endpoint
 
                      .. code-block::
 
@@ -218,7 +218,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                           }
                         }
 
-                  .. tab-item:: Legacy (:code:`v1`) endpoint
+                  .. tab-item:: Legacy endpoint
 
                      .. code-block::
 

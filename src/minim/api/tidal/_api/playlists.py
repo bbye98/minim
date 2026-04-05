@@ -957,7 +957,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the playlist cover art.
 
         cursor : str; keyword-only; optional
@@ -1055,7 +1055,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the items in the playlist.
 
         cursor : str; keyword-only; optional
@@ -1551,7 +1551,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the playlist's owners.
 
         cursor : str; keyword-only; optional
@@ -1630,7 +1630,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL metadata for
+            Whether to include metadata for
             the playlist's owners' profiles.
 
         cursor : str; keyword-only; optional
