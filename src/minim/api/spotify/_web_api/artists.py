@@ -417,7 +417,7 @@ class ArtistsAPI(SpotifyResourceAPI):
               .. tab-item:: Required
 
                  Extended quota mode before November 27, 2024
-                     Access the :code:`GET /artists/{id}
+                     Access the :code:`GET /artists/{artist_id}
                      /related-artists` endpoint. `Learn more.
                      <https://developer.spotify.com/blog
                      /2024-11-27-changes-to-the-web-api>`__

@@ -1890,7 +1890,7 @@ class AlbumsAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album Usage Rules Relationship
+        `Albums > Get Usage Rules Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_usageRules>`_: Get TIDAL
         catalog information for the usage rules for an album.
@@ -1964,12 +1964,28 @@ class AlbumsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    # TODO: def get_user_album_collection(self, ...): pass
+    @_copy_docstring(UsersAPI.get_album_collection)
+    def get_album_collection(
+        self,
+        collection_id: str | None = None,
+        /,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        expand: str | Collection[str] | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_album_collection(
+            collection_id=collection_id,
+            country_code=country_code,
+            locale=locale,
+            expand=expand,
+        )
 
     @_copy_docstring(UsersAPI.get_user_saved_albums)
     def get_user_saved_albums(
         self,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
@@ -1979,6 +1995,7 @@ class AlbumsAPI(TIDALResourceAPI):
         descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_user_saved_albums(
+            collection_id=collection_id,
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -1997,11 +2014,15 @@ class AlbumsAPI(TIDALResourceAPI):
         | Collection[int | str | dict[str, int | str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
         self._client.users.save_albums(
-            album_ids, user_id=user_id, country_code=country_code
+            album_ids,
+            collection_id=collection_id,
+            user_id=user_id,
+            country_code=country_code,
         )
 
     @_copy_docstring(UsersAPI.remove_saved_albums)
@@ -2013,9 +2034,13 @@ class AlbumsAPI(TIDALResourceAPI):
         | Collection[int | str | dict[str, int | str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
         self._client.users.remove_saved_albums(
-            album_ids, user_id=user_id, country_code=country_code
+            album_ids,
+            collection_id=collection_id,
+            user_id=user_id,
+            country_code=country_code,
         )

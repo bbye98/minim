@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._types import COLLECTION_TYPES
+from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
@@ -137,7 +137,11 @@ class TIDALResourceAPI(ResourceAPI):
                     f"Invalid related resource {resource!r}. Valid "
                     f"values: {ResourceAPI._join_values(relationships)}."
                 )
-        return expand
+        return (
+            expand
+            if isinstance(expand, ORDERED_COLLECTION_TYPES)
+            else sorted(expand)
+        )
 
     def _get_resources(
         self,
@@ -243,7 +247,11 @@ class TIDALResourceAPI(ResourceAPI):
                     params=params,
                 ).json()
 
-            params["filter[id]"] = resource_identifiers
+            params["filter[id]"] = (
+                resource_identifiers
+                if isinstance(resource_identifiers, ORDERED_COLLECTION_TYPES)
+                else sorted(resource_identifiers)
+            )
         if cursor is not None:
             params["page[cursor]"] = self._prepare_string("cursor", cursor)
         if share_code is not None:

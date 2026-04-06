@@ -614,8 +614,9 @@ class TracksAPI(SpotifyResourceAPI):
               .. tab-item:: Required
 
                  Extended quota mode before November 27, 2024
-                    Access the :code:`GET/audio-analysis/{id}` endpoint.
-                    `Learn more. <https://developer.spotify.com/blog
+                    Access the :code:`GET/audio-analysis/{track_id}`
+                    endpoint. `Learn more.
+                    <https://developer.spotify.com/blog
                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters

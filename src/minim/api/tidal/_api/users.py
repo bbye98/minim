@@ -86,25 +86,30 @@ class UsersAPI(TIDALResourceAPI):
                 raise ValueError(
                     f"At least one {resource_type[:-1]} must be specified."
                 )
+
             if num_resources > 20:
                 raise ValueError(
                     f"A maximum of 20 {resource_type} can be sent in a request."
                 )
+
             return [
                 cls._prepare_resource_identifiers(resource_id, recursive=False)
                 for resource_id in resource_ids
             ]
+
         resource_identifier = {"id": str(resource_id), "type": resource_type}
         if recursive:
             return [resource_identifier]
+
         return resource_identifier
 
-    def _get_collection_relationship(
+    def _get_user_collection_relationship(
         self,
         relationship: str,
         /,
         *,
-        collection_id: int | str | None = None,
+        collection_id: str | None = None,
+        user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
         include_metadata: bool = False,
@@ -127,9 +132,15 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
             :code:`"videos"`.
 
-        collection_id : int or str; keyword-only; optional
-            TIDAL ID of the user collection. If not specified, the TIDAL
-            ID of current user's collection is used.
+        collection_id : str; keyword-only; optional
+            TIDAL ID of the user collection. If authenticated,
+            :code:`"me"` can be used in lieu of a TIDAL ID for the
+            current user's collection. If not specified, :code:`"me"` is
+            used.
+
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user. If not specified, the TIDAL ID of
+            current user is used.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
@@ -139,16 +150,14 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-        expand : str or Collection[str]; keyword-only; optional
-            Related resources to include metadata for in the response.
-
-            **Valid values**: :code:`"items"`, :code:`"owners"`.
-
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the specified resource.
+            Whether to include TIDAL metadata for the specified
+            resource.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
+
+            **Example**: :code:`"3nI1Esi"`.
 
         sort_by : str; keyword-only; optional
             Field to sort the returned items by.
@@ -175,21 +184,48 @@ class UsersAPI(TIDALResourceAPI):
         """
         if params is None:
             params = {}
+        if user_id is None:
+            id_ = collection_id
+            has_user_id = False
+        else:
+            if collection_id is not None:
+                raise ValueError(
+                    "At most one of 'collection_id' or 'user_id' can "
+                    "be provided."
+                )
+            id_ = user_id
+            has_user_id = True
+        if has_user_id:
+            if sort_by is not None:
+                self._process_sort(
+                    sort_by,
+                    descending=descending,
+                    prefix=f"{relationship}.",
+                    sort_fields=sort_fields,
+                    params=params,
+                )
+            return self._get_resource_relationship(
+                "userCollections",
+                id_ or self._client._my_profile["id"],
+                relationship,
+                country_code=country_code,
+                locale=locale,
+                include_metadata=include_metadata,
+                cursor=cursor,
+                params=params,
+            )
+
         if sort_by is not None:
             self._process_sort(
                 sort_by,
                 descending=descending,
-                prefix=f"{relationship}.",
+                prefix="",
                 sort_fields=sort_fields,
                 params=params,
             )
-        if collection_id is None:
-            collection_id = "me"
-        else:
-            self._validate_tidal_ids(collection_id, recursive=False)
         return self._get_resource_relationship(
             f"userCollection{relationship.capitalize()}",
-            collection_id,
+            id_ or "me",
             "items",
             country_code=country_code,
             locale=locale,
@@ -198,7 +234,7 @@ class UsersAPI(TIDALResourceAPI):
             params=params,
         )
 
-    def _modify_collection_resources(
+    def _modify_user_collection_resources(
         self,
         method: str,
         resource_type: str,
@@ -207,7 +243,8 @@ class UsersAPI(TIDALResourceAPI):
         | Collection[int | str | dict[str, int | str]],
         /,
         *,
-        collection_id: int | str | None = None,
+        collection_id: str | None = None,
+        user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
         """
@@ -231,28 +268,42 @@ class UsersAPI(TIDALResourceAPI):
         Collection[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs, UUIDs, or resource identifiers of the items.
 
-        collection_id : int or str; keyword-only; optional
+        collection_id : str; keyword-only; optional
             TIDAL ID of the user collection. If authenticated,
             :code:`"me"` can be used in lieu of a TIDAL ID for the
             current user's collection. If not specified, :code:`"me"` is
             used.
 
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user. If not specified, the TIDAL ID of
+            current user is used.
+
         country_code : str; optional
             ISO 3166-1 alpha-2 country code.
         """
-        if collection_id is None:
-            collection_id = "me"
+        if user_id is None:
+            id_ = collection_id or "me"
+            endpoint = (
+                f"userCollection{resource_type.capitalize()}"
+                f"/{id_}/relationships/items"
+            )
         else:
-            self._validate_tidal_ids(collection_id, recursive=False)
+            if collection_id is not None:
+                raise ValueError(
+                    "At most one of 'collection_id' or 'user_id' can "
+                    "be provided."
+                )
+            id_ = user_id or self._client._my_profile["id"]
+            endpoint = f"userCollections/{id_}/relationships/{resource_type}"
+        self._validate_tidal_ids(id_, recursive=False)
         params = {}
         if country_code is not None:
             self._validate_country_code(country_code)
             params["countryCode"] = country_code
         self._client._request(
             method,
-            f"userCollections{resource_type.capitalize()}"
-            f"/{collection_id}/relationships/items",
-            header={"Idempotency-Key": str(uuid.uuid4())},
+            endpoint,
+            headers={"Idempotency-Key": str(uuid.uuid4())},
             params=params,
             json={
                 "data": self._prepare_resource_identifiers(
@@ -264,8 +315,9 @@ class UsersAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="user")
     def get_user_collection(
         self,
+        user_id: int | str | None = None,
+        /,
         *,
-        collection_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
         expand: str | Collection[str] | None = None,
@@ -274,7 +326,7 @@ class UsersAPI(TIDALResourceAPI):
         `User Collections > Get Single User Collection
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections/get_userCollections__id_>`_: Get TIDAL catalog
-        information for a user collection.
+        information for a user's collection.
 
         .. admonition:: Authorization scope
            :class: entitlement
@@ -288,11 +340,9 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        collection_id : int or str; keyword-only; optional
-            TIDAL ID of the user collection. If authenticated,
-            :code:`"me"` can be used in lieu of a TIDAL ID for the
-            current user's collection. If not specified, :code:`"me"` is
-            used.
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the TIDAL ID of
+            current user is used.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
@@ -756,27 +806,306 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.get_user_collection", "collection.read"
         )
-        if collection_id is None:
-            collection_id = self._client._my_profile["id"]
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
         else:
-            self._validate_tidal_ids(collection_id, recursive=False)
-        self._get_resources(
+            self._validate_tidal_ids(user_id, recursive=False)
+        return self._get_resources(
             "userCollections",
-            collection_id,
+            user_id,
             country_code=country_code,
             locale=locale,
             expand=expand,
         )
 
-    # TODO: def get_user_collection_owner(self, ...): pass
+    @TTLCache.cached_method(ttl="static")
+    def get_user_collection_owners(
+        self,
+        user_id: int | str | None = None,
+        /,
+        *,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collections > Get Owners Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /get_userCollections__id__relationships_owners>`_: Get TIDAL
+        profile information for the owners of a user's collection.
 
-    # TODO: def get_user_album_collection(self, ...): pass
+        .. admonition:: Authorization scope
+            :class: entitlement
+
+            .. tab-set::
+
+                .. tab-item:: Required
+
+                  :code:`collection.read` scope
+                      Read access to a user's collection.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the TIDAL ID of
+            current user is used.
+
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include metadata for the owner in the response.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        owners : dict[str, Any]
+            TIDAL metadata for the owners of the user collection.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code-block::
+
+                  {
+                    "data": {
+                      "id": <str>,
+                      "type": "users"
+                    },
+                    "included": [
+                      {
+                        "attributes": {
+                          "country": <str>,
+                          "email": <str>,
+                          "emailVerified": <bool>,
+                          "firstName": <str>,
+                          "username": <str>
+                        },
+                        "id": <str>,
+                        "type": "users"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._require_scopes(
+            "users.get_user_collection_owners", "collection.read"
+        )
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
+        else:
+            self._validate_tidal_ids(user_id, recursive=False)
+        return self._get_resource_relationship(
+            "userCollections",
+            user_id,
+            "owners",
+            include_metadata=include_metadata,
+            cursor=cursor,
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_album_collection(
+        self,
+        collection_id: str | None = None,
+        /,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        expand: str | Collection[str] | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collection Albums > Get User Collection Albums
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollectionAlbums/get_userCollectionAlbums__id_>`_: Get
+        TIDAL catalog information for a user album collection.
+
+        .. admonition:: Authorization scope
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
+
+        Parameters
+        ----------
+        collection_id : str; positional-only; optional
+            TIDAL ID of the user collection. If authenticated,
+            :code:`"me"` can be used in lieu of a TIDAL ID for the
+            current user's collection. If not specified, :code:`"me"` is
+            used.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+        expand : str or Collection[str]; keyword-only; optional
+            Related resources to include metadata for in the response.
+
+            **Valid values**: :code:`"items"`, :code:`"owners"`.
+
+            **Examples**: :code:`"items"`, :code:`["items", "owners"]`.
+
+        Returns
+        -------
+        albums : dict[str, Any]
+            TIDAL metadata for the user album collection.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code-block::
+
+                  {
+                    "data": {
+                      "attributes": {},
+                      "id": <str>,
+                      "relationships": {
+                        "items": {
+                          "data": [
+                            {
+                              "id": <str>,
+                              "meta": {
+                                "addedAt": <str>
+                              },
+                              "type": "albums"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        },
+                        "owners": {
+                          "data": [
+                            {
+                              "id": <str>,
+                              "type": "users"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
+                      },
+                      "type": "userCollectionAlbums"
+                    },
+                    "included": [
+                      {
+                        "attributes": {
+                          "accessType": <str>,
+                          "albumType": <str>,
+                          "availability": <list[str]>,
+                          "barcodeId": <str>,
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": <bool>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "mediaTags": <list[str]>,
+                          "numberOfItems": <int>,
+                          "numberOfVolumes": <int>,
+                          "popularity": <float>,
+                          "releaseDate": <str>,
+                          "title": <str>,
+                          "type": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "coverArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "genres": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "items": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarAlbums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "suggestedCoverArts": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "albums"
+                      },
+                      {
+                        "attributes": {
+                          "country": <str>,
+                          "email": <str>,
+                          "emailVerified": <bool>,
+                          "firstName": <str>,
+                          "username": <str>
+                        },
+                        "id": <str>,
+                        "type": "users"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._require_scopes(
+            "users.get_album_collection", "collection.read"
+        )
+        return self._get_resources(
+            "userCollectionAlbums",
+            collection_id or "me",
+            country_code=country_code,
+            locale=locale,
+            expand=expand,
+            relationships=self._COLLECTION_RESOURCE_RELATIONSHIPS,
+        )
 
     @TTLCache.cached_method(ttl="user")
     def get_user_saved_albums(
         self,
         *,
-        collection_id: int | str | None = None,
+        collection_id: str | None = None,
+        user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
         include_metadata: bool = False,
@@ -793,7 +1122,7 @@ class UsersAPI(TIDALResourceAPI):
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /get_userCollections__id__relationships_albums>`_: Get TIDAL
-        catalog information for albums in a user collection.
+        catalog information for albums in a user's collection.
 
         .. admonition:: Authorization scope
            :class: entitlement
@@ -805,13 +1134,23 @@ class UsersAPI(TIDALResourceAPI):
                  :code:`collection.read` scope
                     Read access to a user's collection.
 
+        .. important::
+
+           At most one of `collection_id` or `user_id` must be provided.
+           If `user_id` is provided, the legacy
+           :code:`GET /userCollections/{user_id}/relationships/albums`
+           endpoint is used.
+
         Parameters
         ----------
-        collection_id : int or str; keyword-only; optional
+        collection_id : str; keyword-only; optional
             TIDAL ID of the user collection. If authenticated,
             :code:`"me"` can be used in lieu of a TIDAL ID for the
             current user's collection. If not specified, :code:`"me"` is
             used.
+
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
@@ -946,9 +1285,10 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.get_user_saved_albums", "collection.read"
         )
-        return self._get_collection_relationship(
+        return self._get_user_collection_relationship(
             "albums",
             collection_id=collection_id,
+            user_id=user_id,
             country_code=country_code,
             locale=locale,
             include_metadata=include_metadata,
@@ -966,7 +1306,8 @@ class UsersAPI(TIDALResourceAPI):
         | Collection[int | str | dict[str, int | str]],
         /,
         *,
-        collection_id: int | str | None = None,
+        collection_id: str | None = None,
+        user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
         """
@@ -974,7 +1315,12 @@ class UsersAPI(TIDALResourceAPI):
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollectionAlbums
         /post_userCollectionAlbums__id__relationships_items>`_: Add
-        albums to a user's collection.
+        albums to a user collection․
+        `User Collections > Add to Albums Relationship 
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /post_userCollections__id__relationships_albums>`_: Add albums
+        to a user's collection.
 
         .. admonition:: Authorization scope
            :class: entitlement
@@ -985,6 +1331,13 @@ class UsersAPI(TIDALResourceAPI):
 
                  :code:`collection.write` scope
                     Write access to a user's collection.
+
+        .. important::
+
+           At most one of `collection_id` or `user_id` must be provided.
+           If `user_id` is provided, the legacy
+           :code:`POST /userCollections/{user_id}/relationships/albums`
+           endpoint is used.
 
         Parameters
         ----------
@@ -1000,11 +1353,14 @@ class UsersAPI(TIDALResourceAPI):
             * :code:`["251380836",
               {"id": "46369321", "types": "albums"}]`
 
-        collection_id : int or str; keyword-only; optional
+        collection_id : str; keyword-only; optional
             TIDAL ID of the user collection. If authenticated,
             :code:`"me"` can be used in lieu of a TIDAL ID for the
             current user's collection. If not specified, :code:`"me"` is
             used.
+
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
@@ -1012,11 +1368,12 @@ class UsersAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
         """
         self._client._require_scopes("users.save_albums", "collection.write")
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "POST",
             "albums",
             album_ids,
             collection_id=collection_id,
+            user_id=user_id,
             country_code=country_code,
         )
 
@@ -1028,13 +1385,19 @@ class UsersAPI(TIDALResourceAPI):
         | Collection[int | str | dict[str, int | str]],
         /,
         *,
-        collection_id: int | str | None = None,
+        collection_id: str | None = None,
+        user_id: int | str | None = None,
     ) -> None:
         """
         `User Collection Albums > Remove Albums from User's Collection
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollectionAlbums
         /delete_userCollectionAlbums__id__relationships_items>`_: Remove
+        albums from a user collection․
+        `User Collections > Delete from Albums Relationship 
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /delete_userCollections__id__relationships_albums>`_: Remove
         albums from a user's collection.
 
         .. admonition:: Authorization scope
@@ -1061,22 +1424,28 @@ class UsersAPI(TIDALResourceAPI):
             * :code:`["251380836",
               {"id": "46369321", "types": "albums"}]`
 
-        collection_id : int or str; keyword-only; optional
+        collection_id : str; keyword-only; optional
             TIDAL ID of the user collection. If authenticated,
             :code:`"me"` can be used in lieu of a TIDAL ID for the
             current user's collection. If not specified, :code:`"me"` is
             used.
+
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user.
         """
         self._client._require_scopes(
             "users.remove_saved_albums", "collection.write"
         )
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "DELETE",
             "albums",
             album_ids,
             collection_id=collection_id,
+            user_id=user_id,
             country_code=None,
         )
+
+    # TODO BELOW
 
     @TTLCache.cached_method(ttl="user")
     def get_followed_artists(
@@ -1255,7 +1624,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.get_followed_artists", "collection.read"
         )
-        return self._get_collection_relationship(
+        return self._get_user_collection_relationship(
             "artists",
             user_id=user_id,
             country_code=country_code,
@@ -1321,7 +1690,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.follow_artists", "collection.write"
         )
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "POST",
             "artists",
             artist_ids,
@@ -1377,7 +1746,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.unfollow_artists", "collection.write"
         )
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "DELETE",
             "artists",
             artist_ids,
@@ -1474,7 +1843,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.get_collection_owners", "collection.read"
         )
-        return self._get_collection_relationship(
+        return self._get_user_collection_relationship(
             "owners",
             user_id=user_id,
             include_metadata=include_metadata,
@@ -1624,7 +1993,7 @@ class UsersAPI(TIDALResourceAPI):
         params = {}
         if include_folders:
             params["collectionView"] = "FOLDERS"
-        return self._get_collection_relationship(
+        return self._get_user_collection_relationship(
             "playlists",
             user_id=user_id,
             country_code=None,
@@ -1692,7 +2061,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.follow_playlists", "collection.write"
         )
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "POST", "playlists", playlist_uuids, user_id=user_id
         )
 
@@ -1752,7 +2121,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.unfollow_playlists", "collection.write"
         )
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "DELETE", "playlists", playlist_uuids, user_id=user_id
         )
 
@@ -1942,7 +2311,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.get_saved_tracks", "collection.read"
         )
-        return self._get_collection_relationship(
+        return self._get_user_collection_relationship(
             "tracks",
             user_id=user_id,
             country_code=country_code,
@@ -2012,7 +2381,7 @@ class UsersAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
         """
         self._client._require_scopes("users.save_tracks", "collection.write")
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "POST",
             "tracks",
             track_ids,
@@ -2068,7 +2437,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.remove_saved_tracks", "collection.write"
         )
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "DELETE",
             "tracks",
             track_ids,
@@ -2220,7 +2589,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.get_saved_videos", "collection.read"
         )
-        return self._get_collection_relationship(
+        return self._get_user_collection_relationship(
             "videos",
             user_id=user_id,
             country_code=country_code,
@@ -2283,7 +2652,7 @@ class UsersAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
         """
         self._client._require_scopes("users.save_videos", "collection.write")
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "POST",
             "videos",
             video_ids,
@@ -2338,7 +2707,7 @@ class UsersAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "users.remove_saved_videos", "collection.write"
         )
-        self._modify_collection_resources(
+        self._modify_user_collection_resources(
             "DELETE",
             "videos",
             video_ids,

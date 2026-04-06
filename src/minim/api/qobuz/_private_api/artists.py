@@ -114,8 +114,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            * :code:`"get"` – Legacy :code:`artist/get` endpoint.
-            * :code:`"page"` – Current :code:`artist/page` endpoint.
+            * :code:`"get"` – Legacy :code:`GET artist/get` endpoint.
+            * :code:`"page"` – Current :code:`GET artist/page` endpoint.
 
         Returns
         -------
@@ -996,7 +996,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
                  User authentication
                     Access the :code:`GET /artist/getReleasesGrid` and
-                    :code:`GET /artist/getReleasesList` endpoint.
+                    :code:`GET /artist/getReleasesList` endpoints.
 
         Parameters
         ----------
