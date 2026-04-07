@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class ArtworksAPI(TIDALResourceAPI):
@@ -16,22 +22,24 @@ class ArtworksAPI(TIDALResourceAPI):
 
     _RELATIONSHIPS = {"owners"}
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="static")
     def get_artworks(
         self,
-        artwork_ids: str | list[str],
+        artwork_ids: str | Collection[str],
         /,
         country_code: str | None = None,
         *,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Artworks > Get Single Artwork <https://tidal-music.github.io
         /tidal-api-reference/#/artworks/get_artworks__id_>`_: Get TIDAL
         catalog information for an artwork․
         `Artworks > Get Multiple Artworks <https://tidal-music.github.io
-        /tidal-api-reference/#/artworks/get_artworks>`_: Get TIDAL catalog
-        information for multiple artworks.
+        /tidal-api-reference/#/artworks/get_artworks>`_: Get TIDAL
+        catalog information for multiple artworks.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -45,9 +53,8 @@ class ArtworksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artwork_ids : str or list[str]; positional-only
-            TIDAL ID(s) of the artwork(s), provided as either a string
-            or a list of strings.
+        artwork_ids : str or Collection[str]; positional-only
+            TIDAL IDs of the artworks.
 
             **Examples**: :code:`"2xpmpI1s9DzeAPMlmNh9kM"`,
             :code:`["2xpmpI1s9DzeAPMlmNh9kM", "iWOu0yW0IPH0H5O42lAP"]`.
@@ -57,7 +64,7 @@ class ArtworksAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
             **Valid value**: :code:`"owners"`.
@@ -162,8 +169,8 @@ class ArtworksAPI(TIDALResourceAPI):
         """
         `Artworks > Get Artwork's Owners <https://tidal-music.github.io
         /tidal-api-reference/#/artworks
-        /get_artworks__id__relationships_owners>`_: Get TIDAL catalog
-        information for an artwork's owners.
+        /get_artworks__id__relationships_owners>`_: Get TIDAL profile
+        information for owners of an artwork resource.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -183,8 +190,7 @@ class ArtworksAPI(TIDALResourceAPI):
             **Example**: :code:`"2xpmpI1s9DzeAPMlmNh9kM"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artwork's
-            owners.
+            Whether to include metadata for the owners.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -194,7 +200,7 @@ class ArtworksAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL metadata for the artwork's owners.
+            TIDAL profile information for the artwork resource's owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -213,7 +219,6 @@ class ArtworksAPI(TIDALResourceAPI):
             "artworks",
             artwork_id,
             "owners",
-            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )

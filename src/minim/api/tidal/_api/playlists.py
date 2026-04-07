@@ -1,9 +1,16 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
+from ...._types import ORDERED_COLLECTION_TYPES
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class PlaylistsAPI(TIDALResourceAPI):
@@ -17,8 +24,17 @@ class PlaylistsAPI(TIDALResourceAPI):
     """
 
     _ITEM_TYPES = {"tracks", "videos"}
-    _RELATIONSHIPS = {"coverArt", "items", "ownerProfiles", "owners"}
+    _RELATIONSHIPS = {
+        "collaboratorProfiles",
+        "collaborators",
+        "coverArt",
+        "items",
+        "ownerProfiles",
+        "owners",
+    }
     _SORT_FIELDS = {"createdAt", "lastModifiedAt", "name"}
+
+    __slots__ = ()
 
     @classmethod
     def _process_playlist_items(
@@ -94,12 +110,12 @@ class PlaylistsAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="user")
     def get_playlists(
         self,
-        playlist_uuids: str | list[str] | None = None,
+        playlist_uuids: str | Collection[str] | None = None,
         /,
         *,
-        owner_ids: int | str | list[int | str] | None = None,
+        owner_ids: int | str | Collection[int | str] | None = None,
         country_code: str | None = None,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
         cursor: str | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
@@ -136,7 +152,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuids : str or list[str]; positional-only, optional
+        playlist_uuids : str or Collection[str]; positional-only, optional
             UUIDs of the TIDAL playlists.
 
             **Examples**:
@@ -144,10 +160,13 @@ class PlaylistsAPI(TIDALResourceAPI):
             :code:`["36ea71a8-445e-41a4-82ab-6628c581535d",
             "b0d95b5e-7c4f-4dae-b042-b8c6228c2ba4"]`.
 
-        owner_ids : int, str, or list[int | str]; keyword-only; optional
-            TIDAL IDs of the playlists' owners.
+        owner_ids : int, str, or Collection[int | str]; keyword-only; \
+        optional
+            TIDAL IDs of the playlist resources' owners. If 
+            authenticated, :code:`"me"` can be used in lieu of a TIDAL
+            ID for the current user.
 
-            **Examples**: :code:`123456`, :code:`"654321"`,
+            **Examples**: :code:"me"`, :code:`123456`, :code:`"654321"`,
             :code:`[123456, "654321"]`.
 
         country_code : str; keyword-only; optional
@@ -155,13 +174,14 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
-            **Valid values**: :code:`"coverArt"`, :code:`"items"`,
-            :code:`"ownerProfiles"`, :code:`"owners"`.
+            **Valid values**: :code:`"collaboratorProfiles"`, 
+            :code:`"collaborators"`, `:code:`"coverArt"`, 
+            :code:`"items"`, :code:`"ownerProfiles"`, :code:`"owners"`.
 
-            **Examples**: :code:`"coverArt"`,
+            **Examples**: :code:`"coverArt"`, 
             :code:`["items", "owners"]`.
 
         cursor : str; keyword-only; optional
@@ -681,7 +701,11 @@ class PlaylistsAPI(TIDALResourceAPI):
         params = {}
         if owner_ids is not None:
             self._validate_tidal_ids(owner_ids)
-            params["filter[owners.id]"] = owner_ids
+            params["filter[owners.id]"] = (
+                owner_ids
+                if isinstance(owner_ids, ORDERED_COLLECTION_TYPES)
+                else sorted(owner_ids)
+            )
         if sort_by is not None:
             self._process_sort(
                 sort_by,
@@ -939,10 +963,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Playlists > Get Playlist Cover Art
+        `Playlists > Get Cover Art Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /get_playlists__id__relationships_coverArt>`_: Get TIDAL
-        catalog information for a playlist's cover art.
+        catalog information for the cover art of a playlist.
 
         Parameters
         ----------
@@ -957,8 +981,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the playlist cover art.
+            Whether to include metadata for the playlist cover art.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1037,10 +1060,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Playlists > Get Playlist Items
+        `Playlists > Get Items Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
-        /get_playlists__id__relationships_coverArt>`_: Get TIDAL
-        catalog information for items in a playlist.
+        /get_playlists__id__relationships_coverArt>`_: Get TIDAL catalog
+        information for items in a playlist.
 
         Parameters
         ----------
@@ -1055,8 +1078,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the items in the playlist.
+            Whether to include metadata for the playlist items.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1065,8 +1087,8 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Returns
         -------
-        cover_art : dict[str, Any]
-            TIDAL metadata for the items in the playlist.
+        items : dict[str, Any]
+            TIDAL metadata for the playlist items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1246,6 +1268,8 @@ class PlaylistsAPI(TIDALResourceAPI):
             cursor=cursor,
             resource_identifier_type="uuid",
         )
+
+    # TODO: BELOW
 
     def add_playlist_items(
         self,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._types import COLLECTION_TYPES
+from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
@@ -108,7 +108,7 @@ class ArtistsAPI(TIDALResourceAPI):
                           }
                         }
         """
-        self._get_resources("artistRoles", artist_role_ids, country_code=None)
+        self._get_resources("artistRoles", artist_role_ids)
 
     @TTLCache.cached_method(ttl="popularity")
     def get_artists(
@@ -995,7 +995,7 @@ class ArtistsAPI(TIDALResourceAPI):
                         }
         """
         if (
-            sum(arg is not None for arg in [artist_ids, handles, owner_ids])
+            sum(arg is not None for arg in (artist_ids, handles, owner_ids))
             != 1
         ):
             raise ValueError(
@@ -1017,7 +1017,11 @@ class ArtistsAPI(TIDALResourceAPI):
             params["handle"] = handles
         elif owner_ids is not None:
             self._validate_tidal_ids(owner_ids)
-            params["filter[owners.id]"] = owner_ids
+            params["filter[owners.id]"] = (
+                owner_ids
+                if isinstance(owner_ids, ORDERED_COLLECTION_TYPES)
+                else sorted(owner_ids)
+            )
         return self._get_resources(
             "artists",
             artist_ids,
@@ -1296,7 +1300,6 @@ class ArtistsAPI(TIDALResourceAPI):
             "artists",
             artist_id,
             "owners",
-            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )
@@ -1576,7 +1579,6 @@ class ArtistsAPI(TIDALResourceAPI):
             "artists",
             artist_id,
             "roles",
-            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )
@@ -1813,7 +1815,6 @@ class ArtistsAPI(TIDALResourceAPI):
             "artists",
             artist_id,
             "trackProviders",
-            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )

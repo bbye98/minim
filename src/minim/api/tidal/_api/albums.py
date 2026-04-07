@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
@@ -1046,7 +1047,7 @@ class AlbumsAPI(TIDALResourceAPI):
                         }
         """
         if (
-            sum(arg is not None for arg in [album_ids, barcodes, owner_ids])
+            sum(arg is not None for arg in (album_ids, barcodes, owner_ids))
             != 1
         ):
             raise ValueError(
@@ -1057,19 +1058,23 @@ class AlbumsAPI(TIDALResourceAPI):
         if barcodes is not None:
             if isinstance(barcodes, int | str):
                 barcodes = self._prepare_barcode(barcodes)
-            elif isinstance(barcodes, list | tuple):
+            elif isinstance(barcodes, COLLECTION_TYPES):
                 barcodes = [
                     self._prepare_barcode(barcode) for barcode in barcodes
                 ]
             else:
                 raise ValueError(
                     "`barcodes` must be an integer, a string, or a "
-                    "list of integers and/or strings."
+                    "collection of integers and/or strings."
                 )
             params["filter[barcodeId]"] = barcodes
         elif owner_ids is not None:
             self._validate_tidal_ids(owner_ids)
-            params["filter[owners.id]"] = owner_ids
+            params["filter[owners.id]"] = (
+                owner_ids
+                if isinstance(owner_ids, ORDERED_COLLECTION_TYPES)
+                else sorted(owner_ids)
+            )
         if sort_by is not None:
             self._process_sort(
                 sort_by,
@@ -1376,8 +1381,8 @@ class AlbumsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the tracks and videos
-            in the album.
+            Whether to include metadata for the album's tracks and
+            videos.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1641,7 +1646,6 @@ class AlbumsAPI(TIDALResourceAPI):
             "albums",
             album_id,
             "owners",
-            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
             share_code=share_code,
