@@ -23,6 +23,8 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="popularity")
     def get_mix_items(
         self, mix_id: str, /, country_code: str | None = None

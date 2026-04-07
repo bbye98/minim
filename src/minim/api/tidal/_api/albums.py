@@ -39,6 +39,8 @@ class AlbumsAPI(TIDALResourceAPI):
     }
     _SORT_FIELDS = {"createdAt", "title"}
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="popularity")
     def get_albums(
         self,
@@ -69,7 +71,7 @@ class AlbumsAPI(TIDALResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access information on an item's owners.
+                    Access information for a resource's owners.
 
         .. important::
 
@@ -96,7 +98,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
         owner_ids : int, str, or Collection[int | str]; keyword-only; \
         optional
-            TIDAL IDs of the albums' owners. If authenticated,
+            TIDAL IDs of the album resources' owners. If authenticated,
             :code:`"me"` can be used in lieu of a TIDAL ID for the
             current user.
 
@@ -1582,8 +1584,8 @@ class AlbumsAPI(TIDALResourceAPI):
         """
         `Albums > Get Owners Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/albums
-        /get_albums__id__relationships_owners>`_: Get TIDAL catalog
-        information for owners of an album.
+        /get_albums__id__relationships_owners>`_: Get TIDAL profile
+        information for owners of an album resource.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -1593,7 +1595,7 @@ class AlbumsAPI(TIDALResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access information on an item's owners.
+                    Access information for a resource's owners.
 
         Parameters
         ----------
@@ -1603,7 +1605,7 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the album's owners.
+            Whether to include metadata for the owners.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1616,7 +1618,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL metadata for the album's owners.
+            TIDAL profile information for the album resource's owners.
 
             .. admonition:: Sample response
                :class: response dropdown

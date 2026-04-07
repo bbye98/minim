@@ -30,6 +30,8 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
     _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
 
+    __slots__ = ()
+
     def _download_video_stream(
         self, manifest: bytes | str, /
     ) -> tuple[str, bytes]:

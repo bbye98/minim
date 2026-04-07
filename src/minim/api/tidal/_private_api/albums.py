@@ -23,6 +23,8 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="popularity")
     def get_album(
         self, album_id: int | str, /, country_code: str | None = None

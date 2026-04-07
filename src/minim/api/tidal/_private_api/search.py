@@ -19,6 +19,8 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     def _search_resource(
         self,
         resource_type: str | None,

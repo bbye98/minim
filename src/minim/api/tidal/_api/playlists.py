@@ -126,7 +126,7 @@ class PlaylistsAPI(TIDALResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access information on an item's owners.
+                    Access information for a resource's owners.
 
         .. important::
 
@@ -1536,7 +1536,7 @@ class PlaylistsAPI(TIDALResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access information on an item's owners.
+                    Access information for a resource's owners.
 
         Parameters
         ----------
@@ -1615,7 +1615,7 @@ class PlaylistsAPI(TIDALResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access information on an item's owners.
+                    Access information for a resource's owners.
 
         Parameters
         ----------

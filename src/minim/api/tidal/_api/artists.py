@@ -1,9 +1,16 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
+from ...._types import COLLECTION_TYPES
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class ArtistsAPI(TIDALResourceAPI):
@@ -31,9 +38,11 @@ class ArtistsAPI(TIDALResourceAPI):
         "videos",
     }
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="static")
     def get_roles(
-        self, artist_role_ids: int | str | list[int | str], /
+        self, artist_role_ids: int | str | Collection[int | str], /
     ) -> dict[str, Any]:
         """
         `Artist Roles > Get Single Artist Role
@@ -47,7 +56,8 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_role_ids : int, str, or list[int | str]; positional-only
+        artist_role_ids : int, str, or Collection[int | str]; \
+        positional-only
             TIDAL IDs of the artist roles.
 
             **Examples**: :code:`1`, :code:`"2"`, :code:`[3, "4"]`.
@@ -103,12 +113,13 @@ class ArtistsAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="popularity")
     def get_artists(
         self,
-        artist_ids: int | str | list[int | str] | None = None,
+        artist_ids: int | str | Collection[int | str] | None = None,
         /,
         *,
-        handles: str | list[str] | None = None,
+        handles: str | Collection[str] | None = None,
+        owner_ids: int | str | Collection[int | str] | None = None,
         country_code: str | None = None,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Artists > Get Single Artist <https://tidal-music.github.io
@@ -126,34 +137,44 @@ class ArtistsAPI(TIDALResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access information on an item's owners.
+                    Access information for a resource's owners.
 
         .. important::
 
-           Exactly one of `artist_ids` or `handles` must be provided.
-           When `handles` is specified, the request will always be sent
-           to the endpoint for multiple artists.
+           Exactly one of `artist_ids`, `handles`, or `owner_ids` must 
+           be provided. When `handles` or `owner_ids` is specified, the 
+           request will always be sent to the endpoint for multiple 
+           artists.
 
         Parameters
         ----------
-        artist_ids : int, str, or list[int | str], positional-only; \
-        optional
+        artist_ids : int, str, or Collection[int | str]; \
+        positional-only; optional
             TIDAL IDs of the artists.
 
             **Examples**: :code:`1566`, :code:`"4676988"`,
             :code:`[1566, "4676988"]`.
 
-        handles : str or list[str]; keyword-only; optional
+        handles : str or Collection[str]; keyword-only; optional
             Artist handles.
 
             **Example**: :code:`"jayz"`.
+
+        owner_ids : int, str, or Collection[int | str]; keyword-only; \
+        optional
+            TIDAL IDs of the artist resources' owners. If authenticated,
+            :code:`"me"` can be used in lieu of a TIDAL ID for the
+            current user.
+
+            **Examples**: :code:"me"`, :code:`123456`, :code:`"654321"`,
+            :code:`[123456, "654321"]`.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"biography"`,
@@ -973,22 +994,30 @@ class ArtistsAPI(TIDALResourceAPI):
                           }
                         }
         """
-        if sum(arg is not None for arg in [artist_ids, handles]) != 1:
+        if (
+            sum(arg is not None for arg in [artist_ids, handles, owner_ids])
+            != 1
+        ):
             raise ValueError(
-                "Exactly one of `artist_ids` or `handles` must be provided."
+                "Exactly one of `artist_ids`, `handles`, or "
+                "`owner_ids` must be provided."
             )
+
         params = {}
         if handles is not None:
-            if isinstance(handles, list | tuple):
+            if isinstance(handles, COLLECTION_TYPES):
                 handles = [
                     self._prepare_string(f"handles[{idx}]", handle)
                     for idx, handle in enumerate(handles)
                 ]
             elif not isinstance(handles, str):
                 raise ValueError(
-                    "`handles` must be a string or a list of strings."
+                    "`handles` must be a string or a collection of strings."
                 )
             params["handle"] = handles
+        elif owner_ids is not None:
+            self._validate_tidal_ids(owner_ids)
+            params["filter[owners.id]"] = owner_ids
         return self._get_resources(
             "artists",
             artist_ids,
@@ -1008,10 +1037,10 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist's Albums
+        `Artists > Get Albums Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/artists
-        /get_artists__id__relationships_albums>`_: Get TIDAL
-        catalog information for an artist's albums.
+        /get_artists__id__relationships_albums>`_: Get TIDAL catalog
+        information for albums by an artist.
 
         Parameters
         ----------
@@ -1026,8 +1055,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artist's
-            albums.
+            Whether to include metadata for the artist's albums.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1152,10 +1180,10 @@ class ArtistsAPI(TIDALResourceAPI):
         include_metadata: bool = False,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist's Biography <https://tidal-music.github.io
+        `Artists > Get Biography Relationship <https://tidal-music.github.io
         /tidal-api-reference/#/artists
-        /get_artists__id__relationships_biography>`_: Get TIDAL catalog
-        information for an artist's biography.
+        /get_artists__id__relationships_biography>`_: Get an artist's
+        biography.
 
         Parameters
         ----------
@@ -1212,10 +1240,10 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist's Owners <https://tidal-music.github.io
-        /tidal-api-reference/#/artists
-        /get_artists__id__relationships_owners>`_: Get TIDAL catalog
-        information for an artist's owners.
+        `Artists > Get Owners Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_owners>`_: Get TIDAL profile
+        information for the owners of an artist resource.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -1225,7 +1253,7 @@ class ArtistsAPI(TIDALResourceAPI):
               .. tab-item:: Optional
 
                  User authentication
-                    Access information on an item's owners.
+                    Access information for a resource's owners.
 
         Parameters
         ----------
@@ -1235,8 +1263,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artist's
-            owners.
+            Whether to include metadata for the owners.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1246,7 +1273,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL metadata for the artist's owners.
+            TIDAL profile information for the artist resource's owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1285,10 +1312,10 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist's Profile Art
+        `Artists > Get Profile Art Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/artists
         /get_artists__id__relationships_profileArt>`_: Get TIDAL catalog
-        information for an artist's profile art.
+        information for the profile art for an artist.
 
         Parameters
         ----------
@@ -1302,8 +1329,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artist's
-            profile art.
+            Whether to include metadata for the artist's profile art.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1381,8 +1407,8 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist Radio
-        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        `Artists > Get Radio Relationship <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
         /get_artists__id__relationships_radio>`_: Get TIDAL catalog
         information for an artist's mix.
 
@@ -1399,8 +1425,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artist's
-            mix.
+            Whether to include metadata for the artist's mix.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1492,7 +1517,7 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist's Roles
+        `Artists > Get Roles Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/artists
         /get_artists__id__relationships_artistRoles>`_: Get TIDAL
         catalog information for an artist's roles.
@@ -1505,8 +1530,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artist's
-            roles.
+            Whether to include metadata for the artist's roles.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1568,11 +1592,10 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Similar Artists
+        `Artists > Get Similar Artists Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/artists
         /get_artists__id__relationships_similarArtists>`_: Get TIDAL
-        catalog information for other artists that are similar to an
-        artist.
+        catalog information for similar artists
 
         Parameters
         ----------
@@ -1722,10 +1745,10 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist's Track Providers
-        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        `Artists > Get Track Providers <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
         /get_artists__id__relationships_trackProviders>`_: Get TIDAL
-        catalog information for an artist's track providers.
+        catalog information for the providers of an artist's tracks.
 
         Parameters
         ----------
@@ -1740,8 +1763,8 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artist's
-            track providers.
+            Whether to include metadata for the artist's track
+            providers.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1807,10 +1830,10 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist's Tracks
+        `Artists > Get Tracks Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/artists
-        /get_artists__id__relationships_tracks>`_: Get TIDAL
-        catalog information for an artist's tracks.
+        /get_artists__id__relationships_tracks>`_: Get TIDAL catalog
+        information for tracks by an artist.
 
         Parameters
         ----------
@@ -1825,7 +1848,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         group_by : str; keyword-only; default: :code:`"FINGERPRINT"`
-            Controls how the returned tracks are grouped.
+            How the returned tracks are grouped.
 
             **Valid values**:
 
@@ -1834,8 +1857,7 @@ class ArtistsAPI(TIDALResourceAPI):
             * :code:`"ID"` – Returns every track as a separate item.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artist's
-            tracks.
+            Whether to include metadata for the artist's tracks.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1985,10 +2007,10 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artists > Get Artist's Videos
+        `Artists > Get Videos Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/artists
-        /get_artists__id__relationships_videos>`_: Get TIDAL
-        catalog information for an artist's videos.
+        /get_artists__id__relationships_videos>`_: Get TIDAL catalog
+        information for videos by an artist.
 
         Parameters
         ----------
@@ -2003,8 +2025,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the artist's
-            videos.
+            Whether to include metadata for the artist's videos.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -2112,10 +2133,28 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_followed_artists)
-    def get_followed_artists(
+    @_copy_docstring(UsersAPI.get_artist_collection)
+    def get_artist_collection(
+        self,
+        collection_id: str | None = None,
+        /,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        expand: str | Collection[str] | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_artist_collection(
+            collection_id=collection_id,
+            country_code=country_code,
+            locale=locale,
+            expand=expand,
+        )
+
+    @_copy_docstring(UsersAPI.get_user_followed_artists)
+    def get_user_followed_artists(
         self,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
@@ -2124,7 +2163,8 @@ class ArtistsAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_followed_artists(
+        return self._client.users.get_user_followed_artists(
+            collection_id=collection_id,
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -2143,11 +2183,15 @@ class ArtistsAPI(TIDALResourceAPI):
         | list[int | str | dict[str, int | str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
         self._client.users.follow_artists(
-            artist_ids, user_id=user_id, country_code=country_code
+            artist_ids,
+            collection_id=collection_id,
+            user_id=user_id,
+            country_code=country_code,
         )
 
     @_copy_docstring(UsersAPI.unfollow_artists)
@@ -2159,9 +2203,13 @@ class ArtistsAPI(TIDALResourceAPI):
         | list[int | str | dict[str, int | str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
         self._client.users.unfollow_artists(
-            artist_ids, user_id=user_id, country_code=country_code
+            artist_ids,
+            collection_id=collection_id,
+            user_id=user_id,
+            country_code=country_code,
         )

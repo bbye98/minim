@@ -30,6 +30,8 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
 
     _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES", "HI_RES_LOSSLESS"}
 
+    __slots__ = ()
+
     def _download_track_stream(
         self, manifest: bytes | str, /
     ) -> tuple[str, bytes]:

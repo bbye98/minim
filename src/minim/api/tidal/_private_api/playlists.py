@@ -31,6 +31,8 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     }
     _SORT_FIELDS = {"DATE", "NAME"}
 
+    __slots__ = ()
+
     @classmethod
     def _validate_types(cls, playlist_types: str | Collection[str], /) -> None:
         """

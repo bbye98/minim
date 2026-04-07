@@ -19,6 +19,8 @@ class PrivateFeedAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="user")
     def get_feed_activities(self) -> dict[str, Any]:
         """

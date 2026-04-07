@@ -25,6 +25,8 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
 
     _ALBUM_TYPES = {"COMPILATIONS", "EPSANDSINGLES"}
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="popularity")
     def get_artist(
         self, artist_id: int | str, /, country_code: str | None = None
@@ -376,7 +378,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for the tracks in an artist's mix.
+        Get TIDAL catalog information for an artist's mix.
 
         Parameters
         ----------

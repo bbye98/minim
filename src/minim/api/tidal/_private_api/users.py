@@ -23,6 +23,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
     _SORT_FIELDS = {"DATE", "NAME"}
 
+    __slots__ = ()
+
     @staticmethod
     def _prepare_mix_ids(
         mix_ids: str | Collection[str], /, *, limit: int = 100

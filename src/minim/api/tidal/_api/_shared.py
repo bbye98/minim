@@ -19,6 +19,8 @@ class TIDALResourceAPI(ResourceAPI):
     _RELATIONSHIPS: set[str]
     _client: "TIDALAPIClient"
 
+    __slots__ = ()
+
     @staticmethod
     def _process_sort(
         sort_by: str,

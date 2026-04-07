@@ -19,6 +19,8 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     def _get_resource_page(
         self,
         resource_type: str,
