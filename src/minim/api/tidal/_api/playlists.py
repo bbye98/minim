@@ -42,7 +42,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         items: tuple[int | str, str]
         | tuple[int | str, str, str]
         | dict[str, Any]
-        | list[
+        | Collection[
             tuple[int | str, str] | tuple[int | str, str, str] | dict[str, Any]
         ],
         /,
@@ -57,7 +57,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Parameters
         ----------
         items : tuple[int | str, ...], dict[str, Any], or \
-        list[tuple[int | str, ...] | dict[str, Any]]; \
+        Collection[tuple[int | str, ...] | dict[str, Any]]; \
         positional-only
             TIDAL IDs (and UUIDs) of tracks and videos, provided as
             tuples of the ID (and UUID) and the item type, or properly
@@ -81,7 +81,8 @@ class PlaylistsAPI(TIDALResourceAPI):
             num_items = len(items)
             if not num_items:
                 raise ValueError("At least one item must be specified.")
-            if isinstance(items[0], dict | list | tuple):
+
+            if isinstance(items[0], dict | ORDERED_COLLECTION_TYPES):
                 if num_items > 20:
                     raise ValueError(
                         "A maximum of 20 items can be sent in a request."
@@ -92,6 +93,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                     )
                     for item in items
                 ]
+
             item_id, *item_uuid, item_type = items
             if meta:
                 item_uuid = item_uuid[0]
@@ -100,11 +102,13 @@ class PlaylistsAPI(TIDALResourceAPI):
             raise ValueError(
                 f"Invalid item type {item_type!r}. Valid values: '{item_types}'."
             )
+
         item = {"id": str(item_id), "type": item_type}
         if meta:
             item["meta"] = {"itemId": item_uuid}
         if recursive:
             return [item]
+
         return item
 
     @TTLCache.cached_method(ttl="user")
@@ -1269,21 +1273,19 @@ class PlaylistsAPI(TIDALResourceAPI):
             resource_identifier_type="uuid",
         )
 
-    # TODO: BELOW
-
     def add_playlist_items(
         self,
         playlist_uuid: str,
         /,
         items: tuple[int | str, str]
         | dict[str, int | str]
-        | list[tuple[int | str, str] | dict[str, int | str]],
+        | Collection[tuple[int | str, str] | dict[str, int | str]],
         *,
         country_code: str | None = None,
         insert_before: str | None = None,
     ) -> None:
         """
-        `Playlists > Add Items to Playlist
+        `Playlists > Add to Items Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /post_playlists__id__relationships_items>`_: Add items to a
         playlist.
@@ -1306,7 +1308,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
         items : tuple[int | str, str], dict[str, int | str], or \
-        list[tuple[int | str, str] | dict[str, int | str]]
+        Collection[tuple[int | str, str] | dict[str, int | str]]
             TIDAL IDs and types of the items to be added.
 
             **Examples**:
@@ -1358,11 +1360,11 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         items: tuple[int | str, str, str]
         | dict[str, Any]
-        | list[tuple[int | str, str, str] | dict[str, Any]],
+        | Collection[tuple[int | str, str, str] | dict[str, Any]],
         insert_before: str,
     ) -> None:
         """
-        `Playlists > Reorder Playlist Items
+        `Playlists > Update Items Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /patch_playlists__id__relationships_items>`_: Reorder items in a
         playlist.
@@ -1385,7 +1387,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
         items : tuple[int | str, str, str], dict[str, Any], or \
-        list[tuple[int | str, str, str] | dict[str, Any]]
+        Collection[tuple[int | str, str, str] | dict[str, Any]]
             TIDAL IDs, playlist item UUIDs, and types of the items to be
             reordered.
 
@@ -1455,10 +1457,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         items: tuple[int | str, str, str]
         | dict[str, Any]
-        | list[tuple[int | str, str, str] | dict[str, Any]],
+        | Collection[tuple[int | str, str, str] | dict[str, Any]],
     ) -> None:
         """
-        `Playlists > Remove Playlist Items
+        `Playlists > Delete from Items Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /delete_playlists__id__relationships_items>`_: Remove items from
         a playlist.
@@ -1481,7 +1483,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
         items : tuple[int | str, str, str], dict[str, Any], or \
-        list[tuple[int | str, str, str] | dict[str, Any]]
+        Collection[tuple[int | str, str, str] | dict[str, Any]]
             TIDAL IDs, playlist item UUIDs, and types of the items to be
             removed.
 
@@ -1547,10 +1549,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Playlists > Get Playlist Owners
+        `Playlists > Get Owners Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
-        /get_playlists__id__relationships_owners>`_: Get TIDAL
-        catalog information for an playlist's owners.
+        /get_playlists__id__relationships_owners>`_: Get TIDAL profile
+        information for the owner of a playlist resource.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -1575,8 +1577,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the playlist's owners.
+            Whether to include metadata for the owners.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1586,7 +1587,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL metadata for the playlist's owners.
+            TIDAL profile information for the playlist resource's
+            owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1626,10 +1628,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Playlists > Get Playlist Owners' Profiles
+        `Playlists > Get Owner Profiles Relationship
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
-        /get_playlists__id__relationships_owners>`_: Get TIDAL
-        catalog information for an playlist's owners' profiles.
+        /get_playlists__id__relationships_owners>`_: Get TIDAL catalog
+        information for the profiles of a playlist resource's owners.
 
         .. admonition:: User authentication
            :class: entitlement dropdown
@@ -1654,8 +1656,8 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the playlist's owners' profiles.
+            Whether to include metadata for the playlist's owners'
+            profiles.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1713,10 +1715,28 @@ class PlaylistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_followed_playlists)
-    def get_followed_playlists(
+    @_copy_docstring(UsersAPI.get_playlist_collection)
+    def get_playlist_collection(
+        self,
+        collection_id: str | None = None,
+        /,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        expand: str | Collection[str] | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_playlist_collection(
+            collection_id=collection_id,
+            country_code=country_code,
+            locale=locale,
+            expand=expand,
+        )
+
+    @_copy_docstring(UsersAPI.get_user_followed_playlists)
+    def get_user_followed_playlists(
         self,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         include_folders: bool = False,
         include_metadata: bool = False,
@@ -1724,7 +1744,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_followed_playlists(
+        return self._client.users.get_user_followed_playlists(
+            collection_id=collection_id,
             user_id=user_id,
             include_folders=include_folders,
             include_metadata=include_metadata,
@@ -1736,19 +1757,29 @@ class PlaylistsAPI(TIDALResourceAPI):
     @_copy_docstring(UsersAPI.follow_playlists)
     def follow_playlists(
         self,
-        playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
+        playlist_uuids: str
+        | dict[str, str]
+        | Collection[str | dict[str, str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.follow_playlists(playlist_uuids, user_id=user_id)
+        self._client.users.follow_playlists(
+            playlist_uuids, collection_id=collection_id, user_id=user_id
+        )
 
     @_copy_docstring(UsersAPI.unfollow_playlists)
     def unfollow_playlists(
         self,
-        playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
+        playlist_uuids: str
+        | dict[str, str]
+        | Collection[str | dict[str, str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.unfollow_playlists(playlist_uuids, user_id=user_id)
+        self._client.users.unfollow_playlists(
+            playlist_uuids, collection_id=collection_id, user_id=user_id
+        )

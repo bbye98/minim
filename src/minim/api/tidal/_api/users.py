@@ -1954,7 +1954,12 @@ class UsersAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
     ) -> None:
         """
-        `User Collections > Remove Artists from User's Collection
+        `User Collection Artists > Delete from Items Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollectionArtists
+        /delete_userCollectionArtists__id__relationships_items>`_: Remove
+        artists from a user collection․
+        `User Collections > Delete from Items Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /delete_userCollections__id__relationships_artists>`_: Remove
@@ -2011,12 +2016,168 @@ class UsersAPI(TIDALResourceAPI):
             user_id=user_id,
         )
 
-    # TODO: BELOW
+    @TTLCache.cached_method(ttl="user")
+    def get_playlist_collection(
+        self,
+        collection_id: str | None = None,
+        /,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        expand: str | Collection[str] | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collection Playlists > Get User Playlist Collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollectionPlaylists/get_userCollectionPlaylists__id_>`_:
+        Get TIDAL catalog information for a user playlist collection.
+
+        .. admonition:: Authorization scope
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
+
+        Parameters
+        ----------
+        collection_id : str; positional-only; optional
+            TIDAL ID of the user collection. If authenticated,
+            :code:`"me"` can be used in lieu of a TIDAL ID for the
+            current user's collection. If not specified, :code:`"me"` is
+            used.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+        expand : str or Collection[str]; keyword-only; optional
+            Related resources to include metadata for in the response.
+
+            **Valid values**: :code:`"items"`, :code:`"owners"`.
+
+            **Examples**: :code:`"items"`, :code:`["items", "owners"]`.
+
+        Returns
+        -------
+        collection : dict[str, Any]
+            TIDAL metadata for the user playlist collection.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code-block::
+
+                  {
+                    "data": {
+                      "attributes": {},
+                      "id": <str>,
+                      "relationships": {
+                        "items": {
+                          "data": [
+                            {
+                              "id": <str>,
+                              "meta": {
+                                "addedAt": <str>
+                              },
+                              "type": "playlists"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        },
+                        "owners": {
+                          "data": [
+                            {
+                              "id": <str>,
+                              "type": "users"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
+                      },
+                      "type": "userCollectionPlaylists"
+                    },
+                    "included": [
+                      {
+                        "attributes": {
+                          "accessType": <str>,
+                          "bounded": <bool>,
+                          "createdAt": <str>,
+                          "description": <str>,
+                          "duration": "PT3H16M5S",
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "lastModifiedAt": <str>,
+                          "name": <str>,
+                          "numberOfFollowers": <int>,
+                          "numberOfItems": <int>,
+                          "playlistType": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "coverArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "items": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "ownerProfiles": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "playlists"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._require_scopes(
+            "users.get_playlist_collection", "collection.read"
+        )
+        return self._get_resources(
+            "userCollectionPlaylists",
+            collection_id or "me",
+            country_code=country_code,
+            locale=locale,
+            expand=expand,
+            relationships=self._COLLECTION_RESOURCE_RELATIONSHIPS,
+        )
 
     @TTLCache.cached_method(ttl="user")
-    def get_followed_playlists(
+    def get_user_followed_playlists(
         self,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         include_folders: bool = False,
         include_metadata: bool = False,
@@ -2025,7 +2186,11 @@ class UsersAPI(TIDALResourceAPI):
         descending: bool | None = None,
     ) -> dict[str, Any]:
         """
-        `User Collections > Get Playlists in User's Collection
+        `User Collection Playlists > Get Items Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollectionPlaylists/get_userCollectionPlaylists__id_>`_: Get
+        TIDAL catalog information for playlists in a user collection․
+        `User Collections > Get Playlists Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /get_userCollections__id__relationships_playlists>`_: Get TIDAL
@@ -2041,19 +2206,31 @@ class UsersAPI(TIDALResourceAPI):
                  :code:`collection.read` scope
                     Read access to a user's collection.
 
+        .. important::
+
+           At most one of `collection_id` or `user_id` must be provided.
+           If `user_id` is provided, the legacy
+           :code:`GET /userCollections/{user_id}/relationships
+           /playlists` endpoint is used.
+
         Parameters
         ----------
+        collection_id : str; keyword-only; optional
+            TIDAL ID of the user collection. If authenticated,
+            :code:`"me"` can be used in lieu of a TIDAL ID for the
+            current user's collection. If not specified, :code:`"me"` is
+            used.
+
         user_id : int or str; keyword-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
+            TIDAL ID of the user.
 
         include_folders : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            playlist folders in the user's collection.
+            Whether to include metadata for playlist folders in the
+            user's collection.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the playlists
-            in the user's collection.
+            Whether to include metadata for the playlists in the user's
+            collection.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -2074,8 +2251,8 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            TIDAL metadata for the playlists (and playlist
-            folders) in the user's collection.
+            TIDAL metadata for the playlists (and playlist folders) in
+            the user's collection.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2151,13 +2328,14 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_followed_playlists", "collection.read"
+            "users.get_user_followed_playlists", "collection.read"
         )
         params = {}
         if include_folders:
             params["collectionView"] = "FOLDERS"
         return self._get_user_collection_relationship(
             "playlists",
+            collection_id=collection_id,
             user_id=user_id,
             country_code=None,
             include_metadata=include_metadata,
@@ -2170,12 +2348,20 @@ class UsersAPI(TIDALResourceAPI):
 
     def follow_playlists(
         self,
-        playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
+        playlist_uuids: str
+        | dict[str, str]
+        | Collection[str | dict[str, str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
     ) -> None:
         """
+        `User Collection Playlists > Add to Items Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollectionPlaylists
+        /post_userCollectionPlaylists__id__relationships_items>`_: Add
+        playlists to a user collection․
         `User Collections > Add Playlists to User's Collection
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
@@ -2192,10 +2378,17 @@ class UsersAPI(TIDALResourceAPI):
                  :code:`collection.write` scope
                     Write access to a user's collection.
 
+        .. important::
+
+           At most one of `collection_id` or `user_id` must be provided.
+           If `user_id` is provided, the legacy
+           :code:`POST /userCollections/{user_id}/relationships
+           /playlists` endpoint is used.
+
         Parameters
         ----------
         playlist_uuids : str, dict[str, str], or \
-        list[str | dict[str, str]]; positional-only
+        Collection[str | dict[str, str]]; positional-only
             UUIDs and/or resource identifiers of the playlists.
 
             **Examples**:
@@ -2217,25 +2410,42 @@ class UsersAPI(TIDALResourceAPI):
                      }
                  ]
 
+        collection_id : str; keyword-only; optional
+            TIDAL ID of the user collection. If authenticated,
+            :code:`"me"` can be used in lieu of a TIDAL ID for the
+            current user's collection. If not specified, :code:`"me"` is
+            used.
+
         user_id : int or str; keyword-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
+            TIDAL ID of the user.
         """
         self._client._require_scopes(
             "users.follow_playlists", "collection.write"
         )
         self._modify_user_collection_resources(
-            "POST", "playlists", playlist_uuids, user_id=user_id
+            "POST",
+            "playlists",
+            playlist_uuids,
+            collection_id=collection_id,
+            user_id=user_id,
         )
 
     def unfollow_playlists(
         self,
-        playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
+        playlist_uuids: str
+        | dict[str, str]
+        | Collection[str | dict[str, str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
     ) -> None:
         """
+        `User Collection Playlists > Delete from Items Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollectionPlaylists
+        /delete_userCollectionPlaylists__id__relationships_items>`_: 
+        Remove playlists from a user collection․
         `User Collections > Remove Playlists from User's Collection
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
@@ -2252,10 +2462,17 @@ class UsersAPI(TIDALResourceAPI):
                  :code:`collection.write` scope
                     Write access to a user's collection.
 
+        .. important::
+
+           At most one of `collection_id` or `user_id` must be provided.
+           If `user_id` is provided, the legacy
+           :code:`DELETE /userCollections/{user_id}/relationships
+           /playlists` endpoint is used.
+
         Parameters
         ----------
         playlist_uuids : str, dict[str, str], or \
-        list[str | dict[str, str]]; positional-only
+        Collection[str | dict[str, str]]; positional-only
             UUIDs and/or resource identifiers of the playlists.
 
             **Examples**:
@@ -2277,16 +2494,27 @@ class UsersAPI(TIDALResourceAPI):
                      }
                  ]
 
+        collection_id : str; keyword-only; optional
+            TIDAL ID of the user collection. If authenticated,
+            :code:`"me"` can be used in lieu of a TIDAL ID for the
+            current user's collection. If not specified, :code:`"me"` is
+            used.
+
         user_id : int or str; keyword-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
+            TIDAL ID of the user.
         """
         self._client._require_scopes(
             "users.unfollow_playlists", "collection.write"
         )
         self._modify_user_collection_resources(
-            "DELETE", "playlists", playlist_uuids, user_id=user_id
+            "DELETE",
+            "playlists",
+            playlist_uuids,
+            collection_id=collection_id,
+            user_id=user_id,
         )
+
+    # TODO: BELOW
 
     @TTLCache.cached_method(ttl="user")
     def get_saved_tracks(
