@@ -170,8 +170,8 @@ class PlaylistsAPI(TIDALResourceAPI):
             authenticated, :code:`"me"` can be used in lieu of a TIDAL
             ID for the current user.
 
-            **Examples**: :code:"me"`, :code:`123456`, :code:`"654321"`,
-            :code:`[123456, "654321"]`.
+            **Examples**: :code:`"me"`, :code:`123456`, 
+            :code:`"654321"`, :code:`[123456, "654321"]`.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
@@ -182,7 +182,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"collaboratorProfiles"`, 
-            :code:`"collaborators"`, `:code:`"coverArt"`, 
+            :code:`"collaborators"`, :code:`"coverArt"`, 
             :code:`"items"`, :code:`"ownerProfiles"`, :code:`"owners"`.
 
             **Examples**: :code:`"coverArt"`, 
