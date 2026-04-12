@@ -519,7 +519,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         ).json()
 
     @TTLCache.cached_method(ttl="static")
-    def get_track_playback_info(
+    def get_track_media_info(
         self,
         track_id: int | str,
         /,
@@ -529,7 +529,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         preview: bool | None = None,
     ) -> dict[str, Any]:
         """
-        Get playback information for a track.
+        Get Qobuz media information for a track.
 
         .. admonition:: Subscription
            :class: entitlement dropdown
@@ -579,8 +579,8 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        playback_info : dict[str, Any]
-            Playback information for the track.
+        media_info : dict[str, Any]
+            Qobuz media information for the track.
 
             .. admonition:: Sample response
                :class: response dropdown

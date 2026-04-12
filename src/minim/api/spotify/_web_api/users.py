@@ -864,7 +864,7 @@ class UsersAPI(SpotifyResourceAPI):
 
     @TTLCache.cached_method(ttl="user")
     def get_my_followed_artists(
-        self, *, cursor: str | None = None, limit: int | None = None
+        self, *, limit: int | None = None, cursor: str | None = None
     ) -> dict[str, Any]:
         """
         `Users > Get Followed Artists <https://developer.spotify.com
@@ -886,18 +886,18 @@ class UsersAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        cursor : str; keyword-only; optional
-            Cursor (Spotify ID of the last artist retrieved in the
-            previous request) for fetching the next page of results.
-
-            **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
-
         limit : int; keyword-only; optional
             Maximum number of artists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **API default**: :code:`20`.
+
+        cursor : str; keyword-only; optional
+            Cursor (Spotify ID of the last artist retrieved in the
+            previous request) for fetching the next page of results.
+
+            **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
 
         Returns
         -------

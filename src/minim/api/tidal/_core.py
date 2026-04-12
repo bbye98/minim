@@ -11,6 +11,7 @@ from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
 from ._api.playlists import PlaylistsAPI
 from ._api.providers import ProvidersAPI
+from ._api.rules import RulesAPI
 from ._api.search import SearchAPI
 from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
@@ -185,7 +186,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
     _QUAL_NAME = (
         f"minim.api.{BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
     )
-    _VERSION = "1.0.37"
+    _VERSION = "1.4.17"
     BASE_URL = "https://openapi.tidal.com/v2"
 
     __slots__ = (
@@ -194,6 +195,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         "artworks",
         "playlists",
         "providers",
+        "rules",
         "search",
         "tracks",
         "users",
@@ -246,11 +248,11 @@ class TIDALAPIClient(BaseTIDALAPIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using the TIDAL user ID
             acquired from a successful authorization.
@@ -348,6 +350,8 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         self.playlists: PlaylistsAPI = PlaylistsAPI(self)
         #: Providers API endpoints for the TIDAL API.
         self.providers: ProvidersAPI = ProvidersAPI(self)
+        #: Usage Rules API endpoints for the TIDAL API.
+        self.rules: RulesAPI = RulesAPI(self)
         #: Search Results and Search Suggestions API endpoints for the
         #: TIDAL API.
         self.search: SearchAPI = SearchAPI(self)
@@ -384,7 +388,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.tidal.UsersAPI.get_me` and make a request
+           :meth:`~minim.api.tidal.UsersAPI.get_user` and make a request
            to the TIDAL API.
         """
         country_code = self._my_profile.get("attributes", {}).get("country")
@@ -405,13 +409,13 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.tidal.UsersAPI.get_me` and make a request
+           :meth:`~minim.api.tidal.UsersAPI.get_user` and make a request
            to the TIDAL API.
         """
         return (
             {}
             if self._auth_flow == "client_credentials"
-            else self.users.get_me()["data"]
+            else self.users.get_user()["data"]
         )
 
     def _request(
@@ -446,7 +450,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         response : httpx.Response
             HTTP response.
         """
-        if self._expires_at and datetime.now() > self._expires_at:
+        if True or self._expires_at and datetime.now() > self._expires_at:
             self._refresh_access_token()
 
         resp = self._client.request(method, endpoint, **kwargs)
@@ -484,8 +488,8 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.tidal.UsersAPI.get_me` and
-           make a request to the TIDAL API.
+           :meth:`~minim.api.tidal.UsersAPI.get_user` and make a request
+           to the TIDAL API.
         """
         return self._my_profile.get("id")
 
@@ -601,11 +605,11 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using the TIDAL user ID
             acquired from a successful authorization.
@@ -1023,11 +1027,11 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using the TIDAL user ID
             acquired from a successful authorization.

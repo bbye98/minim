@@ -121,11 +121,11 @@ class DeezerAPIClient(OAuth2APIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using the Deezer user ID
             acquired from a successful authorization.
@@ -368,7 +368,7 @@ class DeezerAPIClient(OAuth2APIClient):
         ----------
         matches : str or Collection[str]; optional
             Substrings to match in the available permissions. If not
-            specified, all available permissions are returned.
+            provided, all available permissions are returned.
 
         Returns
         -------
@@ -424,13 +424,13 @@ class DeezerAPIClient(OAuth2APIClient):
 
     def _obtain_access_token(self, auth_flow: str | None = None) -> None:
         """
-        Get and set a new access token via the provided or current
+        Get and set a new access token via the specified or current
         authorization flow.
 
         Parameters
         ----------
         auth_flow : str; optional
-            Authorization flow. If not provided, the current
+            Authorization flow. If not specified, the current
             authorization flow in :attr:`_auth_flow` is used.
 
             **Valid values**:
@@ -779,11 +779,11 @@ class DeezerAPIClient(OAuth2APIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.

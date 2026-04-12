@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class SearchAPI(TIDALResourceAPI):
@@ -32,7 +38,7 @@ class SearchAPI(TIDALResourceAPI):
         *,
         country_code: str | None = None,
         include_explicit: bool | None = None,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Search Suggestions > Get Search Suggestions
@@ -55,7 +61,7 @@ class SearchAPI(TIDALResourceAPI):
 
             **API default**: :code:`True`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
             **Valid value**: :code:`"directHits"`.
@@ -65,7 +71,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         search_suggestions : dict[str, Any]
-            Search suggestions and associated TIDAL metadata.
+            Search suggestions for the query.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -475,7 +481,7 @@ class SearchAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Search Suggestions > Get Direct Hits
+        `Search Suggestions > Get Direct Hits Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /searchSuggestions
         /get_searchSuggestions__id__relationships_directHits>`_: Get
@@ -509,7 +515,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         direct_hits : dict[str, Any]
-            TIDAL metadata for the direct hits.
+            Page of TIDAL metadata for the direct hits.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -880,6 +886,7 @@ class SearchAPI(TIDALResourceAPI):
             include_explicit=include_explicit,
             include_metadata=include_metadata,
             cursor=cursor,
+            resource_identifier_type="query",
         )
 
     @TTLCache.cached_method(ttl="search")
@@ -890,13 +897,13 @@ class SearchAPI(TIDALResourceAPI):
         country_code: str | None = None,
         *,
         include_explicit: bool | None = None,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
     ) -> dict[str, Any]:
         """
-        `Search Results > Search <https://tidal-music.github.io
-        /tidal-api-reference/#/searchResults/get_searchResults__id_>`_:
-        Search for albums, artists, playlists, tracks, and videos in the
-        TIDAL catalog.
+        `Search Results > Get Search Results
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchResults/get_searchResults__id_>`_: Search for albums,
+        artists, playlists, tracks, and videos in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -923,7 +930,7 @@ class SearchAPI(TIDALResourceAPI):
 
             **API default**: :code:`True`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
@@ -936,7 +943,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            TIDAL metadata for the matching items.
+            TIDAL metadata for the matching catalog items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1410,10 +1417,10 @@ class SearchAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Search Results > Search Albums <https://tidal-music.github.io
-        /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_albums>`_: Search for
-        albums in the TIDAL catalog.
+        `Search Results > Get Albums Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchResults/get_searchResults__id__relationships_albums>`_:
+        Search for albums in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -1441,8 +1448,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the matching albums.
+            Whether to include metadata for the matching albums.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1452,7 +1458,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL metadata for the matching albums.
+            Page of TIDAL metadata for the matching albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1571,10 +1577,10 @@ class SearchAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Search Results > Search Artists <https://tidal-music.github.io
-        /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_artists>`_: Search for
-        artists in the TIDAL catalog.
+        `Search Results > Get Artists Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchResults/get_searchResults__id__relationships_artists>`_:
+        Search for artists in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -1602,8 +1608,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the matching artists.
+            Whether to include metadata for the matching artists.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1613,7 +1618,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL metadata for the matching artists.
+            Page of TIDAL metadata for the matching artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1741,7 +1746,7 @@ class SearchAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Search Results > Search Playlists
+        `Search Results > Get Playlists Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /searchResults
         /get_searchResults__id__relationships_playlists>`_: Search for
@@ -1773,8 +1778,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the matching playlists.
+            Whether to include metadata for the matching playlists.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1784,7 +1788,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            TIDAL metadata for the matching playlists.
+            Page of TIDAL metadata for the matching playlists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1873,10 +1877,11 @@ class SearchAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Search Results > Search Top Hits <https://tidal-music.github.io
-        /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_topHits>`_: Get TIDAL
-        catalog information for top hits that match a keyword string.
+        `Search Results > Get Top Hits Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchResults/get_searchResults__id__relationships_topHits>`_:
+        Get TIDAL catalog information for top hits that match a keyword
+        string.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -1904,8 +1909,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the matching top hits.
+            Whether to include metadata for the matching top hits.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1915,7 +1919,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         top_hits : dict[str, Any]
-            TIDAL metadata for the matching top hits.
+            Page of TIDAL metadata for the matching top hits.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2306,10 +2310,10 @@ class SearchAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Search Results > Search Tracks <https://tidal-music.github.io
-        /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_tracks>`_: Search for
-        tracks in the TIDAL catalog.
+        `Search Results > Get Tracks Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchResults/get_searchResults__id__relationships_tracks>`_:
+        Search for tracks in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -2337,8 +2341,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the matching tracks.
+            Whether to include metadata for the matching tracks.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -2348,7 +2351,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            TIDAL metadata for the matching tracks.
+            Page of TIDAL metadata for the matching tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2485,10 +2488,10 @@ class SearchAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Search Results > Search Videos <https://tidal-music.github.io
-        /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_videos>`_: Search for
-        videos in the TIDAL catalog.
+        `Search Results > Get Videos Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchResults/get_searchResults__id__relationships_videos>`_:
+        Search for videos in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -2516,8 +2519,7 @@ class SearchAPI(TIDALResourceAPI):
             **API default**: :code:`True`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for
-            the matching videos.
+            Whether to include metadata for the matching videos.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -2527,7 +2529,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            TIDAL metadata for the matching videos.
+            Page of TIDAL metadata for the matching videos.
 
             .. admonition:: Sample response
                :class: response dropdown

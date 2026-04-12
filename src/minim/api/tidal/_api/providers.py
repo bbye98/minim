@@ -1,7 +1,13 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class ProvidersAPI(TIDALResourceAPI):
@@ -16,7 +22,7 @@ class ProvidersAPI(TIDALResourceAPI):
 
     @TTLCache.cached_method(ttl="static")
     def get_providers(
-        self, provider_ids: int | str | list[int | str], /
+        self, provider_ids: int | str | Collection[int | str], /
     ) -> dict[str, Any]:
         """
         `Providers > Get Single Provider <https://tidal-music.github.io
@@ -29,7 +35,8 @@ class ProvidersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        provider_ids : int, str, or list[int | str]; positional-only
+        provider_ids : int, str, or Collection[int | str]; \
+        positional-only
             TIDAL IDs of the providers.
 
             **Examples**: :code:`771`, :code:`"772"`,
@@ -81,6 +88,4 @@ class ProvidersAPI(TIDALResourceAPI):
                           }
                         }
         """
-        return self._get_resources(
-            "providers", provider_ids, country_code=None
-        )
+        return self._get_resources("providers", provider_ids)

@@ -257,7 +257,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; positional-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.

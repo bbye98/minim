@@ -97,12 +97,12 @@ class DiscogsAPIClient(OAuth1APIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same consumer key and authorization flow.
 
-            If provided, it is used with the consumer key and
+            If specified, it is used with the consumer key and
             authorization flow to locate a matching stored token. If
             none is found, a new token is obtained and stored under this
             identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             consumer key and authorization flow is used. If none exists,
             a new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.
@@ -433,12 +433,12 @@ class DiscogsAPIClient(OAuth1APIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same consumer key and authorization flow.
 
-            If provided, it is used with the consumer key and
+            If specified, it is used with the consumer key and
             authorization flow to locate a matching stored token. If
             none is found, a new token is obtained and stored under this
             identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             consumer key and authorization flow is used. If none exists,
             a new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.

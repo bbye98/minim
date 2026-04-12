@@ -92,7 +92,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; positional-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
@@ -213,7 +213,7 @@ class UsersAPI(DiscogsResourceAPI):
             :code:`"SEK"`, :code:`"ZAR"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"vreon"`.
@@ -315,7 +315,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"shooezgirl"`.
@@ -491,7 +491,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"shooezgirl"`.
@@ -679,7 +679,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
@@ -737,7 +737,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Example**: :code:`"My favorites"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -798,7 +798,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Examples**: :code:`0`, :code:`"3"`.
 
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
@@ -869,7 +869,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Example**: :code:`"My favorites"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -930,7 +930,7 @@ class UsersAPI(DiscogsResourceAPI):
             (:code:`folder_id=1`) folders cannot be deleted.
 
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -975,7 +975,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Examples**: :code:`772347`, :code:`"7781525"`.
 
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1103,7 +1103,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Examples**: :code:`0`, :code:`"3"`.
 
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1252,7 +1252,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Examples**: :code:`772347`, :code:`"7781525"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1346,7 +1346,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Valid range**: :code:`0` to :code:`5`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1416,7 +1416,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Examples**: :code:`130076`, :code:`"130077"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1459,7 +1459,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1541,7 +1541,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Examples**: :code:`1`, :code:`"2"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1585,7 +1585,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1639,7 +1639,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; positional-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1767,7 +1767,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Examples**: :code:`772347`, :code:`"7781525"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1878,7 +1878,7 @@ class UsersAPI(DiscogsResourceAPI):
             **API default**: :code:`0`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -1982,7 +1982,7 @@ class UsersAPI(DiscogsResourceAPI):
             **Examples**: :code:`772347`, :code:`"7781525"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"rodneyfool"`.
@@ -2023,7 +2023,7 @@ class UsersAPI(DiscogsResourceAPI):
         Parameters
         ----------
         username : str; positional-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"rodneyfool"`.

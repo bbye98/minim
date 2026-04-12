@@ -10,4 +10,4 @@ and converting between audio formats.
    :hidden:
 
    Home <self>
-   API Reference <api>
+   API Reference <api-ref>

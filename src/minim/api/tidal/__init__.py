@@ -8,6 +8,7 @@ from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
 from ._api.playlists import PlaylistsAPI
 from ._api.providers import ProvidersAPI
+from ._api.rules import RulesAPI
 from ._api.search import SearchAPI
 from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
@@ -31,6 +32,7 @@ __all__ = [
     "ArtworksAPI",
     "PlaylistsAPI",
     "ProvidersAPI",
+    "RulesAPI",
     "SearchAPI",
     "TracksAPI",
     "UsersAPI",

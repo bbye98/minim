@@ -61,6 +61,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
             raise ValueError(
                 f"A maximum of {limit} TIDAL IDs can be sent in a request."
             )
+
         for idx, id_ in enumerate(tidal_ids):
             if isinstance(id_, int):
                 tidal_ids[idx] = str(id_)

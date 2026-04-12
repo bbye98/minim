@@ -247,7 +247,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             **Examples**: :code:`249504` or :code:`"8649337"`.
 
         username : str; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used. Only optional when authenticated.
 
             **Example**: :code:`"memory"`.
@@ -312,7 +312,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             **Valid range**: :code:`0` to :code:`5`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"memory"`.
@@ -371,7 +371,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             **Examples**: :code:`249504` or :code:`"8649337"`.
 
         username : str; keyword-only; optional
-            Username of the user. If not provided, the username of the
+            Username of the user. If not specified, the username of the
             current user is used.
 
             **Example**: :code:`"memory"`.

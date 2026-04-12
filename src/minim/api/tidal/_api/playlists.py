@@ -208,7 +208,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            TIDAL metadata for the playlists.
+            Page of TIDAL metadata for the playlists.
 
             .. admonition:: Sample responses
                :class: response dropdown
@@ -995,7 +995,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL metadata for the playlist cover art.
+            Page of TIDAL metadata for the playlist cover art.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1092,7 +1092,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            TIDAL metadata for the playlist items.
+            Page of TIDAL metadata for the playlist items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1587,8 +1587,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL profile information for the playlist resource's
-            owners.
+            Page of TIDAL profile information for the playlist
+            resource's owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1667,7 +1667,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         owner_profiles : dict[str, Any]
-            TIDAL metadata for the playlist's owners' profiles.
+            Page of TIDAL metadata for the playlist's owners' profiles.
 
             .. admonition:: Sample response
                :class: response dropdown

@@ -572,7 +572,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="static")
-    def get_track_playback_info(
+    def get_track_media_info(
         self,
         track_id: int | str,
         /,
@@ -582,7 +582,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         preview: bool = False,
     ) -> dict[str, Any]:
         """
-        Get playback information for a track.
+        Get TIDAL media information for a track.
 
         .. admonition:: Subscription
            :class: entitlement dropdown
@@ -629,8 +629,8 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
 
         Returns
         -------
-        playback_info : dict[str, Any]
-            Playback information for the track.
+        media_info : dict[str, Any]
+            TIDAL media information for the track.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -661,12 +661,14 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                 f"Invalid audio quality {quality!r}. Valid values: "
                 f"{self._join_values(self._AUDIO_QUALITIES)}."
             )
+
         intent = self._prepare_string("intent", intent).upper()
         if intent not in self._PLAYBACK_MODES:
             raise ValueError(
                 f"Invalid playback mode {intent!r}. Valid values: "
                 f"{self._join_values(self._PLAYBACK_MODES)}."
             )
+
         self._validate_type("preview", preview, bool)
         return self._client._request(
             "GET",

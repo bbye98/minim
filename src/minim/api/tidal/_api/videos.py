@@ -1,9 +1,15 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import Collection
 
 
 class VideosAPI(TIDALResourceAPI):
@@ -16,17 +22,29 @@ class VideosAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RELATIONSHIPS = {"albums", "artists", "providers", "thumbnailArt"}
+    _RELATIONSHIPS = {
+        "albums",
+        "artists",
+        "credits",
+        "providers",
+        "replacement",
+        "similarVideos",
+        "suggestedVideos",
+        "thumbnailArt",
+        "usageRules",
+    }
+
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_videos(
         self,
-        video_ids,
+        video_ids: int | str | Collection[int | str] | None = None,
         /,
         *,
-        isrcs: str | list[str] | None = None,
+        isrcs: str | Collection[str] | None = None,
         country_code: str | None = None,
-        expand: str | list[str] | None = None,
+        expand: str | Collection[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Videos > Get Single Video <https://tidal-music.github.io
@@ -54,14 +72,14 @@ class VideosAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        video_ids : int, str, or list[int | str]; positional-only;
-        optional
+        video_ids : int, str, or Collection[int | str]; \
+        positional-only; optional
             TIDAL IDs of the videos.
 
             **Examples**: :code:`53315642`, :code:`"75623239"`,
             :code:`[53315642, "75623239"]`.
 
-        isrcs : str, or list[str]; keyword-only; optional
+        isrcs : str or Collection[str]; keyword-only; optional
             International Standard Recording Codes (ISRCs) of the
             videos.
 
@@ -73,11 +91,14 @@ class VideosAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
 
-        expand : str or list[str]; keyword-only; optional
+        expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"providers"`, :code:`"thumbnailArt"`.
+            :code:`"credits"`, :code:`"providers"`, 
+            :code:`"replacement"`, :code:`"similarVideos"`, 
+            :code:`"suggestedVideos"`, :code:`"thumbnailArt"`, 
+            :code:`"usageRules"`.
 
             **Examples**: :code:`"thumbnailArt"`,
             :code:`["albums", "artists"]`.
@@ -653,8 +674,8 @@ class VideosAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Videos > Get Video Albums <https://tidal-music.github.io
-        /tidal-api-reference/#/videos
+        `Videos > Get Albums Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#/videos
         /get_videos__id__relationships_albums>`_: Get TIDAL catalog
         information for albums containing a video.
 
@@ -671,8 +692,8 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the albums
-            containing the video.
+            Whether to include metadata for the albums containing the
+            video.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -682,7 +703,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL metadata for the albums containing the videos.
+            Page of TIDAL metadata for the albums containing the videos.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -798,10 +819,10 @@ class VideosAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Videos > Get Video Artists <https://tidal-music.github.io
-        /tidal-api-reference/#/videos
+        `Videos > Get Artists Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#/videos
         /get_videos__id__relationships_artists>`_: Get TIDAL catalog
-        information for a video's artists.
+        information for the artists of a video.
 
         Parameters
         ----------
@@ -816,8 +837,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the video's
-            artists.
+            Whether to include metadata for the video's artists.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -827,7 +847,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL metadata for the video's artists
+            Page of TIDAL metadata for the video's artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -952,10 +972,10 @@ class VideosAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Videos > Get Video Provider <https://tidal-music.github.io
-        /tidal-api-reference/#/videos
+        `Videos > Get Providers Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#/videos
         /get_videos__id__relationships_providers>`_: Get TIDAL catalog
-        information for a video's providers.
+        information for the providers of a video.
 
         Parameters
         ----------
@@ -970,8 +990,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the video's
-            providers.
+            Whether to include metadata for the video's providers.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -981,7 +1000,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL metadata for the video's providers.
+            Page of TIDAL metadata for the video's providers.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1033,10 +1052,10 @@ class VideosAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Videos > Get Video Thumbnail <https://tidal-music.github.io
-        /tidal-api-reference/#/videos
+        `Videos > Get Thumbnail Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#/videos
         /get_videos__id__relationships_thumbnailArt>`_: Get TIDAL
-        catalog information for a video's thumbnail.
+        catalog information for the thumbnail for a video.
 
         Parameters
         ----------
@@ -1051,8 +1070,7 @@ class VideosAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include metadata for the video's
-            thumbnail.
+            Whether to include metadata for the video's thumbnail.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1062,7 +1080,7 @@ class VideosAPI(TIDALResourceAPI):
         Returns
         -------
         thumbnail : dict[str, Any]
-            TIDAL metadata for the video's thumbnail.
+            Page of TIDAL metadata for the video's thumbnail.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1119,6 +1137,78 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    @TTLCache.cached_method(ttl="static")
+    def get_video_usage_rules(
+        self,
+        video_id: int | str,
+        /,
+        *,
+        include_metadata: bool = False,
+        share_code: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Videos > Get Usage Rules Relationship
+        <https://tidal-music.github.io/tidal-api-reference/#/videos
+        /get_videos__id__relationships_usageRules>`_: Get TIDAL catalog
+        information for the usage rules for a video.
+
+        Parameters
+        ----------
+        video_id : int or str; positional-only
+            TIDAL ID of the video.
+
+            **Examples**: :code:`53315642`, :code:`"75623239"`.
+
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include metadata for the track's usage rules.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
+        Returns
+        -------
+        usage_rules : dict[str, Any]
+            TIDAL metadata for the video's usage rules.
+
+            .. admonition:: Sample response
+               :class: response dropdown
+
+               .. code-block::
+
+                  {
+                    "data": {
+                      "id": <str>,
+                      "type": "usageRules"
+                    },
+                    "included": [
+                      {
+                        "attributes": {
+                          "countryCode": <str>,
+                          "free": <list[str]>,
+                          "paid": <list[str]>,,
+                          "subscription": <list[str]>,
+                        },
+                        "id": <str>,
+                        "type": "usageRules"
+                      }
+                    ],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_resource_relationship(
+            "videos",
+            video_id,
+            "usageRules",
+            include_metadata=include_metadata,
+            share_code=share_code,
+        )
+
     @_copy_docstring(SearchAPI.search_videos)
     def search_videos(
         self,
@@ -1138,10 +1228,11 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_saved_videos)
-    def get_saved_videos(
+    @_copy_docstring(UsersAPI.get_user_saved_videos)
+    def get_user_saved_videos(
         self,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
@@ -1150,7 +1241,8 @@ class VideosAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_videos(
+        return self._client.users.get_user_saved_videos(
+            collection_id=collection_id,
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -1165,14 +1257,18 @@ class VideosAPI(TIDALResourceAPI):
         self,
         video_ids: str
         | dict[str, int | str]
-        | list[int | str | dict[str, int | str]],
+        | Collection[int | str | dict[str, int | str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
         self._client.users.save_videos(
-            video_ids, user_id=user_id, country_code=country_code
+            video_ids,
+            collection_id=collection_id,
+            user_id=user_id,
+            country_code=country_code,
         )
 
     @_copy_docstring(UsersAPI.remove_saved_videos)
@@ -1180,12 +1276,16 @@ class VideosAPI(TIDALResourceAPI):
         self,
         video_ids: str
         | dict[str, int | str]
-        | list[int | str | dict[str, int | str]],
+        | Collection[int | str | dict[str, int | str]],
         /,
         *,
+        collection_id: str | None = None,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
         self._client.users.remove_saved_videos(
-            video_ids, user_id=user_id, country_code=country_code
+            video_ids,
+            collection_id=collection_id,
+            user_id=user_id,
+            country_code=country_code,
         )

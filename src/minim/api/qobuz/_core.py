@@ -124,11 +124,11 @@ class PrivateQobuzAPIClient(APIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.
@@ -394,7 +394,7 @@ class PrivateQobuzAPIClient(APIClient):
             for app_secret in self._app_secret:
                 try:
                     self._app_secret = app_secret
-                    self.tracks.get_track_playback_info(344521217, format_id=5)
+                    self.tracks.get_track_media_info(344521217, format_id=5)
                     break
                 except RuntimeError:
                     continue
@@ -675,11 +675,11 @@ class PrivateQobuzAPIClient(APIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.

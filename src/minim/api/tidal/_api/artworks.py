@@ -200,7 +200,8 @@ class ArtworksAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL profile information for the artwork resource's owners.
+            Page of TIDAL profile information for the artwork resource's
+            owners.
 
             .. admonition:: Sample response
                :class: response dropdown

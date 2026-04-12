@@ -1069,7 +1069,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL metadata for the artist's albums.
+            Page of TIDAL metadata for the artist's albums.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1277,7 +1277,8 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL profile information for the artist resource's owners.
+            Page of TIDAL profile information for the artist resource's
+            owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1342,7 +1343,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         profile_art : dict[str, Any]
-            TIDAL metadata for the artist's profile art.
+            Page of TIDAL metadata for the artist's profile art.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1438,7 +1439,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         mix : dict[str, Any]
-            TIDAL metadata for the artist's mix.
+            Page of TIDAL metadata for the artist's mix.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1543,7 +1544,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         roles : dict[str, Any]
-            TIDAL metadata for the artist's roles.
+            Page of TIDAL metadata for the artist's roles.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1623,7 +1624,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL metadata for the similar artists.
+            Page of TIDAL metadata for the similar artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1776,7 +1777,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL metadata for the artist's track providers.
+            Page of TIDAL metadata for the artist's track providers.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1868,7 +1869,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            TIDAL metadata for the artist's tracks.
+            Page of TIDAL metadata for the artist's tracks.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -2036,7 +2037,7 @@ class ArtistsAPI(TIDALResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            TIDAL metadata for the artist's videos.
+            Page of TIDAL metadata for the artist's videos.
 
             .. admonition:: Sample response
                :class: response dropdown

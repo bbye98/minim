@@ -363,8 +363,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id: int | str | None = None,
         /,
         *,
-        cursor: str | None = None,
         limit: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for a resource related to a user.
@@ -381,16 +381,16 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
         limit : int; keyword-only; default: :code:`50`
             Maximum number of items to return.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         Returns
         -------
         resource : dict[str, Any]
-            TIDAL metadata for the related resource.
+            Page of TIDAL metadata for the related resource.
         """
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
@@ -409,8 +409,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         subresource: str,
         /,
         *,
-        cursor: str | None = None,
         limit: int = 50,
+        cursor: str | None = None,
         playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
@@ -425,13 +425,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         subresource : str; positional-only
             Subresource of the endpoint to call.
 
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
         limit : int; keyword-only; default: :code:`50`
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return. If not specified, all playlists
@@ -2116,8 +2116,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
     def get_my_playlists(
         self,
         *,
-        cursor: str | None = None,
         limit: int = 50,
+        cursor: str | None = None,
         playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
@@ -2138,13 +2138,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
         limit : int; keyword-only; default: :code:`50`
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return. If not specified, all playlists
@@ -2284,8 +2284,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         folder_uuid: str | None = None,
         /,
         *,
-        cursor: str | None = None,
         limit: int = 50,
+        cursor: str | None = None,
         playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
@@ -2311,13 +2311,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Use :code:`"root"` or leave blank to target the top-level
             "Playlists" folder.
 
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
         limit : int; keyword-only; default: :code:`50`
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return. If not specified, all playlists
@@ -2462,8 +2462,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
     def get_my_folders_and_playlists(
         self,
         *,
-        cursor: str | None = None,
         limit: int = 50,
+        cursor: str | None = None,
         playlist_types: str | Collection[str] | None = None,
         sort_by: str | None = None,
         descending: bool | None = None,
@@ -2484,13 +2484,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         Parameters
         ----------
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
         limit : int; keyword-only; default: :code:`50`
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         playlist_types : str or Collection[str]; keyword-only; optional
             Playlist types to return. If not specified, all playlists
@@ -2943,8 +2943,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id: int | str | None = None,
         /,
         *,
-        cursor: str | None = None,
         limit: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for public playlists in a user's
@@ -2966,13 +2966,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
         limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`10_000`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         Returns
         -------
@@ -3067,8 +3067,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id: int | str | None = None,
         /,
         *,
-        cursor: str | None = None,
         limit: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """
         Get TIDAL profile information for users following the specified
@@ -3090,13 +3090,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
         limit : int; keyword-only; optional
             Maximum number of users to return.
 
             **Valid range**: :code:`1` to :code:`10_000`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         Returns
         -------
@@ -3120,8 +3120,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id: int | str | None = None,
         /,
         *,
-        cursor: str | None = None,
         limit: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for the users followed by a
@@ -3143,13 +3143,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
         limit : int; keyword-only; optional
             Maximum number of users to return.
 
             **Valid range**: :code:`1` to :code:`10_000`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         Returns
         -------

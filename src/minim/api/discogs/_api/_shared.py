@@ -107,7 +107,7 @@ class DiscogsResourceAPI(ResourceAPI):
         Parameters
         ----------
         username : str; positional-only; optional
-            Username. If not provided, the username of the current user
+            Username. If not specified, the username of the current user
             is used. Only optional when authenticated.
 
         Return
@@ -120,7 +120,7 @@ class DiscogsResourceAPI(ResourceAPI):
                 return self._client._identity["username"]
             except RuntimeError:
                 raise RuntimeError(
-                    "`username` must be provided when unauthenticated."
+                    "`username` must be specified when unauthenticated."
                 ) from None
         else:
             return self._prepare_string("username", username)

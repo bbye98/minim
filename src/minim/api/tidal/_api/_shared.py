@@ -188,8 +188,8 @@ class TIDALResourceAPI(ResourceAPI):
             Related resources to include metadata for in the response.
 
         cursor : str; keyword-only; optional
-            Cursor for for fetching the next page of results when
-            retrieving multiple albums.
+            Cursor for fetching the next page of results when retrieving 
+            multiple albums.
 
         share_code : str; keyword-only; optional
             Share code that grants access to unlisted resources.
@@ -203,7 +203,7 @@ class TIDALResourceAPI(ResourceAPI):
             Resource identifier type.
 
             **Valid values**: :code:`"id"`, :code:`"uuid"`,
-            :code:`"query"`.
+            :code:`"string"`.
 
         params : dict[str, Any]; keyword-only; optional
             Query parameters to include in the request. If not provided,
@@ -236,12 +236,23 @@ class TIDALResourceAPI(ResourceAPI):
                 expand, relationships=relationships or self._RELATIONSHIPS
             )
         if resource_identifiers is not None:
-            if resource_identifier_type == "id":
-                self._validate_tidal_ids(resource_identifiers)
-            elif resource_identifier_type == "uuid":
-                self._validate_uuids(resource_identifiers)
-            else:
-                self._validate_type("query", resource_identifiers, str)
+            match resource_identifier_type:
+                case "id":
+                    self._validate_tidal_ids(resource_identifiers)
+                case "uuid":
+                    self._validate_uuids(resource_identifiers)
+                case _:
+                    if resource_identifier_type[-1] == "s":
+                        for resource_identifier in resource_identifiers:
+                            self._validate_type(
+                                resource_identifier_type[:-1],
+                                resource_identifier,
+                                str,
+                            )
+                    else:
+                        self._validate_type(
+                            resource_identifier_type, resource_identifiers, str
+                        )
             if isinstance(resource_identifiers, int | str):
                 return self._client._request(
                     "GET",
@@ -310,8 +321,8 @@ class TIDALResourceAPI(ResourceAPI):
             resource.
 
         cursor : str; keyword-only; optional
-            Cursor for for fetching the next page of results when
-            retrieving multiple albums.
+            Cursor for fetching the next page of results when retrieving 
+            multiple albums.
 
         share_code : str; keyword-only; optional
             Share code that grants access to unlisted resources.

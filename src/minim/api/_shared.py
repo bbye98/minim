@@ -929,7 +929,7 @@ class OAuthAPIClient(APIClient):
     @abstractmethod
     def _obtain_access_token(self, auth_flow: str | None = None) -> None:
         """
-        Get and set a new access token via the provided or current
+        Get and set a new access token via the specified or current
         authorization flow.
 
         Parameters
@@ -1045,7 +1045,7 @@ class OAuthAPIClient(APIClient):
             if not has_redirect:
                 raise ValueError(
                     f"The {self._AUTH_FLOWS[auth_flow]} requires a "
-                    "redirect URI to be provided via the "
+                    "redirect URI to be specified via the "
                     "`redirect_uri` parameter."
                 )
 
@@ -1082,7 +1082,7 @@ class OAuthAPIClient(APIClient):
         else:
             if has_redirect:
                 warnings.warn(
-                    "A redirect URI was provided via the "
+                    "A redirect URI was specified via the "
                     "`redirect_uri` parameter, but the "
                     f"{self._AUTH_FLOWS[auth_flow]} does not use "
                     "redirects."
@@ -1384,12 +1384,12 @@ class OAuth1APIClient(OAuthAPIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same consumer key and authorization flow.
 
-            If provided, it is used with the consumer key and
+            If specified, it is used with the consumer key and
             authorization flow to locate a matching stored token. If
             none is found, a new token is obtained and stored under this
             identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             consumer key and authorization flow is used. If none exists,
             a new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.
@@ -1499,7 +1499,7 @@ class OAuth1APIClient(OAuthAPIClient):
         if not self._OPTIONAL_AUTH:
             if auth_flow is None:
                 raise ValueError(
-                    "An authorization flow must be provided via the "
+                    "An authorization flow must be specified via the "
                     "`auth_flow` parameter."
                 )
 
@@ -1623,13 +1623,13 @@ class OAuth1APIClient(OAuthAPIClient):
 
     def _obtain_access_token(self, auth_flow: str | None = None) -> None:
         """
-        Get and set a new access token via the provided or current
+        Get and set a new access token via the specified or current
         authorization flow.
 
         Parameters
         ----------
         auth_flow : str; optional
-            Authorization flow. If not provided, the current
+            Authorization flow. If not specified, the current
             authorization flow in :attr:`_auth_flow` is used.
 
             **Valid values**:
@@ -1975,12 +1975,12 @@ class OAuth1APIClient(OAuthAPIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same consumer key and authorization flow.
 
-            If provided, it is used with the consumer key and
+            If specified, it is used with the consumer key and
             authorization flow to locate a matching stored token. If
             none is found, a new token is obtained and stored under this
             identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             consumer key and authorization flow is used. If none exists,
             a new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.
@@ -2183,11 +2183,11 @@ class OAuth2APIClient(OAuthAPIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.
@@ -2300,7 +2300,7 @@ class OAuth2APIClient(OAuthAPIClient):
 
         if not self._OPTIONAL_AUTH and auth_flow is None:
             raise ValueError(
-                "An authorization flow must be provided via the "
+                "An authorization flow must be specified via the "
                 "`auth_flow` parameter."
             )
 
@@ -2466,13 +2466,13 @@ class OAuth2APIClient(OAuthAPIClient):
 
     def _obtain_access_token(self, auth_flow: str | None = None) -> None:
         """
-        Get and set a new access token via the provided or current
+        Get and set a new access token via the specified or current
         authorization flow.
 
         Parameters
         ----------
         auth_flow : str; optional
-            Authorization flow. If not provided, the current
+            Authorization flow. If not specified, the current
             authorization flow in :attr:`_auth_flow` is used.
 
             **Valid values**:
@@ -2638,7 +2638,9 @@ class OAuth2APIClient(OAuthAPIClient):
         self.set_access_token(
             access_token,
             token_type,
-            refresh_token=resp_json.pop("refresh_token", None),
+            refresh_token=resp_json.pop(
+                "refresh_token", getattr(self, "_refresh_token", None)
+            ),
             expires_at=datetime.now()
             + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )
@@ -2840,11 +2842,11 @@ class OAuth2APIClient(OAuthAPIClient):
             :code:`store_tokens=True` to distinguish between multiple
             accounts for the same client ID and authorization flow.
 
-            If provided, it is used with the client ID and authorization
+            If specified, it is used with the client ID and authorization
             flow to locate a matching stored token. If none is found, a
             new token is obtained and stored under this identifier.
 
-            If not provided, the most recently accessed token for the
+            If not specified, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
             new token is obtained and stored using a user identifier
             (e.g., user ID) acquired from a successful authorization.

@@ -244,7 +244,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="static")
-    def get_video_playback_info(
+    def get_video_media_info(
         self,
         video_id: int | str,
         /,
@@ -254,7 +254,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         preview: bool = False,
     ) -> dict[str, Any]:
         """
-        Get playback information for a video.
+        Get TIDAL media information for a video.
 
         .. admonition:: Subscription
            :class: entitlement dropdown
@@ -298,8 +298,8 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
         Returns
         -------
-        playback_info : dict[str, Any]
-            Playback information for the video.
+        media_info : dict[str, Any]
+            TIDAL media information for the video.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -319,7 +319,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
                     "videoQuality": <str>
                   }
         """
-        self._client._require_subscription("videos.get_video_playback_info")
+        self._client._require_subscription("videos.get_video_media_info")
         self._validate_tidal_ids(video_id, recursive=False)
         quality = self._prepare_string("quality", quality).upper()
         if quality not in self._VIDEO_QUALITIES:

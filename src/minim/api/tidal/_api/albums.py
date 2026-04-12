@@ -125,8 +125,8 @@ class AlbumsAPI(TIDALResourceAPI):
             :code:`["artists", "items"]`.
 
         cursor : str; keyword-only; optional
-            Cursor for for fetching the next page of results when
-            retrieving multiple albums.
+            Cursor for fetching the next page of results when retrieving 
+            multiple albums.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1135,7 +1135,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL metadata for the album artists.
+            Page of TIDAL metadata for the album artists.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1293,7 +1293,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL metadata for the album cover art.
+            Page of TIDAL metadata for the album cover art.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1395,7 +1395,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            TIDAL metadata for the album's tracks and videos.
+            Page of TIDAL metadata for the album's tracks and videos.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1623,7 +1623,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL profile information for the album resource's owners.
+            Page of TIDAL profile information for the album resource's owners.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1694,7 +1694,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL metadata for the album's providers.
+            Page of TIDAL metadata for the album's providers.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -1779,7 +1779,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL metadata for the similar albums.
+            Page of TIDAL metadata for the similar albums.
 
             .. admonition:: Sample response
                :class: response dropdown
