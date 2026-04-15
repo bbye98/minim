@@ -157,7 +157,7 @@ class AudioMetadata(ABC):
 
     @property
     @abstractmethod
-    def disc(self) -> tuple[int | None, int | None] | None:
+    def disc(self) -> tuple[int, int | None] | None:
         """
         Disc number and total number of discs.
         """
@@ -165,7 +165,7 @@ class AudioMetadata(ABC):
 
     @disc.setter
     @abstractmethod
-    def disc(self, value: tuple[int, int | None], /) -> None: ...
+    def disc(self, value: tuple[int | str, int | str | None], /) -> None: ...
 
     @property
     @abstractmethod
@@ -177,7 +177,7 @@ class AudioMetadata(ABC):
 
     @disc_number.setter
     @abstractmethod
-    def disc_number(self, value: int, /) -> None: ...
+    def disc_number(self, value: int | str, /) -> None: ...
 
     @property
     @abstractmethod
@@ -189,7 +189,7 @@ class AudioMetadata(ABC):
 
     @disc_total.setter
     @abstractmethod
-    def disc_total(self, value: int, /) -> None: ...
+    def disc_total(self, value: int | str, /) -> None: ...
 
     @property
     @abstractmethod
@@ -226,7 +226,7 @@ class AudioMetadata(ABC):
 
     @grouping.setter
     @abstractmethod
-    def grouping(self, value: str, /) -> None: ...
+    def grouping(self, value: str | Collection[str], /) -> None: ...
 
     @property
     @abstractmethod
@@ -468,12 +468,13 @@ class VorbisComment(AudioMetadata):
                         .decode()
                         .split("=", maxsplit=1)
                     )
-                    if (
-                        key := self._normalize_key(key).upper()
-                    ) in self._fields:
-                        self._fields[key][value] = None
-                    else:
-                        self._fields[key] = {value}
+                    if value:
+                        if (
+                            key := self._normalize_key(key).upper()
+                        ) in self._fields:
+                            self._fields[key][value] = None
+                        else:
+                            self._fields[key] = {value}
                 for key, values in self._fields.items():
                     self._fields[key] = list(values.keys())
             else:
@@ -495,12 +496,13 @@ class VorbisComment(AudioMetadata):
                         .decode()
                         .split("=", maxsplit=1)
                     )
-                    if (
-                        key := self._normalize_key(key).upper()
-                    ) in self._fields:
-                        self._fields[key].append(value)
-                    else:
-                        self._fields[key] = [value]
+                    if value:
+                        if (
+                            key := self._normalize_key(key).upper()
+                        ) in self._fields:
+                            self._fields[key].append(value)
+                        else:
+                            self._fields[key] = [value]
         elif bytestream is None:
             self._vendor = None
             self._n_fields = 0
@@ -561,7 +563,10 @@ class VorbisComment(AudioMetadata):
         """
         :code:`ALBUM` – Album or collection.
         """
-        return self._get("ALBUM", delimiter=" / ", single_delimiter=True)
+        value = self._get("ALBUM", delimiter=None)
+        if value is not None:
+            value = value[0]
+        return value
 
     @album.setter
     def album(self, value: str, /) -> None:
@@ -614,11 +619,11 @@ class VorbisComment(AudioMetadata):
         """
         :code:`COMMENT` – Free-form comments.
         """
-        return self._get("COMMENT", delimiter=" / ", single_delimiter=True)
+        return self._get("COMMENT", delimiter="\n", single_delimiter=True)
 
     @comment.setter
     def comment(self, value: str | Collection[str], /) -> None:
-        validate_type("comment", value, str)
+        validate_type("comment", value, str | COLLECTION_TYPES)
         self.set(COMMENT=value)
 
     @property
@@ -632,8 +637,12 @@ class VorbisComment(AudioMetadata):
         return value
 
     @compilation.setter
-    def compilation(self, value: bool, /) -> None:
-        validate_type("compilation", value, bool)
+    def compilation(self, value: bool | str, /) -> None:
+        validate_type("compilation", value, bool | str)
+        if isinstance(value, str) and value not in {"0", "1"}:
+            raise ValueError(
+                "`compilation` must be '0' or '1' when it is a string."
+            )
         self.set(COMPILATION=value)
 
     @property
@@ -653,11 +662,11 @@ class VorbisComment(AudioMetadata):
         """
         :code:`CONTACT` – Contact information for the creators or distributors.
         """
-        return self._get("CONTACT", delimiter=" / ", single_delimiter=True)
+        return self._get("CONTACT", delimiter=";", single_delimiter=True)
 
     @contact.setter
     def contact(self, value: str | Collection[str], /) -> None:
-        validate_type("contact", value, str)
+        validate_type("contact", value, str | COLLECTION_TYPES)
         self.set(CONTACT=value)
 
     @property
@@ -665,11 +674,11 @@ class VorbisComment(AudioMetadata):
         """
         :code:`COPYRIGHT` – Copyright attribution.
         """
-        return self._get("COPYRIGHT", delimiter=" / ", single_delimiter=True)
+        return self._get("COPYRIGHT", delimiter=";", single_delimiter=True)
 
     @copyright.setter
     def copyright(self, value: str | Collection[str], /) -> None:
-        validate_type("copyright", value, str)
+        validate_type("copyright", value, str | COLLECTION_TYPES)
         self.set(COPYRIGHT=value)
 
     @property
@@ -677,9 +686,12 @@ class VorbisComment(AudioMetadata):
         """
         :code:`DATE` – Release date.
         """
-        return self._get(
-            "DATE", delimiter=" / ", single_delimiter=True
-        ) or self._get("YEAR", delimiter=" / ", single_delimiter=True)
+        value = self._get("DATE", delimiter=None) or self._get(
+            "YEAR", delimiter=None
+        )
+        if value is not None:
+            value = value[0]
+        return value
 
     @date.setter
     def date(self, value: str | datetime, /) -> None:
@@ -702,19 +714,25 @@ class VorbisComment(AudioMetadata):
         self.set(DESCRIPTION=value)
 
     @property
-    def disc(self) -> tuple[int | None, int | None] | None:
+    def disc(self) -> tuple[int, int | None] | None:
         """
-        :code:`DISCNUMBER` and :code:`TOTALDISCS` – Disc number and
-        total number of discs.
+        :code:`DISCNUMBER` and :code:`DISCTOTAL`
+        (legacy: :code:`TOTALDISCS`) – Disc number and total number of
+        discs.
         """
-        values = self._get(("DISCNUMBER", "TOTALDISCS"))
+        values = self._get(("DISCNUMBER", "DISCTOTAL"), delimiter=None)
         disc_number = values["DISCNUMBER"]
         if disc_number is None:
             return
-        return disc_number, values["TOTALDISCS"]
+        disc_total = values["DISCTOTAL"] or self._get(
+            "TOTALDISCS", delimiter=None
+        )
+        if disc_total is not None:
+            disc_total = int(disc_total[0])
+        return int(disc_number[0]), disc_total
 
     @disc.setter
-    def disc(self, value: tuple[int, int | None], /) -> None:
+    def disc(self, value: tuple[int | str, int | str | None], /) -> None:
         validate_type("disc", value, ORDERED_COLLECTION_TYPES)
         if len(value) != 2:
             raise ValueError(
@@ -726,6 +744,93 @@ class VorbisComment(AudioMetadata):
         if total_discs is not None:
             validate_numeric("disc[1]", total_discs, int, 1)
             self.set(TOTALDISCS=total_discs)
+
+    @property
+    def disc_number(self) -> int | None:
+        """
+        :code:`DISCNUMBER` – Disc number within a multi-disc set.
+        """
+        value = self._get("DISCNUMBER", delimiter=None)
+        if value is not None:
+            value = int(value[0])
+        return value
+
+    @disc_number.setter
+    def disc_number(self, value: int | str, /) -> None:
+        validate_numeric("disc_number", value, int, 1)
+        self.set(DISCNUMBER=value)
+
+    @property
+    def disc_total(self) -> int | None:
+        """
+        :code:`DISCTOTAL` (legacy: :code:`TOTALDISCS`) – Total number of
+        discs.
+        """
+        value = self._get("DISCTOTAL", delimiter=None) or self._get(
+            "TOTALDISCS", delimiter=None
+        )
+        if value is not None:
+            value = int(value[0])
+        return value
+
+    @disc_total.setter
+    def disc_total(self, value: int, /) -> None:
+        validate_numeric("disc_total", value, int, 1)
+        self.set(DISCTOTAL=value)
+
+    @property
+    def encoder(self) -> str | None:
+        """
+        :code:`ENCODER` – Software or hardware used for encoding, or the
+        person or organization that encoded the audio file.
+        """
+        value = self._get("ENCODER", delimiter=None)
+        if value is not None:
+            value = value[0]
+        return value
+
+    @encoder.setter
+    def encoder(self, value: str, /) -> None:
+        validate_type("encorder", value, str)
+        self.set(ENCODER=value)
+
+    @property
+    def genre(self) -> str | None:
+        """
+        :code:`GENRE` – Genres.
+        """
+        return self._get("GENRE", delimiter=";", single_delimiter=True)
+
+    @genre.setter
+    def genre(self, value: str | Collection[str], /) -> None:
+        validate_type("genre", value, str | COLLECTION_TYPES)
+        self.set(GENRE=value)
+
+    @property
+    def grouping(self) -> str | None:
+        """
+        :code:`GROUPING` – Content group description.
+        """
+        value = self._get("GROUPING", delimiter=";", single_delimiter=True)
+        return value
+
+    @grouping.setter
+    def grouping(self, value: str | Collection[str], /) -> None:
+        validate_type("grouping", value, str | COLLECTION_TYPES)
+        self.set(GROUPING=value)
+
+    @property
+    def isrc(self) -> str | None:
+        """
+        :code:`ISRC` – International Standard Recording Code (ISRC).
+        """
+        value = self._get("ISRC", delimiter=None)
+        if value is not None:
+            value = value[0]
+        return value
+
+    @isrc.setter
+    def isrc(self, value: str, /) -> None: ...
 
     def _get(
         self,
@@ -890,11 +995,13 @@ class VorbisComment(AudioMetadata):
                 new_keys.add(key)
                 self._fields[key] = dict.fromkeys(self._fields.get(key, ()))
                 if isinstance(value := self._to_string(value), str):
-                    self._fields[key][value] = None
+                    if value:
+                        self._fields[key][value] = None
                 elif isinstance(value, COLLECTION_TYPES):
                     for item in value:
                         if isinstance(item := self._to_string(item), str):
-                            self._fields[key][item] = None
+                            if item:
+                                self._fields[key][item] = None
                         else:
                             raise TypeError(
                                 f"The value {item!r} in field '{key}' has "
@@ -914,11 +1021,13 @@ class VorbisComment(AudioMetadata):
                 if (key := self._normalize_key(key)) not in self._fields:
                     self._fields[key] = []
                 if isinstance(value := self._to_string(value), str):
-                    self._fields[key].append(value)
+                    if value:
+                        self._fields[key].append(value)
                 elif isinstance(value, COLLECTION_TYPES):
                     for item in value:
                         if isinstance(item := self._to_string(item), str):
-                            self._fields[key].append(item)
+                            if item:
+                                self._fields[key].append(item)
                         else:
                             raise TypeError(
                                 f"The value {item!r} in field '{key}' has "
@@ -978,12 +1087,14 @@ class VorbisComment(AudioMetadata):
                 raise TypeError(f"Field name `{key}` is not a string.")
             key = self._normalize_key(key)
             if isinstance(value := self._to_string(value), str):
-                self._fields[key] = [value]
+                if value:
+                    self._fields[key] = [value]
             elif isinstance(value, COLLECTION_TYPES):
                 self._fields[key] = []
                 for item in value:
                     if isinstance(item := self._to_string(item), str):
-                        self._fields[key].append(item)
+                        if item:
+                            self._fields[key].append(item)
                     else:
                         raise TypeError(
                             f"The value {item!r} in field '{key}' has "
