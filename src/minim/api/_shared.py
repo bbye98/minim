@@ -30,7 +30,13 @@ import httpx
 
 from .. import FOUND, MINIM_DIR
 from .._types import COLLECTION_TYPES
-from .._utility import join_values, prepare_datetime
+from .._utility import (
+    join_values,
+    prepare_datetime,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from . import db_connection, db_cursor
 
 if FOUND["playwright"]:
@@ -2969,6 +2975,9 @@ class ResourceAPI:
 
     _join_values = staticmethod(join_values)
     _prepare_datetime = staticmethod(prepare_datetime)
+    _validate_number = staticmethod(validate_number)
+    _validate_numeric = staticmethod(validate_numeric)
+    _validate_type = staticmethod(validate_type)
 
     def __init__(self, client: APIClient, /) -> None:
         """
@@ -3167,133 +3176,6 @@ class ResourceAPI:
                 f"{locale!r} is not a valid IETF BCP 47 language tag "
                 "consisting of an ISO 639-1 language code and an ISO "
                 "3166-1 alpha-2 country code joined by an underscore."
-            )
-
-    @staticmethod
-    def _validate_number(
-        name: str,
-        value: int | float,
-        data_type: type | types.UnionType,
-        /,
-        lower_bound: int | float | None = None,
-        upper_bound: int | float | None = None,
-    ) -> None:
-        """
-        Validate the value of a variable containing a number.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : int or float; positional-only
-            Variable value.
-
-        data_type : type or types.UnionType; positional-only
-            Allowed numeric data types.
-
-        lower_bound : int or float; optional
-            Lower bound, inclusive.
-
-        upper_bound : int or float; optional
-            Upper bound, inclusive.
-        """
-        has_lower_bound = lower_bound is not None
-        has_upper_bound = upper_bound is not None
-        if has_lower_bound:
-            if has_upper_bound:
-                emsg_suffix = (
-                    f" between {lower_bound} and {upper_bound}, inclusive"
-                )
-            else:
-                emsg_suffix = f" greater than {lower_bound}, inclusive"
-        else:
-            if has_upper_bound:
-                emsg_suffix = f" less than {upper_bound}, inclusive"
-            else:
-                emsg_suffix = ""
-        if (
-            not isinstance(value, data_type)
-            or (has_lower_bound and value < lower_bound)
-            or (has_upper_bound and value > upper_bound)
-        ):
-            data_type_str = (
-                data_type.__name__
-                if isinstance(data_type, type)
-                else str(data_type)
-            )
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type_str}{emsg_suffix}."
-            )
-
-    @staticmethod
-    def _validate_numeric(
-        name: str,
-        value: int | float | str,
-        data_type: type,
-        /,
-        lower_bound: int | float | None = None,
-        upper_bound: int | float | None = None,
-    ) -> None:
-        """
-        Validate the value of a variable containing a numeric value.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : int, float, or str; positional-only
-            Variable value.
-
-        data_type : type; positional-only
-            Allowed numeric data type.
-
-        lower_bound : int or float; optional
-            Lower bound, inclusive.
-
-        upper_bound : int or float; optional
-            Upper bound, inclusive.
-        """
-        try:
-            if isinstance(value, str):
-                value = data_type(value)
-            ResourceAPI._validate_number(
-                name, value, data_type, lower_bound, upper_bound
-            )
-        except ValueError:
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type.__name__} or its "
-                "string representation."
-            )
-
-    @staticmethod
-    def _validate_type(
-        name: str, value: Any, data_type: type | types.UnionType, /
-    ) -> None:
-        """
-        Validate the data type of a variable.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : Any; positional-only
-            Variable value.
-
-        data_type : type or types.UnionTypes; positional-only
-            Allowed data type.
-        """
-        if not isinstance(value, data_type):
-            data_type_str = (
-                data_type.__name__
-                if isinstance(data_type, type)
-                else str(data_type)
-            )
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type_str}, not a(n) "
-                f"{type(value).__name__}."
             )
 
     @staticmethod
