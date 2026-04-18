@@ -96,6 +96,17 @@ def validate_number(
     upper_bound : int or float; optional
         Upper bound, inclusive.
     """
+    if not isinstance(value, data_type):
+        data_type_str = (
+            data_type.__name__
+            if isinstance(data_type, type)
+            else str(data_type)
+        )
+        raise TypeError(
+            f"`{name}` must be a(n) {data_type_str}, not a(n) "
+            f"{type(value).__name__}."
+        )
+
     has_lower_bound = lower_bound is not None
     has_upper_bound = upper_bound is not None
     if has_lower_bound:
@@ -111,9 +122,10 @@ def validate_number(
         else:
             emsg_suffix = ""
     if (
-        not isinstance(value, data_type)
-        or (has_lower_bound and value < lower_bound)
-        or (has_upper_bound and value > upper_bound)
+        has_lower_bound
+        and value < lower_bound
+        or has_upper_bound
+        and value > upper_bound
     ):
         data_type_str = (
             data_type.__name__
@@ -158,10 +170,15 @@ def validate_numeric(
         if isinstance(value, str):
             value = data_type(value)
         validate_number(name, value, data_type, lower_bound, upper_bound)
-    except ValueError:
-        raise ValueError(
-            f"`{name}` must be a(n) {data_type.__name__} or its "
-            "string representation."
+    except TypeError:
+        data_type_str = (
+            data_type.__name__
+            if isinstance(data_type, type)
+            else str(data_type)
+        )
+        raise TypeError(
+            f"`{name}` must be a(n) {data_type_str} or its numeric "
+            f"string representation, not a(n) {type(value).__name__}."
         )
 
 

@@ -65,7 +65,7 @@ class DiscogsAPIClient(OAuth1APIClient):
         enable_cache: bool = True,
         limit_rate: bool = True,
         store_tokens: bool = True,
-        user_agent: str = f"minim/{__version__} +{REPOSITORY_URL}",
+        user_agent: str = f"Minim/{__version__} +{REPOSITORY_URL}",
     ) -> None:
         """
         Parameters
@@ -175,7 +175,7 @@ class DiscogsAPIClient(OAuth1APIClient):
                access tokens for this client.
 
         user_agent : str; keyword-only; \
-        default: :code:`"minim/X.Y.Z +https://github.com/bbye98/minim"`
+        default: :code:`"Minim/X.Y.Z +https://github.com/bbye98/minim"`
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """
