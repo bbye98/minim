@@ -43,6 +43,8 @@ class AudioMetadata(ABC):
         match value:
             case bool():
                 return str(int(value))
+            case bytes() | bytearray():
+                return value.decode()
             case datetime():
                 return value.strftime("%Y-%m-%dT%H:%M:%SZ")
             case Real():
@@ -869,17 +871,17 @@ class VorbisComment(AudioMetadata):
         self.set(TRACKTOTAL=value)
 
     @property
-    def vendor(self) -> bytes | None:
+    def vendor(self) -> str | None:
         """
         Vendor name.
         """
-        return self._vendor
+        return self._vendor.decode()
 
     @vendor.setter
-    def vendor(self, value: bytes | str, /) -> None:
-        validate_type("vendor", value, bytes | str)
+    def vendor(self, value: bytes | bytearray | str, /) -> None:
+        validate_type("vendor", value, bytes | bytearray | str)
         if isinstance(value, str):
-            value = value.encode("utf-8")
+            value = value.encode()
         self._vendor = value
 
     @property
@@ -1086,10 +1088,7 @@ class VorbisComment(AudioMetadata):
         for key, values in self._fields.items():
             for value in values:
                 vectors.extend(
-                    (
-                        pack(len(field_bytes := f"{key}={value}".encode())),
-                        field_bytes,
-                    )
+                    (pack(len(field := f"{key}={value}".encode())), field)
                 )
         if include_framing_bit:
             vectors.append(b"\x01")
