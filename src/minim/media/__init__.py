@@ -1,3 +1,3 @@
-from ._metadata import AudioMetadata
+from ._metadata import AudioTags
 
-__all__ = ["AudioMetadata"]
+__all__ = ["AudioTags"]

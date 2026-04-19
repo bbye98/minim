@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from .._types import Collection, OrderedCollection
 
 
-class AudioMetadata(ABC):
+class AudioTags(ABC):
     """
     Abstract base class for audio metadata containers.
     """
@@ -450,7 +450,7 @@ class AudioMetadata(ABC):
         ...
 
 
-class ID3(AudioMetadata):
+class ID3(AudioTags):
     """
     ID3 metadata container.
     """
@@ -458,7 +458,7 @@ class ID3(AudioMetadata):
     __slots__ = ("_frames",)
 
 
-class ItemListBox(AudioMetadata):
+class ItemListBox(AudioTags):
     """
     MP4 item list box (:code:`moov.udta.meta.ilst`) metadata container.
     """
@@ -466,7 +466,7 @@ class ItemListBox(AudioMetadata):
     __slots__ = ("_boxes",)
 
 
-class VorbisComment(AudioMetadata):
+class VorbisComment(AudioTags):
     """
     Vorbis comment metadata container.
 
@@ -541,7 +541,7 @@ class VorbisComment(AudioMetadata):
         (length,) = unpack_from(bytestream, offset)
         offset += size
         end_offset = offset + length
-        self._vendor = bytestream[offset:end_offset]
+        self._vendor = bytestream[offset:end_offset].tobytes().decode()
         offset = end_offset
         (self._num_fields,) = unpack_from(bytestream, offset)
         offset += size
@@ -554,7 +554,10 @@ class VorbisComment(AudioMetadata):
             offset += size
             end_offset = offset + length
             key, value = (
-                bytestream[offset:end_offset].decode().split("=", maxsplit=1)
+                bytestream[offset:end_offset]
+                .tobytes()
+                .decode()
+                .split("=", maxsplit=1)
             )
             offset = end_offset
             if keep_empty or value:
@@ -696,9 +699,9 @@ class VorbisComment(AudioMetadata):
     @property
     def date(self) -> list[str] | None:
         """
-        :code:`DATE` – Release date.
+        :code:`DATE` (legacy: :code:`YEAR`) – Release date.
         """
-        return self.get("DATE")
+        return self.get("DATE") or self.get("YEAR")
 
     @date.setter
     def date(
