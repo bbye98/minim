@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from .._utility import validate_numeric, validate_type
+from .._utility import prepare_isrc, validate_numeric, validate_type
 
 if TYPE_CHECKING:
     import mmap
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 class AudioMetadata(ABC):
     """
-    Generic audio metadata container.
+    Abstract base class for audio metadata containers.
     """
 
     __slots__ = ()
@@ -484,6 +484,18 @@ class VorbisComment(AudioMetadata):
         "COMPILATION": lambda value: validate_numeric(
             "COMPILATION", value, bool | int, 0, 1
         ),
+        "DISCNUMBER": lambda value: validate_numeric(
+            "DISCNUMBER", value, int, 1
+        ),
+        "DISCTOTAL": lambda value: validate_numeric(
+            "DISCTOTAL", value, int, 1
+        ),
+        "TRACKNUMBER": lambda value: validate_numeric(
+            "TRACKNUMBER", value, int, 1
+        ),
+        "TRACKTOTAL": lambda value: validate_numeric(
+            "TRACKTOTAL", value, int, 1
+        ),
     }
 
     __slots__ = "_fields", "_keep_empty", "_num_fields", "_vendor"
@@ -521,24 +533,24 @@ class VorbisComment(AudioMetadata):
             except TypeError:
                 raise TypeError("`bytestream` must be a bytes-like object.")
 
-        unpack = self._UINT32_LE.unpack_from
+        unpack_from = self._UINT32_LE.unpack_from
         size = self._UINT32_LE.size
         offset = 0
 
         # Read comment header
-        (length,) = unpack(bytestream, offset)
+        (length,) = unpack_from(bytestream, offset)
         offset += size
         end_offset = offset + length
         self._vendor = bytestream[offset:end_offset]
         offset = end_offset
-        (self._num_fields,) = unpack(bytestream, offset)
+        (self._num_fields,) = unpack_from(bytestream, offset)
         offset += size
 
         # Read comment vectors
         normalize_key = self._normalize_key
         fields = self._fields
         for _ in range(self._num_fields):
-            (length,) = unpack(bytestream, offset)
+            (length,) = unpack_from(bytestream, offset)
             offset += size
             end_offset = offset + length
             key, value = (
@@ -721,9 +733,10 @@ class VorbisComment(AudioMetadata):
     @property
     def disc_total(self) -> list[str] | None:
         """
-        :code:`DISCTOTAL` – Total number of discs.
+        :code:`DISCTOTAL` (legacy: :code:`TOTALDISCS`) – Total number of
+        discs.
         """
-        return self.get("DISCTOTAL")
+        return self.get("DISCTOTAL") or self.get("TOTALDISCS")
 
     @disc_total.setter
     def disc_total(
@@ -774,7 +787,7 @@ class VorbisComment(AudioMetadata):
 
     @isrc.setter
     def isrc(self, value: str | OrderedCollection[str], /) -> None:
-        self.set(ISRC=value)
+        self.set(ISRC=prepare_isrc(value))
 
     @property
     def label(self) -> list[str] | None:
@@ -860,9 +873,10 @@ class VorbisComment(AudioMetadata):
     @property
     def track_total(self) -> list[str] | None:
         """
-        :code:`TRACKTOTAL` – Total number of tracks.
+        :code:`TRACKTOTAL` (legacy: :code:`TOTALTRACKS`) – Total number
+        of tracks.
         """
-        return self.get("TRACKTOTAL")
+        return self.get("TRACKTOTAL") or self.get("TOTALTRACKS")
 
     @track_total.setter
     def track_total(
@@ -875,13 +889,11 @@ class VorbisComment(AudioMetadata):
         """
         Vendor name.
         """
-        return self._vendor.decode()
+        return self._vendor
 
     @vendor.setter
-    def vendor(self, value: bytes | bytearray | str, /) -> None:
-        validate_type("vendor", value, bytes | bytearray | str)
-        if isinstance(value, str):
-            value = value.encode()
+    def vendor(self, value: str, /) -> None:
+        validate_type("vendor", value, str)
         self._vendor = value
 
     @property
@@ -1080,7 +1092,9 @@ class VorbisComment(AudioMetadata):
         pack = self._UINT32_LE.pack
         vectors = [
             pack(
-                len(vendor := self._vendor or f"Minim {__version__}".encode())
+                len(
+                    vendor := (self._vendor or f"Minim {__version__}").encode()
+                )
             ),
             vendor,
             pack(self._num_fields),

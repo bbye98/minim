@@ -31,8 +31,11 @@ import httpx
 from .. import FOUND, MINIM_DIR
 from .._types import COLLECTION_TYPES
 from .._utility import (
+    TRANSLATION_TABLES,
     join_values,
     prepare_datetime,
+    prepare_isrc,
+    prepare_string,
     validate_number,
     validate_numeric,
     validate_type,
@@ -789,7 +792,7 @@ class APIClient(ABC):
             else None
         )
         if user_agent is not None:
-            self._client.headers["user-agent"] = ResourceAPI._prepare_string(
+            self._client.headers["user-agent"] = prepare_string(
                 "user_agent", user_agent, allow_blank=True
             )
 
@@ -2084,9 +2087,7 @@ class OAuth1APIClient(OAuthAPIClient):
         self._consumer_key = self._oauth["oauth_consumer_key"] = consumer_key
         self._consumer_secret = consumer_secret
         self._signing_key = f"{consumer_secret}&"
-        signature_method = ResourceAPI._prepare_string(
-            "signature_method", signature_method
-        )
+        signature_method = prepare_string("signature_method", signature_method)
         if signature_method not in self._SIGNATURE_METHODS:
             raise ValueError(
                 f"Invalid OAuth signature method {signature_method!r}. "
@@ -2969,12 +2970,12 @@ class ResourceAPI:
     Base class for API resource endpoint groups.
     """
 
-    _TRANSLATION_TABLES = {"separators": str.maketrans("", "", "-‐-‒–—―−")}
-
     __slots__ = ("_client",)
 
     _join_values = staticmethod(join_values)
     _prepare_datetime = staticmethod(prepare_datetime)
+    _prepare_isrc = staticmethod(prepare_isrc)
+    _prepare_string = staticmethod(prepare_string)
     _validate_number = staticmethod(validate_number)
     _validate_numeric = staticmethod(validate_numeric)
     _validate_type = staticmethod(validate_type)
@@ -3007,38 +3008,13 @@ class ResourceAPI:
         barcode = (
             str(barcode)
             if isinstance(barcode, int)
-            else ResourceAPI._prepare_string(
-                barcode, remove_whitespace=True
-            ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
+            else prepare_string(barcode, remove_whitespace=True).translate(
+                TRANSLATION_TABLES["remove_separators"]
+            )
         )
         if not barcode.isdecimal() or len(barcode) not in {12, 13}:
             raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
         return barcode
-
-    @staticmethod
-    def _prepare_isrc(isrc: str, /) -> str:
-        """
-        Validate and normalize an International Standard Recording Code
-        (ISRC).
-
-        Parameters
-        ----------
-        isrc : str; positional-only
-            ISRC.
-
-        Returns
-        -------
-        isrc : str
-            Trimmed ISRC string without hyphens or spaces.
-        """
-        isrc = ResourceAPI._prepare_string(
-            "isrc", isrc, remove_whitespace=True
-        ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
-        if len(isrc) != 12 or not (
-            isrc[:2].isalpha() and isrc[2:5].isalnum() and isrc[5:].isdecimal()
-        ):
-            raise ValueError(f"{isrc!r} is not a valid ISRC.")
-        return isrc
 
     @staticmethod
     def _prepare_iswc(iswc: str, /) -> str:
@@ -3056,9 +3032,9 @@ class ResourceAPI:
         iswc : str
             Trimmed ISWC string without hyphens or spaces.
         """
-        iswc = ResourceAPI._prepare_string(
-            "iswc", iswc, remove_whitespace=True
-        ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
+        iswc = prepare_string("iswc", iswc, remove_whitespace=True).translate(
+            TRANSLATION_TABLES["remove_separators"]
+        )
         if (
             len(iswc) != 11
             or (
@@ -3072,45 +3048,6 @@ class ResourceAPI:
         ) != int(iswc[-1]):
             raise ValueError(f"{iswc!r} is not a valid ISWC.")
         return iswc
-
-    @staticmethod
-    def _prepare_string(
-        name: str,
-        string: bytes | str,
-        /,
-        *,
-        allow_blank: bool = False,
-        remove_whitespace: bool = False,
-    ) -> bytes | str:
-        """
-        Validate and strip a string.
-
-        Parameters
-        ----------
-        name : str; positional-only.
-            Parameter name for the string.
-
-        string : bytes or str; positional-only
-            String.
-
-        allow_blank : bool; keyword-only; default: :code:`False`
-            Whether to allow empty strings.
-
-        remove_whitespace : bool; keyword-only; default: :code:`False`
-            Whether to remove whitespace throughout the string.
-
-        Returns
-        -------
-        string : bytes or str
-            Stripped string.
-        """
-        ResourceAPI._validate_type(name, string, bytes | str)
-        string = (
-            "".join(string.split()) if remove_whitespace else string.strip()
-        )
-        if not allow_blank and not len(string):
-            raise ValueError(f"`{name}` cannot be blank.")
-        return string
 
     @staticmethod
     def _validate_country_code(country_code: str, /) -> None:

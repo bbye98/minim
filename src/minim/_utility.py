@@ -11,6 +11,9 @@ if TYPE_CHECKING:
     from ._types import Collection
 
 
+TRANSLATION_TABLES = {"remove_separators": str.maketrans("", "", "‐‒–—―−")}
+
+
 def join_values(
     values: Collection[Any],
     /,
@@ -67,7 +70,68 @@ def prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
     return dt.strftime(fmt)
 
 
-@staticmethod
+def prepare_isrc(isrc: str, /) -> str:
+    """
+    Validate and normalize an International Standard Recording Code
+    (ISRC).
+
+    Parameters
+    ----------
+    isrc : str; positional-only
+        ISRC.
+
+    Returns
+    -------
+    isrc : str
+        Trimmed ISRC string without hyphens or spaces.
+    """
+    isrc = prepare_string("isrc", isrc, remove_whitespace=True).translate(
+        TRANSLATION_TABLES["remove_separators"]
+    )
+    if len(isrc) != 12 or not (
+        isrc[:2].isalpha() and isrc[2:5].isalnum() and isrc[5:].isdecimal()
+    ):
+        raise ValueError(f"{isrc!r} is not a valid ISRC.")
+    return isrc
+
+
+def prepare_string(
+    name: str,
+    string: bytes | str,
+    /,
+    *,
+    allow_blank: bool = False,
+    remove_whitespace: bool = False,
+) -> bytes | str:
+    """
+    Validate and strip a string.
+
+    Parameters
+    ----------
+    name : str; positional-only.
+        Parameter name for the string.
+
+    string : bytes or str; positional-only
+        String.
+
+    allow_blank : bool; keyword-only; default: :code:`False`
+        Whether to allow empty strings.
+
+    remove_whitespace : bool; keyword-only; default: :code:`False`
+        Whether to remove whitespace throughout the string.
+
+    Returns
+    -------
+    string : bytes or str
+        Stripped string.
+    """
+    validate_type(name, string, bytes | str)
+    string = "".join(string.split()) if remove_whitespace else string.strip()
+    if not allow_blank and not len(string):
+        raise ValueError(f"`{name}` cannot be blank.")
+    return string
+
+
 def validate_number(
     name: str,
     value: int | float,
@@ -137,7 +201,6 @@ def validate_number(
         )
 
 
-@staticmethod
 def validate_numeric(
     name: str,
     value: int | float | str,
