@@ -78,7 +78,7 @@ class InventoryAPI(DiscogsResourceAPI):
             if is_str:
                 try:
                     inventory_csv = (
-                        Path(inventory_csv).expanduser().resolve(True)
+                        Path(inventory_csv).expanduser().resolve(strict=True)
                     )
                 except (FileNotFoundError, OSError):
                     pass
