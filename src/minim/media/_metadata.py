@@ -1078,7 +1078,7 @@ class VorbisComment(AudioTags):
 
     def serialize(self, *, include_framing_bit: bool = False) -> bytes:
         """
-        Serialize metadata to a bytestream.
+        Serialize the Vorbis comment to a bytestream.
 
         Parameters
         ----------

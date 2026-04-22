@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import string
 from typing import TYPE_CHECKING
 import warnings
 
@@ -125,7 +126,26 @@ class FLACMetadataBlock:
             case 6:  # PICTURE
                 pass
 
-    # def serialize(self) -> bytes: ...
+    def serialize(self) -> bytes:
+        """ """
+        match self.block_type:
+            case 0 | 4:  # STREAMINFO / VORBIS_COMMENT
+                return self.block_data.serialize()
+            case 1:  # PADDING
+                return bytes(self.block_size)
+            case 2:  # APPLICATION
+                return self.block_data["app_id"] + self.block_data["app_data"]
+            case 3:  # SEEKTABLE
+                return b"".join(
+                    first_sample.to_bytes(8, byteorder="big")
+                    + offset.to_bytes(8, byteorder="big")
+                    + num_samples.to_bytes(2, byteorder="big")
+                    for first_sample, offset, num_samples in self.block_data
+                )
+            case 5:  # CUESHEET
+                pass
+            case 6:  # PICTURE
+                pass
 
 
 @dataclass(frozen=True, slots=True)
@@ -134,6 +154,7 @@ class FLACStreamInfo(AudioStreamInfo):
     FLAC :code:`STREAMINFO` metadata block data.
     """
 
+    _HEX_DIGITS = set(string.hexdigits)
     _NUM_CHANNELS_RANGE = (1, 8)
     _SAMPLE_RATE_RANGE = (1, 655_350)
     _BITS_PER_SAMPLE_RANGE = (1, 32)
@@ -151,12 +172,35 @@ class FLACStreamInfo(AudioStreamInfo):
         validate_number("minimum_frame_size", self.minimum_frame_size, int, 0)
         validate_number("maximum_frame_size", self.maximum_frame_size, int, 0)
         validate_type("md5", self.md5, str)
-        if len(self.md5) != 32:
+        if len(self.md5) != 32 or not all(
+            c in self._HEX_DIGITS for c in self.md5
+        ):
             raise ValueError(
                 "'md5' must be a 32-character hexadecimal string."
             )
 
-    # def serialize(self) -> bytes: ...
+    def serialize(self) -> bytes:
+        """
+        Serialize the :code:`STREAMINFO` metadata block data to a
+        bytestream.
+        """
+        return (
+            self.minimum_block_size.to_bytes(2, byteorder="big")
+            + self.maximum_block_size.to_bytes(2, byteorder="big")
+            + self.minimum_frame_size.to_bytes(3, byteorder="big")
+            + self.maximum_frame_size.to_bytes(3, byteorder="big")
+            + (
+                (self.sample_rate << 4)
+                | ((self.num_channels - 1) << 1)
+                | ((self.bits_per_sample - 1) >> 4)
+            ).to_bytes(2, byteorder="big")
+            + (
+                ((self.bits_per_sample - 1) << 4)
+                | ((self.total_samples >> 32) & 0x0F)
+            ).to_bytes(2, byteorder="big")
+            + (self.total_samples & 0xFFFFFFFF).to_bytes(4, byteorder="big")
+            + bytes.fromhex(self.md5)
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -170,6 +214,9 @@ class FLACCueSheet:
     is_cd: bool
     num_tracks: int
     tracks: list[FLACCueSheetTrack]
+
+    def __post_init__(self) -> None:
+        pass
 
     # def serialize(self) -> bytes: ...
 
@@ -362,21 +409,21 @@ class FLACAudio(Audio):
                     if not num_tracks:
                         raise ValueError(
                             f"Invalid number of tracks ({num_tracks}) "
-                            f"in CUESHEET block in '{file_path}'."
+                            "in the CUESHEET block."
                         )
 
                     if is_cd:
                         if num_tracks > 100:
                             raise ValueError(
                                 f"Invalid number of tracks ({num_tracks}) "
-                                f"in CUESHEET block in '{file_path}'."
+                                f"in the CUESHEET block."
                             )
                     else:
                         if num_lead_in_samples:
                             raise ValueError(
                                 "The number of lead-in samples must be "
-                                "0 for non-CD CUESHEET block in "
-                                f"'{file_path}'."
+                                f"0, not {num_lead_in_samples}, for a "
+                                "non-CD CUESHEET block."
                             )
 
                     offset = 396

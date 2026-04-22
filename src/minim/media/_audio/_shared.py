@@ -55,8 +55,6 @@ class AudioStreamInfo:
         """
         Duration in seconds.
         """
-        if self.sample_rate == 0:
-            return 0.0
         return self.total_samples / self.sample_rate
 
 
