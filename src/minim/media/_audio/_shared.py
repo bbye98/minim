@@ -5,6 +5,8 @@ import mmap
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from ..._utility import validate_number
+
 if TYPE_CHECKING:
     from typing import Any
 
@@ -17,10 +19,29 @@ class AudioStreamInfo:
     Audio stream information.
     """
 
+    _NUM_CHANNELS_RANGE = (1, 65_535)
+    _SAMPLE_RATE_RANGE = (1, 4_294_967_295)
+    _BITS_PER_SAMPLE_RANGE = (1, 32)
+
     num_channels: int
     sample_rate: int
     bits_per_sample: int
     total_samples: int
+
+    def __post_init__(self) -> None:
+        validate_number(
+            "num_channels", self.num_channels, int, *self._NUM_CHANNELS_RANGE
+        )
+        validate_number(
+            "sample_rate", self.sample_rate, int, *self._SAMPLE_RATE_RANGE
+        )
+        validate_number(
+            "bits_per_sample",
+            self.bits_per_sample,
+            int,
+            *self._BITS_PER_SAMPLE_RANGE,
+        )
+        validate_number("total_samples", self.total_samples, int, 0)
 
     @property
     def bitrate(self) -> int:
