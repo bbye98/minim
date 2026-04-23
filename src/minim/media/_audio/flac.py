@@ -21,7 +21,9 @@ _seek_table_unpack_from = _SEEK_TABLE_STRUCT.unpack_from
 _seek_table_pack = _SEEK_TABLE_STRUCT.pack
 _cue_sheet_unpack_from = _CUE_SHEET_STRUCT.unpack_from
 _cue_sheet_track_unpack_from = _CUE_SHEET_TRACK_STRUCT.unpack_from
+_cue_sheet_track_pack = _CUE_SHEET_TRACK_STRUCT.pack
 _cue_sheet_track_index_unpack_from = _CUE_SHEET_TRACK_INDEX_STRUCT.unpack_from
+_cue_sheet_track_index_pack = _CUE_SHEET_TRACK_INDEX_STRUCT.pack
 
 
 @dataclass(frozen=True, slots=True)
@@ -126,7 +128,7 @@ class FLACMetadataBlock:
                     if sample_number < seek_points[seek_point_idx][0]:
                         raise ValueError(
                             f"Seek point {seek_point_idx + 1} is out "
-                            "of order in the SEEKTABLE block."
+                            "of order in SEEKTABLE block."
                         )
             case 4:  # VORBIS_COMMENT
                 if self._custom:
@@ -163,8 +165,8 @@ class FLACMetadataBlock:
                 return self.block_data["app_id"] + self.block_data["app_data"]
             case 3:  # SEEKTABLE
                 return b"".join(
-                    _seek_table_pack(first_sample, offset, num_samples)
-                    for first_sample, offset, num_samples in self.block_data
+                    _seek_table_pack(*seek_point)
+                    for seek_point in self.block_data
                 )
             case 5:  # CUESHEET
                 pass
@@ -239,10 +241,9 @@ class FLACCueSheet:
     num_tracks: int
     tracks: tuple[FLACCueSheetTrack, ...]
 
-    def __post_init__(self) -> None:
-        pass
+    # def __post_init__(self) -> None: ...
 
-    # def serialize(self) -> bytes: ...
+    def serialize(self) -> bytes: ...  # TODO
 
 
 @dataclass(frozen=True, slots=True)
@@ -259,7 +260,17 @@ class FLACCueSheetTrack:
     num_indices: int
     indices: tuple[tuple[int, int], ...]
 
-    # def serialize(self) -> bytes: ...
+    # def __post_init__(self) -> None: ...
+
+    def serialize(self) -> bytes:
+        """
+        Serialize a CUESHEET track index to a bytestream.
+        """
+        # TODO
+        return b"".join(
+            _cue_sheet_track_index_pack(*index, 3 * b"\x00")
+            for index in self.indices
+        )
 
 
 class FLACAudio(Audio):
