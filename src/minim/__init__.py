@@ -11,7 +11,7 @@ __all__ = ["api", "media"]
 __version__ = "2.0.0-alpha"
 REPOSITORY_URL = "https://github.com/bbye98/minim"
 
-FOUND = {"lib": find_spec(lib) is not None for lib in {"playwright"}}
+FOUND = {lib: find_spec(lib) is not None for lib in {"playwright"}}
 FOUND["ffmpeg"] = shutil.which("ffmpeg") is not None
 ILLEGAL_CHARS = {ord(c): "_" for c in '"*/:<>?\\|'}
 HOME_DIR = Path.home()

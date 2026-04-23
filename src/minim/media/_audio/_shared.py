@@ -70,15 +70,17 @@ class Audio(ABC):
     def __init__(self, file_path: str | Path, /) -> None:
         """ """
         self._file_path = Path(file_path).expanduser().resolve(strict=True)
-        self.open()
+        self.load()
 
     @abstractmethod
-    def open(self) -> None:
+    def load(self) -> None:
         """ """
-        self.close()
-        self._file = open(self._file_path, "rb")
-        self._mmap = mmap.mmap(self._file.fileno(), 0, access=mmap.ACCESS_READ)
-        self._memoryview = memoryview(self._mmap)
+        ...
+
+    @abstractmethod
+    def save(self) -> None:
+        """ """
+        ...
 
     # @property
     # @abstractmethod
@@ -96,6 +98,13 @@ class Audio(ABC):
     def tags(self) -> AudioTags:
         """ """
         return self._tags
+
+    def open(self) -> None:
+        """ """
+        self.close()
+        self._file = open(self._file_path, "rb")
+        self._mmap = mmap.mmap(self._file.fileno(), 0, access=mmap.ACCESS_READ)
+        self._memoryview = memoryview(self._mmap)
 
     def close(self) -> None:
         """ """
