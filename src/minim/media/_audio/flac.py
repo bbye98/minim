@@ -2,28 +2,25 @@ from __future__ import annotations
 from dataclasses import dataclass
 import string
 import struct
-from typing import TYPE_CHECKING
 import warnings
 
 from ..._utility import prepare_isrc, validate_number, validate_type
 from .._metadata import VorbisComment
 from ._shared import AudioStreamInfo, Audio
 
-if TYPE_CHECKING:
-    from typing import Any
-
 _SEEK_TABLE_STRUCT = struct.Struct(">QQH")
 _CUE_SHEET_STRUCT = struct.Struct(">128sQB258sB")
 _CUE_SHEET_TRACK_STRUCT = struct.Struct(">QB12sB13sB")
 _CUE_SHEET_TRACK_INDEX_STRUCT = struct.Struct(">QB3s")
 
-_seek_table_unpack_from = _SEEK_TABLE_STRUCT.unpack_from
 _seek_table_pack = _SEEK_TABLE_STRUCT.pack
+_seek_table_unpack_from = _SEEK_TABLE_STRUCT.unpack_from
+_cue_sheet_pack = _CUE_SHEET_STRUCT.pack
 _cue_sheet_unpack_from = _CUE_SHEET_STRUCT.unpack_from
-_cue_sheet_track_unpack_from = _CUE_SHEET_TRACK_STRUCT.unpack_from
 _cue_sheet_track_pack = _CUE_SHEET_TRACK_STRUCT.pack
-_cue_sheet_track_index_unpack_from = _CUE_SHEET_TRACK_INDEX_STRUCT.unpack_from
+_cue_sheet_track_unpack_from = _CUE_SHEET_TRACK_STRUCT.unpack_from
 _cue_sheet_track_index_pack = _CUE_SHEET_TRACK_INDEX_STRUCT.pack
+_cue_sheet_track_index_unpack_from = _CUE_SHEET_TRACK_INDEX_STRUCT.unpack_from
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,7 +30,9 @@ class FLACMetadataBlock:
     """
 
     block_type: int
-    block_data: dict[str, bytes] | FLACStreamInfo | VorbisComment | None = None
+    block_data: (
+        dict[str, bytes] | FLACCueSheet | FLACStreamInfo | VorbisComment | None
+    ) = None
     block_size: int | None = None
     _custom: bool = True
 
@@ -243,7 +242,17 @@ class FLACCueSheet:
 
     # def __post_init__(self) -> None: ...
 
-    def serialize(self) -> bytes: ...  # TODO
+    def serialize(self) -> bytes:
+        """
+        Serialize a CUESHEET block to a bytestream.
+        """
+        return _cue_sheet_pack(
+            self.media_catalog_number.encode(),
+            self.num_lead_in_samples,
+            self.is_cd << 7,
+            258 * b"\x00",
+            self.num_tracks,
+        ) + b"".join(track.serialize() for track in self.tracks)
 
 
 @dataclass(frozen=True, slots=True)
@@ -264,10 +273,16 @@ class FLACCueSheetTrack:
 
     def serialize(self) -> bytes:
         """
-        Serialize a CUESHEET track index to a bytestream.
+        Serialize a track in a CUESHEET block to a bytestream.
         """
-        # TODO
-        return b"".join(
+        return _cue_sheet_track_pack(
+            self.offset,
+            self.number,
+            self.isrc.encode() if self.isrc else 12 * b"\x00",
+            (self.is_audio << 7) | (self.has_pre_emphasis << 6),
+            13 * b"\x00",
+            self.num_indices,
+        ) + b"".join(
             _cue_sheet_track_index_pack(*index, 3 * b"\x00")
             for index in self.indices
         )
@@ -481,11 +496,11 @@ class FLACAudio(Audio):
                             )
                         seen_track_numbers.add(track_number)
 
-                        if isrc == 12 * b"\x00":
-                            isrc = ""
-                        else:
-                            isrc = prepare_isrc(isrc.decode())
-
+                        isrc = (
+                            ""
+                            if isrc == 12 * b"\x00"
+                            else prepare_isrc(isrc.decode())
+                        )
                         is_audio = bool(flags & 0x80)
                         has_pre_emphasis = bool(flags & 0x40)
                         if flags & 0x3F or reserved != 13 * b"\x00":
