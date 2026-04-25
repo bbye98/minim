@@ -8,9 +8,7 @@ from typing import TYPE_CHECKING
 from ..._utility import validate_number
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from .._metadata import AudioTags
+    from ..metadata import AudioTags
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,20 +63,20 @@ class Audio(ABC):
 
     _tags: AudioTags
 
-    # __slots__ = ()
+    __slots__ = "_file", "_file_path", "_mmap", "_view"
 
     def __init__(self, file_path: str | Path, /) -> None:
         """ """
         self._file_path = Path(file_path).expanduser().resolve(strict=True)
-        self.load()
+        self.load_metadata()
 
     @abstractmethod
-    def load(self) -> None:
+    def load_metadata(self) -> None:
         """ """
         ...
 
     @abstractmethod
-    def save(self) -> None:
+    def save_metadata(self) -> None:
         """ """
         ...
 
@@ -104,13 +102,13 @@ class Audio(ABC):
         self.close()
         self._file = open(self._file_path, "rb")
         self._mmap = mmap.mmap(self._file.fileno(), 0, access=mmap.ACCESS_READ)
-        self._memoryview = memoryview(self._mmap)
+        self._view = memoryview(self._mmap)
 
     def close(self) -> None:
         """ """
-        if hasattr(self, "_memoryview"):
-            self._memoryview.release()
-            del self._memoryview
+        if hasattr(self, "_view"):
+            self._view.release()
+            del self._view
         if hasattr(self, "_mmap") and not self._mmap.closed:
             self._mmap.close()
             del self._mmap

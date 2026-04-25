@@ -1,11 +1,12 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import re
 import string
 import struct
 import warnings
 
 from ..._utility import prepare_isrc, validate_number, validate_type
-from .._metadata import VorbisComment
+from ..metadata import VorbisComment
 from ._shared import AudioStreamInfo, Audio
 
 _SEEK_TABLE_STRUCT = struct.Struct(">QQH")
@@ -41,17 +42,17 @@ class FLACMetadataBlock:
         match self.block_type:
             case 0:  # STREAMINFO
                 if self._custom:
+                    if not isinstance(self.block_data, FLACStreamInfo):
+                        raise TypeError(
+                            "STREAMINFO block data must be an instance of "
+                            f"FLACStreamInfo, not {type(self.block_data).__name__}."
+                        )
+
                     if self.block_size is None:
                         self.block_size = 34
                     elif self.block_size != 34:
                         raise ValueError(
                             f"STREAMINFO block size must be 34, not {self.block_size}."
-                        )
-
-                    if not isinstance(self.block_data, FLACStreamInfo):
-                        raise TypeError(
-                            "STREAMINFO block data must be an instance of "
-                            f"FLACStreamInfo, not {type(self.block_data).__name__}."
                         )
             case 1:  # PADDING
                 validate_number("block_size", self.block_size, int, 0)
@@ -147,16 +148,36 @@ class FLACMetadataBlock:
                             "the size of the block data."
                         )
             case 5:  # CUESHEET
-                pass
+                if self._custom:
+                    if not isinstance(self.block_data, FLACCueSheet):
+                        raise TypeError(
+                            "CUESHEET block data must be an instance "
+                            "of FLACCueSheet, not "
+                            f"{type(self.block_data).__name__}."
+                        )
+
+                    actual_block_size = len(self.block_data.serialize())
+                    if self.block_size is None:
+                        self.block_size = actual_block_size
+                    elif self.block_size != actual_block_size:
+                        raise ValueError(
+                            "CUESHEET block size does not match the "
+                            "size of the block data."
+                        )
             case 6:  # PICTURE
-                pass
+                pass  # TODO
+
+    # def from_stream(cls, stream: ...) -> FLACMetadataBlock: ...  # TODO
 
     def serialize(self) -> bytes:
         """
-        Serialize (only) the metadata block data to a bytestream.
+        Serialize only the metadata block data to a bytestream. The
+        metadata block header should be prefixed by the calling scope
+        since this class does not know whether the metadata block is the
+        last metadata block before the audio data.
         """
         match self.block_type:
-            case 0 | 4:  # STREAMINFO / VORBIS_COMMENT
+            case 0 | 4 | 5:  # STREAMINFO / VORBIS_COMMENT / CUESHEET
                 return self.block_data.serialize()
             case 1:  # PADDING
                 return bytes(self.block_size)
@@ -167,10 +188,8 @@ class FLACMetadataBlock:
                     _seek_table_pack(*seek_point)
                     for seek_point in self.block_data
                 )
-            case 5:  # CUESHEET
-                pass
             case 6:  # PICTURE
-                pass
+                pass  # TODO
 
 
 @dataclass(frozen=True, slots=True)
@@ -191,18 +210,19 @@ class FLACStreamInfo(AudioStreamInfo):
     md5: str
 
     def __post_init__(self) -> None:
-        super().__post_init__()
+        super(FLACStreamInfo, self).__post_init__()
         validate_number("minimum_block_size", self.minimum_block_size, int, 16)
         validate_number("maximum_block_size", self.maximum_block_size, int, 16)
         validate_number("minimum_frame_size", self.minimum_frame_size, int, 0)
         validate_number("maximum_frame_size", self.maximum_frame_size, int, 0)
-        validate_type("md5", self.md5, str)
-        if len(self.md5) != 32 or not all(
-            c in self._HEX_DIGITS for c in self.md5
-        ):
+        md5 = self.md5
+        validate_type("md5", md5, str)
+        if len(md5) != 32 or not all(c in self._HEX_DIGITS for c in md5):
             raise ValueError(
-                "'md5' must be a 32-character hexadecimal string."
+                "`md5` must be a 32-character hexadecimal string."
             )
+
+    # def from_stream(cls, stream: ...) -> FLACStreamInfo: ...  # TODO
 
     def serialize(self) -> bytes:
         """
@@ -234,13 +254,37 @@ class FLACCueSheet:
     FLAC :code:`CUESHEET` metadata block data.
     """
 
+    _ASCII_CHARS_REGEX = re.compile("[\x20-\x7e]*$")
+
     media_catalog_number: str
     num_lead_in_samples: int
     is_cd: bool
     num_tracks: int
     tracks: tuple[FLACCueSheetTrack, ...]
 
-    # def __post_init__(self) -> None: ...
+    def __post_init__(self) -> None:
+        media_catalog_number = self.media_catalog_number
+        validate_type("media_catalog_number", media_catalog_number, str)
+        if len(media_catalog_number) > 128:
+            raise ValueError(
+                "`media_catalog_number` must be 128 characters or fewer."
+            )
+        if not self._ASCII_CHARS_REGEX.match(media_catalog_number):
+            raise ValueError(
+                "`media_catalog_number` must contain only ASCII "
+                "characters 0x20 (' ') through 0x7D ('}')."
+            )
+
+        validate_number("num_lead_in_samples", self.num_lead_in_samples, 0)
+        validate_type("is_cd", self.is_cd, bool)
+        validate_number(
+            "num_tracks", self.num_tracks, int, 1, 100 if self.is_cd else None
+        )
+        validate_type("tracks", self.tracks, tuple)
+        for track_idx, track in self.tracks:
+            validate_type(f"tracks[{track_idx}]", track, FLACCueSheetTrack)
+
+    # def from_stream(cls, stream: ...) -> FLACCueSheet: ...  # TODO
 
     def serialize(self) -> bytes:
         """
@@ -269,7 +313,9 @@ class FLACCueSheetTrack:
     num_indices: int
     indices: tuple[tuple[int, int], ...]
 
-    # def __post_init__(self) -> None: ...
+    # def __post_init__(self) -> None: ...  # TODO
+
+    # def from_stream(cls, stream: ...) -> FLACCueSheetTrack: ...  # TODO
 
     def serialize(self) -> bytes:
         """
@@ -304,13 +350,13 @@ class FLACAudio(Audio):
         127: "INVALID",
     }
 
-    # __slots__ = ()
+    # __slots__ = ()  # TODO
 
-    def load(self) -> None:
+    def load_metadata(self) -> None:
         """ """
         self.open()
         file_path = self._file_path
-        view = self._memoryview
+        view = self._view
 
         offset = 4
         if view[:offset] != b"fLaC":
@@ -420,7 +466,7 @@ class FLACAudio(Audio):
                         )
                     )
                 case 4:  # VORBIS_COMMENT
-                    self._tags = VorbisComment(block_data)
+                    self._tags = VorbisComment.from_stream(block_data)
                     self._metadata.append(
                         FLACMetadataBlock(
                             block_type=block_type,
@@ -612,4 +658,4 @@ class FLACAudio(Audio):
         del block_data
         self.close()
 
-    def save(self) -> None: ...  # TODO
+    # def save_metadata(self) -> None: ...  # TODO

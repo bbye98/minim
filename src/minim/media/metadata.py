@@ -1,9 +1,9 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
+import mmap
 from numbers import Real
 import re
-import struct
 from typing import TYPE_CHECKING
 
 from .. import __version__
@@ -11,10 +11,12 @@ from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import prepare_isrc, validate_numeric, validate_type
 
 if TYPE_CHECKING:
-    import mmap
     from typing import Any
 
     from .._types import Collection, OrderedCollection
+
+
+__all__ = ["VorbisComment"]
 
 
 class AudioTags(ABC):
@@ -455,7 +457,7 @@ class ID3(AudioTags):
     ID3 metadata container.
     """
 
-    __slots__ = ("_frames",)
+    # __slots__ = ("_frames",)
 
 
 class ItemListBox(AudioTags):
@@ -463,7 +465,7 @@ class ItemListBox(AudioTags):
     MP4 item list box (:code:`moov.udta.meta.ilst`) metadata container.
     """
 
-    __slots__ = ("_boxes",)
+    # __slots__ = ("_boxes",)
 
 
 class VorbisComment(AudioTags):
@@ -477,7 +479,7 @@ class VorbisComment(AudioTags):
         <https://www.xiph.org/vorbis/doc/v-comment.html>`_.
     """
 
-    _UINT32_LE = struct.Struct("<I")
+    _INVALID_KEY_CHARS_REGEX = re.compile("[^\x20-\x3c\x3e-\x7e]")
 
     _validators = {
         "BPM": lambda value: validate_numeric("BPM", value, int | float, 0),
@@ -502,11 +504,44 @@ class VorbisComment(AudioTags):
 
     def __init__(
         self,
-        bytestream: bytes | bytearray | memoryview | "mmap.mmap" | None = None,
-        /,
+        fields: dict[str, Any] | None = None,
+        vendor: str | None = None,
         *,
         keep_empty: bool = False,
     ) -> None:
+        """
+        Parameters
+        ----------
+        fields : dict[str, Any]; optional
+            ...
+
+        vendor : str; optional
+            ...
+
+        keep_empty : bool; keyword-only; default: :code:`False`
+            Whether to keep field–value pairs with empty values.
+        """
+        if fields is None:
+            self._fields = {}
+        else:
+            # TODO: Validate user input.
+            self._fields = fields
+        self._num_fields = len(self._fields)
+
+        validate_type("vendor", vendor, str | None)
+        self._vendor = vendor
+
+        validate_type("keep_empty", keep_empty, bool)
+        self._keep_empty = keep_empty
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: bytes | bytearray | memoryview | mmap.mmap,
+        /,
+        *,
+        keep_empty: bool = False,
+    ) -> VorbisComment:
         """
         Parameters
         ----------
@@ -517,44 +552,47 @@ class VorbisComment(AudioTags):
 
         keep_empty : bool; keyword-only; default: :code:`False`
             Whether to keep field–value pairs with empty values.
+
+        Returns
+        -------
+        vorbis_comment : minim.media.VorbisComment
         """
+        obj = cls.__new__(cls)
         validate_type("keep_empty", keep_empty, bool)
-        self._keep_empty = keep_empty
-        self._fields = {}
+        obj._keep_empty = keep_empty
 
-        if bytestream is None:
-            self._num_fields = 0
-            self._vendor = None
-            return
-
-        if not isinstance(bytestream, memoryview):
-            try:
-                bytestream = memoryview(bytestream)
-            except TypeError:
-                raise TypeError("`bytestream` must be a bytes-like object.")
-
-        unpack_from = self._UINT32_LE.unpack_from
-        size = self._UINT32_LE.size
-        offset = 0
+        match stream:
+            case bytes() | bytearray() | mmap.mmap():
+                stream = memoryview(stream)
+            case memoryview():
+                pass
+            case _:
+                raise TypeError("`stream` must be a bytes-like object.")
 
         # Read comment header
-        (length,) = unpack_from(bytestream, offset)
-        offset += size
+        length = int.from_bytes(stream[:4], byteorder="little")
+        offset = 4
         end_offset = offset + length
-        self._vendor = bytestream[offset:end_offset].tobytes().decode()
+        obj._vendor = stream[offset:end_offset].tobytes().decode()
         offset = end_offset
-        (self._num_fields,) = unpack_from(bytestream, offset)
-        offset += size
+        end_offset = offset + 4
+        obj._num_fields = int.from_bytes(
+            stream[offset:end_offset], byteorder="little"
+        )
+        offset = end_offset
 
         # Read comment vectors
-        normalize_key = self._normalize_key
-        fields = self._fields
-        for _ in range(self._num_fields):
-            (length,) = unpack_from(bytestream, offset)
-            offset += size
+        normalize_key = cls._normalize_key
+        fields = obj._fields = {}
+        for _ in range(obj._num_fields):
+            end_offset = offset + 4
+            length = int.from_bytes(
+                stream[offset:end_offset], byteorder="little"
+            )
+            offset = end_offset
             end_offset = offset + length
             key, value = (
-                bytestream[offset:end_offset]
+                stream[offset:end_offset]
                 .tobytes()
                 .decode()
                 .split("=", maxsplit=1)
@@ -566,6 +604,8 @@ class VorbisComment(AudioTags):
                     fields[key].append(value)
                 else:
                     fields[key] = [value]
+
+        return obj
 
     @staticmethod
     def _normalize_key(key: str, /) -> str:
@@ -583,7 +623,7 @@ class VorbisComment(AudioTags):
         key : str
             Normalized field name.
         """
-        return re.sub("[^\x20-\x3c\x3e-\x7e]", "_", key.upper())
+        return VorbisComment._INVALID_KEY_CHARS_REGEX.sub("_", key.upper())
 
     @property
     def album(self) -> list[str] | None:
@@ -919,10 +959,11 @@ class VorbisComment(AudioTags):
 
            The Vorbis comment specification allows for arbitrary
            case-insensitive field names consisting of only ASCII
-           characters 0x20 through 0x7D, excluding 0x3D (:code:`=`).
-           However, Python identifiers are case-sensitive, can contain
-           Unicode characters, and have restrictions such as not
-           containing whitespace or starting with a digit.
+           characters 0x20 (:code:` `) through 0x7D (:code:`}`),
+           excluding 0x3D (:code:`=`). However, Python identifiers are
+           case-sensitive, can contain Unicode characters, and have
+           restrictions such as not containing whitespace or starting
+           with a digit.
 
            To pass in fields with names that do not conform to Python
            identifier rules, unpack a dictionary containing key–value
@@ -1006,9 +1047,9 @@ class VorbisComment(AudioTags):
             )
 
         if isinstance(fields, str):
-            return self._fields.get(fields)
+            return self._fields.get(self._normalize_key(fields))
 
-        return {field: self._fields.get(field) for field in fields}
+        return {field: self.get(field) for field in fields}
 
     def set(self, **kwargs: Any) -> None:
         """
@@ -1018,10 +1059,11 @@ class VorbisComment(AudioTags):
 
            The Vorbis comment specification allows for arbitrary
            case-insensitive field names consisting of only ASCII
-           characters 0x20 through 0x7D, excluding 0x3D (:code:`=`).
-           However, Python identifiers are case-sensitive, can contain
-           Unicode characters, and have restrictions such as not
-           containing whitespace or starting with a digit.
+           characters 0x20 (:code:` `) through 0x7D (:code:`}`),
+           excluding 0x3D (:code:`=`). However, Python identifiers are
+           case-sensitive, can contain Unicode characters, and have
+           restrictions such as not containing whitespace or starting
+           with a digit.
 
            To pass in fields with names that do not conform to Python
            identifier rules, unpack a dictionary containing key–value
