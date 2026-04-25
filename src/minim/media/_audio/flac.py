@@ -658,4 +658,4 @@ class FLACAudio(Audio):
         del block_data
         self.close()
 
-    # def save_metadata(self) -> None: ...  # TODO
+    def save_metadata(self) -> None: ...  # TODO
