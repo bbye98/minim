@@ -555,7 +555,7 @@ class VorbisComment(AudioTags):
 
         Returns
         -------
-        vorbis_comment : minim.media.VorbisComment
+        vorbis_comment : minim.media.metadata.VorbisComment
         """
         obj = cls.__new__(cls)
         validate_type("keep_empty", keep_empty, bool)
