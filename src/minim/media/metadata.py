@@ -739,7 +739,7 @@ class VorbisComment(AudioTags):
     @property
     def date(self) -> list[str] | None:
         """
-        :code:`DATE` (legacy: :code:`YEAR`) – Release date.
+        :code:`DATE` or :code:`YEAR` (legacy) – Release date.
         """
         return self.get("DATE") or self.get("YEAR")
 
@@ -776,8 +776,8 @@ class VorbisComment(AudioTags):
     @property
     def disc_total(self) -> list[str] | None:
         """
-        :code:`DISCTOTAL` (legacy: :code:`TOTALDISCS`) – Total number of
-        discs.
+        :code:`DISCTOTAL` or :code:`TOTALDISCS` (legacy) – Total number
+        of discs.
         """
         return self.get("DISCTOTAL") or self.get("TOTALDISCS")
 
@@ -916,8 +916,8 @@ class VorbisComment(AudioTags):
     @property
     def track_total(self) -> list[str] | None:
         """
-        :code:`TRACKTOTAL` (legacy: :code:`TOTALTRACKS`) – Total number
-        of tracks.
+        :code:`TRACKTOTAL` or :code:`TOTALTRACKS` (legacy) – Total
+        number of tracks.
         """
         return self.get("TRACKTOTAL") or self.get("TOTALTRACKS")
 
