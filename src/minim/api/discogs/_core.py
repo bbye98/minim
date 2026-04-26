@@ -174,8 +174,8 @@ class DiscogsAPIClient(OAuth1APIClient):
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
 
-        user_agent : str; keyword-only; \
-        default: :code:`"Minim/X.Y.Z +https://github.com/bbye98/minim"`
+        user_agent : str; keyword-only; default: \
+        :code:`f"Minim/{minim.__version__} +https://github.com/bbye98/minim"`
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """

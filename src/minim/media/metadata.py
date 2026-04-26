@@ -504,7 +504,7 @@ class VorbisComment(AudioTags):
 
     def __init__(
         self,
-        fields: dict[str, Any] | None = None,
+        fields: dict[str, str | OrderedCollection[Any]] | None = None,
         vendor: str | None = None,
         *,
         keep_empty: bool = False,
@@ -513,19 +513,45 @@ class VorbisComment(AudioTags):
         Parameters
         ----------
         fields : dict[str, Any]; optional
-            ...
+            Key–value pairs of track attributes.
 
         vendor : str; optional
-            ...
+            Vendor name.
+
+            **Example**: :code:`"Xiph.Org libVorbis I 20020717"`.
 
         keep_empty : bool; keyword-only; default: :code:`False`
             Whether to keep field–value pairs with empty values.
         """
-        if fields is None:
-            self._fields = {}
-        else:
-            # TODO: Validate user input.
-            self._fields = fields
+        normalize_field_name = self._normalize_field_name
+        stringify = self._stringify
+        self._fields = {}
+        if fields is not None:
+            validate_type("fields", fields, dict)
+            for field_name, field_value in fields.items():
+                validate_type("field_name", field_name, str)
+                if isinstance(field_value, ORDERED_COLLECTION_TYPES):
+                    field_values = self._fields[
+                        normalize_field_name(field_name)
+                    ] = []
+                    for fv in field_value:
+                        fv = stringify(fv)
+                        if not isinstance(fv, str):
+                            raise TypeError(
+                                f"Value {fv} in field {field_name} "
+                                "could not be converted to a string."
+                            )
+                        field_values.append(fv)
+                else:
+                    field_value = stringify(field_value)
+                    if not isinstance(field_value, str):
+                        raise TypeError(
+                            f"Value {field_value} in field {field_name} "
+                            "could not be converted to a string."
+                        )
+                    self._fields[normalize_field_name(field_name)] = [
+                        field_value
+                    ]
         self._num_fields = len(self._fields)
 
         validate_type("vendor", vendor, str | None)
@@ -543,6 +569,9 @@ class VorbisComment(AudioTags):
         keep_empty: bool = False,
     ) -> VorbisComment:
         """
+        Instantiate a :class:`VorbisComment` object from a bytes-like
+        object.
+
         Parameters
         ----------
         bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
@@ -582,7 +611,7 @@ class VorbisComment(AudioTags):
         offset = end_offset
 
         # Read comment vectors
-        normalize_key = cls._normalize_key
+        normalize_field_name = cls._normalize_field_name
         fields = obj._fields = {}
         for _ in range(obj._num_fields):
             end_offset = offset + 4
@@ -591,36 +620,36 @@ class VorbisComment(AudioTags):
             )
             offset = end_offset
             end_offset = offset + length
-            key, value = (
+            field_name, field_value = (
                 stream[offset:end_offset]
                 .tobytes()
                 .decode()
                 .split("=", maxsplit=1)
             )
             offset = end_offset
-            if keep_empty or value:
-                key = normalize_key(key)
-                if key in fields:
-                    fields[key].append(value)
+            if keep_empty or field_value:
+                field_name = normalize_field_name(field_name)
+                if field_name in fields:
+                    fields[field_name].append(field_value)
                 else:
-                    fields[key] = [value]
+                    fields[field_name] = [field_value]
 
         return obj
 
     @staticmethod
-    def _normalize_key(key: str, /) -> str:
+    def _normalize_field_name(key: str, /) -> str:
         """
         Normalize a field name to conform to the Vorbis comment
         specification.
 
         Parameters
         ----------
-        key : str; positional-only
+        field_name : str; positional-only
             Field name to normalize.
 
         Returns
         -------
-        key : str
+        field_name : str
             Normalized field name.
         """
         return VorbisComment._INVALID_KEY_CHARS_REGEX.sub("_", key.upper())
@@ -981,7 +1010,7 @@ class VorbisComment(AudioTags):
         """
         keep_empty = self._keep_empty
         for key, value in kwargs.items():
-            key = self._normalize_key(key)
+            key = self._normalize_field_name(key)
             new_key = key not in self._fields
             if new_key:
                 self._fields[key] = values = []
@@ -1047,7 +1076,7 @@ class VorbisComment(AudioTags):
             )
 
         if isinstance(fields, str):
-            return self._fields.get(self._normalize_key(fields))
+            return self._fields.get(self._normalize_field_name(fields))
 
         return {field: self.get(field) for field in fields}
 
@@ -1081,7 +1110,7 @@ class VorbisComment(AudioTags):
         """
         keep_empty = self._keep_empty
         for key, value in kwargs.items():
-            key = self._normalize_key(key)
+            key = self._normalize_field_name(key)
             new_key = key not in self._fields
             validate = self._validators.get(key)
             has_validator = validate is not None
@@ -1121,6 +1150,11 @@ class VorbisComment(AudioTags):
     def serialize(self, *, include_framing_bit: bool = False) -> bytes:
         """
         Serialize the Vorbis comment to a bytestream.
+
+        .. note::
+
+           If a vendor name was not specified,
+           :code:`f"Minim {minim.__version__}"` is used.
 
         Parameters
         ----------
