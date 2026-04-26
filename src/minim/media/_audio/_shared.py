@@ -19,7 +19,7 @@ class AudioStreamInfo:
 
     _NUM_CHANNELS_RANGE = (1, 65_535)
     _SAMPLE_RATE_RANGE = (1, 4_294_967_295)
-    _BITS_DEPTH_RANGE = (1, 32)
+    _BIT_DEPTH_RANGE = (1, 32)
 
     #: Number of channels.
     channels: int
@@ -38,10 +38,7 @@ class AudioStreamInfo:
             "sample_rate", self.sample_rate, int, *self._SAMPLE_RATE_RANGE
         )
         validate_number(
-            "bit_depth",
-            self.bit_depth,
-            int,
-            *self._BITS_DEPTH_RANGE,
+            "bit_depth", self.bit_depth, int, *self._BIT_DEPTH_RANGE
         )
         validate_number("sample_count", self.sample_count, int, 0)
 
