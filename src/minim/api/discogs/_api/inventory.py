@@ -5,6 +5,7 @@ import io
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from ...._types import PathLike
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
 
@@ -28,7 +29,7 @@ class InventoryAPI(DiscogsResourceAPI):
 
     def _prepare_inventory_csv(
         self,
-        inventory_csv: bytes | str | Path,
+        inventory_csv: bytes | PathLike,
         /,
         *,
         required_fields: set[str],
@@ -68,7 +69,7 @@ class InventoryAPI(DiscogsResourceAPI):
         content_type : str
             Content type (:code:`"text/csv"`).
         """
-        self._validate_type("inventory_csv", inventory_csv, bytes | str | Path)
+        self._validate_type("inventory_csv", inventory_csv, bytes | PathLike)
         if (is_str := isinstance(inventory_csv, str)) or isinstance(
             inventory_csv, bytes
         ):
@@ -326,7 +327,7 @@ class InventoryAPI(DiscogsResourceAPI):
 
     @TTLCache.cached_method(ttl="user")
     def download_inventory_export(
-        self, export_id: int | str, /, *, target: str | Path | None = None
+        self, export_id: int | str, /, *, target: PathLike | None = None
     ) -> bytes | Path:
         """
         `Inventory Export > Download an Export <https://www.discogs.com
@@ -391,7 +392,7 @@ class InventoryAPI(DiscogsResourceAPI):
         return target
 
     def upload_inventory_additions(
-        self, inventory_csv: bytes | str | Path, /
+        self, inventory_csv: bytes | PathLike, /
     ) -> str:
         """
         `Inventory Upload > Add Inventory <https://www.discogs.com
@@ -463,7 +464,7 @@ class InventoryAPI(DiscogsResourceAPI):
         ).headers["Location"]
 
     def upload_inventory_updates(
-        self, inventory_csv: bytes | str | Path, /
+        self, inventory_csv: bytes | PathLike, /
     ) -> str:
         """
         `Inventory Upload > Change Inventory <https://www.discogs.com
@@ -537,7 +538,7 @@ class InventoryAPI(DiscogsResourceAPI):
         ).headers["Location"]
 
     def upload_inventory_deletions(
-        self, inventory_csv: bytes | str | Path, /
+        self, inventory_csv: bytes | PathLike, /
     ) -> str:
         """
         `Inventory Upload > Delete Inventory <https://www.discogs.com

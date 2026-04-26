@@ -1,9 +1,12 @@
+from __future__ import annotations
 import mmap
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .._types import BytesLike
 
 
-def as_buffer(
-    stream: bytes | bytearray | memoryview | mmap.mmap,
-) -> memoryview:
+def as_buffer(stream: BytesLike) -> memoryview:
     """
     Return a C-level buffer interface to a bytes-like object.
 

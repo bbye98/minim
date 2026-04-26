@@ -1,7 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
-import mmap
 from numbers import Real
 import re
 from typing import TYPE_CHECKING
@@ -14,7 +13,7 @@ from ._shared import as_buffer
 if TYPE_CHECKING:
     from typing import Any
 
-    from .._types import Collection, OrderedCollection
+    from .._types import BytesLike, Collection, OrderedCollection
 
 
 __all__ = ["VorbisComment"]
@@ -564,7 +563,7 @@ class VorbisComment(AudioTags):
     @classmethod
     def from_stream(
         cls,
-        stream: bytes | bytearray | memoryview | mmap.mmap,
+        stream: BytesLike,
         /,
         *,
         keep_empty: bool = False,

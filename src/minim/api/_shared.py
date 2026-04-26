@@ -10,7 +10,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import ipaddress
 import json
 import os
-from pathlib import Path
 import secrets
 import ssl
 import threading
@@ -49,7 +48,7 @@ if TYPE_CHECKING:
     import types
     from typing import Any, Callable
 
-    from .._types import Collection
+    from .._types import Collection, PathLike
 
 
 def _copy_docstring(
@@ -1194,7 +1193,7 @@ class OAuthAPIClient(APIClient):
             )
 
     @staticmethod
-    def _is_certificate_valid(certificate_file: str | Path, /) -> bool:
+    def _is_certificate_valid(certificate_file: PathLike, /) -> bool:
         """
         Check whether a self-signed certificate is still valid.
 

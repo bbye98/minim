@@ -2,6 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from ...._types import PathLike
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
@@ -1587,7 +1588,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         ).json()
 
     def add_playlist_cover_image(
-        self, playlist_id: str, /, image: bytes | str | Path
+        self, playlist_id: str, /, image: bytes | PathLike
     ) -> None:
         """
         `Playlists > Add Custom Playlist Cover Image
@@ -1637,7 +1638,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "playlists.add_playlist_cover_image", "ugc-image-upload"
         )
         self._validate_spotify_id(playlist_id)
-        if isinstance(image, str | Path):
+        if isinstance(image, PathLike):
             image = Path(image).expanduser().resolve(strict=True)
             with open(image, "rb") as f:
                 image = f.read()

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from ..._utility import validate_number
 
 if TYPE_CHECKING:
+    from ..._types import PathLike
     from ..metadata import AudioTags
 
 
@@ -66,7 +67,7 @@ class Audio(ABC):
 
     __slots__ = "_file", "_file_path", "_mmap", "_view"
 
-    def __init__(self, file_path: str | Path, /) -> None:
+    def __init__(self, file_path: PathLike, /) -> None:
         """ """
         self._file_path = Path(file_path).expanduser().resolve(strict=True)
         self.load_metadata()

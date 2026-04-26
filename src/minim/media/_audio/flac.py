@@ -7,14 +7,14 @@ import struct
 from typing import TYPE_CHECKING
 import warnings
 
-from ..._types import ORDERED_COLLECTION_TYPES
 from ..._utility import prepare_isrc, validate_number, validate_type
 from .._shared import as_buffer
 from ..metadata import VorbisComment
 from ._shared import AudioStreamInfo, Audio
 
 if TYPE_CHECKING:
-    from ..._types import OrderedCollection
+    from ..._types import BytesLike
+
 
 _SEEK_TABLE_STRUCT = struct.Struct(">QQH")
 _CUE_SHEET_STRUCT = struct.Struct(">128sQB258sB")
@@ -144,11 +144,7 @@ class FLACMetadataBlock:
 
     @classmethod
     def from_stream(
-        cls,
-        stream: bytes | bytearray | memoryview | mmap.mmap,
-        /,
-        type_: int,
-        size: int | None = None,
+        cls, stream: BytesLike, /, type_: int, size: int | None = None
     ) -> FLACMetadataBlock:
         """ """
         obj = cls.__new__(cls)
@@ -274,9 +270,7 @@ class FLACStreamInfo(AudioStreamInfo):
             )
 
     @classmethod
-    def from_stream(
-        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
-    ) -> FLACStreamInfo:
+    def from_stream(cls, stream: BytesLike, /) -> FLACStreamInfo:
         """
         Instantiate a :class:`FLACStreamInfo` object from a bytes-like
         object.
@@ -391,7 +385,7 @@ class FLACApplication:
         .. seealso::
 
            `FLAC Application Metadata Block IDs
-           <https://www.iana.org/assignments/flac/flac.xhtml>`_ -
+           <https://www.iana.org/assignments/flac/flac.xhtml>`_ –
            Registry of 8-hexadecimal-digit IDs for third-party
            applications.
 
@@ -411,9 +405,7 @@ class FLACApplication:
         validate_type("app_data", self.app_data, bytes | bytearray)
 
     @classmethod
-    def from_stream(
-        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
-    ) -> FLACApplication:
+    def from_stream(cls, stream: BytesLike, /) -> FLACApplication:
         """
         Instantiate a :class:`FLACApplication` object from a bytes-like
         object.
@@ -457,7 +449,7 @@ class FLACSeekTable:
 
     Parameters
     ----------
-    seek_points : tuple[FLACSeekPoint, ...]
+    seek_points : OrderedCollection[FLACSeekPoint, ...]
         Seek points.
     """
 
@@ -466,13 +458,17 @@ class FLACSeekTable:
 
     def __post_init__(self) -> None:
         seek_points = self.seek_points
-        validate_type("seek_points", seek_points, ORDERED_COLLECTION_TYPES)
+        if not isinstance(seek_points, tuple):
+            if not isinstance(seek_points, list):
+                raise ValueError(
+                    f"`seek_points` must be a(n) list, not a(n) "
+                    f"{type(seek_points).__name__}."
+                )
+            seek_points = self.seek_points = tuple(seek_points)
         self._validate_seek_points(seek_points)
 
     @classmethod
-    def from_stream(
-        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
-    ) -> FLACSeekTable:
+    def from_stream(cls, stream: BytesLike, /) -> FLACSeekTable:
         """
         Instantiate a :class:`FLACSeekTable` object from a bytes-like
         object.
@@ -598,9 +594,7 @@ class FLACSeekPoint:
         validate_number("num_samples", self.num_samples, int, 0)
 
     @classmethod
-    def from_stream(
-        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
-    ) -> FLACSeekPoint:
+    def from_stream(cls, stream: BytesLike, /) -> FLACSeekPoint:
         """
         Instantiate a :class:`FLACSeekPoint` object from a bytes-like
         object.
@@ -640,7 +634,7 @@ class FLACSeekPoint:
 
 
 @dataclass(frozen=True, slots=True)
-class FLACCueSheet:
+class FLACCueSheet:  # TODO
     """
     FLAC :code:`CUESHEET` metadata block data.
     """
@@ -736,9 +730,7 @@ class FLACCueSheet:
             )
 
     @classmethod
-    def from_stream(
-        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
-    ) -> FLACCueSheet:
+    def from_stream(cls, stream: BytesLike, /) -> FLACCueSheet:
         """ """
         stream = as_buffer(stream)
         (
@@ -925,7 +917,7 @@ class FLACCueSheetTrack:
 
     @classmethod
     def from_stream(
-        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+        cls, stream: BytesLike, /
     ) -> FLACCueSheetTrack: ...  # TODO
 
     @property
@@ -962,7 +954,7 @@ class FLACCueSheetTrackIndex:
 
     @classmethod
     def from_stream(
-        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+        cls, stream: BytesLike, /
     ) -> FLACCueSheetTrackIndex: ...  # TODO
 
     def serialize(self) -> bytes: ...  # TODO
