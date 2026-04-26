@@ -22,17 +22,17 @@ class AudioStreamInfo:
     _BIT_DEPTH_RANGE = (1, 32)
 
     #: Number of channels.
-    channels: int
+    num_channels: int
     #: Sample rate in Hz.
     sample_rate: int
     #: Bits per sample.
     bit_depth: int
     #: Total number of samples.
-    sample_count: int
+    num_samples: int
 
     def __post_init__(self) -> None:
         validate_number(
-            "channels", self.channels, int, *self._NUM_CHANNELS_RANGE
+            "channels", self.num_channels, int, *self._NUM_CHANNELS_RANGE
         )
         validate_number(
             "sample_rate", self.sample_rate, int, *self._SAMPLE_RATE_RANGE
@@ -40,21 +40,21 @@ class AudioStreamInfo:
         validate_number(
             "bit_depth", self.bit_depth, int, *self._BIT_DEPTH_RANGE
         )
-        validate_number("sample_count", self.sample_count, int, 0)
+        validate_number("num_samples", self.num_samples, int, 0)
 
     @property
     def bitrate(self) -> int:
         """
         Bitrate in bits per second.
         """
-        return self.sample_rate * self.channels * self.bit_depth
+        return self.sample_rate * self.num_channels * self.bit_depth
 
     @property
     def duration(self) -> float:
         """
         Duration in seconds.
         """
-        return self.sample_count / self.sample_rate
+        return self.num_samples / self.sample_rate
 
 
 class Audio(ABC):

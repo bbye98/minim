@@ -57,15 +57,17 @@ class FLACMetadataBlock:
                 case 0:  # STREAMINFO
                     if not isinstance(self.data, FLACStreamInfo):
                         raise TypeError(
-                            "STREAMINFO block data must be an instance of "
-                            f"FLACStreamInfo, not {type(self.data).__name__}."
+                            "STREAMINFO block data must be an instance "
+                            "of FLACStreamInfo, not "
+                            f"{type(self.data).__name__}."
                         )
 
                     if self.size is None:
                         self.size = 34
                     elif self.size != 34:
                         raise ValueError(
-                            f"STREAMINFO block size must be 34, not {self.size}."
+                            "STREAMINFO block size must be 34, not "
+                            f"{self.size}."
                         )
                 case 1:  # PADDING
                     validate_number("size", self.size, int, 0)
@@ -73,26 +75,11 @@ class FLACMetadataBlock:
                         raise ValueError("PADDING block data must be None.")
                 case 2:  # APPLICATION
                     app = self.data
-                    if not isinstance(app, dict):
+                    if not isinstance(app, FLACApplication):
                         raise TypeError(
-                            "APPLICATION block data must be a dictionary, "
-                            f"not {type(app).__name__}."
-                        )
-
-                    if app.keys() != {"app_id", "app_data"}:
-                        raise ValueError(
-                            "APPLICATION block data must have keys "
-                            "'app_id' and 'app_data'."
-                        )
-
-                    validate_type("block_data['app_id']", app["app_id"], bytes)
-                    validate_type(
-                        "block_data['app_data']", app["app_data"], bytes
-                    )
-                    if len(app["app_id"]) != 4:
-                        raise ValueError(
-                            "APPLICATION block data 'app_id' must be 4 "
-                            f"bytes, not {len(app['app_id'])} bytes."
+                            "APPLICATION block data must be an "
+                            "instance of FLACApplication, not "
+                            f"{type(self.data).__name__}."
                         )
 
                     actual_size = 4 + len(app["app_data"])
@@ -104,21 +91,22 @@ class FLACMetadataBlock:
                             "size of the block data."
                         )
                 case 3:  # SEEKTABLE
-                    seek_points = self.data
-                    validate_type(
-                        "seek_points", seek_points, ORDERED_COLLECTION_TYPES
-                    )
+                    if not isinstance(self.data, FLACSeekTable):
+                        raise TypeError(
+                            "SEEKTABLE block data must be an instance "
+                            "of FLACSeekTable, not "
+                            f"{type(self.data).__name__}."
+                        )
 
-                    actual_size = 18 * len(seek_points)
+                    actual_size = 18 * len(self.data.seek_points)
                     if self.size is None:
                         self.size = actual_size
                     elif self.size != actual_size:
                         raise ValueError(
-                            "SEEKTABLE block size does not match the size "
-                            "of the block data."
+                            "SEEKTABLE block size does not match the "
+                            "size of the block data."
                         )
 
-                    self._validate_seek_points(seek_points)
                 case 4:  # VORBIS_COMMENT
                     if not isinstance(self.data, VorbisComment):
                         raise TypeError(
@@ -132,8 +120,8 @@ class FLACMetadataBlock:
                         self.size = actual_size
                     elif self.size != actual_size:
                         raise ValueError(
-                            "VORBIS_COMMENT block size does not match the "
-                            "size of the block data."
+                            "VORBIS_COMMENT block size does not match "
+                            "the size of the block data."
                         )
                 case 5:  # CUESHEET
                     if not isinstance(self.data, FLACCueSheet):
@@ -148,42 +136,11 @@ class FLACMetadataBlock:
                         self.size = actual_size
                     elif self.size != actual_size:
                         raise ValueError(
-                            "CUESHEET block size does not match the size "
-                            "of the block data."
+                            "CUESHEET block size does not match the "
+                            "size of the block data."
                         )
                 case 6:  # PICTURE
                     pass  # TODO
-
-    @staticmethod
-    def _validate_seek_points(
-        seek_points: tuple[FLACSeekPoint], /, *, check_type: bool = True
-    ) -> None:
-        """ """
-        if check_type:
-            validate_type("seek_points[0]", seek_points[0], FLACSeekPoint)
-        seen_sample_numbers = {seek_points[0].sample_number}
-        for seek_point_idx, seek_point in enumerate(seek_points[1:]):
-            if check_type:
-                validate_type(
-                    f"seek_points[{seek_point_idx}]", seek_point, FLACSeekPoint
-                )
-            sample_number = seek_point.sample_number
-            if sample_number == 0xFFFFFFFFFFFFFFFF:
-                continue
-
-            if sample_number in seen_sample_numbers:
-                raise ValueError(
-                    f"Duplicate sample number {sample_number} "
-                    f"found in seek point {seek_point_idx + 1} "
-                    "of SEEKTABLE block."
-                )
-            seen_sample_numbers.add(sample_number)
-
-            if sample_number < seek_points[seek_point_idx].sample_number:
-                raise ValueError(
-                    f"Seek point {seek_point_idx + 1} is out "
-                    "of order in SEEKTABLE block."
-                )
 
     @classmethod
     def from_stream(
@@ -211,19 +168,7 @@ class FLACMetadataBlock:
             case 2:  # APPLICATION
                 data = FLACApplication.from_stream(stream)
             case 3:  # SEEKTABLE
-                num_seek_points, remainder = divmod(size, 18)
-                if remainder:
-                    raise ValueError(
-                        f"Invalid SEEKTABLE block size of {size}."
-                    )
-
-                data = tuple(
-                    FLACSeekPoint(
-                        *_seek_table_unpack_from(stream, 18 * seek_point_index)
-                    )
-                    for seek_point_index in range(num_seek_points)
-                )
-                cls._validate_seek_points(data, check_type=False)
+                data = FLACSeekTable.from_stream(stream)
             case 4:  # VORBIS_COMMENT
                 data = VorbisComment.from_stream(stream)
             case 5:  # CUESHEET
@@ -241,19 +186,13 @@ class FLACMetadataBlock:
         since this class does not know whether the metadata block is the
         last metadata block before the audio data.
         """
-        match self.type_id:
-            case (
-                0 | 2 | 4 | 5
-            ):  # STREAMINFO / APPLICATION / VORBIS_COMMENT / CUESHEET
-                return self.data.serialize()
+        match self.type:
             case 1:  # PADDING
                 return bytes(self.size)
-            case 3:  # SEEKTABLE
-                return b"".join(
-                    seek_point.serialize() for seek_point in self.data
-                )
             case 6:  # PICTURE
                 pass  # TODO
+            case _:
+                return self.data.serialize()
 
 
 @dataclass(frozen=True, slots=True)
@@ -380,13 +319,15 @@ class FLACStreamInfo(AudioStreamInfo):
             "sample_rate", sample_rate, int, *cls._SAMPLE_RATE_RANGE
         )
 
-        channels = ((stream[12] & 0x0E) >> 1) + 1
-        validate_number("channels", channels, int, *cls._NUM_CHANNELS_RANGE)
+        num_channels = ((stream[12] & 0x0E) >> 1) + 1
+        validate_number(
+            "num_channels", num_channels, int, *cls._NUM_CHANNELS_RANGE
+        )
 
         bit_depth = ((stream[12] & 0x01) << 4) + ((stream[13] & 0xF0) >> 4) + 1
         validate_number("bit_depth", bit_depth, int, *cls._BIT_DEPTH_RANGE)
 
-        sample_count = ((stream[13] & 0x0F) << 32) + int.from_bytes(
+        num_samples = ((stream[13] & 0x0F) << 32) + int.from_bytes(
             stream[14:18], byteorder="big"
         )
 
@@ -402,9 +343,9 @@ class FLACStreamInfo(AudioStreamInfo):
         object.__setattr__(obj, "min_frame_size", min_frame_size)
         object.__setattr__(obj, "max_frame_size", max_frame_size)
         object.__setattr__(obj, "sample_rate", sample_rate)
-        object.__setattr__(obj, "channels", channels)
+        object.__setattr__(obj, "num_channels", num_channels)
         object.__setattr__(obj, "bit_depth", bit_depth)
-        object.__setattr__(obj, "sample_count", sample_count)
+        object.__setattr__(obj, "num_samples", num_samples)
         object.__setattr__(obj, "md5", md5)
         return obj
 
@@ -426,14 +367,13 @@ class FLACStreamInfo(AudioStreamInfo):
             + self.max_frame_size.to_bytes(3, byteorder="big")
             + (
                 (self.sample_rate << 4)
-                | ((self.channels - 1) << 1)
+                | ((self.num_channels - 1) << 1)
                 | ((self.bit_depth - 1) >> 4)
             ).to_bytes(2, byteorder="big")
             + (
-                ((self.bit_depth - 1) << 4)
-                | ((self.sample_count >> 32) & 0x0F)
+                ((self.bit_depth - 1) << 4) | ((self.num_samples >> 32) & 0x0F)
             ).to_bytes(2, byteorder="big")
-            + (self.sample_count & 0xFFFFFFFF).to_bytes(4, byteorder="big")
+            + (self.num_samples & 0xFFFFFFFF).to_bytes(4, byteorder="big")
             + bytes.fromhex(self.md5)
         )
 
@@ -514,68 +454,188 @@ class FLACApplication:
 class FLACSeekTable:
     """
     FLAC :code:`SEEKTABLE` metadata block data.
+
+    Parameters
+    ----------
+    seek_points : tuple[FLACSeekPoint, ...]
+        Seek points.
     """
 
+    #: Seek points.
     seek_points: tuple[FLACSeekPoint, ...]
 
-    def __post_init__(self) -> None: ...  # TODO
-
-    # @staticmethod
-    # def _validate_seek_points(
-    #     seek_points: tuple[FLACSeekPoint], /, *, check_type: bool = True
-    # ) -> None:
-    #     """ """
-    #     if check_type:
-    #         validate_type("seek_points[0]", seek_points[0], FLACSeekPoint)
-    #     seen_sample_numbers = {seek_points[0].sample_number}
-    #     for seek_point_idx, seek_point in enumerate(seek_points[1:]):
-    #         if check_type:
-    #             validate_type(
-    #                 f"seek_points[{seek_point_idx}]", seek_point, FLACSeekPoint
-    #             )
-    #         sample_number = seek_point.sample_number
-    #         if sample_number == 0xFFFFFFFFFFFFFFFF:
-    #             continue
-
-    #         if sample_number in seen_sample_numbers:
-    #             raise ValueError(
-    #                 f"Duplicate sample number {sample_number} "
-    #                 f"found in seek point {seek_point_idx + 1} "
-    #                 "of SEEKTABLE block."
-    #             )
-    #         seen_sample_numbers.add(sample_number)
-
-    #         if sample_number < seek_points[seek_point_idx].sample_number:
-    #             raise ValueError(
-    #                 f"Seek point {seek_point_idx + 1} is out "
-    #                 "of order in SEEKTABLE block."
-    #             )
-
-    def serialize(self) -> bytes: ...  # TODO
-
-
-@dataclass(frozen=True, slots=True)
-class FLACSeekPoint:
-    """
-    FLAC :code:`SEEKTABLE` metadata block seek point data.
-    """
-
-    sample_number: int
-    byte_offset: int
-    sample_count: int
-
     def __post_init__(self) -> None:
-        validate_number("sample_number", self.sample_number, int, 0)
-        validate_number("byte_offset", self.byte_offset, int, 0)
-        validate_number("sample_count", self.sample_count, int, 0)
+        seek_points = self.seek_points
+        validate_type("seek_points", seek_points, ORDERED_COLLECTION_TYPES)
+        self._validate_seek_points(seek_points)
+
+    @classmethod
+    def from_stream(
+        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+    ) -> FLACSeekTable:
+        """
+        Instantiate a :class:`FLACSeekTable` object from a bytes-like
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing :code:`SEEKTABLE` metadata
+            block data.
+
+        Returns
+        -------
+        app : minim.media.flac.FLACSeekTable
+            :code:`SEEKTABLE` metadata block data.
+        """
+        stream = as_buffer(stream)
+        size = len(stream)
+        num_seek_points, remainder = divmod(size, 18)
+        if remainder:
+            raise ValueError(
+                f"Invalid SEEKTABLE block size of {size}, "
+                "which is not divisible by 18."
+            )
+        seek_points = tuple(
+            FLACSeekPoint.from_stream(
+                stream[(i := 18 * seek_point_index) : i + 18]
+            )
+            for seek_point_index in range(num_seek_points)
+        )
+        cls._validate_seek_points(seek_points, custom=False)
+
+        obj = cls.__new__(cls)
+        object.__setattr__(obj, "seek_points", seek_points)
+        return obj
+
+    @staticmethod
+    def _validate_seek_points(
+        seek_points: tuple[FLACSeekPoint], /, *, custom: bool = True
+    ) -> None:
+        """
+        Validate seek points in a :code:`SEEKTABLE` metadata block.
+
+        Parameters
+        ----------
+        seek_points : tuple[FLACSeekPoint, ...]; positional-only
+            Seek points.
+
+        custom : bool; keyword-only; default: :code:`True`
+            Whether the seek points are user defined and should have
+            their types validated.
+        """
+        if custom:
+            validate_type("seek_points[0]", seek_points[0], FLACSeekPoint)
+        seen_sample_numbers = {seek_points[0].sample_number}
+        for seek_point_idx, seek_point in enumerate(seek_points[1:]):
+            if custom:
+                validate_type(
+                    f"seek_points[{seek_point_idx}]", seek_point, FLACSeekPoint
+                )
+            sample_number = seek_point.sample_number
+            if sample_number == 0xFFFFFFFFFFFFFFFF:
+                continue
+
+            if sample_number in seen_sample_numbers:
+                raise ValueError(
+                    f"Duplicate sample number {sample_number} "
+                    f"found in seek point {seek_point_idx + 1} "
+                    "of SEEKTABLE block."
+                )
+            seen_sample_numbers.add(sample_number)
+
+            if sample_number < seek_points[seek_point_idx].sample_number:
+                raise ValueError(
+                    f"Seek point {seek_point_idx + 1} is out "
+                    "of order in SEEKTABLE block."
+                )
 
     def serialize(self) -> bytes:
         """
         Serialize the :code:`SEEKTABLE` metadata block data to a
         bytestream.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing :code:`SEEKTABLE` metadata block data.
+        """
+        return b"".join(
+            seek_point.serialize() for seek_point in self.seek_points
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class FLACSeekPoint:
+    """
+    FLAC :code:`SEEKPOINT` data.
+
+    Parameters
+    ----------
+    sample_number : int
+        Sample number of the first sample in the target frame.
+
+    byte_offset : int
+        Byte offset of the target frame header from the first frame
+        header.
+
+    num_samples : int
+        Number of samples in the target frame.
+    """
+
+    #: Sample number of the first sample in the target frame.
+    sample_number: int
+    #: Byte offset of the target frame header from the first frame
+    #: header.
+    byte_offset: int
+    #: Number of samples in the target frame.
+    num_samples: int
+
+    def __post_init__(self) -> None:
+        validate_number("sample_number", self.sample_number, int, 0)
+        validate_number("byte_offset", self.byte_offset, int, 0)
+        validate_number("num_samples", self.num_samples, int, 0)
+
+    @classmethod
+    def from_stream(
+        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+    ) -> FLACSeekPoint:
+        """
+        Instantiate a :class:`FLACSeekPoint` object from a bytes-like
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing :code:`SEEKPOINT` data.
+
+        Returns
+        -------
+        seek_point : minim.media.flac.FLACSeekPoint
+            :code:`SEEKPOINT` data.
+        """
+        sample_number, byte_offset, num_samples = _seek_table_unpack_from(
+            as_buffer(stream)
+        )
+        obj = cls.__new__(cls)
+        object.__setattr__(obj, "sample_number", sample_number)
+        object.__setattr__(obj, "byte_offset", byte_offset)
+        object.__setattr__(obj, "num_samples", num_samples)
+        return obj
+
+    def serialize(self) -> bytes:
+        """
+        Serialize the :code:`SEEKPOINT` data to a bytestream.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing :code:`SEEKPOINT` data.
         """
         return _seek_table_pack(
-            self.sample_number, self.byte_offset, self.sample_count
+            self.sample_number, self.byte_offset, self.num_samples
         )
 
 
