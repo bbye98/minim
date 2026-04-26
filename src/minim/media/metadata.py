@@ -1155,9 +1155,9 @@ class VorbisComment(AudioTags):
         Parameters
         ----------
         include_framing_bit : bool; keyword-only; default: :code:`False`
-            Whether to include a framing bit (single byte of value 1) at
-            the end of the bytestream. Required only by the Ogg
-            container format.
+            Whether to include a framing bit (single byte of value
+            :code:`1`) at the end of the bytestream. Required only by
+            the Ogg container format.
 
         Returns
         -------

@@ -37,7 +37,7 @@ class FLACMetadataBlock:
     FLAC metadata block.
     """
 
-    type_id: int
+    type_id: int  # TODO: Infer from data.
     data: (
         dict[str, bytes]
         | OrderedCollection[FLACSeekPoint]
@@ -349,6 +349,38 @@ class FLACStreamInfo(AudioStreamInfo):
             + (self.sample_count & 0xFFFFFFFF).to_bytes(4, byteorder="big")
             + bytes.fromhex(self.md5)
         )
+
+
+@dataclass(frozen=True, slots=True)
+class FLACPadding:
+    """
+    FLAC :code:`PADDING` metadata block data.
+    """
+
+    size: int
+
+    def __post_init__(self) -> None: ...  # TODO
+
+    def serialize(self) -> bytes: ...  # TODO
+
+
+@dataclass(frozen=True, slots=True)
+class FLACApplication:
+    """
+    FLAC :code:`APPLICATION` metadata block data.
+    """
+
+    app_id: bytes
+    app_data: bytes
+
+    def __post_init__(self) -> None: ...  # TODO
+
+    @classmethod
+    def from_stream(
+        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+    ) -> FLACApplication: ...  # TODO
+
+    def serialize(self) -> bytes: ...  # TODO
 
 
 @dataclass(frozen=True, slots=True)
