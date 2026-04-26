@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import prepare_isrc, validate_numeric, validate_type
+from ._shared import as_buffer
 
 if TYPE_CHECKING:
     from typing import Any
@@ -585,18 +586,13 @@ class VorbisComment(AudioTags):
         Returns
         -------
         vorbis_comment : minim.media.metadata.VorbisComment
+            Vorbis comment metadata container.
         """
         obj = cls.__new__(cls)
         validate_type("keep_empty", keep_empty, bool)
         obj._keep_empty = keep_empty
 
-        match stream:
-            case bytes() | bytearray() | mmap.mmap():
-                stream = memoryview(stream)
-            case memoryview():
-                pass
-            case _:
-                raise TypeError("`stream` must be a bytes-like object.")
+        stream = as_buffer(stream)
 
         # Read comment header
         length = int.from_bytes(stream[:4], byteorder="little")

@@ -1,11 +1,13 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import mmap
 import re
 import string
 import struct
 import warnings
 
 from ..._utility import prepare_isrc, validate_number, validate_type
+from .._shared import as_buffer
 from ..metadata import VorbisComment
 from ._shared import AudioStreamInfo, Audio
 
@@ -35,7 +37,6 @@ class FLACMetadataBlock:
         dict[str, bytes] | FLACCueSheet | FLACStreamInfo | VorbisComment | None
     ) = None
     block_size: int | None = None
-    _custom: bool = True
 
     def __post_init__(self) -> None:
         validate_number("block_type", self.block_type, int, 0, 6)
@@ -93,81 +94,132 @@ class FLACMetadataBlock:
                         )
             case 3:  # SEEKTABLE
                 seek_points = self.block_data
-                if self._custom:
-                    if not isinstance(seek_points, list):
-                        raise TypeError(
-                            "SEEKTABLE block data must be a list of "
-                            "seek points, not "
-                            f"{type(seek_points).__name__}."
-                        )
+                if not isinstance(seek_points, list):
+                    raise TypeError(
+                        "SEEKTABLE block data must be a list of "
+                        "seek points, not "
+                        f"{type(seek_points).__name__}."
+                    )
 
-                    actual_block_size = 18 * len(seek_points)
-                    if self.block_size is None:
-                        self.block_size = actual_block_size
-                    elif self.block_size != actual_block_size:
-                        raise ValueError(
-                            "SEEKTABLE block size does not match the "
-                            "size of the block data."
-                        )
+                actual_block_size = 18 * len(seek_points)
+                if self.block_size is None:
+                    self.block_size = actual_block_size
+                elif self.block_size != actual_block_size:
+                    raise ValueError(
+                        "SEEKTABLE block size does not match the "
+                        "size of the block data."
+                    )
 
-                seen_sample_numbers = {seek_points[0][0]}
-                for seek_point_idx, (sample_number, _, _) in enumerate(
-                    seek_points[1:]
-                ):
-                    if sample_number == 0xFFFFFFFFFFFFFFFF:
-                        continue
-
-                    if sample_number in seen_sample_numbers:
-                        raise ValueError(
-                            f"Duplicate sample number {sample_number} "
-                            f"found in seek point {seek_point_idx + 1} "
-                            "of SEEKTABLE block."
-                        )
-                    seen_sample_numbers.add(sample_number)
-
-                    if sample_number < seek_points[seek_point_idx][0]:
-                        raise ValueError(
-                            f"Seek point {seek_point_idx + 1} is out "
-                            "of order in SEEKTABLE block."
-                        )
+                self._validate_seek_points(seek_points)
             case 4:  # VORBIS_COMMENT
-                if self._custom:
-                    if not isinstance(self.block_data, VorbisComment):
-                        raise TypeError(
-                            "VORBIS_COMMENT block data must be an "
-                            "instance of VorbisComment, not "
-                            f"{type(self.block_data).__name__}."
-                        )
+                if not isinstance(self.block_data, VorbisComment):
+                    raise TypeError(
+                        "VORBIS_COMMENT block data must be an "
+                        "instance of VorbisComment, not "
+                        f"{type(self.block_data).__name__}."
+                    )
 
-                    actual_block_size = len(self.block_data.serialize())
-                    if self.block_size is None:
-                        self.block_size = actual_block_size
-                    elif self.block_size != actual_block_size:
-                        raise ValueError(
-                            "VORBIS_COMMENT block size does not match "
-                            "the size of the block data."
-                        )
+                actual_block_size = len(self.block_data.serialize())
+                if self.block_size is None:
+                    self.block_size = actual_block_size
+                elif self.block_size != actual_block_size:
+                    raise ValueError(
+                        "VORBIS_COMMENT block size does not match "
+                        "the size of the block data."
+                    )
             case 5:  # CUESHEET
-                if self._custom:
-                    if not isinstance(self.block_data, FLACCueSheet):
-                        raise TypeError(
-                            "CUESHEET block data must be an instance "
-                            "of FLACCueSheet, not "
-                            f"{type(self.block_data).__name__}."
-                        )
+                if not isinstance(self.block_data, FLACCueSheet):
+                    raise TypeError(
+                        "CUESHEET block data must be an instance "
+                        "of FLACCueSheet, not "
+                        f"{type(self.block_data).__name__}."
+                    )
 
-                    actual_block_size = len(self.block_data.serialize())
-                    if self.block_size is None:
-                        self.block_size = actual_block_size
-                    elif self.block_size != actual_block_size:
-                        raise ValueError(
-                            "CUESHEET block size does not match the "
-                            "size of the block data."
-                        )
+                actual_block_size = len(self.block_data.serialize())
+                if self.block_size is None:
+                    self.block_size = actual_block_size
+                elif self.block_size != actual_block_size:
+                    raise ValueError(
+                        "CUESHEET block size does not match the "
+                        "size of the block data."
+                    )
             case 6:  # PICTURE
                 pass  # TODO
 
-    # def from_stream(cls, stream: ...) -> FLACMetadataBlock: ...  # TODO
+    @staticmethod
+    def _validate_seek_points(
+        seek_points: list[tuple[int, int, int]], /
+    ) -> None:
+        """ """
+        seen_sample_numbers = {seek_points[0][0]}
+        for seek_point_idx, (sample_number, _, _) in enumerate(
+            seek_points[1:]
+        ):
+            if sample_number == 0xFFFFFFFFFFFFFFFF:
+                continue
+
+            if sample_number in seen_sample_numbers:
+                raise ValueError(
+                    f"Duplicate sample number {sample_number} "
+                    f"found in seek point {seek_point_idx + 1} "
+                    "of SEEKTABLE block."
+                )
+            seen_sample_numbers.add(sample_number)
+
+            if sample_number < seek_points[seek_point_idx][0]:
+                raise ValueError(
+                    f"Seek point {seek_point_idx + 1} is out "
+                    "of order in SEEKTABLE block."
+                )
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: bytes | bytearray | memoryview | mmap.mmap,
+        /,
+        block_type: int,
+        block_size: int | None = None,
+    ) -> FLACMetadataBlock:
+        """ """
+        obj = cls.__new__(cls)
+        validate_number("block_type", block_type, int, 0, 6)
+        object.__setattr__(obj, "block_type", block_type)
+
+        stream = as_buffer(stream)
+        if block_size is None:
+            block_size = len(stream)
+        object.__setattr__(obj, "block_size", block_size)
+
+        match block_type:
+            case 0:  # STREAMINFO
+                block_data = FLACStreamInfo.from_stream(stream)
+            case 1:  # PADDING
+                block_data = None
+            case 2:  # APPLICATION
+                block_data = {
+                    "app_id": stream[:4].tobytes(),
+                    "app_data": stream[4:].tobytes(),
+                }
+            case 3:  # SEEKTABLE
+                num_seek_points, remainder = divmod(block_size, 18)
+                if remainder:
+                    raise ValueError(
+                        f"Invalid SEEKTABLE block size of {block_size}."
+                    )
+
+                block_data = tuple(
+                    _seek_table_unpack_from(stream, 18 * seek_point_index)
+                    for seek_point_index in range(num_seek_points)
+                )
+            case 4:  # VORBIS_COMMENT
+                block_data = VorbisComment.from_stream(stream)
+            case 5:  # CUESHEET
+                block_data = FLACCueSheet.from_stream(stream)
+            case 6:  # PICTURE
+                pass
+        object.__setattr__(obj, "block_data", block_data)
+
+        return obj
 
     def serialize(self) -> bytes:
         """
@@ -203,10 +255,15 @@ class FLACStreamInfo(AudioStreamInfo):
     _SAMPLE_RATE_RANGE = (1, 655_350)
     _BITS_PER_SAMPLE_RANGE = (1, 32)
 
+    #: Minimum block size in samples.
     minimum_block_size: int
+    #: Maximum block size in samples.
     maximum_block_size: int
+    #: Minimum frame size in bytes.
     minimum_frame_size: int
+    #: Maximum frame size in bytes.
     maximum_frame_size: int
+    #: MD5 hash of the unencoded audio data.
     md5: str
 
     def __post_init__(self) -> None:
@@ -222,7 +279,43 @@ class FLACStreamInfo(AudioStreamInfo):
                 "`md5` must be a 32-character hexadecimal string."
             )
 
-    # def from_stream(cls, stream: ...) -> FLACStreamInfo: ...  # TODO
+    @classmethod
+    def from_stream(
+        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+    ) -> FLACStreamInfo:
+        """
+        Instantiate a :class:`FLACStreamInfo` object from a bytes-like
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing :code:`STREAMINFO` metadata
+            block data.
+
+        Returns
+        -------
+        stream_info : minim.media.flac.FLACStreamInfo
+            Vorbis comment metadata container.
+        """
+        stream = as_buffer(stream)
+        return cls(
+            minimum_block_size=int.from_bytes(stream[:2], byteorder="big"),
+            maximum_block_size=int.from_bytes(stream[2:4], byteorder="big"),
+            minimum_frame_size=int.from_bytes(stream[4:7], byteorder="big"),
+            maximum_frame_size=int.from_bytes(stream[4:10], byteorder="big"),
+            sample_rate=int.from_bytes(stream[10:13], byteorder="big") >> 4,
+            num_channels=((stream[12] & 0x0E) >> 1) + 1,
+            bits_per_sample=(
+                ((stream[12] & 0x01) << 4) + ((stream[13] & 0xF0) >> 4) + 1
+            ),
+            total_samples=(
+                ((stream[13] & 0x0F) << 32)
+                + int.from_bytes(stream[14:18], byteorder="big")
+            ),
+            md5=stream[18:].hex(),
+        )
 
     def serialize(self) -> bytes:
         """
@@ -275,16 +368,180 @@ class FLACCueSheet:
                 "characters 0x20 (' ') through 0x7D ('}')."
             )
 
-        validate_number("num_lead_in_samples", self.num_lead_in_samples, 0)
+        validate_number(
+            "num_lead_in_samples", self.num_lead_in_samples, int, 0
+        )
         validate_type("is_cd", self.is_cd, bool)
         validate_number(
             "num_tracks", self.num_tracks, int, 1, 100 if self.is_cd else None
         )
         validate_type("tracks", self.tracks, tuple)
-        for track_idx, track in self.tracks:
+        for track_idx, track in enumerate(self.tracks):
             validate_type(f"tracks[{track_idx}]", track, FLACCueSheetTrack)
+        if track.number != (
+            lead_out_track_number := 170 if self.is_cd else 255
+        ):
+            raise ValueError(
+                "The last track in a CUESHEET block must be a lead-out "
+                f"track with track number {lead_out_track_number}."
+            )
 
-    # def from_stream(cls, stream: ...) -> FLACCueSheet: ...  # TODO
+    @classmethod
+    def from_stream(
+        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+    ) -> FLACCueSheet:
+        """ """
+        stream = as_buffer(stream)
+        (
+            media_catalog_number,
+            num_lead_in_samples,
+            is_cd,
+            reserved,
+            num_tracks,
+        ) = _cue_sheet_unpack_from(stream)
+        if is_cd & 0x7F or reserved != 258 * b"\x00":
+            raise ValueError(
+                "Non-zero bits found in reserved section of CUESHEET block."
+            )
+
+        if not num_tracks:
+            raise ValueError(
+                f"Invalid number of tracks ({num_tracks}) in CUESHEET block."
+            )
+
+        is_cd &= 0x80
+        if is_cd:
+            if num_tracks > 100:
+                raise ValueError(
+                    f"Invalid number of tracks ({num_tracks}) "
+                    "in CUESHEET block."
+                )
+        else:
+            if num_lead_in_samples:
+                raise ValueError(
+                    "Number of lead-in samples must be 0, not "
+                    f"{num_lead_in_samples}, for non-CD-DA "
+                    "CUESHEET block."
+                )
+
+        offset = 396
+        seen_track_numbers = set()
+        tracks = []
+        for _ in range(num_tracks):
+            (
+                track_offset,
+                track_number,
+                isrc,
+                flags,
+                reserved,
+                num_track_indices,
+            ) = _cue_sheet_track_unpack_from(stream, offset)
+
+            if track_number in seen_track_numbers:
+                raise ValueError(
+                    "CUESHEET block already has a track with "
+                    f"track number {track_number}."
+                )
+            if not track_number or (
+                is_cd and not (1 <= track_number <= 99 or track_number == 170)
+            ):
+                raise ValueError(
+                    "Invalid CUESHEET track number "
+                    f"{track_number} for "
+                    f"{'' if is_cd else 'non-'}CD-DA track at "
+                    f"offset {track_offset}."
+                )
+            seen_track_numbers.add(track_number)
+
+            isrc = "" if isrc == 12 * b"\x00" else prepare_isrc(isrc.decode())
+            is_audio = bool(flags & 0x80)
+            has_pre_emphasis = bool(flags & 0x40)
+            if flags & 0x3F or reserved != 13 * b"\x00":
+                raise ValueError(
+                    "Non-zero bits found in the reserved "
+                    "section of a CUESHEET track."
+                )
+
+            is_lead_out = (
+                is_cd
+                and track_number == 170
+                or not is_cd
+                and track_number == 255
+            )
+            if is_lead_out and num_track_indices:
+                raise ValueError(
+                    "Lead-out CUESHEET tracks cannot have any track indices."
+                )
+            elif not is_lead_out and not num_track_indices:
+                raise ValueError(
+                    "Non-lead-out CUESHEET tracks must have at "
+                    "least one track index."
+                )
+
+            offset += 36
+            prev_index_number = -1
+            track_indices = []
+            for _ in range(num_track_indices):
+                index_offset, index_number, reserved = (
+                    _cue_sheet_track_index_unpack_from(stream, offset)
+                )
+
+                if is_cd and not index_offset % 588:
+                    raise ValueError(
+                        "Offsets for CD-DA track indices in "
+                        "CUESHEET block must be divisible by "
+                        "588 samples."
+                    )
+
+                if index_number != prev_index_number + 1 and not (
+                    prev_index_number == -1 and index_number == 1
+                ):
+                    raise ValueError(
+                        "Track index numbers must start at 0 "
+                        "or 1 and increase sequentially in a "
+                        "CUESHEET track."
+                    )
+                prev_index_number = index_number
+
+                if reserved != 3 * b"\x00":
+                    raise ValueError(
+                        "Non-zero bits found in the reserved "
+                        "section of a CUESHEET track index."
+                    )
+
+                offset += 12
+                track_indices.append((index_offset, index_number))
+
+            tracks.append(
+                FLACCueSheetTrack(
+                    offset=track_offset,
+                    number=track_number,
+                    isrc=isrc,
+                    is_audio=is_audio,
+                    has_pre_emphasis=has_pre_emphasis,
+                    num_indices=num_track_indices,
+                    indices=tuple(track_indices),
+                )
+            )
+        if tracks[-1].number != (
+            lead_out_track_number := 170 if is_cd else 255
+        ):
+            raise ValueError(
+                "The last track in a CUESHEET block must be a lead-out "
+                f"track with track number {lead_out_track_number}."
+            )
+
+        obj = cls.__new__(cls)
+        object.__setattr__(
+            obj,
+            "media_catalog_number",
+            media_catalog_number.rstrip(b"\x00").decode(),
+        )
+        object.__setattr__(obj, "num_lead_in_samples", num_lead_in_samples)
+        object.__setattr__(obj, "is_cd", bool(is_cd))
+        object.__setattr__(obj, "num_tracks", num_tracks)
+        object.__setattr__(obj, "tracks", tuple(tracks))
+        return obj
 
     def serialize(self) -> bytes:
         """
@@ -387,255 +644,30 @@ class FLACAudio(Audio):
                         )
 
                     self._metadata.append(
-                        FLACMetadataBlock(
+                        FLACMetadataBlock.from_stream(
+                            block_data,
                             block_type=block_type,
                             block_size=block_size,
-                            block_data=FLACStreamInfo(
-                                minimum_block_size=int.from_bytes(
-                                    block_data[:2], byteorder="big"
-                                ),
-                                maximum_block_size=int.from_bytes(
-                                    block_data[2:4], byteorder="big"
-                                ),
-                                minimum_frame_size=int.from_bytes(
-                                    block_data[4:7], byteorder="big"
-                                ),
-                                maximum_frame_size=int.from_bytes(
-                                    block_data[4:10], byteorder="big"
-                                ),
-                                sample_rate=int.from_bytes(
-                                    block_data[10:13], byteorder="big"
-                                )
-                                >> 4,
-                                num_channels=((block_data[12] & 0x0E) >> 1)
-                                + 1,
-                                bits_per_sample=(
-                                    ((block_data[12] & 0x01) << 4)
-                                    + ((block_data[13] & 0xF0) >> 4)
-                                    + 1
-                                ),
-                                total_samples=(
-                                    ((block_data[13] & 0x0F) << 32)
-                                    + int.from_bytes(
-                                        block_data[14:18], byteorder="big"
-                                    )
-                                ),
-                                md5=block_data[18:].hex(),
-                            ),
-                            _custom=False,
                         )
                     )
-                case 1:  # PADDING
+                case (
+                    1 | 2 | 3 | 5
+                ):  # PADDING / APPLICATION / SEEKTABLE / CUESHEET
                     self._metadata.append(
-                        FLACMetadataBlock(
+                        FLACMetadataBlock.from_stream(
+                            block_data,
                             block_type=block_type,
                             block_size=block_size,
-                            _custom=False,
-                        )
-                    )
-                case 2:  # APPLICATION
-                    self._metadata.append(
-                        FLACMetadataBlock(
-                            block_type=block_type,
-                            block_size=block_size,
-                            block_data={
-                                "app_id": block_data[:4].tobytes(),
-                                "app_data": block_data[4:].tobytes(),
-                            },
-                            _custom=False,
-                        )
-                    )
-                case 3:  # SEEKTABLE
-                    num_seek_points, remainder = divmod(block_size, 18)
-                    if remainder:
-                        raise ValueError(
-                            f"Invalid SEEKTABLE block size of {block_size}."
-                        )
-
-                    self._metadata.append(
-                        FLACMetadataBlock(
-                            block_type=block_type,
-                            block_size=block_size,
-                            block_data=tuple(
-                                _seek_table_unpack_from(
-                                    block_data, 18 * seek_point_index
-                                )
-                                for seek_point_index in range(num_seek_points)
-                            ),
-                            _custom=False,
                         )
                     )
                 case 4:  # VORBIS_COMMENT
-                    self._tags = VorbisComment.from_stream(block_data)
-                    self._metadata.append(
-                        FLACMetadataBlock(
-                            block_type=block_type,
-                            block_size=block_size,
-                            block_data=self._tags,
-                            _custom=False,
-                        )
+                    metadata_block = FLACMetadataBlock.from_stream(
+                        block_data,
+                        block_type=block_type,
+                        block_size=block_size,
                     )
-                case 5:  # CUESHEET
-                    (
-                        media_catalog_number,
-                        num_lead_in_samples,
-                        is_cd,
-                        reserved,
-                        num_tracks,
-                    ) = _cue_sheet_unpack_from(block_data)
-                    if is_cd & 0x7F or reserved != 258 * b"\x00":
-                        raise ValueError(
-                            "Non-zero bits found in reserved section "
-                            "of CUESHEET block."
-                        )
-
-                    if not num_tracks:
-                        raise ValueError(
-                            f"Invalid number of tracks ({num_tracks}) "
-                            "in CUESHEET block."
-                        )
-
-                    is_cd &= 0x80
-                    if is_cd:
-                        if num_tracks > 100:
-                            raise ValueError(
-                                "Invalid number of tracks "
-                                f"({num_tracks}) in CUESHEET block."
-                            )
-                    else:
-                        if num_lead_in_samples:
-                            raise ValueError(
-                                "Number of lead-in samples must be 0, "
-                                f"not {num_lead_in_samples}, for "
-                                "non-CD-DA CUESHEET block."
-                            )
-
-                    offset = 396
-                    seen_track_numbers = set()
-                    tracks = []
-                    for _ in range(num_tracks):
-                        (
-                            track_offset,
-                            track_number,
-                            isrc,
-                            flags,
-                            reserved,
-                            num_track_indices,
-                        ) = _cue_sheet_track_unpack_from(block_data, offset)
-
-                        if track_number in seen_track_numbers:
-                            raise ValueError(
-                                "CUESHEET block already has a track "
-                                f"with track number {track_number}."
-                            )
-                        if not track_number or (
-                            is_cd
-                            and not (
-                                1 <= track_number <= 99 or track_number == 170
-                            )
-                        ):
-                            raise ValueError(
-                                "Invalid CUESHEET track number "
-                                f"{track_number} for "
-                                f"{'' if is_cd else 'non-'}CD-DA track "
-                                f"at offset {track_offset}."
-                            )
-                        seen_track_numbers.add(track_number)
-
-                        isrc = (
-                            ""
-                            if isrc == 12 * b"\x00"
-                            else prepare_isrc(isrc.decode())
-                        )
-                        is_audio = bool(flags & 0x80)
-                        has_pre_emphasis = bool(flags & 0x40)
-                        if flags & 0x3F or reserved != 13 * b"\x00":
-                            raise ValueError(
-                                "Non-zero bits found in the reserved "
-                                "section of a CUESHEET track."
-                            )
-
-                        is_lead_out = (
-                            is_cd
-                            and track_number == 170
-                            or not is_cd
-                            and track_number == 255
-                        )
-                        if is_lead_out and num_track_indices:
-                            raise ValueError(
-                                "Lead-out CUESHEET tracks cannot have "
-                                "any track indices."
-                            )
-                        elif not is_lead_out and not num_track_indices:
-                            raise ValueError(
-                                "Non-lead-out CUESHEET tracks must "
-                                "have at least one track index."
-                            )
-
-                        offset += 36
-                        prev_index_number = -1
-                        track_indices = []
-                        for _ in range(num_track_indices):
-                            index_offset, index_number, reserved = (
-                                _cue_sheet_track_index_unpack_from(
-                                    block_data, offset
-                                )
-                            )
-
-                            if is_cd and not index_offset % 588:
-                                raise ValueError(
-                                    "Offsets for CD-DA track indices "
-                                    "in CUESHEET block must be "
-                                    "divisible by 588 samples."
-                                )
-
-                            if index_number != prev_index_number + 1 and not (
-                                prev_index_number == -1 and index_number == 1
-                            ):
-                                raise ValueError(
-                                    "Track index numbers must start at "
-                                    "0 or 1 and increase sequentially "
-                                    "in a CUESHEET track."
-                                )
-                            prev_index_number = index_number
-
-                            if reserved != 3 * b"\x00":
-                                raise ValueError(
-                                    "Non-zero bits found in the reserved "
-                                    "section of a CUESHEET track index."
-                                )
-
-                            offset += 12
-                            track_indices.append((index_offset, index_number))
-
-                        tracks.append(
-                            FLACCueSheetTrack(
-                                offset=track_offset,
-                                number=track_number,
-                                isrc=isrc,
-                                is_audio=is_audio,
-                                has_pre_emphasis=has_pre_emphasis,
-                                num_indices=num_track_indices,
-                                indices=tuple(track_indices),
-                            )
-                        )
-
-                    self._metadata.append(
-                        FLACMetadataBlock(
-                            block_type=block_type,
-                            block_size=block_size,
-                            block_data=FLACCueSheet(
-                                media_catalog_number=media_catalog_number.rstrip(
-                                    b"\x00"
-                                ).decode(),
-                                num_lead_in_samples=num_lead_in_samples,
-                                is_cd=is_cd,
-                                num_tracks=num_tracks,
-                                tracks=tuple(tracks),
-                            ),
-                            _custom=False,
-                        )
-                    )
+                    self._metadata.append(metadata_block)
+                    self._tags = metadata_block.block_data
                 case 6:  # PICTURE
                     pass
                 case 127:

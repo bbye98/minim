@@ -1,3 +1,4 @@
-from ._audio.flac import FLACAudio
+from . import metadata
+from . import flac
 
-__all__ = ["metadata", "FLACAudio"]
+__all__ = ["metadata", "flac"]

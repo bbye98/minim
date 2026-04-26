@@ -21,9 +21,13 @@ class AudioStreamInfo:
     _SAMPLE_RATE_RANGE = (1, 4_294_967_295)
     _BITS_PER_SAMPLE_RANGE = (1, 32)
 
+    #: Number of channels.
     num_channels: int
+    #: Sample rate in Hz.
     sample_rate: int
+    #: Bits per sample.
     bits_per_sample: int
+    #: Total samples.
     total_samples: int
 
     def __post_init__(self) -> None:
@@ -94,7 +98,9 @@ class Audio(ABC):
 
     @property
     def tags(self) -> AudioTags:
-        """ """
+        """
+        Audio tag data.
+        """
         return self._tags
 
     def open(self) -> None:
