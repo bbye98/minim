@@ -27,7 +27,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
     __slots__ = ()
 
     @TTLCache.cached_method(ttl="search")
-    def get_num_search_matches(
+    def get_search_match_counts(
         self, query: str, /
     ) -> dict[str, dict[str, int]]:
         """
@@ -40,7 +40,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        num_matches : dict[str, dict[str, int]]
+        counts : dict[str, dict[str, int]]
             Number of search results for the query.
 
             .. admonition:: Sample response
