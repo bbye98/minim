@@ -352,6 +352,50 @@ class FLACStreamInfo(AudioStreamInfo):
 
 
 @dataclass(frozen=True, slots=True)
+class FLACSeekTable:
+    """
+    FLAC :code:`SEEKTABLE` metadata block data.
+    """
+
+    seek_points: tuple[FLACSeekPoint, ...]
+
+    def __post_init__(self) -> None: ...  # TODO
+
+    # @staticmethod
+    # def _validate_seek_points(
+    #     seek_points: tuple[FLACSeekPoint], /, *, check_type: bool = True
+    # ) -> None:
+    #     """ """
+    #     if check_type:
+    #         validate_type("seek_points[0]", seek_points[0], FLACSeekPoint)
+    #     seen_sample_numbers = {seek_points[0].sample_number}
+    #     for seek_point_idx, seek_point in enumerate(seek_points[1:]):
+    #         if check_type:
+    #             validate_type(
+    #                 f"seek_points[{seek_point_idx}]", seek_point, FLACSeekPoint
+    #             )
+    #         sample_number = seek_point.sample_number
+    #         if sample_number == 0xFFFFFFFFFFFFFFFF:
+    #             continue
+
+    #         if sample_number in seen_sample_numbers:
+    #             raise ValueError(
+    #                 f"Duplicate sample number {sample_number} "
+    #                 f"found in seek point {seek_point_idx + 1} "
+    #                 "of SEEKTABLE block."
+    #             )
+    #         seen_sample_numbers.add(sample_number)
+
+    #         if sample_number < seek_points[seek_point_idx].sample_number:
+    #             raise ValueError(
+    #                 f"Seek point {seek_point_idx + 1} is out "
+    #                 "of order in SEEKTABLE block."
+    #             )
+
+    def serialize(self) -> bytes: ...  # TODO
+
+
+@dataclass(frozen=True, slots=True)
 class FLACSeekPoint:
     """
     FLAC :code:`SEEKTABLE` metadata block seek point data.
@@ -655,9 +699,12 @@ class FLACCueSheetTrack:
     has_pre_emphasis: bool
     indices: tuple[tuple[int, int], ...]
 
-    # def __post_init__(self) -> None: ...  # TODO
+    def __post_init__(self) -> None: ...  # TODO
 
-    # def from_stream(cls, stream: ...) -> FLACCueSheetTrack: ...  # TODO
+    @classmethod
+    def from_stream(
+        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+    ) -> FLACCueSheetTrack: ...  # TODO
 
     @property
     def index_count(self) -> int:
@@ -678,6 +725,25 @@ class FLACCueSheetTrack:
             _cue_sheet_track_index_pack(*index, 3 * b"\x00")
             for index in self.indices
         )
+
+
+@dataclass(frozen=True, slots=True)
+class FLACCueSheetTrackIndex:
+    """
+    FLAC :code:`CUESHEET` metadata block track index data.
+    """
+
+    sample_offset: int
+    number: int
+
+    def __post_init__(self) -> None: ...  # TODO
+
+    @classmethod
+    def from_stream(
+        cls, stream: bytes | bytearray | memoryview | mmap.mmap, /
+    ) -> FLACCueSheetTrackIndex: ...  # TODO
+
+    def serialize(self) -> bytes: ...  # TODO
 
 
 class FLACAudio(Audio):
