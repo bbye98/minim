@@ -15,6 +15,9 @@ if TYPE_CHECKING:
     from ..._types import BytesLike
 
 
+_obj_set_attr = object.__setattr__
+
+
 @dataclass(frozen=True, slots=True)
 class FLACMetadataBlock:
     """
@@ -133,12 +136,12 @@ class FLACMetadataBlock:
         """ """
         obj = cls.__new__(cls)
         validate_number("type", type_, int, 0, 6)
-        object.__setattr__(obj, "type", type_)
+        _obj_set_attr(obj, "type", type_)
 
         stream = as_buffer(stream)
         if size is None:
             size = len(stream)
-        object.__setattr__(obj, "size", size)
+        _obj_set_attr(obj, "size", size)
 
         match type_:
             case 0:  # STREAMINFO
@@ -155,7 +158,7 @@ class FLACMetadataBlock:
                 data = FLACCueSheet.from_stream(stream)
             case 6:  # PICTURE
                 pass
-        object.__setattr__(obj, "data", data)
+        _obj_set_attr(obj, "data", data)
 
         return obj
 
@@ -316,16 +319,15 @@ class FLACStreamInfo(AudioStreamInfo):
             )
 
         obj = cls.__new__(cls)
-        __setattr__ = object.__setattr__
-        __setattr__(obj, "min_block_size", min_block_size)
-        __setattr__(obj, "max_block_size", max_block_size)
-        __setattr__(obj, "min_frame_size", min_frame_size)
-        __setattr__(obj, "max_frame_size", max_frame_size)
-        __setattr__(obj, "sample_rate", sample_rate)
-        __setattr__(obj, "num_channels", num_channels)
-        __setattr__(obj, "bit_depth", bit_depth)
-        __setattr__(obj, "num_samples", num_samples)
-        __setattr__(obj, "md5", md5)
+        _obj_set_attr(obj, "min_block_size", min_block_size)
+        _obj_set_attr(obj, "max_block_size", max_block_size)
+        _obj_set_attr(obj, "min_frame_size", min_frame_size)
+        _obj_set_attr(obj, "max_frame_size", max_frame_size)
+        _obj_set_attr(obj, "sample_rate", sample_rate)
+        _obj_set_attr(obj, "num_channels", num_channels)
+        _obj_set_attr(obj, "bit_depth", bit_depth)
+        _obj_set_attr(obj, "num_samples", num_samples)
+        _obj_set_attr(obj, "md5", md5)
         return obj
 
     def serialize(self) -> bytes:
@@ -409,8 +411,8 @@ class FLACApplication:
         """
         stream = as_buffer(stream)
         obj = cls.__new__(cls)
-        object.__setattr__(obj, "app_id", stream[:4].tobytes())
-        object.__setattr__(obj, "app_data", stream[4:].tobytes())
+        _obj_set_attr(obj, "app_id", stream[:4].tobytes())
+        _obj_set_attr(obj, "app_data", stream[4:].tobytes())
         return obj
 
     def serialize(self) -> bytes:
@@ -487,7 +489,7 @@ class FLACSeekTable:
         cls._validate_seek_points(seek_points, custom=False)
 
         obj = cls.__new__(cls)
-        object.__setattr__(obj, "seek_points", seek_points)
+        _obj_set_attr(obj, "seek_points", seek_points)
         return obj
 
     @staticmethod
@@ -605,10 +607,9 @@ class FLACSeekPoint:
         )
 
         obj = cls.__new__(cls)
-        __setattr__ = object.__setattr__
-        __setattr__(obj, "sample_number", sample_number)
-        __setattr__(obj, "byte_offset", byte_offset)
-        __setattr__(obj, "num_samples", num_samples)
+        _obj_set_attr(obj, "sample_number", sample_number)
+        _obj_set_attr(obj, "byte_offset", byte_offset)
+        _obj_set_attr(obj, "num_samples", num_samples)
         return obj
 
     def serialize(self) -> bytes:
@@ -760,15 +761,14 @@ class FLACCueSheet:
         cls._validate_tracks(tracks, is_cd=is_cd, custom=False)
 
         obj = cls.__new__(cls)
-        __setattr__ = object.__setattr__
-        __setattr__(
+        _obj_set_attr(
             obj,
             "media_catalog_number",
             media_catalog_number.rstrip(b"\x00").decode(),
         )
-        __setattr__(obj, "num_lead_in_samples", num_lead_in_samples)
-        __setattr__(obj, "is_cd", bool(is_cd))
-        __setattr__(obj, "tracks", tuple(tracks))
+        _obj_set_attr(obj, "num_lead_in_samples", num_lead_in_samples)
+        _obj_set_attr(obj, "is_cd", bool(is_cd))
+        _obj_set_attr(obj, "tracks", tuple(tracks))
         return obj
 
     @staticmethod
@@ -982,13 +982,12 @@ class FLACCueSheetTrack:
         cls._validate_indices(indices)
 
         obj = cls.__new__(cls)
-        __setattr__ = object.__setattr__
-        __setattr__(obj, "sample_offset", sample_offset)
-        __setattr__(obj, "number", number)
-        __setattr__(obj, "isrc", isrc)
-        __setattr__(obj, "is_audio", is_audio)
-        __setattr__(obj, "has_pre_emphasis", has_pre_emphasis)
-        __setattr__(obj, "indices", tuple(indices))
+        _obj_set_attr(obj, "sample_offset", sample_offset)
+        _obj_set_attr(obj, "number", number)
+        _obj_set_attr(obj, "isrc", isrc)
+        _obj_set_attr(obj, "is_audio", is_audio)
+        _obj_set_attr(obj, "has_pre_emphasis", has_pre_emphasis)
+        _obj_set_attr(obj, "indices", tuple(indices))
         return obj
 
     @staticmethod
@@ -1110,8 +1109,8 @@ class FLACCueSheetTrackIndex:
             )
 
         obj = cls.__new__(cls)
-        object.__setattr__(obj, "sample_offset", sample_offset)
-        object.__setattr__(obj, "number", number)
+        _obj_set_attr(obj, "sample_offset", sample_offset)
+        _obj_set_attr(obj, "number", number)
         return obj
 
     @classmethod

@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from ..._types import PathLike
     from ..metadata import AudioTags
 
+    from typing import Any
+
 
 @dataclass(frozen=True, slots=True)
 class AudioStreamInfo:
@@ -78,7 +80,9 @@ class Audio(ABC):
         ...
 
     @abstractmethod
-    def save_metadata(self) -> None:
+    def save_metadata(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> None:
         """ """
         ...
 
