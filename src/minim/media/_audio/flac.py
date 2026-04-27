@@ -973,16 +973,12 @@ class FLACCueSheetTrack:
                 "CUESHEET_TRACK data."
             )
 
-        offset = 36
-        indices = []
-        for _ in range(num_indices):
-            end_offset = offset + 12
-            index = FLACCueSheetTrackIndex.from_stream(
-                stream[offset:end_offset]
+        indices = [
+            FLACCueSheetTrackIndex._from_unpack(*data)
+            for data in FLACCueSheetTrackIndex._STRUCT.iter_unpack(
+                stream[36 : 36 + 12 * num_indices]
             )
-            offset = end_offset
-            indices.append(index)
-
+        ]
         cls._validate_indices(indices)
 
         obj = cls.__new__(cls)
@@ -1083,6 +1079,42 @@ class FLACCueSheetTrackIndex:
         validate_number("number", self.number, int, 0)
 
     @classmethod
+    def _from_unpack(
+        cls, sample_offset: int, number: int, reserved: bytes
+    ) -> FLACCueSheetTrackIndex:
+        """
+        Instantiate a :class:`FLACCueSheetTrackIndex` object using data
+        unpacked from a bytes-like object.
+
+        Parameters
+        ----------
+        sample_offset : int
+            Sample offset of the index point relative to the track
+            offset.
+
+        number : int
+            Track index number.
+
+        reserved : bytes
+            Reserved space in a :code:`CUESHEET_TRACK_INDEX`.
+
+        Returns
+        -------
+        track_index : minim.media.flac.FLACCueSheetTrackIndex
+            :code:`CUESHEET_TRACK_INDEX` data.
+        """
+        if reserved != 3 * b"\x00":
+            raise ValueError(
+                "Non-zero bits found in reserved section of "
+                "CUESHEET_TRACK_INDEX data."
+            )
+
+        obj = cls.__new__(cls)
+        object.__setattr__(obj, "sample_offset", sample_offset)
+        object.__setattr__(obj, "number", number)
+        return obj
+
+    @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACCueSheetTrackIndex:
         """ 
         Instantiate a :class:`FLACCueSheetTrackIndex` object from a 
@@ -1100,17 +1132,7 @@ class FLACCueSheetTrackIndex:
         track_index : minim.media.flac.FLACCueSheetTrackIndex
             :code:`CUESHEET_TRACK_INDEX` data.
         """
-        sample_offset, number, reserved = cls._unpack_from(as_buffer(stream))
-        if reserved != 3 * b"\x00":
-            raise ValueError(
-                "Non-zero bits found in reserved section of "
-                "CUESHEET_TRACK_INDEX data."
-            )
-
-        obj = cls.__new__(cls)
-        object.__setattr__(obj, "sample_offset", sample_offset)
-        object.__setattr__(obj, "number", number)
-        return obj
+        return cls._from_unpack(*cls._unpack_from(as_buffer(stream)))
 
     def serialize(self) -> bytes:
         """
