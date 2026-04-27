@@ -1163,20 +1163,22 @@ class VorbisComment(AudioTags):
         bytestream : bytes
             Bytestream containing the serialized Vorbis comment block.
         """
-        pack = self._UINT32_LE.pack
         vectors = [
-            pack(
-                len(
-                    vendor := (self._vendor or f"Minim {__version__}").encode()
-                )
-            ),
+            len(
+                vendor := (self._vendor or f"Minim {__version__}").encode()
+            ).to_bytes(4, byteorder="little"),
             vendor,
-            pack(self._num_fields),
+            self._num_fields.to_bytes(4, byteorder="little"),
         ]
         for key, values in self._fields.items():
             for value in values:
                 vectors.extend(
-                    (pack(len(field := f"{key}={value}".encode())), field)
+                    (
+                        len(field := f"{key}={value}".encode()).to_bytes(
+                            4, byteorder="little"
+                        ),
+                        field,
+                    )
                 )
         if include_framing_bit:
             vectors.append(b"\x01")
