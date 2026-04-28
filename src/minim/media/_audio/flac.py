@@ -1000,6 +1000,30 @@ class FLACCueSheetTrackIndex:
 class FLACMetadataBlock:
     """
     FLAC metadata block.
+
+    Parameters
+    ----------
+    type : int; optional
+        Block type.
+
+        **Valid values**:
+
+        * :code:`0` – :code:`STREAMINFO`.
+        * :code:`1` – :code:`"PADDING"`.
+        * :code:`2` – :code:`"APLICATION"`.
+        * :code:`3` – :code:`"SEEKTABLE"`.
+        * :code:`4` – :code:`"VORBIS_COMMENT"`.
+        * :code:`5` – :code:`"CUESHEET"`.
+        * :code:`6` – :code:`"PICTURE"`.
+
+    size : int; optional
+        Block size.
+
+    data : minim.media.flac.FLACStreamInfo, \
+    minim.media.flac.FLACApplication, minim.media.flac.FLACSeekTable, \
+    minim.media.flac.FLACCueSheet, minim.media.metadata.VorbisComment, \
+    or minim.media.metadata.APICFrame; optional
+        Block data. If :code:`type=1`, specify :code:`None`.
     """
 
     _TYPES = {
@@ -1013,8 +1037,11 @@ class FLACMetadataBlock:
         127: "INVALID",
     }
 
+    #: Block type.
     type: int | None = None
+    #: Block size.
     size: int | None = None
+    #: Block data.
     data: (
         FLACStreamInfo
         | FLACApplication

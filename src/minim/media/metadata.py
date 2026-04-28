@@ -19,6 +19,19 @@ if TYPE_CHECKING:
 __all__ = ["VorbisComment"]
 
 
+class APICFrame:
+    """
+    Attached picture (APIC) frame.
+
+    .. seealso::
+
+       `ID3 Informal Standard: 4.15. Attached picture
+       <https://id3.org/id3v2.3.0#Attached_picture>`_.
+    """
+
+    # __slots__ = ()
+
+
 class AudioTags(ABC):
     """
     Abstract base class for audio metadata containers.
@@ -983,7 +996,7 @@ class VorbisComment(AudioTags):
 
            The Vorbis comment specification allows for arbitrary
            case-insensitive field names consisting of only ASCII
-           characters 0x20 (:code:` `) through 0x7D (:code:`}`),
+           characters 0x20 (space) through 0x7D (:code:`}`),
            excluding 0x3D (:code:`=`). However, Python identifiers are
            case-sensitive, can contain Unicode characters, and have
            restrictions such as not containing whitespace or starting
@@ -1083,7 +1096,7 @@ class VorbisComment(AudioTags):
 
            The Vorbis comment specification allows for arbitrary
            case-insensitive field names consisting of only ASCII
-           characters 0x20 (:code:` `) through 0x7D (:code:`}`),
+           characters 0x20 (space) through 0x7D (:code:`}`),
            excluding 0x3D (:code:`=`). However, Python identifiers are
            case-sensitive, can contain Unicode characters, and have
            restrictions such as not containing whitespace or starting
