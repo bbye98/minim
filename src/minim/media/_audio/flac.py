@@ -198,16 +198,19 @@ class FLACStreamInfo(AudioStreamInfo):
     min_frame_size : int
         Minimum frame size in bytes.
 
-        **Minimum value**: :code:`0` to :code:`16_777_215`.
+        **Valid range**: :code:`0` to :code:`16_777_215`.
 
     max_frame_size : int
         Maximum frame size in bytes.
 
-        **Maximum value**: :code:`0` to :code:`16_777_215`.
+        **Valid range**: :code:`0` to :code:`16_777_215`.
 
     md5 : str
         MD5 hash of the unencoded audio data.
     """
+
+    _STRUCT_HH = struct.Struct(">HH")
+    _STRUCT_Q = struct.Struct(">Q")
 
     _HEX_DIGITS = set(string.hexdigits)
     _NUM_CHANNELS_RANGE = (1, 8)
@@ -284,7 +287,7 @@ class FLACStreamInfo(AudioStreamInfo):
             )
 
         min_frame_size = int.from_bytes(stream[4:7], byteorder="big")
-        max_frame_size = int.from_bytes(stream[4:10], byteorder="big")
+        max_frame_size = int.from_bytes(stream[7:10], byteorder="big")
         if (
             min_frame_size
             and max_frame_size
@@ -295,7 +298,7 @@ class FLACStreamInfo(AudioStreamInfo):
                 "or equal to `max_frame_size`."
             )
 
-        sample_rate = int.from_bytes(stream[10:13], byteorder="big") >> 4
+        sample_rate = int.from_bytes(stream[10:12], byteorder="big") >> 4
         validate_number(
             "sample_rate", sample_rate, int, *cls._SAMPLE_RATE_RANGE
         )
@@ -308,16 +311,6 @@ class FLACStreamInfo(AudioStreamInfo):
         bit_depth = ((stream[12] & 0x01) << 4) + ((stream[13] & 0xF0) >> 4) + 1
         validate_number("bit_depth", bit_depth, int, *cls._BIT_DEPTH_RANGE)
 
-        num_samples = ((stream[13] & 0x0F) << 32) + int.from_bytes(
-            stream[14:18], byteorder="big"
-        )
-
-        md5 = stream[18:].hex()
-        if len(md5) != 32 or not all(c in cls._HEX_DIGITS for c in md5):
-            raise ValueError(
-                "`md5` must be a 32-character hexadecimal string."
-            )
-
         obj = cls.__new__(cls)
         _obj_set_attr(obj, "min_block_size", min_block_size)
         _obj_set_attr(obj, "max_block_size", max_block_size)
@@ -326,8 +319,13 @@ class FLACStreamInfo(AudioStreamInfo):
         _obj_set_attr(obj, "sample_rate", sample_rate)
         _obj_set_attr(obj, "num_channels", num_channels)
         _obj_set_attr(obj, "bit_depth", bit_depth)
-        _obj_set_attr(obj, "num_samples", num_samples)
-        _obj_set_attr(obj, "md5", md5)
+        _obj_set_attr(
+            obj,
+            "num_samples",
+            ((stream[13] & 0x0F) << 32)
+            + int.from_bytes(stream[14:18], byteorder="big"),
+        )
+        _obj_set_attr(obj, "md5", stream[18:34].hex())
         return obj
 
     def serialize(self) -> bytes:
@@ -373,7 +371,7 @@ class FLACApplication:
 
            `FLAC Application Metadata Block IDs
            <https://www.iana.org/assignments/flac/flac.xhtml>`_ –
-           Registry of 8-digit hexadecimal IDs for third-party
+           Registry of 8-character hexadecimal IDs for third-party
            applications.
 
     app_data : bytes or bytearray
@@ -473,18 +471,15 @@ class FLACSeekTable:
             :code:`SEEKTABLE` metadata block data.
         """
         stream = as_buffer(stream)
-        size = len(stream)
-        num_seek_points, remainder = divmod(size, 18)
-        if remainder:
+        if (size := len(stream)) % 18:
             raise ValueError(
                 f"Invalid SEEKTABLE block size of {size}, "
                 "which is not divisible by 18."
             )
+
         seek_points = tuple(
             FLACSeekPoint._from_unpack(*data)
-            for data in FLACSeekPoint._STRUCT.iter_unpack(
-                stream[: 18 * num_seek_points]
-            )
+            for data in FLACSeekPoint._STRUCT.iter_unpack(stream)
         )
         cls._validate_seek_points(seek_points, custom=False)
 
@@ -569,8 +564,6 @@ class FLACSeekPoint:
     """
 
     _STRUCT = struct.Struct(">QQH")
-    _pack = _STRUCT.pack
-    _unpack_from = _STRUCT.unpack_from
 
     #: Sample number of the first sample in the target frame.
     sample_number: int
@@ -633,7 +626,7 @@ class FLACSeekPoint:
         seek_point : minim.media.flac.FLACSeekPoint
             :code:`SEEKPOINT` data.
         """
-        return cls._from_unpack(*cls._unpack_from(as_buffer(stream)))
+        return cls._from_unpack(*cls._STRUCT.unpack_from(as_buffer(stream)))
 
     def serialize(self) -> bytes:
         """
@@ -644,7 +637,7 @@ class FLACSeekPoint:
         bytestream : bytes
             Bytestream containing :code:`SEEKPOINT` data.
         """
-        return self._pack(
+        return self._STRUCT.pack(
             self.sample_number, self.byte_offset, self.num_samples
         )
 
@@ -671,8 +664,6 @@ class FLACCueSheet:
 
     _ASCII_CHARS_REGEX = re.compile("[\x20-\x7e]*$")
     _STRUCT = struct.Struct(">128sQB258sB")
-    _pack = _STRUCT.pack
-    _unpack_from = _STRUCT.unpack_from
 
     #: Media catalog number.
     media_catalog_number: str
@@ -747,7 +738,7 @@ class FLACCueSheet:
             is_cd,
             reserved,
             num_tracks,
-        ) = cls._unpack_from(stream)
+        ) = cls._STRUCT.unpack_from(stream)
         if is_cd & 0x7F or reserved != 258 * b"\x00":
             raise ValueError(
                 "Non-zero bits found in reserved section of CUESHEET block."
@@ -758,7 +749,7 @@ class FLACCueSheet:
                 f"Invalid number of tracks ({num_tracks}) in CUESHEET block."
             )
 
-        is_cd &= 0x80
+        is_cd = bool(is_cd & 0x80)
         if is_cd:
             if num_tracks > 100:
                 raise ValueError(
@@ -780,7 +771,7 @@ class FLACCueSheet:
             num_track_indices = track.num_indices
             offset += 36 + 12 * num_track_indices
             tracks.append(track)
-
+        tracks = tuple(tracks)
         cls._validate_tracks(tracks, is_cd=is_cd, custom=False)
 
         obj = cls.__new__(cls)
@@ -790,8 +781,8 @@ class FLACCueSheet:
             media_catalog_number.rstrip(b"\x00").decode(),
         )
         _obj_set_attr(obj, "num_lead_in_samples", num_lead_in_samples)
-        _obj_set_attr(obj, "is_cd", bool(is_cd))
-        _obj_set_attr(obj, "tracks", tuple(tracks))
+        _obj_set_attr(obj, "is_cd", is_cd)
+        _obj_set_attr(obj, "tracks", tracks)
         return obj
 
     @staticmethod
@@ -888,7 +879,7 @@ class FLACCueSheet:
         bytestream : bytes
             Bytestream containing :code:`CUESHEET` metadata block data.
         """
-        return self._pack(
+        return self._STRUCT.pack(
             self.media_catalog_number.encode(),
             self.num_lead_in_samples,
             self.is_cd << 7,
@@ -925,8 +916,6 @@ class FLACCueSheetTrack:
     """
 
     _STRUCT = struct.Struct(">QB12sB13sB")
-    _pack = _STRUCT.pack
-    _unpack_from = _STRUCT.unpack_from
 
     #: Sample offset of the track relative to the beginning of the FLAC
     #: audio stream.
@@ -986,10 +975,7 @@ class FLACCueSheetTrack:
             flags,
             reserved,
             num_indices,
-        ) = cls._unpack_from(stream)
-        isrc = "" if isrc == 12 * b"\x00" else prepare_isrc(isrc.decode())
-        is_audio = bool(flags & 0x80)
-        has_pre_emphasis = bool(flags & 0x40)
+        ) = cls._STRUCT.unpack_from(stream)
         if flags & 0x3F or reserved != 13 * b"\x00":
             raise ValueError(
                 "Non-zero bits found in reserved section of "
@@ -1007,9 +993,13 @@ class FLACCueSheetTrack:
         obj = cls.__new__(cls)
         _obj_set_attr(obj, "sample_offset", sample_offset)
         _obj_set_attr(obj, "number", number)
-        _obj_set_attr(obj, "isrc", isrc)
-        _obj_set_attr(obj, "is_audio", is_audio)
-        _obj_set_attr(obj, "has_pre_emphasis", has_pre_emphasis)
+        _obj_set_attr(
+            obj,
+            "isrc",
+            "" if isrc == 12 * b"\x00" else prepare_isrc(isrc.decode()),
+        )
+        _obj_set_attr(obj, "is_audio", bool(flags & 0x80))
+        _obj_set_attr(obj, "has_pre_emphasis", bool(flags & 0x40))
         _obj_set_attr(obj, "indices", indices)
         return obj
 
@@ -1063,7 +1053,7 @@ class FLACCueSheetTrack:
         bytestream : bytes
             Bytestream containing :code:`CUESHEET_TRACK` data.
         """
-        return self._pack(
+        return self._STRUCT.pack(
             self.sample_offset,
             self.number,
             self.isrc.encode() if self.isrc else 12 * b"\x00",
@@ -1088,8 +1078,6 @@ class FLACCueSheetTrackIndex:
     """
 
     _STRUCT = struct.Struct(">QB3s")
-    _pack = _STRUCT.pack
-    _unpack_from = _STRUCT.unpack_from
 
     #: Sample offset of the index point relative to the track offset.
     sample_offset: int
@@ -1154,7 +1142,7 @@ class FLACCueSheetTrackIndex:
         track_index : minim.media.flac.FLACCueSheetTrackIndex
             :code:`CUESHEET_TRACK_INDEX` data.
         """
-        return cls._from_unpack(*cls._unpack_from(as_buffer(stream)))
+        return cls._from_unpack(*cls._STRUCT.unpack_from(as_buffer(stream)))
 
     def serialize(self) -> bytes:
         """
@@ -1165,7 +1153,7 @@ class FLACCueSheetTrackIndex:
         bytestream : bytes
             Bytestream containing :code:`CUESHEET_TRACK_INDEX` data.
         """
-        return self._pack(self.sample_offset, self.number, 3 * b"\x00")
+        return self._STRUCT.pack(self.sample_offset, self.number, 3 * b"\x00")
 
 
 class FLACAudio(Audio):
