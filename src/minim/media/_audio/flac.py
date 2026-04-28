@@ -481,10 +481,10 @@ class FLACSeekTable:
                 "which is not divisible by 18."
             )
         seek_points = tuple(
-            FLACSeekPoint.from_stream(
-                stream[(i := 18 * seek_point_index) : i + 18]
+            FLACSeekPoint._from_unpack(*data)
+            for data in FLACSeekPoint._STRUCT.iter_unpack(
+                stream[: 18 * num_seek_points]
             )
-            for seek_point_index in range(num_seek_points)
         )
         cls._validate_seek_points(seek_points, custom=False)
 
@@ -586,6 +586,37 @@ class FLACSeekPoint:
         validate_number("num_samples", self.num_samples, int, 0)
 
     @classmethod
+    def _from_unpack(
+        cls, sample_number: int, byte_offset: int, num_samples: int
+    ) -> FLACSeekPoint:
+        """
+        Instantiate a :class:`FLACSeekPoint` object using data unpacked
+        from a bytes-like object.
+
+        Parameters
+        ----------
+        sample_number : int
+            Sample number of the first sample in the target frame.
+
+        byte_offset : int
+            Byte offset of the target frame header relative to the first
+            frame header.
+
+        num_samples : int
+            Number of samples in the target frame.
+
+        Returns
+        -------
+        seek_point : minim.media.flac.FLACSeekPoint
+            :code:`SEEKPOINT` data.
+        """
+        obj = cls.__new__(cls)
+        _obj_set_attr(obj, "sample_number", sample_number)
+        _obj_set_attr(obj, "byte_offset", byte_offset)
+        _obj_set_attr(obj, "num_samples", num_samples)
+        return obj
+
+    @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACSeekPoint:
         """
         Instantiate a :class:`FLACSeekPoint` object from a bytes-like
@@ -602,15 +633,7 @@ class FLACSeekPoint:
         seek_point : minim.media.flac.FLACSeekPoint
             :code:`SEEKPOINT` data.
         """
-        sample_number, byte_offset, num_samples = cls._unpack_from(
-            as_buffer(stream)
-        )
-
-        obj = cls.__new__(cls)
-        _obj_set_attr(obj, "sample_number", sample_number)
-        _obj_set_attr(obj, "byte_offset", byte_offset)
-        _obj_set_attr(obj, "num_samples", num_samples)
-        return obj
+        return cls._from_unpack(*cls._unpack_from(as_buffer(stream)))
 
     def serialize(self) -> bytes:
         """
@@ -973,13 +996,13 @@ class FLACCueSheetTrack:
                 "CUESHEET_TRACK data."
             )
 
-        indices = [
+        indices = tuple(
             FLACCueSheetTrackIndex._from_unpack(*data)
             for data in FLACCueSheetTrackIndex._STRUCT.iter_unpack(
                 stream[36 : 36 + 12 * num_indices]
             )
-        ]
-        cls._validate_indices(indices)
+        )
+        cls._validate_indices(indices, custom=False)
 
         obj = cls.__new__(cls)
         _obj_set_attr(obj, "sample_offset", sample_offset)
@@ -987,12 +1010,12 @@ class FLACCueSheetTrack:
         _obj_set_attr(obj, "isrc", isrc)
         _obj_set_attr(obj, "is_audio", is_audio)
         _obj_set_attr(obj, "has_pre_emphasis", has_pre_emphasis)
-        _obj_set_attr(obj, "indices", tuple(indices))
+        _obj_set_attr(obj, "indices", indices)
         return obj
 
     @staticmethod
     def _validate_indices(
-        indices: tuple[FLACCueSheetTrackIndex, ...], /, *, custom: bool = False
+        indices: tuple[FLACCueSheetTrackIndex, ...], /, *, custom: bool = True
     ) -> None:
         """
         Validate track indices (:code:`CUESHEET_TRACK_INDEX`) in a
