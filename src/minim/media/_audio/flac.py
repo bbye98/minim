@@ -127,13 +127,27 @@ class FLACMetadataBlock:
                             "size of the block data."
                         )
                 case 6:  # PICTURE
-                    pass  # TODO
+                    ...  # TODO
 
     @classmethod
     def from_stream(
         cls, stream: BytesLike, /, type_: int, size: int | None = None
     ) -> FLACMetadataBlock:
-        """ """
+        """
+        Instantiate a :class:`FLACMetadataBlock` object from a 
+        bytes-like object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing metadata block data.
+
+        Returns
+        -------
+        block : minim.media.flac.FLACMetadataBlock
+            Metadata block.
+        """
         obj = cls.__new__(cls)
         validate_number("type", type_, int, 0, 6)
         _obj_set_attr(obj, "type", type_)
@@ -157,7 +171,7 @@ class FLACMetadataBlock:
             case 5:  # CUESHEET
                 data = FLACCueSheet.from_stream(stream)
             case 6:  # PICTURE
-                pass
+                ...  # TODO
         _obj_set_attr(obj, "data", data)
 
         return obj
@@ -168,12 +182,17 @@ class FLACMetadataBlock:
         metadata block header should be prefixed by the calling scope
         since this class does not know whether the metadata block is the
         last metadata block before the audio data.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing metadata block data.
         """
         match self.type:
             case 1:  # PADDING
                 return bytes(self.size)
             case 6:  # PICTURE
-                pass  # TODO
+                ...  # TODO
             case _:
                 return self.data.serialize()
 
@@ -1210,9 +1229,7 @@ class FLACAudio(Audio):
 
                     self._metadata.append(
                         FLACMetadataBlock.from_stream(
-                            block_data,
-                            type_=block_type,
-                            size=block_size,
+                            block_data, type_=block_type, size=block_size
                         )
                     )
                 case (
@@ -1220,9 +1237,7 @@ class FLACAudio(Audio):
                 ):  # PADDING / APPLICATION / SEEKTABLE / CUESHEET
                     self._metadata.append(
                         FLACMetadataBlock.from_stream(
-                            block_data,
-                            type_=block_type,
-                            size=block_size,
+                            block_data, type_=block_type, size=block_size
                         )
                     )
                 case 4:  # VORBIS_COMMENT
@@ -1235,7 +1250,7 @@ class FLACAudio(Audio):
                     self._tags = metadata_block.data
                 case 6:  # PICTURE
                     pass
-                case 127:
+                case 127:  # INVALID
                     raise ValueError(
                         "Metadata block with invalid block type found "
                         f"in '{file_path}'."
@@ -1252,7 +1267,7 @@ class FLACAudio(Audio):
                 f"A STREAMINFO block was not found in '{file_path}'."
             )
 
-        del block_data
+        block_data = None
         self.close()
 
     def save_metadata(self) -> None: ...  # TODO
