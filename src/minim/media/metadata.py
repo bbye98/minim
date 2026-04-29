@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime
 from numbers import Real
 import re
@@ -7,7 +8,12 @@ from typing import TYPE_CHECKING
 
 from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from .._utility import prepare_isrc, validate_numeric, validate_type
+from .._utility import (
+    prepare_isrc,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ._shared import as_buffer
 
 if TYPE_CHECKING:
@@ -19,6 +25,7 @@ if TYPE_CHECKING:
 __all__ = ["VorbisComment"]
 
 
+@dataclass(frozen=True, slots=True)
 class APICFrame:
     """
     Attached picture (APIC) frame.
@@ -29,7 +36,67 @@ class APICFrame:
        <https://id3.org/id3v2.3.0#Attached_picture>`_.
     """
 
-    # __slots__ = ()
+    type: int
+    mime_type: str
+    description: str
+    width: int
+    height: int
+    bit_depth: int
+    num_index_colors: int
+    data: bytes
+
+    def __init__(self) -> None:
+        pass
+
+    @classmethod
+    def from_stream(cls, stream: BytesLike, /) -> APICFrame:
+        pass
+
+
+@dataclass(frozen=True, slots=True)
+class AudioStreamInfo:
+    """
+    Audio stream information.
+    """
+
+    _NUM_CHANNELS_RANGE = (1, 65_535)
+    _SAMPLE_RATE_RANGE = (1, 4_294_967_295)
+    _BIT_DEPTH_RANGE = (1, 32)
+
+    #: Number of channels.
+    num_channels: int
+    #: Sample rate in Hz.
+    sample_rate: int
+    #: Bits per sample.
+    bit_depth: int
+    #: Total number of samples.
+    num_samples: int
+
+    def __post_init__(self) -> None:
+        validate_number(
+            "channels", self.num_channels, int, *self._NUM_CHANNELS_RANGE
+        )
+        validate_number(
+            "sample_rate", self.sample_rate, int, *self._SAMPLE_RATE_RANGE
+        )
+        validate_number(
+            "bit_depth", self.bit_depth, int, *self._BIT_DEPTH_RANGE
+        )
+        validate_number("num_samples", self.num_samples, int, 0)
+
+    @property
+    def bitrate(self) -> int:
+        """
+        Bitrate in bits per second.
+        """
+        return self.sample_rate * self.num_channels * self.bit_depth
+
+    @property
+    def duration(self) -> float:
+        """
+        Duration in seconds.
+        """
+        return self.num_samples / self.sample_rate
 
 
 class AudioTags(ABC):
