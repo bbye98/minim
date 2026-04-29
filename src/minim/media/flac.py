@@ -1254,7 +1254,7 @@ class FLACMetadataBlock:
             case 5:  # CUESHEET
                 data = FLACCueSheet.from_stream(stream)
             case 6:  # PICTURE
-                data = APICFrame.from_stream(stream)
+                data = APICFrame.from_flac_stream(stream)
         _set_obj_attr(obj, "data", data)
 
         return obj
@@ -1296,6 +1296,7 @@ class FLACAudio(Audio):
             raise ValueError(f"{file_path} is not a valid FLAC file.")
 
         self._format_metadata = []
+        seen_vorbis_comment = False
         block_header = 0x7F
         while not block_header & 0x80:
             block_header = view[offset]
@@ -1316,7 +1317,8 @@ class FLACAudio(Audio):
                     if self._format_metadata:
                         raise RuntimeError(
                             "STREAMINFO block is not the first "
-                            "metadata block or already exists."
+                            "metadata block or appears multiple times "
+                            f"in '{file_path}'."
                         )
 
                     metadata_block = FLACMetadataBlock.from_stream(
@@ -1333,6 +1335,12 @@ class FLACAudio(Audio):
                         )
                     )
                 case 4:  # VORBIS_COMMENT
+                    if seen_vorbis_comment:
+                        raise RuntimeError(
+                            "VORBIS_COMMENT block appears multiple "
+                            f"times in '{file_path}'."
+                        )
+
                     metadata_block = FLACMetadataBlock.from_stream(
                         block_data,
                         type_=block_type,
@@ -1354,7 +1362,7 @@ class FLACAudio(Audio):
 
         if not self._format_metadata or self._format_metadata[0].type != 0:
             raise RuntimeError(
-                f"A STREAMINFO block was not found in '{file_path}'."
+                f"STREAMINFO block was not found in '{file_path}'."
             )
 
         # TODO

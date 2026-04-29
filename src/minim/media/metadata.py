@@ -45,11 +45,16 @@ class APICFrame:
     num_index_colors: int
     data: bytes
 
-    def __init__(self) -> None:
+    def __post_init__(self) -> None: ...  # TODO
+
+    @classmethod
+    def from_flac_stream(cls, stream: BytesLike, /) -> APICFrame:
+        """ """
         pass
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /) -> APICFrame:
+    def from_id3_stream(cls, stream: BytesLike, /) -> APICFrame:
+        """ """
         pass
 
 
