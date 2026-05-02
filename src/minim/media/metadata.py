@@ -4,11 +4,15 @@ from dataclasses import dataclass
 from datetime import datetime
 from numbers import Real
 import re
+import struct
 from typing import TYPE_CHECKING
 
 from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import (
+    ASCII_CHARS_REGEX,
+    set_obj_attr,
+    join_values,
     prepare_isrc,
     validate_number,
     validate_numeric,
@@ -25,7 +29,7 @@ if TYPE_CHECKING:
 __all__ = ["VorbisComment"]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class APICFrame:
     """
     Attached picture (APIC) frame.
@@ -36,13 +40,20 @@ class APICFrame:
        <https://id3.org/id3v2.3.0#Attached_picture>`_.
     """
 
+    _STRUCT_II = struct.Struct(">II")
+    _STRUCT_IIIII = struct.Struct(">5I")
+    # _STRUCT_GIF_
+    _STRUCT_PNG_CHUNK_HEADER = struct.Struct(">I4s")
+    _STRUCT_PNG_IHDR_CHUNK_DATA = struct.Struct(">IIBB")
+    _SUPPORTED_MIME_TYPES = {"image/gif", "image/jpeg", "image/png"}
+
     type: int
     mime_type: str
     description: str
     width: int
     height: int
-    bit_depth: int
-    num_index_colors: int
+    color_depth: int
+    num_indexed_colors: int
     data: bytes
 
     def __post_init__(self) -> None: ...  # TODO
@@ -50,7 +61,115 @@ class APICFrame:
     @classmethod
     def from_flac_stream(cls, stream: BytesLike, /) -> APICFrame:
         """ """
-        pass
+        obj = cls.__new__(cls)
+
+        type_, mime_type_length = cls._STRUCT_II.unpack_from(stream)
+        validate_number("type", type_, int, 0, 20)
+        set_obj_attr(obj, "type", type_)
+
+        offset = 8 + mime_type_length
+        mime_type = stream[8:offset].tobytes().decode().strip()
+        if not ASCII_CHARS_REGEX.match(mime_type):
+            raise ValueError(
+                "`mime_type` must contain only ASCII characters 0x20 "
+                "(' ') through 0x7D ('}')."
+            )
+        if mime_type != "-->":
+            mime_type = mime_type.lower()
+            if not mime_type.startswith("image/"):
+                mime_type = f"image/{mime_type}"
+            if mime_type not in cls._SUPPORTED_MIME_TYPES:
+                raise ValueError(
+                    f"Invalid MIME type {mime_type!r}. Valid values: "
+                    f"{join_values(cls._SUPPORTED_MIME_TYPES)}."
+                )
+        set_obj_attr(obj, "mime_type", mime_type)
+
+        end_offset = offset + 4
+        description_length = int.from_bytes(stream[offset:end_offset])
+        offset = end_offset
+        end_offset = offset + description_length
+        set_obj_attr(
+            obj, "description", stream[offset:end_offset].tobytes().decode()
+        )
+
+        offset = end_offset
+        width, height, color_depth, num_indexed_colors, data_length = (
+            cls._STRUCT_IIIII.unpack_from(stream, offset)
+        )
+        offset += 20
+        match mime_type:
+            case "image/gif":
+                ...  # TODO
+            case "image/jpeg":
+                ...  # TODO
+            case "image/png":
+                chunk_offset = offset + 8
+                if stream[offset:chunk_offset] != b"\x89PNG\r\n\x1a\n":
+                    raise ValueError(
+                        f"Image data is not of MIME type {mime_type!r}."
+                    )
+
+                if not all((width, height, color_depth, num_indexed_colors)):
+                    (
+                        chunk_size,
+                        chunk_type,
+                    ) = cls._STRUCT_PNG_CHUNK_HEADER.unpack_from(
+                        stream, chunk_offset
+                    )
+                    if chunk_size != 13 or chunk_type != b"IHDR":
+                        raise ValueError(
+                            "IHDR chunk not found after file header "
+                            "containing PNG magic number."
+                        )
+
+                    chunk_offset += 8
+                    (
+                        width,
+                        height,
+                        bit_depth,
+                        color_type,
+                    ) = cls._STRUCT_PNG_IHDR_CHUNK_DATA.unpack_from(
+                        stream, chunk_offset
+                    )
+
+                    match color_type:
+                        case 0:
+                            color_depth = bit_depth
+                            num_indexed_colors = 0
+                        case 2:
+                            color_depth = 3 * bit_depth
+                            num_indexed_colors = 0
+                        case 3:
+                            color_depth = bit_depth
+                            while chunk_type != b"PLTE":
+                                chunk_offset += chunk_size + 4
+                                chunk_size, chunk_type = (
+                                    cls._STRUCT_PNG_CHUNK_HEADER.unpack_from(
+                                        stream, chunk_offset
+                                    )
+                                )
+                                chunk_offset += 8
+                            num_indexed_colors, rem = divmod(chunk_size, 3)
+                            if rem:
+                                raise ValueError(
+                                    f"PLTE chunk has invalid size {chunk_size}."
+                                )
+                        case 4:
+                            color_depth = 2 * bit_depth
+                            num_indexed_colors = 0
+                        case 6:
+                            color_depth = 4 * bit_depth
+                            num_indexed_colors = 0
+
+        set_obj_attr(obj, "width", width)
+        set_obj_attr(obj, "height", height)
+        set_obj_attr(obj, "color_depth", color_depth)
+        set_obj_attr(obj, "num_indexed_colors", num_indexed_colors)
+        set_obj_attr(
+            obj, "data", stream[offset : offset + data_length].tobytes()
+        )
+        return obj
 
     @classmethod
     def from_id3_stream(cls, stream: BytesLike, /) -> APICFrame:
@@ -58,10 +177,24 @@ class APICFrame:
         pass
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class AudioStreamInfo:
     """
     Audio stream information.
+
+    Parameters
+    ----------
+    num_channels : int; keyword-only
+        Number of channels.
+
+    sample_rate : int; keyword-only
+        Sample rate in hertz.
+
+    bit_depth : int; keyword-only
+        Bits per sample.
+
+    num_samples : int; keyword-only
+        Total number of samples.
     """
 
     _NUM_CHANNELS_RANGE = (1, 65_535)
@@ -70,7 +203,7 @@ class AudioStreamInfo:
 
     #: Number of channels.
     num_channels: int
-    #: Sample rate in Hz.
+    #: Sample rate in hertz.
     sample_rate: int
     #: Bits per sample.
     bit_depth: int

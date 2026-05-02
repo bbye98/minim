@@ -3129,8 +3129,8 @@ class ResourceAPI:
         if isinstance(uuids, str):
             try:
                 uuid.UUID(uuids)
-            except (TypeError, ValueError):
-                raise ValueError(f"{uuids!r} is not a valid UUID.")
+            except (TypeError, ValueError) as e:
+                raise ValueError(f"{uuids!r} is not a valid UUID.") from e
 
         elif recursive and isinstance(uuids, COLLECTION_TYPES):
             for uuid_ in uuids:

@@ -6,7 +6,13 @@ import struct
 from typing import TYPE_CHECKING
 import warnings
 
-from .._utility import prepare_isrc, validate_number, validate_type
+from .._utility import (
+    ASCII_CHARS_REGEX,
+    set_obj_attr,
+    prepare_isrc,
+    validate_number,
+    validate_type,
+)
 from ._shared import as_buffer, Audio
 from .metadata import APICFrame, AudioStreamInfo, VorbisComment
 
@@ -26,44 +32,54 @@ __all__ = [
     "FLACCueSheetTrackIndex",
 ]
 
-_set_obj_attr = object.__setattr__
 
-
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class FLACStreamInfo(AudioStreamInfo):
     """
     FLAC :code:`STREAMINFO` metadata block data.
 
     Parameters
     ----------
-    min_block_size : int
+    num_channels : int; keyword-only
+        Number of channels.
+
+    sample_rate : int; keyword-only
+        Sample rate in hertz.
+
+    bit_depth : int; keyword-only
+        Bits per sample.
+
+    num_samples : int; keyword-only
+        Total number of samples.
+
+    min_block_size : int; keyword-only
         Minimum block size in samples.
 
         **Valid range**: :code:`16` to :code:`65_535`.
 
-    max_block_size : int
+    max_block_size : int; keyword-only
         Maximum block size in samples.
 
         **Valid range**: :code:`16` to :code:`65_535`.
 
-    min_frame_size : int
+    min_frame_size : int; keyword-only
         Minimum frame size in bytes.
 
         **Valid range**: :code:`0` to :code:`16_777_215`.
 
-    max_frame_size : int
+    max_frame_size : int; keyword-only
         Maximum frame size in bytes.
 
         **Valid range**: :code:`0` to :code:`16_777_215`.
 
-    md5 : str
+    md5 : str; keyword-only
         MD5 hash of the unencoded audio data.
     """
 
+    _HEX_DIGITS = set(string.hexdigits)
     _STRUCT_HH = struct.Struct(">HH")
     _STRUCT_Q = struct.Struct(">Q")
 
-    _HEX_DIGITS = set(string.hexdigits)
     _NUM_CHANNELS_RANGE = (1, 8)
     _SAMPLE_RATE_RANGE = (1, 655_350)
     _BIT_DEPTH_RANGE = (1, 32)
@@ -163,20 +179,20 @@ class FLACStreamInfo(AudioStreamInfo):
         validate_number("bit_depth", bit_depth, int, *cls._BIT_DEPTH_RANGE)
 
         obj = cls.__new__(cls)
-        _set_obj_attr(obj, "min_block_size", min_block_size)
-        _set_obj_attr(obj, "max_block_size", max_block_size)
-        _set_obj_attr(obj, "min_frame_size", min_frame_size)
-        _set_obj_attr(obj, "max_frame_size", max_frame_size)
-        _set_obj_attr(obj, "sample_rate", sample_rate)
-        _set_obj_attr(obj, "num_channels", num_channels)
-        _set_obj_attr(obj, "bit_depth", bit_depth)
-        _set_obj_attr(
+        set_obj_attr(obj, "min_block_size", min_block_size)
+        set_obj_attr(obj, "max_block_size", max_block_size)
+        set_obj_attr(obj, "min_frame_size", min_frame_size)
+        set_obj_attr(obj, "max_frame_size", max_frame_size)
+        set_obj_attr(obj, "sample_rate", sample_rate)
+        set_obj_attr(obj, "num_channels", num_channels)
+        set_obj_attr(obj, "bit_depth", bit_depth)
+        set_obj_attr(
             obj,
             "num_samples",
             ((stream[13] & 0x0F) << 32)
             + int.from_bytes(stream[14:18], byteorder="big"),
         )
-        _set_obj_attr(obj, "md5", stream[18:34].hex())
+        set_obj_attr(obj, "md5", stream[18:34].hex())
         return obj
 
     def serialize(self) -> bytes:
@@ -208,37 +224,45 @@ class FLACStreamInfo(AudioStreamInfo):
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class FLACApplication:
     """
     FLAC :code:`APPLICATION` metadata block data.
 
     Parameters
     ----------
-    app_id : bytes or bytearray
-        Application ID.
+    app_id : bytes, bytearray, or str; keyword-only
+        Four-character binary or eight-character hexadecimal application
+        ID.
 
         .. seealso::
 
            `FLAC Application Metadata Block IDs
            <https://www.iana.org/assignments/flac/flac.xhtml>`_ –
-           Registry of 8-character hexadecimal IDs for third-party
+           Registry of eight-character hexadecimal IDs for third-party
            applications.
 
-    app_data : bytes or bytearray
+    app_data : bytes or bytearray; keyword-only; default: :code:`b""`
         Application data.
     """
 
     #: Application ID.
-    app_id: bytes | bytearray
+    app_id: bytes | bytearray | str
     #: Application data.
-    app_data: bytes | bytearray
+    app_data: bytes | bytearray = b""
 
     def __post_init__(self) -> None:
-        validate_type("app_id", self.app_id, bytes | bytearray)
-        if len(self.app_id) != 4:
-            raise ValueError("`app_id` must have length 4.")
-        validate_type("app_data", self.app_data, bytes | bytearray)
+        app_id = self.app_id
+        validate_type("app_id", app_id, bytes | bytearray | str)
+        if isinstance(app_id, str):
+            try:
+                app_id = bytes.fromhex(app_id)
+            except ValueError as e:
+                raise ValueError(
+                    "`app_id` must be a valid hexadecimal string."
+                ) from e
+        if len(app_id) != 4:
+            raise ValueError("A binary `app_id` must have length 4.")
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACApplication:
@@ -260,8 +284,8 @@ class FLACApplication:
         """
         stream = as_buffer(stream)
         obj = cls.__new__(cls)
-        _set_obj_attr(obj, "app_id", stream[:4].tobytes())
-        _set_obj_attr(obj, "app_data", stream[4:].tobytes())
+        set_obj_attr(obj, "app_id", stream[:4].tobytes())
+        set_obj_attr(obj, "app_data", stream[4:].tobytes())
         return obj
 
     def serialize(self) -> bytes:
@@ -278,14 +302,14 @@ class FLACApplication:
         return self.app_id + self.app_data
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class FLACSeekTable:
     """
     FLAC :code:`SEEKTABLE` metadata block data.
 
     Parameters
     ----------
-    seek_points : OrderedCollection[FLACSeekPoint, ...]
+    seek_points : OrderedCollection[FLACSeekPoint, ...]; keyword-only
         Seek points.
     """
 
@@ -322,20 +346,21 @@ class FLACSeekTable:
             :code:`SEEKTABLE` metadata block data.
         """
         stream = as_buffer(stream)
-        if (size := len(stream)) % 18:
+        if (length := len(stream)) % 18:
             raise ValueError(
-                f"Invalid SEEKTABLE block size of {size}, "
-                "which is not divisible by 18."
+                f"Invalid SEEKTABLE block length of {length}, which is "
+                "not divisible by 18."
             )
 
+        _from_unpack = FLACSeekPoint._from_unpack
+        _iter_unpack = FLACSeekPoint._STRUCT.iter_unpack
         seek_points = tuple(
-            FLACSeekPoint._from_unpack(*data)
-            for data in FLACSeekPoint._STRUCT.iter_unpack(stream)
+            _from_unpack(*data) for data in _iter_unpack(stream)
         )
         cls._validate_seek_points(seek_points, custom=False)
 
         obj = cls.__new__(cls)
-        _set_obj_attr(obj, "seek_points", seek_points)
+        set_obj_attr(obj, "seek_points", seek_points)
         return obj
 
     @staticmethod
@@ -396,21 +421,21 @@ class FLACSeekTable:
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class FLACSeekPoint:
     """
     FLAC :code:`SEEKPOINT` data.
 
     Parameters
     ----------
-    sample_number : int
+    sample_number : int; keyword-only
         Sample number of the first sample in the target frame.
 
-    byte_offset : int
+    byte_offset : int; keyword-only
         Byte offset of the target frame header relative to the first
         frame header.
 
-    num_samples : int
+    num_samples : int; keyword-only
         Number of samples in the target frame.
     """
 
@@ -455,9 +480,9 @@ class FLACSeekPoint:
             :code:`SEEKPOINT` data.
         """
         obj = cls.__new__(cls)
-        _set_obj_attr(obj, "sample_number", sample_number)
-        _set_obj_attr(obj, "byte_offset", byte_offset)
-        _set_obj_attr(obj, "num_samples", num_samples)
+        set_obj_attr(obj, "sample_number", sample_number)
+        set_obj_attr(obj, "byte_offset", byte_offset)
+        set_obj_attr(obj, "num_samples", num_samples)
         return obj
 
     @classmethod
@@ -493,27 +518,27 @@ class FLACSeekPoint:
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class FLACCueSheet:
     """
     FLAC :code:`CUESHEET` metadata block data.
 
     Parameters
     ----------
-    media_catalog_number : str
+    media_catalog_number : str; keyword-only
         Media catalog number.
 
-    num_lead_in_samples : int
+    num_lead_in_samples : int; keyword-only
         Number of lead-in samples for CD-DA cue sheets.
 
-    is_cd : bool
+    is_cd : bool; keyword-only
         Whether the cue sheet is for CD-DA.
 
-    tracks : OrderedCollection[minim.media.flac.FLACCueSheetTrack, ...]
+    tracks : OrderedCollection[minim.media.flac.FLACCueSheetTrack, ...]; \
+    keyword-only
         Tracks.
     """
 
-    _ASCII_CHARS_REGEX = re.compile("[\x20-\x7e]*$")
     _STRUCT = struct.Struct(">128sQB258sB")
 
     #: Media catalog number.
@@ -532,7 +557,7 @@ class FLACCueSheet:
             raise ValueError(
                 "`media_catalog_number` must be 128 characters or fewer."
             )
-        if not self._ASCII_CHARS_REGEX.match(media_catalog_number):
+        if not ASCII_CHARS_REGEX.match(media_catalog_number):
             raise ValueError(
                 "`media_catalog_number` must contain only ASCII "
                 "characters 0x20 (' ') through 0x7D ('}')."
@@ -595,6 +620,13 @@ class FLACCueSheet:
                 "Non-zero bits found in reserved section of CUESHEET block."
             )
 
+        media_catalog_number = media_catalog_number.rstrip(b"\x00").decode()
+        if not ASCII_CHARS_REGEX.match(media_catalog_number):
+            raise ValueError(
+                "`media_catalog_number` must contain only ASCII "
+                "characters 0x20 (' ') through 0x7D ('}')."
+            )
+
         if not num_tracks:
             raise ValueError(
                 f"Invalid number of tracks ({num_tracks}) in CUESHEET block."
@@ -626,14 +658,10 @@ class FLACCueSheet:
         cls._validate_tracks(tracks, is_cd=is_cd, custom=False)
 
         obj = cls.__new__(cls)
-        _set_obj_attr(
-            obj,
-            "media_catalog_number",
-            media_catalog_number.rstrip(b"\x00").decode(),
-        )
-        _set_obj_attr(obj, "num_lead_in_samples", num_lead_in_samples)
-        _set_obj_attr(obj, "is_cd", is_cd)
-        _set_obj_attr(obj, "tracks", tracks)
+        set_obj_attr(obj, "media_catalog_number", media_catalog_number)
+        set_obj_attr(obj, "num_lead_in_samples", num_lead_in_samples)
+        set_obj_attr(obj, "is_cd", is_cd)
+        set_obj_attr(obj, "tracks", tracks)
         return obj
 
     @staticmethod
@@ -739,30 +767,31 @@ class FLACCueSheet:
         ) + b"".join(track.serialize() for track in self.tracks)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class FLACCueSheetTrack:
     """
     FLAC :code:`CUESHEET_TRACK` data.
 
     Parameters
     ----------
-    sample_offset : int
+    sample_offset : int; keyword-only
         Sample offset of the track relative to the beginning of the FLAC
         audio stream.
 
-    number : int
+    number : int; keyword-only
         Track number.
 
-    isrc : str
+    isrc : str; keyword-only
         International Standard Recording Code (ISRC).
 
-    is_audio : bool
+    is_audio : bool; keyword-only
         Whether the track contains audio data.
 
-    has_pre_emphasis : bool
+    has_pre_emphasis : bool; keyword-only
         Whether the track has pre-emphasis.
 
-    tracks : OrderedCollection[minim.media.flac.FLACCueSheetTrackIndex]
+    tracks : OrderedCollection[minim.media.flac.FLACCueSheetTrackIndex]; \
+    keyword-only
         Track indices.
     """
 
@@ -833,25 +862,25 @@ class FLACCueSheetTrack:
                 "CUESHEET_TRACK data."
             )
 
+        _from_unpack = FLACCueSheetTrackIndex._from_unpack
+        _iter_unpack = FLACCueSheetTrackIndex._STRUCT.iter_unpack
         indices = tuple(
-            FLACCueSheetTrackIndex._from_unpack(*data)
-            for data in FLACCueSheetTrackIndex._STRUCT.iter_unpack(
-                stream[36 : 36 + 12 * num_indices]
-            )
+            _from_unpack(*data)
+            for data in _iter_unpack(stream[36 : 36 + 12 * num_indices])
         )
         cls._validate_indices(indices, custom=False)
 
         obj = cls.__new__(cls)
-        _set_obj_attr(obj, "sample_offset", sample_offset)
-        _set_obj_attr(obj, "number", number)
-        _set_obj_attr(
+        set_obj_attr(obj, "sample_offset", sample_offset)
+        set_obj_attr(obj, "number", number)
+        set_obj_attr(
             obj,
             "isrc",
             "" if isrc == 12 * b"\x00" else prepare_isrc(isrc.decode()),
         )
-        _set_obj_attr(obj, "is_audio", bool(flags & 0x80))
-        _set_obj_attr(obj, "has_pre_emphasis", bool(flags & 0x40))
-        _set_obj_attr(obj, "indices", indices)
+        set_obj_attr(obj, "is_audio", bool(flags & 0x80))
+        set_obj_attr(obj, "has_pre_emphasis", bool(flags & 0x40))
+        set_obj_attr(obj, "indices", indices)
         return obj
 
     @staticmethod
@@ -914,17 +943,17 @@ class FLACCueSheetTrack:
         ) + b"".join(index.serialize() for index in self.indices)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class FLACCueSheetTrackIndex:
     """
     FLAC :code:`CUESHEET_TRACK_INDEX` data.
 
     Parameters
     ----------
-    sample_offset : int
+    sample_offset : int; keyword-only
         Sample offset of the index point relative to the track offset.
 
-    number : int
+    number : int; keyword-only
         Track index number.
     """
 
@@ -971,8 +1000,8 @@ class FLACCueSheetTrackIndex:
             )
 
         obj = cls.__new__(cls)
-        _set_obj_attr(obj, "sample_offset", sample_offset)
-        _set_obj_attr(obj, "number", number)
+        set_obj_attr(obj, "sample_offset", sample_offset)
+        set_obj_attr(obj, "number", number)
         return obj
 
     @classmethod
@@ -1007,14 +1036,18 @@ class FLACCueSheetTrackIndex:
         return self._STRUCT.pack(self.sample_offset, self.number, 3 * b"\x00")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class FLACMetadataBlock:
     """
     FLAC metadata block.
 
+    .. important::
+
+        At least one of :code:`type` or :code:`data` must be specified.
+
     Parameters
     ----------
-    type : int; optional
+    type : int; keyword-only; optional
         Metadata block type.
 
         **Valid values**:
@@ -1027,13 +1060,13 @@ class FLACMetadataBlock:
         * :code:`5` – :code:`CUESHEET`.
         * :code:`6` – :code:`PICTURE`.
 
-    size : int; optional
-        Metadata block size in bytes.
+    length : int; keyword-only; optional
+        Metadata block length in bytes.
 
     data : minim.media.flac.FLACStreamInfo, \
     minim.media.flac.FLACApplication, minim.media.flac.FLACSeekTable, \
     minim.media.flac.FLACCueSheet, minim.media.metadata.VorbisComment, \
-    or minim.media.metadata.APICFrame; optional
+    or minim.media.metadata.APICFrame; keyword-only; optional
         Metadata block data. If :code:`type=1`, specify :code:`None`.
     """
 
@@ -1050,8 +1083,8 @@ class FLACMetadataBlock:
 
     #: Metadata block type.
     type: int | None = None
-    #: Metadata block size in bytes.
-    size: int | None = None
+    #: Metadata block length in bytes.
+    length: int | None = None
     #: Metadata block data.
     data: (
         FLACStreamInfo
@@ -1068,52 +1101,52 @@ class FLACMetadataBlock:
             match self.data:
                 case FLACStreamInfo():
                     self.type = 0
-                    if self.size is None:
-                        self.size = 34
-                    elif self.size != 34:
+                    if self.length is None:
+                        self.length = 34
+                    elif self.length != 34:
                         raise ValueError(
-                            "STREAMINFO block size must be 34, not "
-                            f"{self.size}."
+                            "STREAMINFO block length must be 34, not "
+                            f"{self.length}."
                         )
                 case None:
                     self.type = 1
-                    if self.size is None:
+                    if self.length is None:
                         raise ValueError(
-                            "At least one of `type` or `size` must be "
-                            "provided."
+                            "At least one of `type` or `length` must "
+                            "be provided."
                         )
-                    validate_number("size", self.size, int, 0)
+                    validate_number("length", self.length, int, 0)
                 case FLACApplication():
                     self.type = 2
-                    actual_size = 4 + len(self.app["app_data"])
-                    if self.size is None:
-                        self.size = actual_size
-                    elif self.size != actual_size:
+                    actual_length = 4 + len(self.app["app_data"])
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
                         raise ValueError(
-                            "APPLICATION block size does not match the "
-                            "size of the block data."
+                            "APPLICATION block length does not match "
+                            "the length of the block data."
                         )
                 case FLACSeekTable():
                     self.type = 3
-                    actual_size = 18 * len(self.data.seek_points)
-                    if self.size is None:
-                        self.size = actual_size
-                    elif self.size != actual_size:
+                    actual_length = 18 * len(self.data.seek_points)
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
                         raise ValueError(
-                            "SEEKTABLE block size does not match the "
-                            "size of the block data."
+                            "SEEKTABLE block length does not match the "
+                            "length of the block data."
                         )
                 case VorbisComment():
                     self.type = 4
                 case FLACCueSheet():
                     self.type = 5
-                    actual_size = len(self.data.serialize())
-                    if self.size is None:
-                        self.size = actual_size
-                    elif self.size != actual_size:
+                    actual_length = len(self.data.serialize())
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
                         raise ValueError(
-                            "CUESHEET block size does not match the "
-                            "size of the block data."
+                            "CUESHEET block length does not match the "
+                            "length of the block data."
                         )
                 case APICFrame():
                     self.type = 6
@@ -1133,15 +1166,15 @@ class FLACMetadataBlock:
                             f"{type(self.data).__name__}."
                         )
 
-                    if self.size is None:
-                        self.size = 34
-                    elif self.size != 34:
+                    if self.length is None:
+                        self.length = 34
+                    elif self.length != 34:
                         raise ValueError(
-                            "STREAMINFO block size must be 34, not "
-                            f"{self.size}."
+                            "STREAMINFO block length must be 34, not "
+                            f"{self.length}."
                         )
                 case 1:  # PADDING
-                    validate_number("size", self.size, int, 0)
+                    validate_number("length", self.length, int, 0)
                     if self.data is not None:
                         raise ValueError("PADDING block data must be None.")
                 case 2:  # APPLICATION
@@ -1153,13 +1186,13 @@ class FLACMetadataBlock:
                             f"{type(self.data).__name__}."
                         )
 
-                    actual_size = 4 + len(app["app_data"])
-                    if self.size is None:
-                        self.size = actual_size
-                    elif self.size != actual_size:
+                    actual_length = 4 + len(app["app_data"])
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
                         raise ValueError(
-                            "APPLICATION block size does not match the "
-                            "size of the block data."
+                            "APPLICATION block length does not match "
+                            "the length of the block data."
                         )
                 case 3:  # SEEKTABLE
                     if not isinstance(self.data, FLACSeekTable):
@@ -1169,13 +1202,13 @@ class FLACMetadataBlock:
                             f"{type(self.data).__name__}."
                         )
 
-                    actual_size = 18 * len(self.data.seek_points)
-                    if self.size is None:
-                        self.size = actual_size
-                    elif self.size != actual_size:
+                    actual_length = 18 * len(self.data.seek_points)
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
                         raise ValueError(
-                            "SEEKTABLE block size does not match the "
-                            "size of the block data."
+                            "SEEKTABLE block length does not match the "
+                            "length of the block data."
                         )
                 case 4:  # VORBIS_COMMENT
                     if not isinstance(self.data, VorbisComment):
@@ -1185,13 +1218,13 @@ class FLACMetadataBlock:
                             f"{type(self.data).__name__}."
                         )
 
-                    actual_size = len(self.data.serialize())
-                    if self.size is None:
-                        self.size = actual_size
-                    elif self.size != actual_size:
+                    actual_length = len(self.data.serialize())
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
                         raise ValueError(
-                            "VORBIS_COMMENT block size does not match "
-                            "the size of the block data."
+                            "VORBIS_COMMENT block length does not "
+                            "match the length of the block data."
                         )
                 case 5:  # CUESHEET
                     if not isinstance(self.data, FLACCueSheet):
@@ -1201,20 +1234,20 @@ class FLACMetadataBlock:
                             f"{type(self.data).__name__}."
                         )
 
-                    actual_size = len(self.data.serialize())
-                    if self.size is None:
-                        self.size = actual_size
-                    elif self.size != actual_size:
+                    actual_length = len(self.data.serialize())
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
                         raise ValueError(
-                            "CUESHEET block size does not match the "
-                            "size of the block data."
+                            "CUESHEET block length does not match the "
+                            "length of the block data."
                         )
                 case 6:  # PICTURE
                     ...  # TODO
 
     @classmethod
     def from_stream(
-        cls, stream: BytesLike, /, type_: int, size: int | None = None
+        cls, stream: BytesLike, /, type_: int, length: int | None = None
     ) -> FLACMetadataBlock:
         """
         Instantiate a :class:`FLACMetadataBlock` object from a 
@@ -1226,6 +1259,12 @@ class FLACMetadataBlock:
         positional-only; optional
             Bytes-like object containing metadata block data.
 
+        type_ : int
+            Metadata block type.
+
+        length : int; optional
+            Metadata block length.
+
         Returns
         -------
         block : minim.media.flac.FLACMetadataBlock
@@ -1233,12 +1272,12 @@ class FLACMetadataBlock:
         """
         obj = cls.__new__(cls)
         validate_number("type_", type_, int, 0, 6)
-        _set_obj_attr(obj, "type", type_)
+        set_obj_attr(obj, "type", type_)
 
         stream = as_buffer(stream)
-        if size is None:
-            size = len(stream)
-        _set_obj_attr(obj, "size", size)
+        if length is None:
+            length = len(stream)
+        set_obj_attr(obj, "length", length)
 
         match type_:
             case 0:  # STREAMINFO
@@ -1255,7 +1294,7 @@ class FLACMetadataBlock:
                 data = FLACCueSheet.from_stream(stream)
             case 6:  # PICTURE
                 data = APICFrame.from_flac_stream(stream)
-        _set_obj_attr(obj, "data", data)
+        set_obj_attr(obj, "data", data)
 
         return obj
 
@@ -1273,7 +1312,7 @@ class FLACMetadataBlock:
         """
         match self.type:
             case 1:  # PADDING
-                return bytes(self.size)
+                return bytes(self.length)
             case 6:  # PICTURE
                 ...  # TODO
             case _:
@@ -1303,12 +1342,12 @@ class FLACAudio(Audio):
             offset += 1
 
             end_offset = offset + 3
-            block_size = int.from_bytes(
+            block_length = int.from_bytes(
                 view[offset:end_offset], byteorder="big"
             )
             offset = end_offset
 
-            end_offset = offset + block_size
+            end_offset = offset + block_length
             block_data = view[offset:end_offset]
             offset = end_offset
 
@@ -1322,7 +1361,7 @@ class FLACAudio(Audio):
                         )
 
                     metadata_block = FLACMetadataBlock.from_stream(
-                        block_data, type_=block_type, size=block_size
+                        block_data, type_=block_type, length=block_length
                     )
                     self._format_metadata.append(metadata_block)
                     self._stream_info = metadata_block.data
@@ -1331,7 +1370,7 @@ class FLACAudio(Audio):
                 ):  # PADDING / APPLICATION / SEEKTABLE / CUESHEET / PICTURE
                     self._format_metadata.append(
                         FLACMetadataBlock.from_stream(
-                            block_data, type_=block_type, size=block_size
+                            block_data, type_=block_type, length=block_length
                         )
                     )
                 case 4:  # VORBIS_COMMENT
@@ -1344,7 +1383,7 @@ class FLACAudio(Audio):
                     metadata_block = FLACMetadataBlock.from_stream(
                         block_data,
                         type_=block_type,
-                        size=block_size,
+                        length=block_length,
                     )
                     self._format_metadata.append(metadata_block)
                     self._tags = metadata_block.data

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
+import re
 import types
 from typing import TYPE_CHECKING, Callable
 
@@ -10,8 +11,10 @@ if TYPE_CHECKING:
 
     from ._types import Collection
 
-
+ASCII_CHARS_REGEX = re.compile("[\x20-\x7e]*$")
 TRANSLATION_TABLES = {"remove_separators": str.maketrans("", "", "‐‒–—―−")}
+
+set_obj_attr = object.__setattr__
 
 
 def join_values(
