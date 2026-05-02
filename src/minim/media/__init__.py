@@ -1,4 +1,3 @@
-from . import metadata
-from . import flac
+from . import metadata, flac
 
 __all__ = ["metadata", "flac"]

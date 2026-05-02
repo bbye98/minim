@@ -6,11 +6,11 @@ from numbers import Real
 import re
 import struct
 from typing import TYPE_CHECKING
+import warnings
 
 from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import (
-    ASCII_CHARS_REGEX,
     set_obj_attr,
     join_values,
     prepare_isrc,
@@ -36,8 +36,8 @@ class APICFrame:
 
     .. seealso::
 
-       `ID3 Informal Standard: 4.15. Attached picture
-       <https://id3.org/id3v2.3.0#Attached_picture>`_.
+       `ID3v2.4.0 Native Frames: 4.14. Attached picture
+       <https://id3.org/id3v2.4.0-frames#Attached_picture>`_.
     """
 
     _STRUCT_II = struct.Struct(">II")
@@ -49,6 +49,7 @@ class APICFrame:
 
     type: int
     mime_type: str
+    description_encoding: str
     description: str
     width: int
     height: int
@@ -56,48 +57,100 @@ class APICFrame:
     num_indexed_colors: int
     data: bytes
 
-    def __post_init__(self) -> None: ...  # TODO
+    def __post_init__(self) -> None:
+        validate_number("type", self.type, int, 0, 20)
 
-    @classmethod
-    def from_flac_stream(cls, stream: BytesLike, /) -> APICFrame:
-        """ """
-        obj = cls.__new__(cls)
-
-        type_, mime_type_length = cls._STRUCT_II.unpack_from(stream)
-        validate_number("type", type_, int, 0, 20)
-        set_obj_attr(obj, "type", type_)
-
-        offset = 8 + mime_type_length
-        mime_type = stream[8:offset].tobytes().decode().strip()
-        if not ASCII_CHARS_REGEX.match(mime_type):
-            raise ValueError(
-                "`mime_type` must contain only ASCII characters 0x20 "
-                "(' ') through 0x7D ('}')."
-            )
+        mime_type = self.mime_type
         if mime_type != "-->":
             mime_type = mime_type.lower()
             if not mime_type.startswith("image/"):
                 mime_type = f"image/{mime_type}"
-            if mime_type not in cls._SUPPORTED_MIME_TYPES:
+                set_obj_attr(self, "mime_type", mime_type)
+            if mime_type not in self._SUPPORTED_MIME_TYPES:
                 raise ValueError(
                     f"Invalid MIME type {mime_type!r}. Valid values: "
-                    f"{join_values(cls._SUPPORTED_MIME_TYPES)}."
+                    f"{join_values(self._SUPPORTED_MIME_TYPES)}."
                 )
-        set_obj_attr(obj, "mime_type", mime_type)
 
-        end_offset = offset + 4
-        description_length = int.from_bytes(stream[offset:end_offset])
-        offset = end_offset
-        end_offset = offset + description_length
-        set_obj_attr(
-            obj, "description", stream[offset:end_offset].tobytes().decode()
-        )
+        validate_type("data", self.data, bytes)
+        match mime_type:
+            case "image/gif":
+                ...  # TODO
+            case "image/jpeg":
+                ...  # TODO
+            case "image/png":
+                if self.data[:8] != b"\x89PNG\r\n\x1a\n":
+                    raise ValueError(
+                        f"Image data is not of MIME type {mime_type!r}."
+                    )
 
-        offset = end_offset
-        width, height, color_depth, num_indexed_colors, data_length = (
-            cls._STRUCT_IIIII.unpack_from(stream, offset)
-        )
-        offset += 20
+        validate_type("description", self.description, str)
+        validate_number("width", self.width, int, 0)
+        validate_number("height", self.height, int, 0)
+        validate_number("color_depth", self.color_depth, int, 0)
+        validate_number("num_indexed_colors", self.num_indexed_colors, int, 0)
+
+    @classmethod
+    def from_stream(
+        cls, stream: BytesLike, /, *, source: str = "ID3"
+    ) -> APICFrame:
+        """ 
+        Instantiate an :class:`APICFrame` object from a bytes-like 
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing :code:`APIC` data.
+
+        source : str; keyword-only; default: :code:`"ID3"`
+            ...
+
+        Returns
+        -------
+        attached_picture : minim.media.metadata.APICFrame
+            :code:`APIC` data.
+        """
+        match source.upper():
+            case "FLAC":
+                type_, mime_type_length = cls._STRUCT_II.unpack_from(stream)
+                validate_number("type", type_, int, 0, 20)
+
+                offset = 8 + mime_type_length
+                mime_type = stream[8:offset].tobytes().decode()
+                if mime_type != "-->":
+                    mime_type = mime_type.lower()
+                    if not mime_type.startswith("image/"):
+                        mime_type = f"image/{mime_type}"
+                    if mime_type not in cls._SUPPORTED_MIME_TYPES:
+                        raise ValueError(
+                            f"Invalid MIME type {mime_type!r}. Valid values: "
+                            f"{join_values(cls._SUPPORTED_MIME_TYPES)}."
+                        )
+
+                end_offset = offset + 4
+                description_length = int.from_bytes(stream[offset:end_offset])
+                offset = end_offset
+                end_offset = offset + description_length
+                description = stream[offset:end_offset].tobytes().decode()
+                description_encoding = "utf-8"
+
+                offset = end_offset
+                width, height, color_depth, num_indexed_colors, data_length = (
+                    cls._STRUCT_IIIII.unpack_from(stream, offset)
+                )
+
+                offset += 20
+                data = stream[offset : offset + data_length].tobytes()
+            case "ID3":
+                ...  # TODO
+            case _:
+                raise ValueError(
+                    f"Invalid data source {source!r}. "
+                    "Valid values: 'FLAC', 'ID3'."
+                )
+
         match mime_type:
             case "image/gif":
                 ...  # TODO
@@ -110,71 +163,77 @@ class APICFrame:
                         f"Image data is not of MIME type {mime_type!r}."
                     )
 
-                if not all((width, height, color_depth, num_indexed_colors)):
-                    (
-                        chunk_size,
-                        chunk_type,
-                    ) = cls._STRUCT_PNG_CHUNK_HEADER.unpack_from(
-                        stream, chunk_offset
-                    )
-                    if chunk_size != 13 or chunk_type != b"IHDR":
-                        raise ValueError(
-                            "IHDR chunk not found after file header "
-                            "containing PNG magic number."
-                        )
+                # if not all((width, height, color_depth)):
+                #     if mime_type == "-->":
+                #         warnings.warn(
+                #             "At least one of `width`, `height`, or "
+                #             "`color_depth` is not defined."
+                #         )
 
-                    chunk_offset += 8
-                    (
-                        width,
-                        height,
-                        bit_depth,
-                        color_type,
-                    ) = cls._STRUCT_PNG_IHDR_CHUNK_DATA.unpack_from(
-                        stream, chunk_offset
-                    )
+                #     (
+                #         chunk_size,
+                #         chunk_type,
+                #     ) = cls._STRUCT_PNG_CHUNK_HEADER.unpack_from(
+                #         stream, chunk_offset
+                #     )
+                #     if chunk_size != 13 or chunk_type != b"IHDR":
+                #         raise ValueError(
+                #             "IHDR chunk not found after file header "
+                #             "containing PNG magic number."
+                #         )
 
-                    match color_type:
-                        case 0:
-                            color_depth = bit_depth
-                            num_indexed_colors = 0
-                        case 2:
-                            color_depth = 3 * bit_depth
-                            num_indexed_colors = 0
-                        case 3:
-                            color_depth = bit_depth
-                            while chunk_type != b"PLTE":
-                                chunk_offset += chunk_size + 4
-                                chunk_size, chunk_type = (
-                                    cls._STRUCT_PNG_CHUNK_HEADER.unpack_from(
-                                        stream, chunk_offset
-                                    )
-                                )
-                                chunk_offset += 8
-                            num_indexed_colors, rem = divmod(chunk_size, 3)
-                            if rem:
-                                raise ValueError(
-                                    f"PLTE chunk has invalid size {chunk_size}."
-                                )
-                        case 4:
-                            color_depth = 2 * bit_depth
-                            num_indexed_colors = 0
-                        case 6:
-                            color_depth = 4 * bit_depth
-                            num_indexed_colors = 0
+                #     chunk_offset += 8
+                #     (
+                #         width,
+                #         height,
+                #         bit_depth,
+                #         color_type,
+                #     ) = cls._STRUCT_PNG_IHDR_CHUNK_DATA.unpack_from(
+                #         stream, chunk_offset
+                #     )
 
+                #     match color_type:
+                #         case 0:
+                #             color_depth = bit_depth
+                #             num_indexed_colors = 0
+                #         case 2:
+                #             color_depth = 3 * bit_depth
+                #             num_indexed_colors = 0
+                #         case 3:
+                #             color_depth = bit_depth
+                #             while chunk_type != b"PLTE":
+                #                 chunk_offset += chunk_size + 4
+                #                 chunk_size, chunk_type = (
+                #                     cls._STRUCT_PNG_CHUNK_HEADER.unpack_from(
+                #                         stream, chunk_offset
+                #                     )
+                #                 )
+                #                 chunk_offset += 8
+                #             num_indexed_colors, rem = divmod(chunk_size, 3)
+                #             if rem:
+                #                 raise ValueError(
+                #                     f"PLTE chunk has invalid size {chunk_size}."
+                #                 )
+                #         case 4:
+                #             color_depth = 2 * bit_depth
+                #             num_indexed_colors = 0
+                #         case 6:
+                #             color_depth = 4 * bit_depth
+                #             num_indexed_colors = 0
+
+        obj = cls.__new__(cls)
+        set_obj_attr(obj, "type", type_)
+        set_obj_attr(obj, "mime_type", mime_type)
+        set_obj_attr(obj, "description_encoding", description_encoding)
+        set_obj_attr(obj, "description", description)
         set_obj_attr(obj, "width", width)
         set_obj_attr(obj, "height", height)
         set_obj_attr(obj, "color_depth", color_depth)
         set_obj_attr(obj, "num_indexed_colors", num_indexed_colors)
-        set_obj_attr(
-            obj, "data", stream[offset : offset + data_length].tobytes()
-        )
+        set_obj_attr(obj, "data", data)
         return obj
 
-    @classmethod
-    def from_id3_stream(cls, stream: BytesLike, /) -> APICFrame:
-        """ """
-        pass
+    def serialize(self) -> bytes: ...
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)

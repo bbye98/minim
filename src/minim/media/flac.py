@@ -1,6 +1,5 @@
 from __future__ import annotations
 from dataclasses import dataclass
-import re
 import string
 import struct
 from typing import TYPE_CHECKING
@@ -1118,7 +1117,7 @@ class FLACMetadataBlock:
                     validate_number("length", self.length, int, 0)
                 case FLACApplication():
                     self.type = 2
-                    actual_length = 4 + len(self.app["app_data"])
+                    actual_length = 4 + len(self.data["app_data"])
                     if self.length is None:
                         self.length = actual_length
                     elif self.length != actual_length:
@@ -1138,6 +1137,14 @@ class FLACMetadataBlock:
                         )
                 case VorbisComment():
                     self.type = 4
+                    actual_length = len(self.data.serialize())
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
+                        raise ValueError(
+                            "VORBIS_COMMENT block length does not "
+                            "match the length of the block data."
+                        )
                 case FLACCueSheet():
                     self.type = 5
                     actual_length = len(self.data.serialize())
@@ -1243,6 +1250,11 @@ class FLACMetadataBlock:
                             "length of the block data."
                         )
                 case 6:  # PICTURE
+                    if not isinstance(self.data, APICFrame):
+                        raise TypeError(
+                            "PICTURE block data must be an instance of "
+                            f"APICFrame, not {type(self.data).__name__}."
+                        )
                     ...  # TODO
 
     @classmethod
@@ -1270,14 +1282,11 @@ class FLACMetadataBlock:
         block : minim.media.flac.FLACMetadataBlock
             Metadata block.
         """
-        obj = cls.__new__(cls)
         validate_number("type_", type_, int, 0, 6)
-        set_obj_attr(obj, "type", type_)
 
         stream = as_buffer(stream)
         if length is None:
             length = len(stream)
-        set_obj_attr(obj, "length", length)
 
         match type_:
             case 0:  # STREAMINFO
@@ -1293,9 +1302,12 @@ class FLACMetadataBlock:
             case 5:  # CUESHEET
                 data = FLACCueSheet.from_stream(stream)
             case 6:  # PICTURE
-                data = APICFrame.from_flac_stream(stream)
-        set_obj_attr(obj, "data", data)
+                data = APICFrame.from_stream(stream, source="FLAC")
 
+        obj = cls.__new__(cls)
+        set_obj_attr(obj, "type", type_)
+        set_obj_attr(obj, "length", length)
+        set_obj_attr(obj, "data", data)
         return obj
 
     def serialize(self) -> bytes:
@@ -1323,6 +1335,13 @@ class FLACAudio(Audio):
     """
     FLAC audio file.
     """
+
+    # __slots__ = ()
+
+    def __init__(self, *, strict: bool = False) -> None:
+        validate_type("strict", strict, bool)
+        self._strict = strict
+        super().__init__()
 
     def load_metadata(self) -> None:
         """ """
