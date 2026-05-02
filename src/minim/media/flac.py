@@ -12,11 +12,12 @@ from .._utility import (
     validate_number,
     validate_type,
 )
+from .._types import BytesLike
 from ._shared import as_buffer, Audio
 from .metadata import APICFrame, AudioStreamInfo, VorbisComment
 
 if TYPE_CHECKING:
-    from .._types import BytesLike
+    from .._types import PathLike
 
 
 __all__ = [
@@ -164,7 +165,7 @@ class FLACStreamInfo(AudioStreamInfo):
                 "or equal to `max_frame_size`."
             )
 
-        sample_rate = int.from_bytes(stream[10:12], byteorder="big") >> 4
+        sample_rate = int.from_bytes(stream[10:13], byteorder="big") >> 4
         validate_number(
             "sample_rate", sample_rate, int, *cls._SAMPLE_RATE_RANGE
         )
@@ -1058,11 +1059,12 @@ class FLACMetadataBlock:
         * :code:`4` – :code:`VORBIS_COMMENT`.
         * :code:`5` – :code:`CUESHEET`.
         * :code:`6` – :code:`PICTURE`.
+        * :code:`7` to :code:`126` – Reserved.
 
     length : int; keyword-only; optional
         Metadata block length in bytes.
 
-    data : minim.media.flac.FLACStreamInfo, \
+    data : bytes, bytearray, minim.media.flac.FLACStreamInfo, \
     minim.media.flac.FLACApplication, minim.media.flac.FLACSeekTable, \
     minim.media.flac.FLACCueSheet, minim.media.metadata.VorbisComment, \
     or minim.media.metadata.APICFrame; keyword-only; optional
@@ -1086,7 +1088,8 @@ class FLACMetadataBlock:
     length: int | None = None
     #: Metadata block data.
     data: (
-        FLACStreamInfo
+        BytesLike
+        | FLACStreamInfo
         | FLACApplication
         | FLACSeekTable
         | VorbisComment
@@ -1158,12 +1161,17 @@ class FLACMetadataBlock:
                 case APICFrame():
                     self.type = 6
                     ...  # TODO
+                case bytes() | bytearray():
+                    raise ValueError(
+                        "`type` must be provided when `data` is a "
+                        "bytes-like object."
+                    )
                 case _:
                     raise TypeError(
                         f"Invalid type {type(self.data).__name__} for `data`."
                     )
         else:
-            validate_number("type", type_, int, 0, 6)
+            validate_number("type", type_, int, 0, 126)
             match type_:
                 case 0:  # STREAMINFO
                     if not isinstance(self.data, FLACStreamInfo):
@@ -1256,6 +1264,16 @@ class FLACMetadataBlock:
                             f"APICFrame, not {type(self.data).__name__}."
                         )
                     ...  # TODO
+                case _:  # reserved
+                    validate_type("data", self.data, bytes | bytearray)
+                    actual_length = len(self.data)
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
+                        raise ValueError(
+                            "Reserved block length does not match the "
+                            "length of the block data."
+                        )
 
     @classmethod
     def from_stream(
@@ -1336,15 +1354,12 @@ class FLACAudio(Audio):
     FLAC audio file.
     """
 
-    # __slots__ = ()
-
-    def __init__(self, *, strict: bool = False) -> None:
-        validate_type("strict", strict, bool)
-        self._strict = strict
-        super().__init__()
+    __slots__ = ("_audio_offset",)
 
     def load_metadata(self) -> None:
-        """ """
+        """
+        Load audio metadata.
+        """
         self.open()
         file_path = self._file_path
         view = self._view
@@ -1423,9 +1438,13 @@ class FLACAudio(Audio):
                 f"STREAMINFO block was not found in '{file_path}'."
             )
 
-        # TODO
-
         block_data = None
+        self._audio_offset = offset
         self.close()
 
-    def save_metadata(self) -> None: ...  # TODO
+    def save_metadata(
+        self, target: PathLike | None = None, *, remove_padding: bool = False
+    ) -> None:
+        """ """
+
+        ...  # TODO

@@ -52,20 +52,37 @@ class Audio(ABC):
     )
 
     def __init__(self, file_path: PathLike, /) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        file_path : str or pathlib.Path; positional-only
+            Path to or name of the audio file.
+        """
         self._file_path = Path(file_path).expanduser().resolve(strict=True)
         self.load_metadata()
 
     @abstractmethod
     def load_metadata(self) -> None:
-        """ """
+        """
+        Load audio metadata.
+        """
         ...
 
     @abstractmethod
     def save_metadata(
         self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> None:
-        """ """
+        """
+        Save audio metadata.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+        """
         ...
 
     @property
@@ -90,14 +107,18 @@ class Audio(ABC):
         return self._tags
 
     def open(self) -> None:
-        """ """
+        """
+        Initialize a memory-mapped view of the audio file.
+        """
         self.close()
         self._file = open(self._file_path, "rb")
         self._mmap = mmap.mmap(self._file.fileno(), 0, access=mmap.ACCESS_READ)
         self._view = memoryview(self._mmap)
 
     def close(self) -> None:
-        """ """
+        """
+        Release and unmap the audio file from memory.
+        """
         if hasattr(self, "_view"):
             self._view.release()
             del self._view
