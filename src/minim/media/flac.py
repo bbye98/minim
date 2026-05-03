@@ -3,7 +3,6 @@ from dataclasses import dataclass
 import string
 import struct
 from typing import TYPE_CHECKING, NamedTuple
-import warnings
 
 from .._utility import (
     ASCII_CHARS_REGEX,
@@ -449,12 +448,13 @@ class FLACSeekPoint(
 
     __slots__ = ()
 
-    #: Sample number of the first sample in the target frame.
+    #: :code:`self[0]` – Sample number of the first sample in the target
+    #: frame.
     sample_number: int
-    #: Byte offset of the target frame header relative to the first
-    #: frame header.
+    #: :code:`self[1]` – Byte offset of the target frame header relative
+    #: to the first frame header.
     byte_offset: int
-    #: Number of samples in the target frame.
+    #: :code:`self[2]` – Number of samples in the target frame.
     num_samples: int
 
     def __new__(
@@ -960,9 +960,12 @@ class FLACCueSheetTrackIndex(
     _STRUCT = struct.Struct(">QB3s")
     _RESERVED = 3 * b"\x00"
 
-    #: Sample offset of the index point relative to the track offset.
+    __slots__ = ()
+
+    #: :code:`self[0]` – Sample offset of the index point relative to
+    #: the track offset.
     sample_offset: int
-    #: Track index number.
+    #: :code:`self[1]` – Track index number.
     number: int
 
     def __new__(cls, sample_offset: int, number: int) -> Self:
