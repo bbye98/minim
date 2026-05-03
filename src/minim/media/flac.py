@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import string
 import struct
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 import warnings
 
 from .._utility import (
@@ -18,6 +18,8 @@ from .metadata import APICFrame, AudioStreamInfo, VorbisComment
 
 if TYPE_CHECKING:
     from .._types import PathLike
+
+    from typing import Self
 
 
 __all__ = [
@@ -355,7 +357,7 @@ class FLACSeekTable:
         _from_unpack = FLACSeekPoint._from_unpack
         _iter_unpack = FLACSeekPoint._STRUCT.iter_unpack
         seek_points = tuple(
-            _from_unpack(*data) for data in _iter_unpack(stream)
+            _from_unpack(data) for data in _iter_unpack(stream)
         )
         cls._validate_seek_points(seek_points, custom=False)
 
@@ -421,25 +423,31 @@ class FLACSeekTable:
         )
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
-class FLACSeekPoint:
+class FLACSeekPoint(
+    NamedTuple(
+        "FLACSeekPointTuple",
+        [("sample_number", int), ("byte_offset", int), ("num_samples", int)],
+    )
+):
     """
     FLAC :code:`SEEKPOINT` data.
 
     Parameters
     ----------
-    sample_number : int; keyword-only
+    sample_number : int
         Sample number of the first sample in the target frame.
 
-    byte_offset : int; keyword-only
+    byte_offset : int
         Byte offset of the target frame header relative to the first
         frame header.
 
-    num_samples : int; keyword-only
+    num_samples : int
         Number of samples in the target frame.
     """
 
     _STRUCT = struct.Struct(">QQH")
+
+    __slots__ = ()
 
     #: Sample number of the first sample in the target frame.
     sample_number: int
@@ -449,44 +457,34 @@ class FLACSeekPoint:
     #: Number of samples in the target frame.
     num_samples: int
 
-    def __post_init__(self) -> None:
-        validate_number("sample_number", self.sample_number, int, 0)
-        validate_number("byte_offset", self.byte_offset, int, 0)
-        validate_number("num_samples", self.num_samples, int, 0)
+    def __new__(
+        cls, sample_number: int, byte_offset: int, num_samples: int
+    ) -> Self:
+        validate_number("sample_number", sample_number, int, 0)
+        validate_number("byte_offset", byte_offset, int, 0)
+        validate_number("num_samples", num_samples, int, 0)
+        return tuple.__new__(cls, (sample_number, byte_offset, num_samples))
 
     @classmethod
-    def _from_unpack(
-        cls, sample_number: int, byte_offset: int, num_samples: int
-    ) -> FLACSeekPoint:
+    def _from_unpack(cls, data: tuple[int, int, int], /) -> FLACSeekPoint:
         """
         Instantiate a :class:`FLACSeekPoint` object using data unpacked
         from a bytes-like object.
 
         Parameters
         ----------
-        sample_number : int
-            Sample number of the first sample in the target frame.
-
-        byte_offset : int
-            Byte offset of the target frame header relative to the first
-            frame header.
-
-        num_samples : int
-            Number of samples in the target frame.
+        data : tuple[int, int, int]; positional-only
+            Unpacked :class:`FLACSeekPoint` data.
 
         Returns
         -------
         seek_point : minim.media.flac.FLACSeekPoint
             :code:`SEEKPOINT` data.
         """
-        obj = cls.__new__(cls)
-        set_obj_attr(obj, "sample_number", sample_number)
-        set_obj_attr(obj, "byte_offset", byte_offset)
-        set_obj_attr(obj, "num_samples", num_samples)
-        return obj
+        return tuple.__new__(cls, data)
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /) -> FLACSeekPoint:
+    def from_stream(cls, stream: bytes, /) -> FLACSeekPoint:
         """
         Instantiate a :class:`FLACSeekPoint` object from a bytes-like
         object.
@@ -502,7 +500,7 @@ class FLACSeekPoint:
         seek_point : minim.media.flac.FLACSeekPoint
             :code:`SEEKPOINT` data.
         """
-        return cls._from_unpack(*cls._STRUCT.unpack_from(as_buffer(stream)))
+        return tuple.__new__(cls, cls._STRUCT.unpack_from(as_buffer(stream)))
 
     def serialize(self) -> bytes:
         """
@@ -513,9 +511,7 @@ class FLACSeekPoint:
         bytestream : bytes
             Bytestream containing :code:`SEEKPOINT` data.
         """
-        return self._STRUCT.pack(
-            self.sample_number, self.byte_offset, self.num_samples
-        )
+        return self._STRUCT.pack(*self)
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -865,7 +861,7 @@ class FLACCueSheetTrack:
         _from_unpack = FLACCueSheetTrackIndex._from_unpack
         _iter_unpack = FLACCueSheetTrackIndex._STRUCT.iter_unpack
         indices = tuple(
-            _from_unpack(*data)
+            _from_unpack(data)
             for data in _iter_unpack(stream[36 : 36 + 12 * num_indices])
         )
         cls._validate_indices(indices, custom=False)
@@ -943,34 +939,40 @@ class FLACCueSheetTrack:
         ) + b"".join(index.serialize() for index in self.indices)
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
-class FLACCueSheetTrackIndex:
+class FLACCueSheetTrackIndex(
+    NamedTuple(
+        "FLACCueSheetTrackIndexTuple",
+        [("sample_offset", int), ("number", int)],
+    )
+):
     """
     FLAC :code:`CUESHEET_TRACK_INDEX` data.
 
     Parameters
     ----------
-    sample_offset : int; keyword-only
+    sample_offset : int
         Sample offset of the index point relative to the track offset.
 
-    number : int; keyword-only
+    number : int
         Track index number.
     """
 
     _STRUCT = struct.Struct(">QB3s")
+    _RESERVED = 3 * b"\x00"
 
     #: Sample offset of the index point relative to the track offset.
     sample_offset: int
     #: Track index number.
     number: int
 
-    def __post_init__(self) -> None:
-        validate_number("sample_offset", self.sample_offset, int, 0)
-        validate_number("number", self.number, int, 0)
+    def __new__(cls, sample_offset: int, number: int) -> Self:
+        validate_number("sample_offset", sample_offset, int, 0)
+        validate_number("number", number, int, 0)
+        return tuple.__new__(cls, (sample_offset, number))
 
     @classmethod
     def _from_unpack(
-        cls, sample_offset: int, number: int, reserved: bytes
+        cls, data: tuple[int, int, bytes], /
     ) -> FLACCueSheetTrackIndex:
         """
         Instantiate a :class:`FLACCueSheetTrackIndex` object using data
@@ -978,31 +980,21 @@ class FLACCueSheetTrackIndex:
 
         Parameters
         ----------
-        sample_offset : int
-            Sample offset of the index point relative to the track
-            offset.
-
-        number : int
-            Track index number.
-
-        reserved : bytes
-            Reserved space in a :code:`CUESHEET_TRACK_INDEX`.
+        data : tuple[int, int, bytes]; positional-only
+            Unpacked :class:`FLACCueSheetTrackIndex` data.
 
         Returns
         -------
         track_index : minim.media.flac.FLACCueSheetTrackIndex
             :code:`CUESHEET_TRACK_INDEX` data.
         """
-        if reserved != 3 * b"\x00":
+        if data[2] != cls._RESERVED:
             raise ValueError(
                 "Non-zero bits found in reserved section of "
                 "CUESHEET_TRACK_INDEX data."
             )
 
-        obj = cls.__new__(cls)
-        set_obj_attr(obj, "sample_offset", sample_offset)
-        set_obj_attr(obj, "number", number)
-        return obj
+        return tuple.__new__(cls, data[:2])
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACCueSheetTrackIndex:
@@ -1022,7 +1014,14 @@ class FLACCueSheetTrackIndex:
         track_index : minim.media.flac.FLACCueSheetTrackIndex
             :code:`CUESHEET_TRACK_INDEX` data.
         """
-        return cls._from_unpack(*cls._STRUCT.unpack_from(as_buffer(stream)))
+        *data, reserved = cls._STRUCT.unpack_from(as_buffer(stream))
+        if reserved != cls._RESERVED:
+            raise ValueError(
+                "Non-zero bits found in reserved section of "
+                "CUESHEET_TRACK_INDEX data."
+            )
+
+        return tuple.__new__(cls, data)
 
     def serialize(self) -> bytes:
         """
@@ -1033,7 +1032,7 @@ class FLACCueSheetTrackIndex:
         bytestream : bytes
             Bytestream containing :code:`CUESHEET_TRACK_INDEX` data.
         """
-        return self._STRUCT.pack(self.sample_offset, self.number, 3 * b"\x00")
+        return self._STRUCT.pack(*self, self._RESERVED)
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -1059,7 +1058,6 @@ class FLACMetadataBlock:
         * :code:`4` – :code:`VORBIS_COMMENT`.
         * :code:`5` – :code:`CUESHEET`.
         * :code:`6` – :code:`PICTURE`.
-        * :code:`7` to :code:`126` – Reserved.
 
     length : int; keyword-only; optional
         Metadata block length in bytes.
@@ -1079,7 +1077,6 @@ class FLACMetadataBlock:
         4: "VORBIS_COMMENT",
         5: "CUESHEET",
         6: "PICTURE",
-        127: "INVALID",
     }
 
     #: Metadata block type.
@@ -1088,8 +1085,7 @@ class FLACMetadataBlock:
     length: int | None = None
     #: Metadata block data.
     data: (
-        BytesLike
-        | FLACStreamInfo
+        FLACStreamInfo
         | FLACApplication
         | FLACSeekTable
         | VorbisComment
@@ -1161,17 +1157,12 @@ class FLACMetadataBlock:
                 case APICFrame():
                     self.type = 6
                     ...  # TODO
-                case bytes() | bytearray():
-                    raise ValueError(
-                        "`type` must be provided when `data` is a "
-                        "bytes-like object."
-                    )
                 case _:
                     raise TypeError(
                         f"Invalid type {type(self.data).__name__} for `data`."
                     )
         else:
-            validate_number("type", type_, int, 0, 126)
+            validate_number("type", type_, int, 0, 6)
             match type_:
                 case 0:  # STREAMINFO
                     if not isinstance(self.data, FLACStreamInfo):
@@ -1264,16 +1255,6 @@ class FLACMetadataBlock:
                             f"APICFrame, not {type(self.data).__name__}."
                         )
                     ...  # TODO
-                case _:  # reserved
-                    validate_type("data", self.data, bytes | bytearray)
-                    actual_length = len(self.data)
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "Reserved block length does not match the "
-                            "length of the block data."
-                        )
 
     @classmethod
     def from_stream(
@@ -1426,11 +1407,10 @@ class FLACAudio(Audio):
                         "Metadata block with invalid block type found "
                         f"in '{file_path}'."
                     )
-                case _:
-                    warnings.warn(
-                        "Skipping metadata block with block type "
-                        f"{block_type} (reserved) found in "
-                        f"'{file_path}'."
+                case _:  # RESERVED
+                    raise ValueError(
+                        "Metadata block with reserved block type "
+                        f"{block_type} found in '{file_path}'."
                     )
 
         if not self._format_metadata or self._format_metadata[0].type != 0:

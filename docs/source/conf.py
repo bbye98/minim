@@ -1,13 +1,17 @@
+from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
 
 sys.path.insert(0, f"{Path(__file__).resolve().parents[2]}/src")
-from minim import __version__  # noqa: E402
+from minim import __version__
+
 
 project = "Minim"
 author = "Benjamin Ye"
@@ -49,5 +53,57 @@ html_theme = "shibuya"
 html_theme_options = {"accent_color": "gray", "toctree_maxdepth": 5}
 
 
-def setup(app: "Sphinx") -> None:
+autodoc_bases_to_skip = (tuple,)
+
+
+def skip_inherited_members(
+    app: Sphinx, what: str, name: str, obj: Any, skip: bool, options: Any
+) -> bool:
+    """
+    Exclude inherited, un-overridden methods from specific base classes.
+
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx application.
+
+    what : str
+        Type of the object the docstring belongs to.
+
+    name : str
+        Fully qualified name of the object.
+
+    obj : Any
+        Python object being documented.
+
+    skip : bool
+        Whether the member is already intended to be skipped.
+
+    options: Any
+        Options given to the directive.
+
+    Returns
+    -------
+    skip : bool
+        Whether to skip the member.
+    """
+    if what == "class":
+        for base_class in autodoc_bases_to_skip:
+            if (
+                base_member := getattr(base_class, name, None)
+            ) is not None and obj is base_member:
+                return True
+    return skip
+
+
+def setup(app: Sphinx) -> None:
+    """
+    Initialize the Sphinx extension and register custom hooks.
+
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx application.
+    """
     app.add_css_file("custom.css")
+    app.connect("autodoc-skip-member", skip_inherited_members)
