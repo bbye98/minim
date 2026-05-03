@@ -207,21 +207,24 @@ class FLACStreamInfo(AudioStreamInfo):
             Bytestream containing :code:`STREAMINFO` metadata block
             data.
         """
-        return (
-            self.min_block_size.to_bytes(2, byteorder="big")
-            + self.max_block_size.to_bytes(2, byteorder="big")
-            + self.min_frame_size.to_bytes(3, byteorder="big")
-            + self.max_frame_size.to_bytes(3, byteorder="big")
-            + (
-                (self.sample_rate << 4)
-                | ((self.num_channels - 1) << 1)
-                | ((self.bit_depth - 1) >> 4)
-            ).to_bytes(2, byteorder="big")
-            + (
-                ((self.bit_depth - 1) << 4) | ((self.num_samples >> 32) & 0x0F)
-            ).to_bytes(2, byteorder="big")
-            + (self.num_samples & 0xFFFFFFFF).to_bytes(4, byteorder="big")
-            + bytes.fromhex(self.md5)
+        return b"".join(
+            (
+                self.min_block_size.to_bytes(2, byteorder="big"),
+                self.max_block_size.to_bytes(2, byteorder="big"),
+                self.min_frame_size.to_bytes(3, byteorder="big"),
+                self.max_frame_size.to_bytes(3, byteorder="big"),
+                (
+                    (self.sample_rate << 4)
+                    | ((self.num_channels - 1) << 1)
+                    | ((self.bit_depth - 1) >> 4)
+                ).to_bytes(2, byteorder="big"),
+                (
+                    ((self.bit_depth - 1) << 4)
+                    | ((self.num_samples >> 32) & 0x0F)
+                ).to_bytes(2, byteorder="big"),
+                (self.num_samples & 0xFFFFFFFF).to_bytes(4, byteorder="big"),
+                bytes.fromhex(self.md5),
+            )
         )
 
 
@@ -354,9 +357,9 @@ class FLACSeekTable:
             )
 
         _from_unpack = FLACSeekPoint._from_unpack
-        _iter_unpack = FLACSeekPoint._STRUCT.iter_unpack
         seek_points = tuple(
-            _from_unpack(data) for data in _iter_unpack(stream)
+            _from_unpack(data)
+            for data in FLACSeekPoint._STRUCT.iter_unpack(stream)
         )
         cls._validate_seek_points(seek_points, custom=False)
 
@@ -616,7 +619,9 @@ class FLACCueSheet:
                 "Non-zero bits found in reserved section of CUESHEET block."
             )
 
-        media_catalog_number = media_catalog_number.rstrip(b"\x00").decode()
+        media_catalog_number = media_catalog_number.rstrip(b"\x00").decode(
+            encoding="utf-8"
+        )
         if not ASCII_CHARS_REGEX.match(media_catalog_number):
             raise ValueError(
                 "`media_catalog_number` must contain only ASCII "
@@ -755,7 +760,7 @@ class FLACCueSheet:
             Bytestream containing :code:`CUESHEET` metadata block data.
         """
         return self._STRUCT.pack(
-            self.media_catalog_number.encode(),
+            self.media_catalog_number.encode(encoding="utf-8"),
             self.num_lead_in_samples,
             self.is_cd << 7,
             258 * b"\x00",
@@ -859,10 +864,11 @@ class FLACCueSheetTrack:
             )
 
         _from_unpack = FLACCueSheetTrackIndex._from_unpack
-        _iter_unpack = FLACCueSheetTrackIndex._STRUCT.iter_unpack
         indices = tuple(
             _from_unpack(data)
-            for data in _iter_unpack(stream[36 : 36 + 12 * num_indices])
+            for data in FLACCueSheetTrackIndex._STRUCT.iter_unpack(
+                stream[36 : 36 + 12 * num_indices]
+            )
         )
         cls._validate_indices(indices, custom=False)
 
@@ -872,7 +878,9 @@ class FLACCueSheetTrack:
         set_obj_attr(
             obj,
             "isrc",
-            "" if isrc == 12 * b"\x00" else prepare_isrc(isrc.decode()),
+            ""
+            if isrc == 12 * b"\x00"
+            else prepare_isrc(isrc.decode(encoding="utf-8")),
         )
         set_obj_attr(obj, "is_audio", bool(flags & 0x80))
         set_obj_attr(obj, "has_pre_emphasis", bool(flags & 0x40))
@@ -932,7 +940,7 @@ class FLACCueSheetTrack:
         return self._STRUCT.pack(
             self.sample_offset,
             self.number,
-            self.isrc.encode() if self.isrc else 12 * b"\x00",
+            self.isrc.encode(encoding="utf-8") if self.isrc else 12 * b"\x00",
             (self.is_audio << 7) | (self.has_pre_emphasis << 6),
             13 * b"\x00",
             self.num_indices,
@@ -958,7 +966,6 @@ class FLACCueSheetTrackIndex(
     """
 
     _STRUCT = struct.Struct(">QB3s")
-    _RESERVED = 3 * b"\x00"
 
     __slots__ = ()
 
@@ -991,7 +998,7 @@ class FLACCueSheetTrackIndex(
         track_index : minim.media.flac.FLACCueSheetTrackIndex
             :code:`CUESHEET_TRACK_INDEX` data.
         """
-        if data[2] != cls._RESERVED:
+        if data[2] != 3 * b"\x00":
             raise ValueError(
                 "Non-zero bits found in reserved section of "
                 "CUESHEET_TRACK_INDEX data."
@@ -1018,7 +1025,7 @@ class FLACCueSheetTrackIndex(
             :code:`CUESHEET_TRACK_INDEX` data.
         """
         *data, reserved = cls._STRUCT.unpack_from(as_buffer(stream))
-        if reserved != cls._RESERVED:
+        if reserved != 3 * b"\x00":
             raise ValueError(
                 "Non-zero bits found in reserved section of "
                 "CUESHEET_TRACK_INDEX data."
@@ -1035,7 +1042,7 @@ class FLACCueSheetTrackIndex(
         bytestream : bytes
             Bytestream containing :code:`CUESHEET_TRACK_INDEX` data.
         """
-        return self._STRUCT.pack(*self, self._RESERVED)
+        return self._STRUCT.pack(*self, 3 * b"\x00")
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -1159,7 +1166,14 @@ class FLACMetadataBlock:
                         )
                 case APICFrame():
                     self.type = 6
-                    ...  # TODO
+                    actual_length = len(self.data.serialize())
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
+                        raise ValueError(
+                            "PICTURE block length does not match the "
+                            "length of the block data."
+                        )
                 case _:
                     raise TypeError(
                         f"Invalid type {type(self.data).__name__} for `data`."
@@ -1257,7 +1271,15 @@ class FLACMetadataBlock:
                             "PICTURE block data must be an instance of "
                             f"APICFrame, not {type(self.data).__name__}."
                         )
-                    ...  # TODO
+
+                    actual_length = len(self.data.serialize())
+                    if self.length is None:
+                        self.length = actual_length
+                    elif self.length != actual_length:
+                        raise ValueError(
+                            "PICTURE block length does not match the "
+                            "length of the block data."
+                        )
 
     @classmethod
     def from_stream(
@@ -1304,7 +1326,7 @@ class FLACMetadataBlock:
             case 5:  # CUESHEET
                 data = FLACCueSheet.from_stream(stream)
             case 6:  # PICTURE
-                data = APICFrame.from_stream(stream, source="FLAC")
+                data = APICFrame.from_stream(stream, format="XIPH")
 
         obj = cls.__new__(cls)
         set_obj_attr(obj, "type", type_)
@@ -1328,7 +1350,7 @@ class FLACMetadataBlock:
             case 1:  # PADDING
                 return bytes(self.length)
             case 6:  # PICTURE
-                ...  # TODO
+                return self.data.serialize(format="XIPH")
             case _:
                 return self.data.serialize()
 

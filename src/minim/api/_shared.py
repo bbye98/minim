@@ -94,7 +94,9 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
             self.end_headers()
             status = "denied" if "error" in self.server.response else "granted"
             self.wfile.write(
-                f"Access {status}. You may close this page.".encode()
+                f"Access {status}. You may close this page.".encode(
+                    encoding="utf-8"
+                )
             )
             threading.Thread(target=self.server.shutdown).start()
         else:
@@ -116,7 +118,7 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
                     </script>
                 </body>
                 </html>
-                """.encode()
+                """.encode(encoding="utf-8")
             )
 
     def log_message(
@@ -1752,13 +1754,13 @@ class OAuth1APIClient(OAuthAPIClient):
             case "HMAC-SHA1":
                 oauth["oauth_signature"] = base64.b64encode(
                     hmac.new(
-                        self._signing_key.encode(),
+                        self._signing_key.encode(encoding="utf-8"),
                         self._prepare_base_string(
                             method, endpoint, params=oauth | params | data
-                        ).encode(),
+                        ).encode(encoding="utf-8"),
                         hashlib.sha1,
                     ).digest()
-                ).decode()
+                ).decode(encoding="utf-8")
             case "RSA-SHA1":
                 private_key_file = MINIM_DIR / "private_key.pem"
                 if not private_key_file.exists():
@@ -1771,11 +1773,11 @@ class OAuth1APIClient(OAuthAPIClient):
                     private_key.sign(
                         self._prepare_base_string(
                             method, endpoint, params=oauth | params | data
-                        ).encode(),
+                        ).encode(encoding="utf-8"),
                         padding.PKCS1v15(),
                         hashes.SHA1(),
                     )
-                ).decode()
+                ).decode(encoding="utf-8")
         return "OAuth " + ", ".join(
             f'{key}="{quote(str(value), safe="")}"'
             for key, value in oauth.items()
@@ -2506,8 +2508,10 @@ class OAuth2APIClient(OAuthAPIClient):
                 }
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
-                        f"{self._client_id}:{self._client_secret}".encode()
-                    ).decode()
+                        f"{self._client_id}:{self._client_secret}".encode(
+                            encoding="utf-8"
+                        )
+                    ).decode(encoding="utf-8")
                     resp_json = httpx.post(
                         self.TOKEN_URL,
                         data=data,
@@ -2527,8 +2531,10 @@ class OAuth2APIClient(OAuthAPIClient):
 
             case "client_credentials":
                 b64_client_credentials = base64.urlsafe_b64encode(
-                    f"{self._client_id}:{self._client_secret}".encode()
-                ).decode()
+                    f"{self._client_id}:{self._client_secret}".encode(
+                        encoding="utf-8"
+                    )
+                ).decode(encoding="utf-8")
                 resp_json = httpx.post(
                     self.TOKEN_URL,
                     data={
@@ -2617,9 +2623,11 @@ class OAuth2APIClient(OAuthAPIClient):
                     )
                     data["code"] = self._get_authorization_code(
                         code_challenge=base64.urlsafe_b64encode(
-                            hashlib.sha256(code_verifier.encode()).digest()
+                            hashlib.sha256(
+                                code_verifier.encode(encoding="utf-8")
+                            ).digest()
                         )
-                        .decode()
+                        .decode(encoding="utf-8")
                         .rstrip("=")
                     )
                 else:
@@ -2627,8 +2635,10 @@ class OAuth2APIClient(OAuthAPIClient):
 
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
-                        f"{self._client_id}:{self._client_secret}".encode()
-                    ).decode()
+                        f"{self._client_id}:{self._client_secret}".encode(
+                            encoding="utf-8"
+                        )
+                    ).decode(encoding="utf-8")
                     resp_json = httpx.post(
                         self.TOKEN_URL,
                         data=data,

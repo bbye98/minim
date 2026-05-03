@@ -365,7 +365,7 @@ class PrivateQobuzAPIClient(APIClient):
             [
                 base64.b64decode(
                     "".join((secret, *match.groups()))[:-44]
-                ).decode()
+                ).decode(encoding="utf-8")
                 for secret, match in (
                     (
                         secret,
@@ -472,7 +472,9 @@ class PrivateQobuzAPIClient(APIClient):
         )
         return self.users.login(
             input("Username: "),
-            hashlib.md5(getpass.getpass().encode()).hexdigest(),
+            hashlib.md5(
+                getpass.getpass().encode(encoding="utf-8")
+            ).hexdigest(),
             **kwargs,
         )
 
@@ -582,7 +584,7 @@ class PrivateQobuzAPIClient(APIClient):
                     (
                         f"{endpoint.replace('/', '')}{signature}"
                         f"{timestamp}{self._app_secret}"
-                    ).encode()
+                    ).encode(encoding="utf-8")
                 ).hexdigest(),
             }
         resp = self._client.request(method, endpoint, **kwargs)

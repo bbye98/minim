@@ -143,10 +143,10 @@ class MusixmatchLyricsAPIClient(APIClient):
                         (
                             f"{self.BASE_URL}/{endpoint}?{urlencode(params)}"
                             f"{datetime.now(timezone.utc).strftime('%Y%m%d')}"
-                        ).encode(),
+                        ).encode(encoding="utf-8"),
                         hashlib.sha256,
                     ).digest()
-                ).decode(),
+                ).decode(encoding="utf-8"),
                 "signature_protocol": "sha256",
             }
         else:
@@ -237,6 +237,6 @@ class MusixmatchLyricsAPIClient(APIClient):
         elif isinstance(api_key, bytes):
             self._api_key = api_key
         elif isinstance(api_key, str):
-            self._api_key = api_key.encode()
+            self._api_key = api_key.encode(encoding="utf-8")
         else:
             raise TypeError("`api_key` must be a string.")

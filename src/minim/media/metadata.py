@@ -6,13 +6,12 @@ from numbers import Real
 import re
 import struct
 from typing import TYPE_CHECKING
-import warnings
 
 from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import (
+    ASCII_CHARS_REGEX,
     set_obj_attr,
-    join_values,
     prepare_isrc,
     validate_number,
     validate_numeric,
@@ -26,214 +25,7 @@ if TYPE_CHECKING:
     from .._types import BytesLike, Collection, OrderedCollection
 
 
-__all__ = ["VorbisComment"]
-
-
-@dataclass(frozen=True, kw_only=True, slots=True)
-class APICFrame:
-    """
-    Attached picture (APIC) frame.
-
-    .. seealso::
-
-       `ID3v2.4.0 Native Frames: 4.14. Attached picture
-       <https://id3.org/id3v2.4.0-frames#Attached_picture>`_.
-    """
-
-    _STRUCT_II = struct.Struct(">II")
-    _STRUCT_IIIII = struct.Struct(">5I")
-    # _STRUCT_GIF_
-    _STRUCT_PNG_CHUNK_HEADER = struct.Struct(">I4s")
-    _STRUCT_PNG_IHDR_CHUNK_DATA = struct.Struct(">IIBB")
-    _SUPPORTED_MIME_TYPES = {"image/gif", "image/jpeg", "image/png"}
-
-    type: int
-    mime_type: str
-    description_encoding: str
-    description: str
-    width: int
-    height: int
-    color_depth: int
-    num_indexed_colors: int
-    data: bytes
-
-    def __post_init__(self) -> None:
-        validate_number("type", self.type, int, 0, 20)
-
-        mime_type = self.mime_type
-        if mime_type != "-->":
-            mime_type = mime_type.lower()
-            if not mime_type.startswith("image/"):
-                mime_type = f"image/{mime_type}"
-                set_obj_attr(self, "mime_type", mime_type)
-            if mime_type not in self._SUPPORTED_MIME_TYPES:
-                raise ValueError(
-                    f"Invalid MIME type {mime_type!r}. Valid values: "
-                    f"{join_values(self._SUPPORTED_MIME_TYPES)}."
-                )
-
-        validate_type("data", self.data, bytes)
-        match mime_type:
-            case "image/gif":
-                ...  # TODO
-            case "image/jpeg":
-                ...  # TODO
-            case "image/png":
-                if self.data[:8] != b"\x89PNG\r\n\x1a\n":
-                    raise ValueError(
-                        f"Image data is not of MIME type {mime_type!r}."
-                    )
-
-        validate_type("description", self.description, str)
-        validate_number("width", self.width, int, 0)
-        validate_number("height", self.height, int, 0)
-        validate_number("color_depth", self.color_depth, int, 0)
-        validate_number("num_indexed_colors", self.num_indexed_colors, int, 0)
-
-    @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, source: str = "ID3"
-    ) -> APICFrame:
-        """ 
-        Instantiate an :class:`APICFrame` object from a bytes-like 
-        object.
-
-        Parameters
-        ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
-            Bytes-like object containing :code:`APIC` data.
-
-        source : str; keyword-only; default: :code:`"ID3"`
-            ...
-
-        Returns
-        -------
-        attached_picture : minim.media.metadata.APICFrame
-            :code:`APIC` data.
-        """
-        match source.upper():
-            case "FLAC":
-                type_, mime_type_length = cls._STRUCT_II.unpack_from(stream)
-                validate_number("type", type_, int, 0, 20)
-
-                offset = 8 + mime_type_length
-                mime_type = stream[8:offset].tobytes().decode()
-                if mime_type != "-->":
-                    mime_type = mime_type.lower()
-                    if not mime_type.startswith("image/"):
-                        mime_type = f"image/{mime_type}"
-                    if mime_type not in cls._SUPPORTED_MIME_TYPES:
-                        raise ValueError(
-                            f"Invalid MIME type {mime_type!r}. Valid values: "
-                            f"{join_values(cls._SUPPORTED_MIME_TYPES)}."
-                        )
-
-                end_offset = offset + 4
-                description_length = int.from_bytes(stream[offset:end_offset])
-                offset = end_offset
-                end_offset = offset + description_length
-                description = stream[offset:end_offset].tobytes().decode()
-                description_encoding = "utf-8"
-
-                offset = end_offset
-                width, height, color_depth, num_indexed_colors, data_length = (
-                    cls._STRUCT_IIIII.unpack_from(stream, offset)
-                )
-
-                offset += 20
-                data = stream[offset : offset + data_length].tobytes()
-            case "ID3":
-                ...  # TODO
-            case _:
-                raise ValueError(
-                    f"Invalid data source {source!r}. "
-                    "Valid values: 'FLAC', 'ID3'."
-                )
-
-        match mime_type:
-            case "image/gif":
-                ...  # TODO
-            case "image/jpeg":
-                ...  # TODO
-            case "image/png":
-                chunk_offset = offset + 8
-                if stream[offset:chunk_offset] != b"\x89PNG\r\n\x1a\n":
-                    raise ValueError(
-                        f"Image data is not of MIME type {mime_type!r}."
-                    )
-
-                # if not all((width, height, color_depth)):
-                #     if mime_type == "-->":
-                #         warnings.warn(
-                #             "At least one of `width`, `height`, or "
-                #             "`color_depth` is not defined."
-                #         )
-
-                #     (
-                #         chunk_size,
-                #         chunk_type,
-                #     ) = cls._STRUCT_PNG_CHUNK_HEADER.unpack_from(
-                #         stream, chunk_offset
-                #     )
-                #     if chunk_size != 13 or chunk_type != b"IHDR":
-                #         raise ValueError(
-                #             "IHDR chunk not found after file header "
-                #             "containing PNG magic number."
-                #         )
-
-                #     chunk_offset += 8
-                #     (
-                #         width,
-                #         height,
-                #         bit_depth,
-                #         color_type,
-                #     ) = cls._STRUCT_PNG_IHDR_CHUNK_DATA.unpack_from(
-                #         stream, chunk_offset
-                #     )
-
-                #     match color_type:
-                #         case 0:
-                #             color_depth = bit_depth
-                #             num_indexed_colors = 0
-                #         case 2:
-                #             color_depth = 3 * bit_depth
-                #             num_indexed_colors = 0
-                #         case 3:
-                #             color_depth = bit_depth
-                #             while chunk_type != b"PLTE":
-                #                 chunk_offset += chunk_size + 4
-                #                 chunk_size, chunk_type = (
-                #                     cls._STRUCT_PNG_CHUNK_HEADER.unpack_from(
-                #                         stream, chunk_offset
-                #                     )
-                #                 )
-                #                 chunk_offset += 8
-                #             num_indexed_colors, rem = divmod(chunk_size, 3)
-                #             if rem:
-                #                 raise ValueError(
-                #                     f"PLTE chunk has invalid size {chunk_size}."
-                #                 )
-                #         case 4:
-                #             color_depth = 2 * bit_depth
-                #             num_indexed_colors = 0
-                #         case 6:
-                #             color_depth = 4 * bit_depth
-                #             num_indexed_colors = 0
-
-        obj = cls.__new__(cls)
-        set_obj_attr(obj, "type", type_)
-        set_obj_attr(obj, "mime_type", mime_type)
-        set_obj_attr(obj, "description_encoding", description_encoding)
-        set_obj_attr(obj, "description", description)
-        set_obj_attr(obj, "width", width)
-        set_obj_attr(obj, "height", height)
-        set_obj_attr(obj, "color_depth", color_depth)
-        set_obj_attr(obj, "num_indexed_colors", num_indexed_colors)
-        set_obj_attr(obj, "data", data)
-        return obj
-
-    def serialize(self) -> bytes: ...
+__all__ = ["ID3", "ItemListBox", "VorbisComment", "APICFrame"]
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -323,7 +115,7 @@ class AudioTags(ABC):
             case bool():
                 return str(int(value))
             case bytes() | bytearray():
-                return value.decode()
+                return value.decode(encoding="utf-8")
             case datetime():
                 return value.strftime("%Y-%m-%dT%H:%M:%SZ")
             case Real():
@@ -737,6 +529,268 @@ class ID3(AudioTags):
     # __slots__ = ("_frames",)
 
 
+@dataclass(frozen=True, kw_only=True, slots=True)
+class ID3Frame:
+    """
+    ID3 frame.
+
+    Parameters
+    ----------
+    id3_tag_version : str; keyword-only; default: :code:`"2.4"`
+        ID3 tag version.
+
+        **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
+    """
+
+    id3_tag_version: str = "2.4"
+
+    def __post_init__(self) -> None:
+        validate_type("id3_tag_version", self.id3_tag_version, str)
+        validate_numeric("id3_tag_version", self.id3_tag_version, 2.3, 2.4)
+
+
+@dataclass(frozen=True, kw_only=True, slots=True)
+class APICFrame(ID3Frame):
+    """
+    Attached picture (APIC) frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.15. Attached picture
+       <https://id3.org/id3v2.3.0#Attached_picture>`_.
+
+       `ID3v2.4.0 Native Frames: 4.14. Attached picture
+       <https://id3.org/id3v2.4.0-frames>`_.
+
+    Parameters
+    ----------
+    type : int; keyword-only
+        Picture type.
+
+    mime_type : str; keyword-only
+        MIME type.
+
+    data : bytes; keyword-only
+        Image data.
+
+    description_encoding : int; keyword-only; optional
+        Text encoding for the image description.
+
+        **Valid values**:
+
+        * :code:`0` – ISO-8859-1.
+        * :code:`1` – UTF-16 (with byte order mark (BOM)).
+        * :code:`2` – UTF-16BE (without BOM).
+        * :code:`3` – UTF-8.
+
+    description : int; keyword-only
+        Image description.
+
+    width : int; keyword-only; default: :code:`0`
+        Image width in pixels. Use :code:`0` if unknown.
+
+    height : int; keyword-only; default: :code:`0`
+        Image height in pixels. Use :code:`0` if unknown.
+
+    color_depth : int; keyword-only; default: :code:`0`
+        Color depth in bits per pixel. Use :code:`0` if unknown.
+
+    num_indexed_colors : int; keyword-only; default: :code:`0`
+        Number of indexed colors. Use :code:`0` if unknown or not
+        applicable.
+
+    id3_tag_version : str; keyword-only; default: :code:`"2.4"`
+        ID3 tag version.
+
+        **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
+    """
+
+    _STRUCT_II = struct.Struct(">II")
+    _STRUCT_IIIII = struct.Struct(">5I")
+
+    #: Picture type.
+    type: int
+    #: MIME type.
+    mime_type: str
+    #: Image data.
+    data: bytes
+    #: Text encoding for the image description.
+    description_encoding: int | None = None
+    #: Image description.
+    description: str = ""
+    #: Image width in pixels.
+    width: int = 0
+    #: Image height in pixels.
+    height: int = 0
+    #: Color depth in bits per pixel.
+    color_depth: int = 0
+    #: Number of indexed colors.
+    num_indexed_colors: int = 0
+
+    def __post_init__(self) -> None:
+        validate_number("type", self.type, int, 0, 20)
+
+        mime_type = self.mime_type
+        validate_type("mime_type", mime_type, str)
+        mime_type = self.mime_type = mime_type.lower()
+        if not ASCII_CHARS_REGEX.match(mime_type):
+            raise ValueError(
+                "`mime_type` must contain only ASCII characters 0x20 "
+                "(' ') through 0x7D ('}')."
+            )
+
+        validate_type("data", self.data, bytes)
+
+        validate_type("description", self.description, str)
+        try:
+            self.description.encode(encoding="iso-8859-1")
+            is_utf = False
+        except UnicodeEncodeError:
+            is_utf = True
+        description_encoding = self.description_encoding
+        if description_encoding is None:
+            self.description_encoding = (
+                (1 if self.id3_tag_version == "2.3" else 3) if is_utf else 0
+            )
+        else:
+            validate_number("description_encoding", description_encoding, 0, 3)
+            if is_utf and description_encoding:
+                raise ValueError(
+                    "`description` cannot be encoded using ISO-8859-1 "
+                    "(`description_encoding=0`)."
+                )
+
+        validate_number("width", self.width, int, 0)
+        validate_number("height", self.height, int, 0)
+        validate_number("color_depth", self.color_depth, int, 0)
+        validate_number("num_indexed_colors", self.num_indexed_colors, int, 0)
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        *,
+        format: str = "XIPH",
+        id3_tag_version: str = "2.4",
+    ) -> APICFrame:
+        """ 
+        Instantiate an :class:`APICFrame` object from a bytes-like 
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing :code:`APIC` data.
+
+        format : str; keyword-only; default: :code:`"XIPH"`
+            Data format of `bytestream`.
+
+            **Valid values**: :code:`"ID3"`, :code:`"XIPH"`.
+
+        id3_tag_version : str; keyword-only; default: :code:`"2.4"`
+            ID3 tag version.
+
+            **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
+
+        Returns
+        -------
+        attached_picture : minim.media.metadata.APICFrame
+            :code:`APIC` frame.
+        """
+        match format.upper():
+            case "ID3":
+                ...  # TODO
+            case "XIPH":
+                type_, mime_type_length = cls._STRUCT_II.unpack_from(stream)
+                validate_number("type", type_, int, 0, 20)
+
+                offset = 8 + mime_type_length
+                mime_type = stream[8:offset].tobytes().decode(encoding="ascii")
+
+                end_offset = offset + 4
+                description_length = int.from_bytes(stream[offset:end_offset])
+                offset = end_offset
+                end_offset = offset + description_length
+                description = (
+                    stream[offset:end_offset]
+                    .tobytes()
+                    .decode(encoding="utf-8")
+                )
+                description_encoding = 1 if id3_tag_version == "2.3" else 3
+
+                offset = end_offset
+                width, height, color_depth, num_indexed_colors, data_length = (
+                    cls._STRUCT_IIIII.unpack_from(stream, offset)
+                )
+
+                offset += 20
+                data = stream[offset : offset + data_length].tobytes()
+            case _:
+                raise ValueError(
+                    f"Invalid data format {format!r}. "
+                    "Valid values: 'FLAC', 'ID3'."
+                )
+
+        obj = cls.__new__(cls)
+        set_obj_attr(obj, "type", type_)
+        set_obj_attr(obj, "mime_type", mime_type)
+        set_obj_attr(obj, "description_encoding", description_encoding)
+        set_obj_attr(obj, "description", description)
+        set_obj_attr(obj, "width", width)
+        set_obj_attr(obj, "height", height)
+        set_obj_attr(obj, "color_depth", color_depth)
+        set_obj_attr(obj, "num_indexed_colors", num_indexed_colors)
+        set_obj_attr(obj, "data", data)
+        set_obj_attr(obj, "id3_tag_version", id3_tag_version)
+        return obj
+
+    def serialize(self, *, format: str = "ID3") -> bytes:
+        """
+        Serialize the :code:`APIC` frame data to a bytestream.
+
+        Parameters
+        ----------
+        format : str; keyword-only; default: :code:`"XIPH"`
+            Data format.
+
+            **Valid values**: :code:`"ID3"`, :code:`"XIPH"`.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing :code:`APIC` frame data.
+        """
+        match format.upper():
+            case "ID3":
+                ...  # TODO
+            case "XIPH":
+                mime_type = self.mime_type.encode(encoding="ascii")
+                description = self.description.encode(encoding="utf-8")
+                return b"".join(
+                    (
+                        self._STRUCT_II.pack(self.type, len(mime_type)),
+                        mime_type,
+                        len(description).to_bytes(4, byteorder="big"),
+                        description,
+                        self._STRUCT_IIIII.pack(
+                            self.width,
+                            self.height,
+                            self.color_depth,
+                            self.num_indexed_colors,
+                            len(self.data),
+                        ),
+                        self.data,
+                    )
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid data format {format!r}. "
+                    "Valid values: 'FLAC', 'ID3'."
+                )
+
+
 class ItemListBox(AudioTags):
     """
     MP4 item list box (:code:`moov.udta.meta.ilst`) metadata container.
@@ -874,7 +928,9 @@ class VorbisComment(AudioTags):
         length = int.from_bytes(stream[:4], byteorder="little")
         offset = 4
         end_offset = offset + length
-        obj._vendor = stream[offset:end_offset].tobytes().decode()
+        obj._vendor = (
+            stream[offset:end_offset].tobytes().decode(encoding="utf-8")
+        )
         offset = end_offset
         end_offset = offset + 4
         obj._num_fields = int.from_bytes(
@@ -895,7 +951,7 @@ class VorbisComment(AudioTags):
             field_name, field_value = (
                 stream[offset:end_offset]
                 .tobytes()
-                .decode()
+                .decode(encoding="utf-8")
                 .split("=", maxsplit=1)
             )
             offset = end_offset
@@ -1442,7 +1498,9 @@ class VorbisComment(AudioTags):
         """
         vectors = [
             len(
-                vendor := (self._vendor or f"Minim {__version__}").encode()
+                vendor := (self._vendor or f"Minim {__version__}").encode(
+                    encoding="utf-8"
+                )
             ).to_bytes(4, byteorder="little"),
             vendor,
             self._num_fields.to_bytes(4, byteorder="little"),
@@ -1451,9 +1509,9 @@ class VorbisComment(AudioTags):
             for value in values:
                 vectors.extend(
                     (
-                        len(field := f"{key}={value}".encode()).to_bytes(
-                            4, byteorder="little"
-                        ),
+                        len(
+                            field := f"{key}={value}".encode(encoding="utf-8")
+                        ).to_bytes(4, byteorder="little"),
                         field,
                     )
                 )
