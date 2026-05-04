@@ -1435,9 +1435,27 @@ class FLACAudio(Audio):
                     )
                     self._format_metadata.append(metadata_block)
                     self._stream_info = metadata_block.data
+                case 1:  # PADDING
+                    if (
+                        self._format_metadata
+                        and (prev_block := self._format_metadata[-1]).type == 1
+                    ):
+                        set_obj_attr(
+                            prev_block,
+                            "length",
+                            prev_block.length + block_length + 4,
+                        )
+                    else:
+                        self._format_metadata.append(
+                            FLACMetadataBlock.from_stream(
+                                block_data,
+                                type_=block_type,
+                                length=block_length,
+                            )
+                        )
                 case (
-                    1 | 2 | 3 | 5 | 6
-                ):  # PADDING / APPLICATION / SEEKTABLE / CUESHEET / PICTURE
+                    2 | 3 | 5 | 6
+                ):  # APPLICATION / SEEKTABLE / CUESHEET / PICTURE
                     self._format_metadata.append(
                         FLACMetadataBlock.from_stream(
                             block_data, type_=block_type, length=block_length
@@ -1497,9 +1515,9 @@ class FLACAudio(Audio):
             .. note::
             
                :code:`PADDING` blocks are automatically merged with 
-               adjacent :code:`PADDING` blocks. The 4-byte headers of
-               merged blocks are reclaimed as usable space within the
-               resulting contiguous block.
+               adjacent metadata blocks of the same type. The 4-byte 
+               headers of merged blocks are reclaimed as usable space 
+               within the resulting contiguous block.
 
         index : int; keyword-only; optional
             Index at which to insert the new metadata blocks. If 
