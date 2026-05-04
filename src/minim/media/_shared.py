@@ -26,14 +26,13 @@ def as_buffer(stream: BytesLike) -> memoryview:
     view : memoryview
         Buffer interface to the bytes-like object.
     """
-    match stream:
-        case bytes() | bytearray() | mmap.mmap():
-            stream = memoryview(stream)
-        case memoryview():
-            pass
-        case _:
-            raise TypeError("`stream` must be a bytes-like object.")
-    return stream
+    if isinstance(stream, memoryview):
+        return stream
+
+    if isinstance(stream, bytes | bytearray | mmap.mmap):
+        return memoryview(stream)
+
+    raise TypeError("`stream` must be a bytes-like object.")
 
 
 class Audio(ABC):
@@ -62,9 +61,27 @@ class Audio(ABC):
         self.load_metadata()
 
     @abstractmethod
+    def add_metadata(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> None:
+        """
+        Add metadata.
+        """
+        ...
+
+    @abstractmethod
     def load_metadata(self) -> None:
         """
         Load audio metadata.
+        """
+        ...
+
+    @abstractmethod
+    def remove_metadata(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> None:
+        """
+        Remove metadata.
         """
         ...
 

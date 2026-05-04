@@ -11,12 +11,12 @@ from .._utility import (
     validate_number,
     validate_type,
 )
-from .._types import BytesLike
+from .._types import BytesLike, ORDERED_COLLECTION_TYPES
 from ._shared import as_buffer, Audio
 from .metadata import APICFrame, AudioStreamInfo, VorbisComment
 
 if TYPE_CHECKING:
-    from .._types import PathLike
+    from .._types import PathLike, Collection, OrderedCollection
 
     from typing import Self
 
@@ -1063,7 +1063,7 @@ class FLACMetadataBlock:
 
         * :code:`0` – :code:`STREAMINFO`.
         * :code:`1` – :code:`PADDING`.
-        * :code:`2` – :code:`APLICATION`.
+        * :code:`2` – :code:`APPLICATION`.
         * :code:`3` – :code:`SEEKTABLE`.
         * :code:`4` – :code:`VORBIS_COMMENT`.
         * :code:`5` – :code:`CUESHEET`.
@@ -1355,12 +1355,42 @@ class FLACMetadataBlock:
                 return self.data.serialize()
 
 
+class FLACMetadataView:
+    """
+    View of FLAC metadata blocks.
+    """
+
+    def __init__(self, blocks: list[FLACMetadataBlock], /) -> None:
+        self._blocks = blocks
+
+    def __getitem__(self, index: int, /) -> FLACMetadataBlock:
+        return self._blocks[index]
+
+    def __len__(self):
+        return len(self._blocks)
+
+    def __iter__(self):
+        return iter(self._blocks)
+
+
 class FLACAudio(Audio):
     """
     FLAC audio file.
     """
 
     __slots__ = ("_audio_offset",)
+
+    @property
+    def format_metadata(self) -> FLACMetadataView:
+        """
+        Structural metadata instrinsic to the file format or container.
+
+        .. tip::
+
+           :code:`FLACMetadataView` is a read-only view into the list
+           containing the FLAC metadata blocks.
+        """
+        return FLACMetadataView(self._format_metadata)
 
     def load_metadata(self) -> None:
         """
@@ -1447,9 +1477,257 @@ class FLACAudio(Audio):
         self._audio_offset = offset
         self.close()
 
-    def save_metadata(
-        self, target: PathLike | None = None, *, remove_padding: bool = False
+    def add_metadata(
+        self,
+        metadata: FLACMetadataBlock | OrderedCollection[FLACMetadataBlock],
+        /,
+        *,
+        index: int | None = None,
+    ) -> None:
+        """
+        Add audio metadata.
+
+        Parameters
+        ----------
+        metadata : minim.media.flac.FLACMetadataBlock or \
+        OrderedCollection[minim.media.flac.FLACMetadataBlock]; \
+        positional-only
+            Metadata blocks. 
+            
+            .. note::
+            
+               :code:`PADDING` blocks are automatically merged with 
+               adjacent :code:`PADDING` blocks. The 4-byte headers of
+               merged blocks are reclaimed as usable space within the
+               resulting contiguous block.
+
+        index : int; keyword-only; optional
+            Index at which to insert the new metadata blocks. If 
+            :code:`None`, existing :code:`PADDING` blocks of sufficient 
+            size are overwritten to avoid file restructuring. If no 
+            suitable :code:`PADDING` blocks are available, the new data
+            is appended to the end of the existing metadata blocks.
+        """
+        if not isinstance(metadata, ORDERED_COLLECTION_TYPES):
+            metadata = [metadata]
+
+        for block in metadata:
+            if not isinstance(block, FLACMetadataBlock):
+                raise TypeError(
+                    "`metadata` must be an FLACMetadataBlock instance "
+                    "or an ordered collection of FLACMetadataBlock "
+                    "instances."
+                )
+
+            if block.type == 0:
+                raise ValueError(
+                    "STREAMINFO metadata blocks cannot be added, "
+                    "moved, or removed."
+                )
+
+        num_metadata_blocks = len(self._format_metadata)
+        if index is not None:
+            if index < 0:
+                index += num_metadata_blocks
+            if not 0 <= index <= num_metadata_blocks:
+                raise ValueError(
+                    f"Metadata block index {index} is out of range."
+                )
+
+        for new_block in metadata:
+            placed_idx = None
+            is_padding = new_block.type == 1
+
+            # Try to insert new non-PADDING blocks inside existing
+            # PADDING blocks
+            if index is None and not is_padding:
+                for idx, block in enumerate(self._format_metadata):
+                    if block.type == 1:
+                        if block.length == new_block.length:
+                            self._format_metadata[idx] = new_block
+                            placed_idx = idx
+                            break
+                        elif block.length >= (
+                            new_block_length := new_block.length + 4
+                        ):
+                            self._format_metadata[idx] = new_block
+                            self._format_metadata.insert(
+                                idx + 1,
+                                FLACMetadataBlock(
+                                    type=1,
+                                    length=block.length - new_block_length,
+                                ),
+                            )
+                            placed_idx = idx
+                            num_metadata_blocks += 1
+                            break
+
+            # If the new block did not fit in any existing PADDING
+            # blocks, add it at the user-specified index or at the end
+            if placed_idx is None:
+                placed_idx = num_metadata_blocks if index is None else index
+                self._format_metadata.insert(placed_idx, new_block)
+                num_metadata_blocks += 1
+                if index is not None:
+                    index += 1
+
+            # If the new block is PADDING, check adjacent blocks to
+            # merge
+            if is_padding:
+                if (
+                    next_idx := placed_idx + 1
+                ) < num_metadata_blocks and self._format_metadata[
+                    next_idx
+                ].type == 1:  # right
+                    self._format_metadata[placed_idx] = FLACMetadataBlock(
+                        type=1,
+                        length=(
+                            self._format_metadata[placed_idx].length
+                            + self._format_metadata.pop(next_idx).length
+                            + 4
+                        ),
+                    )
+                    num_metadata_blocks -= 1
+
+                if (next_idx := placed_idx - 1) >= 0 and self._format_metadata[
+                    next_idx
+                ].type == 1:  # left
+                    block = self._format_metadata.pop(placed_idx)
+                    placed_idx -= 1
+                    self._format_metadata[placed_idx] = FLACMetadataBlock(
+                        type=1,
+                        length=(
+                            self._format_metadata[placed_idx].length
+                            + block.length
+                            + 4
+                        ),
+                    )
+                    num_metadata_blocks -= 1
+                    if index is not None:
+                        index -= 1
+
+    def move_metadata(
+        self,
+        *,
+        to_index: int,
+        from_indices: int | Collection[int] | None = None,
+        from_types: int | Collection[int] | None = None,
     ) -> None:
         """ """
-
         ...  # TODO
+
+    def remove_metadata(
+        self,
+        *,
+        indices: int | Collection[int] | None = None,
+        types: int | Collection[int] | None = None,
+    ) -> None:
+        """
+        Remove audio metadata.
+
+        .. note::
+
+           To minimize disk I/O overhead, removed metadata blocks are
+           transparently replaced with :code:`PADDING` blocks of
+           equivalent length. This preserves the existing file offsets
+           and avoids a full rewrite of the audio stream. To reclaim
+           disk space by stripping all :code:`PADDING` blocks, specify
+           :code:`remove_padding=True` when calling
+           :meth:`save_metadata`.
+
+        .. important::
+
+           At most one of `indices` or `types` must be provided.
+
+        Parameters
+        ----------
+        indices : int or Collection[int]; keyword-only; optional
+            Indices of metadata blocks to remove.
+
+        types : int or Collection[int]; keyword-only; optional
+            Types of metadata blocks to remove.
+
+            **Valid values**:
+
+            * :code:`0` – :code:`STREAMINFO`.
+            * :code:`1` – :code:`PADDING`.
+            * :code:`2` – :code:`APPLICATION`.
+            * :code:`3` – :code:`SEEKTABLE`.
+            * :code:`4` – :code:`VORBIS_COMMENT`.
+            * :code:`5` – :code:`CUESHEET`.
+            * :code:`6` – :code:`PICTURE`.
+        """
+        has_indices = indices is not None
+        has_types = types is not None
+        if has_indices and has_types:
+            raise ValueError(
+                "At most one of `indices` or `types` can be specified."
+            )
+
+        if has_indices:
+            num_metadata_blocks = len(self._format_metadata)
+            if isinstance(indices, int):
+                indices = {
+                    (indices + num_metadata_blocks) if indices < 0 else indices
+                }
+            elif not isinstance(indices, set):
+                indices = set(
+                    (idx + num_metadata_blocks) if idx < 0 else idx
+                    for idx in indices
+                )
+
+            if 0 in indices:
+                raise ValueError(
+                    "STREAMINFO metadata blocks cannot be added, "
+                    "moved, or removed."
+                )
+
+            for block_idx in indices:
+                if not 0 <= block_idx < num_metadata_blocks:
+                    raise ValueError(
+                        f"Metadata block index {block_idx} is out of range."
+                    )
+                self._format_metadata[block_idx] = FLACMetadataBlock(
+                    type=1, length=self._format_metadata[block_idx].length
+                )
+
+        elif has_types:
+            if isinstance(types, int):
+                types = {types}
+            elif not isinstance(types, set):
+                types = set(types)
+            types.discard(1)
+
+            if 0 in types:
+                raise ValueError(
+                    "STREAMINFO metadata blocks cannot be added, "
+                    "moved, or removed."
+                )
+
+            for block_idx, block in enumerate(self._format_metadata):
+                if block.type in types:
+                    self._format_metadata[block_idx] = FLACMetadataBlock(
+                        type=1, length=block.length
+                    )
+        else:
+            raise ValueError(
+                "At least one of `indices` or `types` must be specified."
+            )
+
+    def save_metadata(
+        self,
+        file_path: PathLike | None = None,
+        /,
+        *,
+        remove_padding: bool = False,
+    ) -> None:
+        """ """
+        ...  # TODO
+
+        # if (
+        #     4 + sum(block.length + 4 for block in self._format_metadata)
+        #     > self._audio_offset
+        # ):
+        #     ...
+        # else:
+        #     ...

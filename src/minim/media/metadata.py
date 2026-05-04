@@ -542,6 +542,7 @@ class ID3Frame:
         **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
     """
 
+    #: ID3 tag version.
     id3_tag_version: str = "2.4"
 
     def __post_init__(self) -> None:
@@ -574,7 +575,7 @@ class APICFrame(ID3Frame):
         Image data.
 
     description_encoding : int; keyword-only; optional
-        Text encoding for the image description.
+        Text encoding for :code:`description`.
 
         **Valid values**:
 
@@ -1407,6 +1408,32 @@ class VorbisComment(AudioTags):
             return self._fields.get(self._normalize_field_name(fields))
 
         return {field: self.get(field) for field in fields}
+
+    def remove(self, fields: str | Collection[str], /) -> None:
+        """
+        Remove track attributes.
+
+        Parameters
+        ----------
+        fields : str or Collection[str]; positional-only
+            Field names of the attributes.
+        """
+        if not (
+            isinstance(fields, str)
+            or (
+                isinstance(fields, COLLECTION_TYPES)
+                and all(isinstance(field, str) for field in fields)
+            )
+        ):
+            raise TypeError(
+                "`fields` must be a string or a collection of strings."
+            )
+
+        if isinstance(fields, str):
+            del self._fields[self._normalize_field_name(fields)]
+
+        for field in fields:
+            self.remove(field)
 
     def set(self, **kwargs: Any) -> None:
         """
