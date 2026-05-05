@@ -112,7 +112,7 @@ class Audio(ABC):
     @property
     def format_metadata(self) -> Any:
         """
-        Structural metadata instrinsic to the file format or container.
+        Structural metadata intrinsic to the file format or container.
         """
         return self._format_metadata
 

@@ -1089,6 +1089,8 @@ class FLACMetadataBlock:
         6: "PICTURE",
     }
 
+    # TODO: Handle variable block lengths, like for VorbisComment objects.
+
     #: Metadata block type.
     type: int | None = None
     #: Metadata block length in bytes.
@@ -1383,7 +1385,7 @@ class FLACAudio(Audio):
     @property
     def format_metadata(self) -> FLACMetadataView:
         """
-        Structural metadata instrinsic to the file format or container.
+        Structural metadata intrinsic to the file format or container.
 
         .. tip::
 
@@ -1557,7 +1559,7 @@ class FLACAudio(Audio):
             is_padding = new_block.type == 1
 
             # Try to insert new non-PADDING blocks inside existing
-            # PADDING blocks
+            # PADDING blocks if a target index was not specified
             if index is None and not is_padding:
                 for idx, block in enumerate(self._format_metadata):
                     if block.type == 1:
@@ -1580,8 +1582,8 @@ class FLACAudio(Audio):
                             num_metadata_blocks += 1
                             break
 
-            # If the new block did not fit in any existing PADDING
-            # blocks, add it at the user-specified index or at the end
+            # Add new block at the user-specified index or at the end if
+            # no suitable PADDING block was found for it
             if placed_idx is None:
                 placed_idx = num_metadata_blocks if index is None else index
                 self._format_metadata.insert(placed_idx, new_block)
@@ -1628,8 +1630,8 @@ class FLACAudio(Audio):
         self,
         *,
         to_index: int,
-        from_indices: int | Collection[int] | None = None,
-        from_types: int | Collection[int] | None = None,
+        indices: int | Collection[int] | None = None,
+        types: int | Collection[int] | None = None,
     ) -> None:
         """ """
         ...  # TODO
@@ -1655,7 +1657,7 @@ class FLACAudio(Audio):
 
         .. important::
 
-           At most one of `indices` or `types` must be provided.
+           Exactly one of `indices` or `types` must be provided.
 
         Parameters
         ----------
@@ -1667,7 +1669,6 @@ class FLACAudio(Audio):
 
             **Valid values**:
 
-            * :code:`0` – :code:`STREAMINFO`.
             * :code:`1` – :code:`PADDING`.
             * :code:`2` – :code:`APPLICATION`.
             * :code:`3` – :code:`SEEKTABLE`.
@@ -1679,7 +1680,7 @@ class FLACAudio(Audio):
         has_types = types is not None
         if has_indices and has_types:
             raise ValueError(
-                "At most one of `indices` or `types` can be specified."
+                "Exactly one of `indices` or `types` must be specified."
             )
 
         if has_indices:
@@ -1729,7 +1730,7 @@ class FLACAudio(Audio):
                     )
         else:
             raise ValueError(
-                "At least one of `indices` or `types` must be specified."
+                "Exactly one of `indices` or `types` must be specified."
             )
 
     def save_metadata(
