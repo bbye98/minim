@@ -1322,10 +1322,10 @@ class FLACAudio(Audio):
             
             .. note::
             
-               :code:`PADDING` blocks are automatically merged with 
-               adjacent metadata blocks of the same type. The 4-byte 
-               headers of merged blocks are reclaimed as usable space 
-               within the resulting contiguous block.
+               :code:`PADDING` blocks are always automatically merged 
+               with adjacent metadata blocks of the same type. The 
+               four-byte header of the subsumed block is reclaimed as 
+               usable space within the resulting contiguous block.
 
         index : int; keyword-only; optional
             Index at which to insert the new metadata blocks. If 
@@ -1340,7 +1340,7 @@ class FLACAudio(Audio):
         for block in metadata:
             if not isinstance(block, FLAC_METADATA_BLOCK_TYPES):
                 raise TypeError(
-                    "`metadata` must be an FLAC metadata block instance "
+                    "`metadata` must be a FLAC metadata block instance "
                     "or an ordered collection of FLAC metadata block "
                     "instances."
                 )
@@ -1445,6 +1445,29 @@ class FLACAudio(Audio):
     ) -> None:
         """ """
         ...  # TODO
+
+    def optimize_padding(self) -> None:
+        """
+        Consolidate all :code:`PADDING` blocks into a single
+        :code:`PADDING` block at the end of the FLAC metadata stream,
+        reclaiming redundant four-byte headers.
+        """
+        non_padding_blocks = []
+        padding_length = -4
+        has_padding = False
+
+        for block in self._format_metadata:
+            if block._flac_metadata_block_type == 1:
+                padding_length += 4 + block._flac_metadata_block_length
+                has_padding = True
+            else:
+                non_padding_blocks.append(block)
+
+        if not has_padding:
+            return
+
+        non_padding_blocks.append(FLACPadding(padding_length))
+        self._format_metadata = non_padding_blocks
 
     def remove_metadata(
         self,
@@ -1553,12 +1576,8 @@ class FLACAudio(Audio):
         remove_padding: bool = False,
     ) -> None:
         """ """
+        metadata_length = 4 + sum(
+            4 + block._flac_metadata_block_length
+            for block in self._format_metadata
+        )
         ...  # TODO
-
-        # if (
-        #     4 + sum(block.length + 4 for block in self._format_metadata)
-        #     > self._audio_offset
-        # ):
-        #     ...
-        # else:
-        #     ...
