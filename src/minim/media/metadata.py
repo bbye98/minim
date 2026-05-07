@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 __all__ = ["ID3", "ItemListBox", "VorbisComment", "APICFrame"]
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class AudioStreamInfo:
     """
     Audio stream information.
@@ -529,7 +529,7 @@ class ID3(AudioTags):
     # __slots__ = ("_frames",)
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class ID3Frame:
     """
     ID3 frame.
@@ -550,7 +550,7 @@ class ID3Frame:
         validate_numeric("id3_tag_version", self.id3_tag_version, 2.3, 2.4)
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class APICFrame(ID3Frame):
     """
     Attached picture (APIC) frame.
@@ -608,6 +608,8 @@ class APICFrame(ID3Frame):
 
     _STRUCT_II = struct.Struct(">II")
     _STRUCT_IIIII = struct.Struct(">5I")
+
+    _flac_metadata_block_type = 6
 
     #: Picture type.
     type: int
@@ -672,7 +674,7 @@ class APICFrame(ID3Frame):
         stream: BytesLike,
         /,
         *,
-        format: str = "XIPH",
+        format: str = "ID3",
         id3_tag_version: str = "2.4",
     ) -> APICFrame:
         """ 
@@ -685,7 +687,7 @@ class APICFrame(ID3Frame):
         positional-only; optional
             Bytes-like object containing :code:`APIC` data.
 
-        format : str; keyword-only; default: :code:`"XIPH"`
+        format : str; keyword-only; default: :code:`"ID3"`
             Data format of `bytestream`.
 
             **Valid values**: :code:`"ID3"`, :code:`"XIPH"`.
@@ -747,13 +749,25 @@ class APICFrame(ID3Frame):
         set_obj_attr(obj, "id3_tag_version", id3_tag_version)
         return obj
 
+    @property
+    def _flac_metadata_block_length(self) -> int:
+        """
+        Length of encoded :code:`PICTURE` metadata block data in bytes.
+        """
+        return (
+            32
+            + len(self.mime_type.encode(encoding="ascii"))
+            + len(self.description.encode(encoding="utf-8"))
+            + len(self.data)
+        )
+
     def serialize(self, *, format: str = "ID3") -> bytes:
         """
         Serialize the :code:`APIC` frame data to a bytestream.
 
         Parameters
         ----------
-        format : str; keyword-only; default: :code:`"XIPH"`
+        format : str; keyword-only; default: :code:`"ID3"`
             Data format.
 
             **Valid values**: :code:`"ID3"`, :code:`"XIPH"`.
@@ -813,6 +827,7 @@ class VorbisComment(AudioTags):
 
     _INVALID_KEY_CHARS_REGEX = re.compile("[^\x20-\x3c\x3e-\x7e]")
 
+    _flac_metadata_block_type = 4
     _validators = {
         "BPM": lambda value: validate_numeric("BPM", value, int | float, 0),
         "COMPILATION": lambda value: validate_numeric(
@@ -982,6 +997,27 @@ class VorbisComment(AudioTags):
             Normalized field name.
         """
         return VorbisComment._INVALID_KEY_CHARS_REGEX.sub("_", key.upper())
+
+    @property
+    def _flac_metadata_block_length(self) -> int:
+        """
+        Length of encoded Vorbis comment without framing bit in bytes.
+        """
+        return (
+            8
+            + len(
+                (
+                    f"Minim {__version__}"
+                    if self._vendor is None
+                    else self._vendor
+                ).encode(encoding="utf-8")
+            )
+            + sum(
+                4 + len(f"{key}={value}".encode("utf-8"))
+                for key, values in self._fields.items()
+                for value in values
+            )
+        )
 
     @property
     def album(self) -> list[str] | None:

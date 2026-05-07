@@ -1,5 +1,6 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 import string
 import struct
 from typing import TYPE_CHECKING, NamedTuple
@@ -23,8 +24,8 @@ if TYPE_CHECKING:
 
 __all__ = [
     "FLACAudio",
-    "FLACMetadataBlock",
     "FLACStreamInfo",
+    "FLACPadding",
     "FLACApplication",
     "FLACSeekTable",
     "FLACSeekPoint",
@@ -34,7 +35,7 @@ __all__ = [
 ]
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACStreamInfo(AudioStreamInfo):
     """
     FLAC :code:`STREAMINFO` metadata block data.
@@ -84,6 +85,9 @@ class FLACStreamInfo(AudioStreamInfo):
     _NUM_CHANNELS_RANGE = (1, 8)
     _SAMPLE_RATE_RANGE = (1, 655_350)
     _BIT_DEPTH_RANGE = (1, 32)
+
+    _flac_metadata_block_length = 34
+    _flac_metadata_block_type = 0
 
     #: Minimum block size in samples.
     min_block_size: int
@@ -214,21 +218,79 @@ class FLACStreamInfo(AudioStreamInfo):
                 self.min_frame_size.to_bytes(3, byteorder="big"),
                 self.max_frame_size.to_bytes(3, byteorder="big"),
                 (
-                    (self.sample_rate << 4)
-                    | ((self.num_channels - 1) << 1)
-                    | ((self.bit_depth - 1) >> 4)
-                ).to_bytes(2, byteorder="big"),
-                (
-                    ((self.bit_depth - 1) << 4)
-                    | ((self.num_samples >> 32) & 0x0F)
-                ).to_bytes(2, byteorder="big"),
-                (self.num_samples & 0xFFFFFFFF).to_bytes(4, byteorder="big"),
+                    (self.sample_rate & 0xFFFFF) << 44
+                    | ((self.num_channels - 1) & 0x7) << 41
+                    | ((self.bit_depth - 1) & 0x1F) << 36
+                    | (self.num_samples & 0xFFFFFFFFF)
+                ).to_bytes(8, byteorder="big"),
                 bytes.fromhex(self.md5),
             )
         )
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(repr=False, slots=True)
+class FLACPadding:
+    """
+    FLAC :code:`PADDING` metadata block data.
+
+    Parameters
+    ----------
+    length : int
+        :code:`PADDING` metadata block length in bytes.
+    """
+
+    _flac_metadata_block_type = 1
+
+    _flac_metadata_block_length: int
+
+    def __post_init__(self) -> None:
+        validate_number("length", self._flac_metadata_block_length, int, 0)
+
+    def adjust_length(self, change: int, /) -> None:
+        """
+        Adjust the length of the :code:`PADDING` metadata block.
+
+        Parameters
+        ----------
+        change : int; positional-only
+            Change to the :code:`PADDING` metadata block length in
+            bytes.
+        """
+        validate_number(
+            "change",
+            change,
+            int,
+            -self._flac_metadata_block_length,
+            16_777_215 - self._flac_metadata_block_length,
+        )
+        self._flac_metadata_block_length += change
+
+    def set_length(self, length: int, /) -> None:
+        """
+        Resize the :code:`PADDING` metadata block.
+
+        Parameters
+        ----------
+        length : int; positional-only
+            New :code:`PADDING` metadata block length in bytes.
+        """
+        validate_number("length", length, int, 0)
+        self._flac_metadata_block_length = length
+
+    def serialize(self) -> bytes:
+        """
+        Serialize the :code:`PADDING` metadata block data to a
+        bytestream.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing :code:`PADDING` metadata block data.
+        """
+        return self._flac_metadata_block_length * b"\x00"
+
+
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACApplication:
     """
     FLAC :code:`APPLICATION` metadata block data.
@@ -249,6 +311,8 @@ class FLACApplication:
     app_data : bytes or bytearray; keyword-only; default: :code:`b""`
         Application data.
     """
+
+    _flac_metadata_block_type = 2
 
     #: Application ID.
     app_id: bytes | bytearray | str
@@ -292,6 +356,14 @@ class FLACApplication:
         set_obj_attr(obj, "app_data", stream[4:].tobytes())
         return obj
 
+    @property
+    def _flac_metadata_block_length(self) -> int:
+        """
+        Length of encoded :code:`APPLICATION` metadata block data in
+        bytes.
+        """
+        return 4 + len(self.app_data)
+
     def serialize(self) -> bytes:
         """
         Serialize the :code:`APPLICATION` metadata block data to a
@@ -306,7 +378,7 @@ class FLACApplication:
         return self.app_id + self.app_data
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACSeekTable:
     """
     FLAC :code:`SEEKTABLE` metadata block data.
@@ -316,6 +388,8 @@ class FLACSeekTable:
     seek_points : OrderedCollection[FLACSeekPoint, ...]; keyword-only
         Seek points.
     """
+
+    _flac_metadata_block_type = 3
 
     #: Seek points.
     seek_points: tuple[FLACSeekPoint, ...]
@@ -409,6 +483,14 @@ class FLACSeekTable:
                     f"Seek point {seek_point_idx + 1} is out "
                     "of order in SEEKTABLE block."
                 )
+
+    @property
+    def _flac_metadata_block_length(self) -> int:
+        """
+        Length of encoded :code:`SEEKTABLE` metadata block data in
+        bytes.
+        """
+        return 18 * len(self.seek_points)
 
     def serialize(self) -> bytes:
         """
@@ -517,7 +599,7 @@ class FLACSeekPoint(
         return self._STRUCT.pack(*self)
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACCueSheet:
     """
     FLAC :code:`CUESHEET` metadata block data.
@@ -539,6 +621,8 @@ class FLACCueSheet:
     """
 
     _STRUCT = struct.Struct(">128sQB258sB")
+
+    _flac_metadata_block_type = 5
 
     #: Media catalog number.
     media_catalog_number: str
@@ -744,6 +828,13 @@ class FLACCueSheet:
             )
 
     @property
+    def _flac_metadata_block_length(self) -> int:
+        """
+        Length of encoded :code:`CUESHEET` metadata block data in bytes.
+        """
+        return 396 + sum(track._flac_metadata_length for track in self.tracks)
+
+    @property
     def num_tracks(self) -> int:
         """
         Number of tracks (:code:`CUESHEET_TRACK`).
@@ -768,7 +859,7 @@ class FLACCueSheet:
         ) + b"".join(track.serialize() for track in self.tracks)
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACCueSheetTrack:
     """
     FLAC :code:`CUESHEET_TRACK` data.
@@ -922,6 +1013,13 @@ class FLACCueSheetTrack:
             prev_index_number = index_number
 
     @property
+    def _flac_metadata_length(self) -> int:
+        """
+        Length of encoded :code:`CUESHEET_TRACK` data in bytes.
+        """
+        return 36 + 12 * self.num_indices
+
+    @property
     def num_indices(self) -> int:
         """
         Number of track indices (:code:`CUESHEET_TRACK_INDEX`).
@@ -1045,316 +1143,15 @@ class FLACCueSheetTrackIndex(
         return self._STRUCT.pack(*self, 3 * b"\x00")
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
-class FLACMetadataBlock:
-    """
-    FLAC metadata block.
-
-    .. important::
-
-        At least one of :code:`type` or :code:`data` must be specified.
-
-    Parameters
-    ----------
-    type : int; keyword-only; optional
-        Metadata block type.
-
-        **Valid values**:
-
-        * :code:`0` – :code:`STREAMINFO`.
-        * :code:`1` – :code:`PADDING`.
-        * :code:`2` – :code:`APPLICATION`.
-        * :code:`3` – :code:`SEEKTABLE`.
-        * :code:`4` – :code:`VORBIS_COMMENT`.
-        * :code:`5` – :code:`CUESHEET`.
-        * :code:`6` – :code:`PICTURE`.
-
-    length : int; keyword-only; optional
-        Metadata block length in bytes.
-
-    data : bytes, bytearray, minim.media.flac.FLACStreamInfo, \
-    minim.media.flac.FLACApplication, minim.media.flac.FLACSeekTable, \
-    minim.media.flac.FLACCueSheet, minim.media.metadata.VorbisComment, \
-    or minim.media.metadata.APICFrame; keyword-only; optional
-        Metadata block data. If :code:`type=1`, specify :code:`None`.
-    """
-
-    _TYPES = {
-        0: "STREAMINFO",
-        1: "PADDING",
-        2: "APPLICATION",
-        3: "SEEKTABLE",
-        4: "VORBIS_COMMENT",
-        5: "CUESHEET",
-        6: "PICTURE",
-    }
-
-    # TODO: Handle variable block lengths, like for VorbisComment objects.
-
-    #: Metadata block type.
-    type: int | None = None
-    #: Metadata block length in bytes.
-    length: int | None = None
-    #: Metadata block data.
-    data: (
-        FLACStreamInfo
-        | FLACApplication
-        | FLACSeekTable
-        | VorbisComment
-        | FLACCueSheet
-        | APICFrame
-        | None
-    ) = None
-
-    def __post_init__(self) -> None:
-        if (type_ := self.type) is None:
-            match self.data:
-                case FLACStreamInfo():
-                    self.type = 0
-                    if self.length is None:
-                        self.length = 34
-                    elif self.length != 34:
-                        raise ValueError(
-                            "STREAMINFO block length must be 34, not "
-                            f"{self.length}."
-                        )
-                case None:
-                    self.type = 1
-                    if self.length is None:
-                        raise ValueError(
-                            "At least one of `type` or `length` must "
-                            "be provided."
-                        )
-                    validate_number("length", self.length, int, 0)
-                case FLACApplication():
-                    self.type = 2
-                    actual_length = 4 + len(self.data["app_data"])
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "APPLICATION block length does not match "
-                            "the length of the block data."
-                        )
-                case FLACSeekTable():
-                    self.type = 3
-                    actual_length = 18 * len(self.data.seek_points)
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "SEEKTABLE block length does not match the "
-                            "length of the block data."
-                        )
-                case VorbisComment():
-                    self.type = 4
-                    actual_length = len(self.data.serialize())
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "VORBIS_COMMENT block length does not "
-                            "match the length of the block data."
-                        )
-                case FLACCueSheet():
-                    self.type = 5
-                    actual_length = len(self.data.serialize())
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "CUESHEET block length does not match the "
-                            "length of the block data."
-                        )
-                case APICFrame():
-                    self.type = 6
-                    actual_length = len(self.data.serialize())
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "PICTURE block length does not match the "
-                            "length of the block data."
-                        )
-                case _:
-                    raise TypeError(
-                        f"Invalid type {type(self.data).__name__} for `data`."
-                    )
-        else:
-            validate_number("type", type_, int, 0, 6)
-            match type_:
-                case 0:  # STREAMINFO
-                    if not isinstance(self.data, FLACStreamInfo):
-                        raise TypeError(
-                            "STREAMINFO block data must be an instance "
-                            "of FLACStreamInfo, not "
-                            f"{type(self.data).__name__}."
-                        )
-
-                    if self.length is None:
-                        self.length = 34
-                    elif self.length != 34:
-                        raise ValueError(
-                            "STREAMINFO block length must be 34, not "
-                            f"{self.length}."
-                        )
-                case 1:  # PADDING
-                    validate_number("length", self.length, int, 0)
-                    if self.data is not None:
-                        raise ValueError("PADDING block data must be None.")
-                case 2:  # APPLICATION
-                    app = self.data
-                    if not isinstance(app, FLACApplication):
-                        raise TypeError(
-                            "APPLICATION block data must be an "
-                            "instance of FLACApplication, not "
-                            f"{type(self.data).__name__}."
-                        )
-
-                    actual_length = 4 + len(app["app_data"])
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "APPLICATION block length does not match "
-                            "the length of the block data."
-                        )
-                case 3:  # SEEKTABLE
-                    if not isinstance(self.data, FLACSeekTable):
-                        raise TypeError(
-                            "SEEKTABLE block data must be an instance "
-                            "of FLACSeekTable, not "
-                            f"{type(self.data).__name__}."
-                        )
-
-                    actual_length = 18 * len(self.data.seek_points)
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "SEEKTABLE block length does not match the "
-                            "length of the block data."
-                        )
-                case 4:  # VORBIS_COMMENT
-                    if not isinstance(self.data, VorbisComment):
-                        raise TypeError(
-                            "VORBIS_COMMENT block data must be an "
-                            "instance of VorbisComment, not "
-                            f"{type(self.data).__name__}."
-                        )
-
-                    actual_length = len(self.data.serialize())
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "VORBIS_COMMENT block length does not "
-                            "match the length of the block data."
-                        )
-                case 5:  # CUESHEET
-                    if not isinstance(self.data, FLACCueSheet):
-                        raise TypeError(
-                            "CUESHEET block data must be an instance "
-                            "of FLACCueSheet, not "
-                            f"{type(self.data).__name__}."
-                        )
-
-                    actual_length = len(self.data.serialize())
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "CUESHEET block length does not match the "
-                            "length of the block data."
-                        )
-                case 6:  # PICTURE
-                    if not isinstance(self.data, APICFrame):
-                        raise TypeError(
-                            "PICTURE block data must be an instance of "
-                            f"APICFrame, not {type(self.data).__name__}."
-                        )
-
-                    actual_length = len(self.data.serialize())
-                    if self.length is None:
-                        self.length = actual_length
-                    elif self.length != actual_length:
-                        raise ValueError(
-                            "PICTURE block length does not match the "
-                            "length of the block data."
-                        )
-
-    @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, type_: int, length: int | None = None
-    ) -> FLACMetadataBlock:
-        """
-        Instantiate a :class:`FLACMetadataBlock` object from a 
-        bytes-like object.
-
-        Parameters
-        ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
-            Bytes-like object containing metadata block data.
-
-        type_ : int
-            Metadata block type.
-
-        length : int; optional
-            Metadata block length.
-
-        Returns
-        -------
-        block : minim.media.flac.FLACMetadataBlock
-            Metadata block.
-        """
-        validate_number("type_", type_, int, 0, 6)
-
-        stream = as_buffer(stream)
-        if length is None:
-            length = len(stream)
-
-        match type_:
-            case 0:  # STREAMINFO
-                data = FLACStreamInfo.from_stream(stream)
-            case 1:  # PADDING
-                data = None
-            case 2:  # APPLICATION
-                data = FLACApplication.from_stream(stream)
-            case 3:  # SEEKTABLE
-                data = FLACSeekTable.from_stream(stream)
-            case 4:  # VORBIS_COMMENT
-                data = VorbisComment.from_stream(stream)
-            case 5:  # CUESHEET
-                data = FLACCueSheet.from_stream(stream)
-            case 6:  # PICTURE
-                data = APICFrame.from_stream(stream, format="XIPH")
-
-        obj = cls.__new__(cls)
-        set_obj_attr(obj, "type", type_)
-        set_obj_attr(obj, "length", length)
-        set_obj_attr(obj, "data", data)
-        return obj
-
-    def serialize(self) -> bytes:
-        """
-        Serialize only the metadata block data to a bytestream. The
-        metadata block header should be prefixed by the calling scope
-        since this class does not know whether the metadata block is the
-        last metadata block before the audio data.
-
-        Returns
-        -------
-        bytestream : bytes
-            Bytestream containing metadata block data.
-        """
-        match self.type:
-            case 1:  # PADDING
-                return bytes(self.length)
-            case 6:  # PICTURE
-                return self.data.serialize(format="XIPH")
-            case _:
-                return self.data.serialize()
+FLAC_METADATA_BLOCK_TYPES = (
+    FLACStreamInfo
+    | FLACPadding
+    | FLACApplication
+    | FLACSeekTable
+    | VorbisComment
+    | FLACCueSheet
+    | APICFrame
+)
 
 
 class FLACMetadataView:
@@ -1362,10 +1159,10 @@ class FLACMetadataView:
     View of FLAC metadata blocks.
     """
 
-    def __init__(self, blocks: list[FLACMetadataBlock], /) -> None:
+    def __init__(self, blocks: list[FLAC_METADATA_BLOCK_TYPES], /) -> None:
         self._blocks = blocks
 
-    def __getitem__(self, index: int, /) -> FLACMetadataBlock:
+    def __getitem__(self, index: int, /) -> FLAC_METADATA_BLOCK_TYPES:
         return self._blocks[index]
 
     def __len__(self):
@@ -1432,36 +1229,27 @@ class FLACAudio(Audio):
                             f"in '{file_path}'."
                         )
 
-                    metadata_block = FLACMetadataBlock.from_stream(
-                        block_data, type_=block_type, length=block_length
-                    )
+                    metadata_block = FLACStreamInfo.from_stream(block_data)
                     self._format_metadata.append(metadata_block)
-                    self._stream_info = metadata_block.data
+                    self._stream_info = metadata_block
                 case 1:  # PADDING
                     if (
                         self._format_metadata
-                        and (prev_block := self._format_metadata[-1]).type == 1
+                        and (
+                            prev_block := self._format_metadata[-1]
+                        )._flac_metadata_block_type
+                        == 1
                     ):
-                        set_obj_attr(
-                            prev_block,
-                            "length",
-                            prev_block.length + block_length + 4,
-                        )
+                        prev_block.resize(block_length + 4)
                     else:
-                        self._format_metadata.append(
-                            FLACMetadataBlock.from_stream(
-                                block_data,
-                                type_=block_type,
-                                length=block_length,
-                            )
-                        )
-                case (
-                    2 | 3 | 5 | 6
-                ):  # APPLICATION / SEEKTABLE / CUESHEET / PICTURE
+                        self._format_metadata.append(FLACPadding(block_length))
+                case 2:  # APPLICATION
                     self._format_metadata.append(
-                        FLACMetadataBlock.from_stream(
-                            block_data, type_=block_type, length=block_length
-                        )
+                        FLACApplication.from_stream(block_data)
+                    )
+                case 3:  # SEEKTABLE
+                    self._format_metadata.append(
+                        FLACSeekTable.from_stream(block_data)
                     )
                 case 4:  # VORBIS_COMMENT
                     if seen_vorbis_comment:
@@ -1470,13 +1258,17 @@ class FLACAudio(Audio):
                             f"times in '{file_path}'."
                         )
 
-                    metadata_block = FLACMetadataBlock.from_stream(
-                        block_data,
-                        type_=block_type,
-                        length=block_length,
-                    )
+                    metadata_block = VorbisComment.from_stream(block_data)
                     self._format_metadata.append(metadata_block)
-                    self._tags = metadata_block.data
+                    self._tags = metadata_block
+                case 5:  # CUESHEET
+                    self._format_metadata.append(
+                        FLACCueSheet.from_stream(block_data)
+                    )
+                case 6:  # PICTURE
+                    self._format_metadata.append(
+                        APICFrame.from_stream(block_data, format="XIPH")
+                    )
                 case 127:  # INVALID
                     raise ValueError(
                         "Metadata block with invalid block type found "
@@ -1488,7 +1280,10 @@ class FLACAudio(Audio):
                         f"{block_type} found in '{file_path}'."
                     )
 
-        if not self._format_metadata or self._format_metadata[0].type != 0:
+        if (
+            not self._format_metadata
+            or self._format_metadata[0]._flac_metadata_block_type != 0
+        ):
             raise RuntimeError(
                 f"STREAMINFO block was not found in '{file_path}'."
             )
@@ -1499,7 +1294,8 @@ class FLACAudio(Audio):
 
     def add_metadata(
         self,
-        metadata: FLACMetadataBlock | OrderedCollection[FLACMetadataBlock],
+        metadata: FLAC_METADATA_BLOCK_TYPES
+        | OrderedCollection[FLAC_METADATA_BLOCK_TYPES],
         /,
         *,
         index: int | None = None,
@@ -1509,9 +1305,19 @@ class FLACAudio(Audio):
 
         Parameters
         ----------
-        metadata : minim.media.flac.FLACMetadataBlock or \
-        OrderedCollection[minim.media.flac.FLACMetadataBlock]; \
-        positional-only
+        metadata : minim.media.flac.FLACStreamInfo, \
+        minim.media.flac.FLACPadding, \
+        minim.media.flac.FLACApplication, \
+        minim.media.flac.FLACSeekTable, \
+        minim.media.metadata.VorbisComment, \
+        minim.media.flac.FLACCueSheet, minim.media.metadata.APICFrame, \
+        or OrderedCollection[minim.media.flac.FLACStreamInfo \
+        | minim.media.flac.FLACPadding \
+        | minim.media.flac.FLACApplication \
+        | minim.media.flac.FLACSeekTable \
+        | minim.media.metadata.VorbisComment \
+        | minim.media.flac.FLACCueSheet \
+        | minim.media.metadata.APICFrame]; positional-only
             Metadata blocks. 
             
             .. note::
@@ -1532,14 +1338,14 @@ class FLACAudio(Audio):
             metadata = [metadata]
 
         for block in metadata:
-            if not isinstance(block, FLACMetadataBlock):
+            if not isinstance(block, FLAC_METADATA_BLOCK_TYPES):
                 raise TypeError(
-                    "`metadata` must be an FLACMetadataBlock instance "
-                    "or an ordered collection of FLACMetadataBlock "
+                    "`metadata` must be an FLAC metadata block instance "
+                    "or an ordered collection of FLAC metadata block "
                     "instances."
                 )
 
-            if block.type == 0:
+            if not block._flac_metadata_block_type:
                 raise ValueError(
                     "STREAMINFO metadata blocks cannot be added, "
                     "moved, or removed."
@@ -1556,26 +1362,30 @@ class FLACAudio(Audio):
 
         for new_block in metadata:
             placed_idx = None
-            is_padding = new_block.type == 1
+            is_padding = new_block._flac_metadata_block_type == 1
 
             # Try to insert new non-PADDING blocks inside existing
             # PADDING blocks if a target index was not specified
             if index is None and not is_padding:
                 for idx, block in enumerate(self._format_metadata):
-                    if block.type == 1:
-                        if block.length == new_block.length:
+                    if block._flac_metadata_block_type == 1:
+                        if (
+                            block._flac_metadata_block_length
+                            == new_block._flac_metadata_block_length
+                        ):
                             self._format_metadata[idx] = new_block
                             placed_idx = idx
                             break
-                        elif block.length >= (
-                            new_block_length := new_block.length + 4
+                        elif block._flac_metadata_block_length >= (
+                            new_block_length
+                            := new_block._flac_metadata_block_length + 4
                         ):
                             self._format_metadata[idx] = new_block
                             self._format_metadata.insert(
                                 idx + 1,
-                                FLACMetadataBlock(
-                                    type=1,
-                                    length=block.length - new_block_length,
+                                FLACPadding(
+                                    block._flac_metadata_block_length
+                                    - new_block_length,
                                 ),
                             )
                             placed_idx = idx
@@ -1598,29 +1408,29 @@ class FLACAudio(Audio):
                     next_idx := placed_idx + 1
                 ) < num_metadata_blocks and self._format_metadata[
                     next_idx
-                ].type == 1:  # right
-                    self._format_metadata[placed_idx] = FLACMetadataBlock(
-                        type=1,
-                        length=(
-                            self._format_metadata[placed_idx].length
-                            + self._format_metadata.pop(next_idx).length
-                            + 4
-                        ),
+                ]._flac_metadata_block_type == 1:  # right
+                    self._format_metadata[placed_idx] = FLACPadding(
+                        self._format_metadata[
+                            placed_idx
+                        ]._flac_metadata_block_length
+                        + self._format_metadata.pop(
+                            next_idx
+                        )._flac_metadata_block_length
+                        + 4
                     )
                     num_metadata_blocks -= 1
 
                 if (next_idx := placed_idx - 1) >= 0 and self._format_metadata[
                     next_idx
-                ].type == 1:  # left
+                ]._flac_metadata_block_type == 1:  # left
                     block = self._format_metadata.pop(placed_idx)
                     placed_idx -= 1
-                    self._format_metadata[placed_idx] = FLACMetadataBlock(
-                        type=1,
-                        length=(
-                            self._format_metadata[placed_idx].length
-                            + block.length
-                            + 4
-                        ),
+                    self._format_metadata[placed_idx] = FLACPadding(
+                        self._format_metadata[
+                            placed_idx
+                        ]._flac_metadata_block_length
+                        + block._flac_metadata_block_length
+                        + 4
                     )
                     num_metadata_blocks -= 1
                     if index is not None:
@@ -1706,8 +1516,10 @@ class FLACAudio(Audio):
                     raise ValueError(
                         f"Metadata block index {block_idx} is out of range."
                     )
-                self._format_metadata[block_idx] = FLACMetadataBlock(
-                    type=1, length=self._format_metadata[block_idx].length
+                self._format_metadata[block_idx] = FLACPadding(
+                    self._format_metadata[
+                        block_idx
+                    ]._flac_metadata_block_length
                 )
 
         elif has_types:
@@ -1724,9 +1536,9 @@ class FLACAudio(Audio):
                 )
 
             for block_idx, block in enumerate(self._format_metadata):
-                if block.type in types:
-                    self._format_metadata[block_idx] = FLACMetadataBlock(
-                        type=1, length=block.length
+                if block._flac_metadata_block_type in types:
+                    self._format_metadata[block_idx] = FLACPadding(
+                        block._flac_metadata_block_length
                     )
         else:
             raise ValueError(
