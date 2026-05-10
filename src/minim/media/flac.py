@@ -35,8 +35,32 @@ __all__ = [
 ]
 
 
+class FLACMetadataBlock(ABC):
+    """ """
+
+    __slots__ = ()
+
+    _flac_metadata_block_type: int
+
+    @property
+    def _flac_metadata_block_length(self) -> int:
+        """ """
+        ...
+
+    @classmethod
+    @abstractmethod
+    def from_stream(cls, stream: BytesLike, /) -> None:
+        """ """
+        ...
+
+    @abstractmethod
+    def serialize(self) -> bytes:
+        """ """
+        ...
+
+
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-class FLACStreamInfo(AudioStreamInfo):
+class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
     """
     FLAC :code:`STREAMINFO` metadata block data.
 
@@ -229,7 +253,7 @@ class FLACStreamInfo(AudioStreamInfo):
 
 
 @dataclass(repr=False, slots=True)
-class FLACPadding:
+class FLACPadding(FLACMetadataBlock):
     """
     FLAC :code:`PADDING` metadata block data.
 
@@ -277,6 +301,10 @@ class FLACPadding:
         validate_number("length", length, int, 0)
         self._flac_metadata_block_length = length
 
+    def from_stream(cls, stream: BytesLike, /) -> FLACPadding:
+        """ """
+        ...  # TODO
+
     def serialize(self) -> bytes:
         """
         Serialize the :code:`PADDING` metadata block data to a
@@ -291,7 +319,7 @@ class FLACPadding:
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-class FLACApplication:
+class FLACApplication(FLACMetadataBlock):
     """
     FLAC :code:`APPLICATION` metadata block data.
 
@@ -379,7 +407,7 @@ class FLACApplication:
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-class FLACSeekTable:
+class FLACSeekTable(FLACMetadataBlock):
     """
     FLAC :code:`SEEKTABLE` metadata block data.
 
@@ -600,7 +628,7 @@ class FLACSeekPoint(
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-class FLACCueSheet:
+class FLACCueSheet(FLACMetadataBlock):
     """
     FLAC :code:`CUESHEET` metadata block data.
 
@@ -674,15 +702,15 @@ class FLACCueSheet:
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACCueSheet:
-        """ 
-        Instantiate a :class:`FLACCueSheet` object from a bytes-like 
+        """
+        Instantiate a :class:`FLACCueSheet` object from a bytes-like
         object.
 
         Parameters
         ----------
         bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
-            Bytes-like object containing :code:`CUESHEET` metadata block 
+            Bytes-like object containing :code:`CUESHEET` metadata block
             data.
 
         Returns
@@ -924,8 +952,8 @@ class FLACCueSheetTrack:
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACCueSheetTrack:
-        """ 
-        Instantiate a :class:`FLACCueSheetTrack` object from a 
+        """
+        Instantiate a :class:`FLACCueSheetTrack` object from a
         bytes-like object.
 
         Parameters
@@ -993,7 +1021,7 @@ class FLACCueSheetTrack:
             Track indices.
 
         custom : bool; keyword-only; default: :code:`True`
-            Whether the track indices are user-defined and should have 
+            Whether the track indices are user-defined and should have
             their types validated.
         """
         prev_index_number = -1
@@ -1106,15 +1134,15 @@ class FLACCueSheetTrackIndex(
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACCueSheetTrackIndex:
-        """ 
-        Instantiate a :class:`FLACCueSheetTrackIndex` object from a 
+        """
+        Instantiate a :class:`FLACCueSheetTrackIndex` object from a
         bytes-like object.
 
         Parameters
         ----------
         bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
-            Bytes-like object containing :code:`CUESHEET_TRACK_INDEX` 
+            Bytes-like object containing :code:`CUESHEET_TRACK_INDEX`
             data.
 
         Returns
@@ -1318,19 +1346,19 @@ class FLACAudio(Audio):
         | minim.media.metadata.VorbisComment \
         | minim.media.flac.FLACCueSheet \
         | minim.media.metadata.APICFrame]; positional-only
-            Metadata blocks. 
-            
+            Metadata blocks.
+
             .. note::
-            
-               :code:`PADDING` blocks are always automatically merged 
-               with adjacent metadata blocks of the same type. The 
-               four-byte header of the subsumed block is reclaimed as 
+
+               :code:`PADDING` blocks are always automatically merged
+               with adjacent metadata blocks of the same type. The
+               four-byte header of the subsumed block is reclaimed as
                usable space within the resulting contiguous block.
 
         index : int; keyword-only; optional
-            Index at which to insert the new metadata blocks. If 
-            :code:`None`, existing :code:`PADDING` blocks of sufficient 
-            size are overwritten to avoid file restructuring. If no 
+            Index at which to insert the new metadata blocks. If
+            :code:`None`, existing :code:`PADDING` blocks of sufficient
+            size are overwritten to avoid file restructuring. If no
             suitable :code:`PADDING` blocks are available, the new data
             is appended to the end of the existing metadata blocks.
         """
