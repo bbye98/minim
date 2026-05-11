@@ -1300,6 +1300,16 @@ class FLACCueSheetTrackIndex(
         return self._STRUCT.pack(*self, 3 * b"\x00")
 
 
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+class FLACPicture(FLACMetadataBlock):
+    pass
+
+
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+class UnknownFLACMetadataBlock(FLACMetadataBlock):
+    pass
+
+
 FLAC_METADATA_BLOCK_TYPES = (
     FLACStreamInfo
     | FLACPadding
