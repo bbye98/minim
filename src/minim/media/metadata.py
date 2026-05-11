@@ -847,14 +847,14 @@ class VorbisComment(AudioTags):
         ),
     }
 
-    __slots__ = "_fields", "_keep_empty", "_num_fields", "_vendor"
+    __slots__ = "_fields", "_keep_empty_values", "_num_fields", "_vendor"
 
     def __init__(
         self,
         fields: dict[str, str | OrderedCollection[Any]] | None = None,
         vendor: str | None = None,
         *,
-        keep_empty: bool = False,
+        keep_empty_values: bool = False,
     ) -> None:
         """
         Parameters
@@ -867,9 +867,12 @@ class VorbisComment(AudioTags):
 
             **Example**: :code:`"Xiph.Org libVorbis I 20020717"`.
 
-        keep_empty : bool; keyword-only; default: :code:`False`
+        keep_empty_values : bool; keyword-only; default: :code:`False`
             Whether to keep field–value pairs with empty values.
         """
+        validate_type("keep_empty_values", keep_empty_values, bool)
+        self._keep_empty_values = keep_empty_values
+
         normalize_field_name = self._normalize_field_name
         stringify = self._stringify
         self._fields = {}
@@ -888,7 +891,8 @@ class VorbisComment(AudioTags):
                                 f"Value {fv} in field {field_name} "
                                 "could not be converted to a string."
                             )
-                        field_values.append(fv)
+                        if keep_empty_values or fv:
+                            field_values.append(fv)
                 else:
                     field_value = stringify(field_value)
                     if not isinstance(field_value, str):
@@ -896,16 +900,14 @@ class VorbisComment(AudioTags):
                             f"Value {field_value} in field {field_name} "
                             "could not be converted to a string."
                         )
-                    self._fields[normalize_field_name(field_name)] = [
-                        field_value
-                    ]
+                    if keep_empty_values or field_value:
+                        self._fields[normalize_field_name(field_name)] = [
+                            field_value
+                        ]
         self._num_fields = len(self._fields)
 
         validate_type("vendor", vendor, str | None)
         self._vendor = vendor
-
-        validate_type("keep_empty", keep_empty, bool)
-        self._keep_empty = keep_empty
 
     @classmethod
     def from_stream(
@@ -913,7 +915,7 @@ class VorbisComment(AudioTags):
         stream: BytesLike,
         /,
         *,
-        keep_empty: bool = False,
+        keep_empty_values: bool = False,
     ) -> VorbisComment:
         """
         Instantiate a :class:`VorbisComment` object from a bytes-like
@@ -926,7 +928,7 @@ class VorbisComment(AudioTags):
             Bytes-like object containing a Vorbis comment metadata
             block.
 
-        keep_empty : bool; keyword-only; default: :code:`False`
+        keep_empty_values : bool; keyword-only; default: :code:`False`
             Whether to keep field–value pairs with empty values.
 
         Returns
@@ -935,8 +937,8 @@ class VorbisComment(AudioTags):
             Vorbis comment metadata container.
         """
         obj = cls.__new__(cls)
-        validate_type("keep_empty", keep_empty, bool)
-        obj._keep_empty = keep_empty
+        validate_type("keep_empty_values", keep_empty_values, bool)
+        obj._keep_empty_values = keep_empty_values
 
         stream = as_buffer(stream)
 
@@ -971,7 +973,7 @@ class VorbisComment(AudioTags):
                 .split("=", maxsplit=1)
             )
             offset = end_offset
-            if keep_empty or field_value:
+            if keep_empty_values or field_value:
                 field_name = normalize_field_name(field_name)
                 if field_name in fields:
                     fields[field_name].append(field_value)
@@ -1373,7 +1375,7 @@ class VorbisComment(AudioTags):
         **kwargs
             Key–value pairs of track attributes.
         """
-        keep_empty = self._keep_empty
+        keep_empty_values = self._keep_empty_values
         for key, value in kwargs.items():
             key = self._normalize_field_name(key)
             new_key = key not in self._fields
@@ -1385,14 +1387,14 @@ class VorbisComment(AudioTags):
             has_validator = validate is not None
 
             if isinstance(value := self._stringify(value), str):
-                if keep_empty or value:
+                if keep_empty_values or value:
                     if has_validator:
                         validate(value)
                     values.append(value)
             elif isinstance(value, ORDERED_COLLECTION_TYPES):
                 for item in value:
                     if isinstance(item := self._stringify(item), str):
-                        if keep_empty or item:
+                        if keep_empty_values or item:
                             if has_validator:
                                 validate(item)
                             values.append(item)
@@ -1454,6 +1456,7 @@ class VorbisComment(AudioTags):
         fields : str or Collection[str]; positional-only
             Field names of the attributes.
         """
+        # TODO: Add index argument.
         if not (
             isinstance(fields, str)
             or (
@@ -1499,14 +1502,14 @@ class VorbisComment(AudioTags):
         **kwargs
             Key–value pairs of track attributes.
         """
-        keep_empty = self._keep_empty
+        keep_empty_values = self._keep_empty_values
         for key, value in kwargs.items():
             key = self._normalize_field_name(key)
             new_key = key not in self._fields
             validate = self._validators.get(key)
             has_validator = validate is not None
             if isinstance(value := self._stringify(value), str):
-                if keep_empty or value:
+                if keep_empty_values or value:
                     if has_validator:
                         validate(value)
                     self._fields[key] = [value]
@@ -1516,7 +1519,7 @@ class VorbisComment(AudioTags):
                 self._fields[key] = values = []
                 for item in value:
                     if isinstance(item := self._stringify(item), str):
-                        if keep_empty or item:
+                        if keep_empty_values or item:
                             if has_validator:
                                 validate(item)
                             values.append(item)

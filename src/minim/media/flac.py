@@ -1334,9 +1334,16 @@ class FLACAudio(Audio):
     FLAC audio file.
     """
 
-    __slots__ = "_audio_offset", "_strict"
+    __slots__ = "_audio_offset", "_keep_empty_tags", "_strict"
 
-    def __init__(self, file_path: PathLike, /, *, strict: bool = True) -> None:
+    def __init__(
+        self,
+        file_path: PathLike,
+        /,
+        *,
+        keep_empty_tags: bool = False,
+        strict: bool = True,
+    ) -> None:
         """
         Parameters
         ----------
@@ -1347,6 +1354,8 @@ class FLACAudio(Audio):
             Whether to ensure metadata strictly adheres to the FLAC
             format specifications.
         """
+        validate_type("keep_empty_tags", keep_empty_tags, bool)
+        self._keep_empty_tags = keep_empty_tags
         validate_type("strict", strict, bool)
         self._strict = strict
         super().__init__(file_path)
@@ -1375,7 +1384,7 @@ class FLACAudio(Audio):
         if view[:offset] != b"fLaC":
             raise ValueError(f"{file_path} is not a valid FLAC file.")
 
-        self._format_metadata: list[FLACMetadataBlock] = []
+        self._format_metadata = []
         strict = self._strict
         seen_vorbis_comment = False
         block_header = 0x7F
@@ -1444,7 +1453,9 @@ class FLACAudio(Audio):
                             f"times in '{file_path}'."
                         )
 
-                    metadata_block = VorbisComment.from_stream(block_data)
+                    metadata_block = VorbisComment.from_stream(
+                        block_data, keep_empty=self._keep_empty_tags
+                    )
                     self._format_metadata.append(metadata_block)
                     self._tags = metadata_block
                 case 5:  # CUESHEET
