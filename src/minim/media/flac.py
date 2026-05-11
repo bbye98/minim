@@ -1350,9 +1350,19 @@ class FLACAudio(Audio):
         file_path : str or pathlib.Path; positional-only
             Path to or name of the FLAC audio file.
 
-        strict : bool; keyword-only
+        keep_empty_tags : bool; keyword-only; default: :code:`False`
+            Whether to keep field–value pairs in the Vorbis comment with
+            empty values.
+
+        strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the FLAC
             format specifications.
+
+            .. note::
+
+               If :code:`False` and multiple Vorbis comments are
+               present, the last one encountered is assigned to the
+               :code:`tags` attribute.
         """
         validate_type("keep_empty_tags", keep_empty_tags, bool)
         self._keep_empty_tags = keep_empty_tags
@@ -1447,14 +1457,14 @@ class FLACAudio(Audio):
                         FLACSeekTable.from_stream(block_data, strict=strict)
                     )
                 case 4:  # VORBIS_COMMENT
-                    if seen_vorbis_comment:
+                    if strict and seen_vorbis_comment:
                         raise RuntimeError(
                             "VORBIS_COMMENT block appears multiple "
                             f"times in '{file_path}'."
                         )
 
                     metadata_block = VorbisComment.from_stream(
-                        block_data, keep_empty=self._keep_empty_tags
+                        block_data, keep_empty_values=self._keep_empty_tags
                     )
                     self._format_metadata.append(metadata_block)
                     self._tags = metadata_block
@@ -1463,6 +1473,7 @@ class FLACAudio(Audio):
                         FLACCueSheet.from_stream(block_data, strict=strict)
                     )
                 case 6:  # PICTURE
+                    # TODO
                     self._format_metadata.append(
                         APICFrame.from_stream(block_data, format="XIPH")
                     )
@@ -1472,6 +1483,7 @@ class FLACAudio(Audio):
                         f"in '{file_path}'."
                     )
                 case _:  # RESERVED
+                    # TODO
                     raise ValueError(
                         "Metadata block with reserved block type "
                         f"{block_type} found in '{file_path}'."
