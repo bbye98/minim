@@ -174,34 +174,9 @@ def validate_number(
             f"{type(value).__name__}."
         )
 
-    has_lower_bound = lower_bound is not None
-    has_upper_bound = upper_bound is not None
-    if has_lower_bound:
-        if has_upper_bound:
-            emsg_suffix = (
-                f" between {lower_bound} and {upper_bound}, inclusive"
-            )
-        else:
-            emsg_suffix = f" greater than {lower_bound}, inclusive"
-    else:
-        if has_upper_bound:
-            emsg_suffix = f" less than {upper_bound}, inclusive"
-        else:
-            emsg_suffix = ""
-    if (
-        has_lower_bound
-        and value < lower_bound
-        or has_upper_bound
-        and value > upper_bound
-    ):
-        data_type_str = (
-            data_type.__name__
-            if isinstance(data_type, type)
-            else str(data_type)
-        )
-        raise ValueError(
-            f"`{name}` must be a(n) {data_type_str}{emsg_suffix}."
-        )
+    validate_range(
+        name, value, lower_bound=lower_bound, upper_bound=upper_bound
+    )
 
 
 def validate_numeric(
@@ -213,7 +188,7 @@ def validate_numeric(
     upper_bound: int | float | None = None,
 ) -> None:
     """
-    Validate the value of a variable containing a numeric value.
+    Validate the value of a variable containing a numeric-like value.
 
     Parameters
     ----------
@@ -246,6 +221,48 @@ def validate_numeric(
             f"`{name}` must be a(n) {data_type_str} or its numeric "
             f"string representation, not a(n) {type(value).__name__}."
         )
+
+
+def validate_range(
+    name: str,
+    value: int | float,
+    /,
+    lower_bound: int | float | None = None,
+    upper_bound: int | float | None = None,
+) -> None:
+    """
+    Validate the value of a numeric variable.
+
+    Parameters
+    ----------
+    name : str; positional-only
+        Variable name.
+
+    value : int, float, or str; positional-only
+        Variable value.
+
+    lower_bound : int or float; optional
+        Lower bound, inclusive.
+
+    upper_bound : int or float; optional
+        Upper bound, inclusive.
+    """
+    has_lower_bound = lower_bound is not None
+    has_upper_bound = upper_bound is not None
+    if (
+        has_lower_bound
+        and value < lower_bound
+        or has_upper_bound
+        and value > upper_bound
+    ):
+        if has_lower_bound:
+            if has_upper_bound:
+                emsg = f"between {lower_bound} and {upper_bound}"
+            else:
+                emsg = f"greater than {lower_bound}"
+        else:
+            emsg = f"less than {upper_bound}"
+        raise ValueError(f"`{name}` must be {emsg}, inclusive.")
 
 
 def validate_type(
