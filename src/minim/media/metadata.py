@@ -11,7 +11,7 @@ from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import (
     ASCII_CHARS_REGEX,
-    set_obj_attr,
+    join_values,
     prepare_isrc,
     validate_number,
     validate_numeric,
@@ -542,12 +542,17 @@ class ID3Frame:
         **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
     """
 
+    _ID3_TAG_VERSIONS = {"2.3", "2.4"}
+
     #: ID3 tag version.
     id3_tag_version: str = "2.4"
 
     def __post_init__(self) -> None:
-        validate_type("id3_tag_version", self.id3_tag_version, str)
-        validate_numeric("id3_tag_version", self.id3_tag_version, 2.3, 2.4)
+        if self.id3_tag_version not in APICFrame._ID3_TAG_VERSIONS:
+            raise ValueError(
+                f"Invalid ID3 tag version {self.id3_tag_version!r}. "
+                f"Valid values: {join_values(APICFrame._ID3_TAG_VERSIONS)}."
+            )
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -587,19 +592,6 @@ class APICFrame(ID3Frame):
     description : int; keyword-only
         Image description.
 
-    width : int; keyword-only; default: :code:`0`
-        Image width in pixels. Use :code:`0` if unknown.
-
-    height : int; keyword-only; default: :code:`0`
-        Image height in pixels. Use :code:`0` if unknown.
-
-    color_depth : int; keyword-only; default: :code:`0`
-        Color depth in bits per pixel. Use :code:`0` if unknown.
-
-    num_indexed_colors : int; keyword-only; default: :code:`0`
-        Number of indexed colors. Use :code:`0` if unknown or not
-        applicable.
-
     id3_tag_version : str; keyword-only; default: :code:`"2.4"`
         ID3 tag version.
 
@@ -608,8 +600,6 @@ class APICFrame(ID3Frame):
 
     _STRUCT_II = struct.Struct(">II")
     _STRUCT_IIIII = struct.Struct(">5I")
-
-    _flac_metadata_block_type = 6
 
     #: Picture type.
     type: int
@@ -621,14 +611,6 @@ class APICFrame(ID3Frame):
     description_encoding: int | None = None
     #: Image description.
     description: str = ""
-    #: Image width in pixels.
-    width: int = 0
-    #: Image height in pixels.
-    height: int = 0
-    #: Color depth in bits per pixel.
-    color_depth: int = 0
-    #: Number of indexed colors.
-    num_indexed_colors: int = 0
 
     def __post_init__(self) -> None:
         validate_number("type", self.type, int, 0, 20)
@@ -663,18 +645,12 @@ class APICFrame(ID3Frame):
                     "(`description_encoding=0`)."
                 )
 
-        validate_number("width", self.width, int, 0)
-        validate_number("height", self.height, int, 0)
-        validate_number("color_depth", self.color_depth, int, 0)
-        validate_number("num_indexed_colors", self.num_indexed_colors, int, 0)
-
     @classmethod
     def from_stream(
         cls,
         stream: BytesLike,
         /,
         *,
-        format: str = "ID3",
         id3_tag_version: str = "2.4",
     ) -> APICFrame:
         """ 
@@ -687,11 +663,6 @@ class APICFrame(ID3Frame):
         positional-only; optional
             Bytes-like object containing :code:`APIC` data.
 
-        format : str; keyword-only; default: :code:`"ID3"`
-            Data format of `bytestream`.
-
-            **Valid values**: :code:`"ID3"`, :code:`"XIPH"`.
-
         id3_tag_version : str; keyword-only; default: :code:`"2.4"`
             ID3 tag version.
 
@@ -702,108 +673,18 @@ class APICFrame(ID3Frame):
         attached_picture : minim.media.metadata.APICFrame
             :code:`APIC` frame.
         """
-        match format.upper():
-            case "ID3":
-                ...  # TODO
-            case "XIPH":
-                type_, mime_type_length = cls._STRUCT_II.unpack_from(stream)
-                validate_number("type", type_, int, 0, 20)
+        ...  # TODO
 
-                offset = 8 + mime_type_length
-                mime_type = stream[8:offset].tobytes().decode(encoding="ascii")
-
-                end_offset = offset + 4
-                description_length = int.from_bytes(stream[offset:end_offset])
-                offset = end_offset
-                end_offset = offset + description_length
-                description = (
-                    stream[offset:end_offset]
-                    .tobytes()
-                    .decode(encoding="utf-8")
-                )
-                description_encoding = 1 if id3_tag_version == "2.3" else 3
-
-                offset = end_offset
-                width, height, color_depth, num_indexed_colors, data_length = (
-                    cls._STRUCT_IIIII.unpack_from(stream, offset)
-                )
-
-                offset += 20
-                data = stream[offset : offset + data_length].tobytes()
-            case _:
-                raise ValueError(
-                    f"Invalid data format {format!r}. "
-                    "Valid values: 'FLAC', 'ID3'."
-                )
-
-        obj = cls.__new__(cls)
-        set_obj_attr(obj, "type", type_)
-        set_obj_attr(obj, "mime_type", mime_type)
-        set_obj_attr(obj, "description_encoding", description_encoding)
-        set_obj_attr(obj, "description", description)
-        set_obj_attr(obj, "width", width)
-        set_obj_attr(obj, "height", height)
-        set_obj_attr(obj, "color_depth", color_depth)
-        set_obj_attr(obj, "num_indexed_colors", num_indexed_colors)
-        set_obj_attr(obj, "data", data)
-        set_obj_attr(obj, "id3_tag_version", id3_tag_version)
-        return obj
-
-    @property
-    def _flac_metadata_block_length(self) -> int:
-        """
-        Length of encoded :code:`PICTURE` metadata block data in bytes.
-        """
-        return (
-            32
-            + len(self.mime_type.encode(encoding="ascii"))
-            + len(self.description.encode(encoding="utf-8"))
-            + len(self.data)
-        )
-
-    def serialize(self, *, format: str = "ID3") -> bytes:
+    def serialize(self) -> bytes:
         """
         Serialize the :code:`APIC` frame data to a bytestream.
-
-        Parameters
-        ----------
-        format : str; keyword-only; default: :code:`"ID3"`
-            Data format.
-
-            **Valid values**: :code:`"ID3"`, :code:`"XIPH"`.
 
         Returns
         -------
         bytestream : bytes
             Bytestream containing :code:`APIC` frame data.
         """
-        match format.upper():
-            case "ID3":
-                ...  # TODO
-            case "XIPH":
-                mime_type = self.mime_type.encode(encoding="ascii")
-                description = self.description.encode(encoding="utf-8")
-                return b"".join(
-                    (
-                        self._STRUCT_II.pack(self.type, len(mime_type)),
-                        mime_type,
-                        len(description).to_bytes(4, byteorder="big"),
-                        description,
-                        self._STRUCT_IIIII.pack(
-                            self.width,
-                            self.height,
-                            self.color_depth,
-                            self.num_indexed_colors,
-                            len(self.data),
-                        ),
-                        self.data,
-                    )
-                )
-            case _:
-                raise ValueError(
-                    f"Invalid data format {format!r}. "
-                    "Valid values: 'FLAC', 'ID3'."
-                )
+        ...  # TODO
 
 
 class ItemListBox(AudioTags):
@@ -827,7 +708,7 @@ class VorbisComment(AudioTags):
 
     _INVALID_KEY_CHARS_REGEX = re.compile("[^\x20-\x3c\x3e-\x7e]")
 
-    _flac_metadata_block_type = 4
+    _block_type = 4  # FLAC
     _validators = {
         "BPM": lambda value: validate_numeric("BPM", value, int | float, 0),
         "COMPILATION": lambda value: validate_numeric(
@@ -1001,7 +882,7 @@ class VorbisComment(AudioTags):
         return VorbisComment._INVALID_KEY_CHARS_REGEX.sub("_", key.upper())
 
     @property
-    def _flac_metadata_block_length(self) -> int:
+    def _block_length(self) -> int:
         """
         Length of encoded Vorbis comment without framing bit in bytes.
         """
