@@ -1487,22 +1487,22 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
 
     __slots__ = "_block_data", "_block_type"
 
-    def __init__(self, block_type: int, block_data: bytes | bytearray) -> None:
+    def __init__(self, type: int, data: bytes | bytearray) -> None:
         """
         Parameters
         ----------
-        block_type : int
+        type : int
             Metadata block type.
 
             **Valid range**: :code:`7` to :code:`126`.
 
-        block_data : bytes or bytearray
+        data : bytes or bytearray
             Metadata block data.
         """
-        validate_number("block_type", block_type, int, 7, 126)
-        set_obj_attr(self, "_block_type", block_type)
-        validate_type("block_data", block_data, bytes | bytearray)
-        set_obj_attr(self, "_block_data", block_data)
+        validate_number("type", type, int, 7, 126)
+        set_obj_attr(self, "_block_type", type)
+        validate_type("data", data, bytes | bytearray)
+        set_obj_attr(self, "_block_data", data)
 
     def __setattr__(self, name: str, value: Any) -> None:
         raise FrozenInstanceError(f"cannot assign to field {name!r}")
@@ -2012,7 +2012,7 @@ class FLACAudio(Audio):
                 "Exactly one of `indices` or `types` must be specified."
             )
 
-    def save_metadata(
+    def save(
         self,
         file_path: PathLike | None = None,
         /,
