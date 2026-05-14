@@ -47,6 +47,9 @@ class FLACMetadataBlock(ABC):
 
     __slots__ = ()
 
+    def __len__(self) -> int:
+        return self._block_length
+
     @classmethod
     @abstractmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACMetadataBlock:
@@ -71,6 +74,20 @@ class FLACMetadataBlock(ABC):
         Metadata block type.
         """
         ...
+
+    @property
+    def block_length(self) -> int:
+        """
+        Length of the encoded metadata block data in bytes.
+        """
+        return self._block_length
+
+    @property
+    def block_type(self) -> int:
+        """
+        Metadata block type.
+        """
+        return self._block_type
 
     @abstractmethod
     def serialize(self) -> bytes:
@@ -286,21 +303,33 @@ class FLACPadding(FLACMetadataBlock):
 
     Parameters
     ----------
-    length : int
+    block_length : int; positional-only
         :code:`PADDING` metadata block length in bytes.
     """
 
     _block_type = 1
 
-    def __init__(self, length: int, /) -> None:
-        self.set_length(length)
+    def __init__(self, block_length: int, /) -> None:
+        self.block_length = block_length
 
     @property
     def _block_length(self) -> int:
         """
-        Length of encoded :code:`PADDING` metadata block data in bytes.
+        :code:`PADDING` metadata block length in bytes.
         """
         return self._length
+
+    @property
+    def block_length(self) -> int:
+        """
+        :code:`PADDING` metadata block length in bytes.
+        """
+        return self._length
+
+    @block_length.setter
+    def block_length(self, block_length: int, /) -> None:
+        validate_number("block_length", block_length, int, 0)
+        self._length = block_length
 
     def adjust_length(self, change: int, /) -> None:
         """
@@ -312,22 +341,18 @@ class FLACPadding(FLACMetadataBlock):
             Change to the :code:`PADDING` metadata block length in
             bytes.
         """
-        validate_number(
-            "change", change, int, -self._length, 16_777_215 - self._length
-        )
-        self._length += change
+        self.block_length += change
 
-    def set_length(self, length: int, /) -> None:
+    def set_length(self, block_length: int, /) -> None:
         """
         Resize the :code:`PADDING` metadata block.
 
         Parameters
         ----------
-        length : int; positional-only
+        block_length : int; positional-only
             New :code:`PADDING` metadata block length in bytes.
         """
-        validate_number("length", length, int, 0)
-        self._length = length
+        self.block_length = block_length
 
     @classmethod
     def from_stream(
@@ -370,7 +395,7 @@ class FLACPadding(FLACMetadataBlock):
         bytestream : bytes
             Bytestream containing :code:`PADDING` metadata block data.
         """
-        return self._block_length * b"\x00"
+        return self._length * b"\x00"
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -965,7 +990,7 @@ class FLACCueSheet(FLACMetadataBlock):
         """
         Length of encoded :code:`CUESHEET` metadata block data in bytes.
         """
-        return 396 + sum(track._flac_metadata_length for track in self.tracks)
+        return 396 + sum(track._length for track in self.tracks)
 
     @property
     def num_tracks(self) -> int:
@@ -1166,7 +1191,7 @@ class FLACCueSheetTrack:
                 )
 
     @property
-    def _flac_metadata_length(self) -> int:
+    def _length(self) -> int:
         """
         Length of encoded :code:`CUESHEET_TRACK` data in bytes.
         """
@@ -1313,17 +1338,17 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
 
     Parameters
     ----------
-    type : int; keyword-only
+    picture_type : int; keyword-only
         Picture type.
 
     mime_type : str; keyword-only
         MIME type.
 
-    data : bytes; keyword-only
-        Image data.
+    picture_data : bytes; keyword-only
+        Picture data.
 
-    description_encoding : int; keyword-only; optional
-        Text encoding for :code:`description`.
+    text_encoding : int; keyword-only; optional
+        Text encoding for the picture description.
 
         **Valid values**:
 
@@ -1333,7 +1358,7 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         * :code:`3` – UTF-8.
 
     description : int; keyword-only
-        Image description.
+        Picture description.
 
     width : int; keyword-only; default: :code:`0`
         Image width in pixels. Use :code:`0` if unknown.
@@ -1402,8 +1427,10 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
                 f"Valid values: {join_values(APICFrame._ID3_TAG_VERSIONS)}."
             )
 
-        type_, mime_type_length = APICFrame._STRUCT_II.unpack_from(stream)
-        validate_number("type", type_, int, 0, 20)
+        picture_type, mime_type_length = APICFrame._STRUCT_II.unpack_from(
+            stream
+        )
+        validate_number("picture_type", picture_type, int, 0, 20)
 
         offset = 8 + mime_type_length
         mime_type = stream[8:offset].tobytes().decode(encoding="ascii")
@@ -1415,7 +1442,7 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         description = (
             stream[offset:end_offset].tobytes().decode(encoding="utf-8")
         )
-        description_encoding = 1 if id3_tag_version == "2.3" else 3
+        text_encoding = 1 if id3_tag_version == "2.3" else 3
 
         offset = end_offset
         width, height, color_depth, num_indexed_colors, data_length = (
@@ -1423,14 +1450,14 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         )
 
         offset += 20
-        data = stream[offset : offset + data_length].tobytes()
+        picture_data = stream[offset : offset + data_length].tobytes()
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "type", type_)
+        set_obj_attr(obj, "picture_type", picture_type)
         set_obj_attr(obj, "mime_type", mime_type)
-        set_obj_attr(obj, "description_encoding", description_encoding)
+        set_obj_attr(obj, "text_encoding", text_encoding)
         set_obj_attr(obj, "description", description)
-        set_obj_attr(obj, "data", data)
+        set_obj_attr(obj, "picture_data", picture_data)
         set_obj_attr(obj, "id3_tag_version", id3_tag_version)
         set_obj_attr(obj, "width", width)
         set_obj_attr(obj, "height", height)
@@ -1447,7 +1474,7 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
             32
             + len(self.mime_type.encode(encoding="ascii"))
             + len(self.description.encode(encoding="utf-8"))
-            + len(self.data)
+            + len(self.picture_data)
         )
 
     def serialize(self) -> bytes:
@@ -1464,7 +1491,7 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         description = self.description.encode(encoding="utf-8")
         return b"".join(
             (
-                self._STRUCT_II.pack(self.type, len(mime_type)),
+                self._STRUCT_II.pack(self.picture_type, len(mime_type)),
                 mime_type,
                 len(description).to_bytes(4, byteorder="big"),
                 description,
@@ -1473,36 +1500,36 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
                     self.height,
                     self.color_depth,
                     self.num_indexed_colors,
-                    len(self.data),
+                    len(self.picture_data),
                 ),
-                self.data,
+                self.picture_data,
             )
         )
 
 
 class UnknownFLACMetadataBlock(FLACMetadataBlock):
     """
-    Reserved FLAC metadata block data.
+    Unknown FLAC metadata block data.
     """
 
     __slots__ = "_block_data", "_block_type"
 
-    def __init__(self, type: int, data: bytes | bytearray) -> None:
+    def __init__(self, block_type: int, block_data: bytes | bytearray) -> None:
         """
         Parameters
         ----------
-        type : int
+        block_type : int
             Metadata block type.
 
             **Valid range**: :code:`7` to :code:`126`.
 
-        data : bytes or bytearray
+        block_data : bytes or bytearray
             Metadata block data.
         """
-        validate_number("type", type, int, 7, 126)
-        set_obj_attr(self, "_block_type", type)
-        validate_type("data", data, bytes | bytearray)
-        set_obj_attr(self, "_block_data", data)
+        validate_number("block_type", block_type, int, 7, 126)
+        set_obj_attr(self, "_block_type", block_type)
+        validate_type("block_data", block_data, bytes | bytearray)
+        set_obj_attr(self, "_block_data", bytes(block_data))
 
     def __setattr__(self, name: str, value: Any) -> None:
         raise FrozenInstanceError(f"cannot assign to field {name!r}")
@@ -1511,7 +1538,6 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
         raise FrozenInstanceError(f"cannot delete field {name!r}")
 
     @classmethod
-    @abstractmethod
     def from_stream(
         cls, stream: BytesLike, /, block_type: int
     ) -> UnknownFLACMetadataBlock:
@@ -1548,6 +1574,13 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
         Length of the encoded metadata block data in bytes.
         """
         return len(self._block_data)
+
+    @property
+    def block_data(self) -> bytes:
+        """
+        Metadata block data.
+        """
+        return self._block_data
 
     def serialize(self) -> bytes:
         """
@@ -1738,6 +1771,7 @@ class FLACAudio(Audio):
                     )
                     if strict:
                         raise ValueError(msg)
+
                     warnings.warn(msg)
                     self._format_metadata.append(
                         UnknownFLACMetadataBlock.from_stream(
@@ -1774,7 +1808,7 @@ class FLACAudio(Audio):
         metadata : minim.media.flac.FLACMetadataBlock, \
         minim.media.metadata.VorbisComment, or \
         OrderedCollection[minim.media.flac.FLACMetadataBlock \
-        | VorbisComment]; positional-only
+        | minim.media.metadata.VorbisComment]; positional-only
             Metadata blocks.
 
             .. note::
@@ -1833,13 +1867,8 @@ class FLACAudio(Audio):
                         elif block._block_length >= (
                             new_block_length := new_block._block_length + 4
                         ):
-                            self._format_metadata[idx] = new_block
-                            self._format_metadata.insert(
-                                idx + 1,
-                                FLACPadding(
-                                    block._block_length - new_block_length,
-                                ),
-                            )
+                            block.adjust_length(-new_block_length)
+                            self._format_metadata.insert(idx, new_block)
                             placed_idx = idx
                             num_metadata_blocks += 1
                             break
@@ -1857,26 +1886,20 @@ class FLACAudio(Audio):
             # merge
             if is_padding:
                 if (
-                    next_idx := placed_idx + 1
+                    adj_idx := placed_idx + 1
                 ) < num_metadata_blocks and self._format_metadata[
-                    next_idx
+                    adj_idx
                 ]._block_type == 1:  # right
-                    self._format_metadata[placed_idx] = FLACPadding(
-                        self._format_metadata[placed_idx]._block_length
-                        + self._format_metadata.pop(next_idx)._block_length
-                        + 4
+                    new_block.adjust_length(
+                        self._format_metadata.pop(adj_idx)._block_length + 4
                     )
                     num_metadata_blocks -= 1
 
-                if (next_idx := placed_idx - 1) >= 0 and self._format_metadata[
-                    next_idx
+                if (adj_idx := placed_idx - 1) >= 0 and self._format_metadata[
+                    adj_idx
                 ]._block_type == 1:  # left
-                    block = self._format_metadata.pop(placed_idx)
-                    placed_idx -= 1
-                    self._format_metadata[placed_idx] = FLACPadding(
-                        self._format_metadata[placed_idx]._block_length
-                        + block._block_length
-                        + 4
+                    new_block.adjust_length(
+                        self._format_metadata.pop(adj_idx)._block_length + 4
                     )
                     num_metadata_blocks -= 1
                     if index is not None:
@@ -1894,9 +1917,9 @@ class FLACAudio(Audio):
 
     def optimize_padding(self) -> None:
         """
-        Consolidate all :code:`PADDING` blocks into a single
-        :code:`PADDING` block at the end of the FLAC metadata stream,
-        reclaiming redundant four-byte headers.
+        Consolidate all :code:`PADDING` blocks into a single block at
+        the end of the FLAC metadata stream, reclaiming redundant
+        four-byte headers.
         """
         non_padding_blocks = []
         padding_length = -4
@@ -1919,7 +1942,7 @@ class FLACAudio(Audio):
         self,
         *,
         indices: int | Collection[int] | None = None,
-        types: int | Collection[int] | None = None,
+        block_types: int | Collection[int] | None = None,
     ) -> None:
         """
         Remove audio metadata.
@@ -1936,14 +1959,14 @@ class FLACAudio(Audio):
 
         .. important::
 
-           Exactly one of `indices` or `types` must be provided.
+           Exactly one of `indices` or `block_types` must be provided.
 
         Parameters
         ----------
         indices : int or Collection[int]; keyword-only; optional
             Indices of metadata blocks to remove.
 
-        types : int or Collection[int]; keyword-only; optional
+        block_types : int or Collection[int]; keyword-only; optional
             Types of metadata blocks to remove.
 
             **Valid values**:
@@ -1956,10 +1979,10 @@ class FLACAudio(Audio):
             * :code:`6` – :code:`PICTURE`.
         """
         has_indices = indices is not None
-        has_types = types is not None
+        has_types = block_types is not None
         if has_indices and has_types:
             raise ValueError(
-                "Exactly one of `indices` or `types` must be specified."
+                "Exactly one of `indices` or `block_types` must be specified."
             )
 
         if has_indices:
@@ -1990,26 +2013,26 @@ class FLACAudio(Audio):
                 )
 
         elif has_types:
-            if isinstance(types, int):
-                types = {types}
-            elif not isinstance(types, set):
-                types = set(types)
-            types.discard(1)
+            if isinstance(block_types, int):
+                block_types = {block_types}
+            elif not isinstance(block_types, set):
+                block_types = set(block_types)
+            block_types.discard(1)
 
-            if 0 in types:
+            if 0 in block_types:
                 raise ValueError(
                     "STREAMINFO metadata blocks cannot be added, "
                     "moved, or removed."
                 )
 
             for block_idx, block in enumerate(self._format_metadata):
-                if block._block_type in types:
+                if block._block_type in block_types:
                     self._format_metadata[block_idx] = FLACPadding(
                         block._block_length
                     )
         else:
             raise ValueError(
-                "Exactly one of `indices` or `types` must be specified."
+                "Exactly one of `indices` or `block_types` must be specified."
             )
 
     def save(

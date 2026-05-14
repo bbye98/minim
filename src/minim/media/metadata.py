@@ -570,17 +570,17 @@ class APICFrame(ID3Frame):
 
     Parameters
     ----------
-    type : int; keyword-only
+    picture_type : int; keyword-only
         Picture type.
 
     mime_type : str; keyword-only
         MIME type.
 
-    data : bytes; keyword-only
-        Image data.
+    picture_data : bytes; keyword-only
+        Picture data.
 
-    description_encoding : int; keyword-only; optional
-        Text encoding for :code:`description`.
+    text_encoding : int; keyword-only; optional
+        Text encoding for the picture description.
 
         **Valid values**:
 
@@ -590,7 +590,7 @@ class APICFrame(ID3Frame):
         * :code:`3` – UTF-8.
 
     description : int; keyword-only
-        Image description.
+        Picture description.
 
     id3_tag_version : str; keyword-only; default: :code:`"2.4"`
         ID3 tag version.
@@ -602,18 +602,18 @@ class APICFrame(ID3Frame):
     _STRUCT_IIIII = struct.Struct(">5I")
 
     #: Picture type.
-    type: int
+    picture_type: int
     #: MIME type.
     mime_type: str
-    #: Image data.
-    data: bytes
-    #: Text encoding for the image description.
-    description_encoding: int | None = None
-    #: Image description.
+    #: Picture data.
+    picture_data: bytes
+    #: Text encoding for the picture description.
+    text_encoding: int | None = None
+    #: Picture description.
     description: str = ""
 
     def __post_init__(self) -> None:
-        validate_number("type", self.type, int, 0, 20)
+        validate_number("picture_type", self.picture_type, int, 0, 20)
 
         mime_type = self.mime_type
         validate_type("mime_type", mime_type, str)
@@ -624,7 +624,7 @@ class APICFrame(ID3Frame):
                 "(' ') through 0x7D ('}')."
             )
 
-        validate_type("data", self.data, bytes)
+        validate_type("picture_data", self.picture_data, bytes)
 
         validate_type("description", self.description, str)
         try:
@@ -632,17 +632,17 @@ class APICFrame(ID3Frame):
             is_utf = False
         except UnicodeEncodeError:
             is_utf = True
-        description_encoding = self.description_encoding
-        if description_encoding is None:
-            self.description_encoding = (
+        text_encoding = self.text_encoding
+        if text_encoding is None:
+            self.text_encoding = (
                 (1 if self.id3_tag_version == "2.3" else 3) if is_utf else 0
             )
         else:
-            validate_number("description_encoding", description_encoding, 0, 3)
-            if is_utf and description_encoding:
+            validate_number("text_encoding", text_encoding, 0, 3)
+            if is_utf and text_encoding:
                 raise ValueError(
-                    "`description` cannot be encoded using ISO-8859-1 "
-                    "(`description_encoding=0`)."
+                    "`picture_description` cannot be encoded using "
+                    "ISO-8859-1 (`text_encoding=0`)."
                 )
 
     @classmethod

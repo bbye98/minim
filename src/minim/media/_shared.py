@@ -86,11 +86,9 @@ class Audio(ABC):
         ...
 
     @abstractmethod
-    def save_metadata(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> None:
+    def save(self, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
         """
-        Save audio metadata.
+        Write changes to disk.
 
         Parameters
         ----------
