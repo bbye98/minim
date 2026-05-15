@@ -65,7 +65,7 @@ class Audio(ABC):
         self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> None:
         """
-        Add metadata.
+        Add audio metadata.
         """
         ...
 
@@ -81,7 +81,7 @@ class Audio(ABC):
         self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> None:
         """
-        Remove metadata.
+        Remove audio metadata.
         """
         ...
 

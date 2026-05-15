@@ -15,7 +15,7 @@ from .._utility import (
     validate_range,
     validate_type,
 )
-from .._types import BytesLike, ORDERED_COLLECTION_TYPES
+from .._types import BytesLike, COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ._shared import as_buffer, Audio
 from .metadata import APICFrame, AudioStreamInfo, VorbisComment
 
@@ -1665,9 +1665,23 @@ class FLACAudio(Audio):
         """
         return FLACMetadataView(self._format_metadata)
 
+    def _merge_adjacent_padding(self) -> None:
+        """
+        Merge adjacent :code:`PADDING` blocks, reclaiming redundant
+        four-byte headers.
+        """
+        blocks = self._format_metadata[:1]
+        for block in self._format_metadata[1:]:
+            prev_block = blocks[-1]
+            if prev_block._block_type == block._block_type == 1:
+                prev_block.adjust_length(4 + block._block_length)
+            else:
+                blocks.append(block)
+        self._format_metadata = blocks
+
     def load_metadata(self) -> None:
         """
-        Load audio metadata.
+        Load FLAC metadata blocks.
         """
         self.open()
         file_path = self._file_path
@@ -1726,7 +1740,7 @@ class FLACAudio(Audio):
                             raise ValueError(
                                 "Non-zero bits found in PADDING block."
                             )
-                        prev_block.resize(block_length + 4)
+                        prev_block.adjust_length(4 + block_length)
                     else:
                         self._format_metadata.append(
                             FLACPadding.from_stream(block_data, strict=strict)
@@ -1801,7 +1815,7 @@ class FLACAudio(Audio):
         index: int | None = None,
     ) -> None:
         """
-        Add audio metadata.
+        Add FLAC metadata blocks.
 
         Parameters
         ----------
@@ -1865,7 +1879,7 @@ class FLACAudio(Audio):
                             placed_idx = idx
                             break
                         elif block._block_length >= (
-                            new_block_length := new_block._block_length + 4
+                            new_block_length := 4 + new_block._block_length
                         ):
                             block.adjust_length(-new_block_length)
                             self._format_metadata.insert(idx, new_block)
@@ -1891,7 +1905,7 @@ class FLACAudio(Audio):
                     adj_idx
                 ]._block_type == 1:  # right
                     new_block.adjust_length(
-                        self._format_metadata.pop(adj_idx)._block_length + 4
+                        4 + self._format_metadata.pop(adj_idx)._block_length
                     )
                     num_metadata_blocks -= 1
 
@@ -1899,7 +1913,7 @@ class FLACAudio(Audio):
                     adj_idx
                 ]._block_type == 1:  # left
                     new_block.adjust_length(
-                        self._format_metadata.pop(adj_idx)._block_length + 4
+                        4 + self._format_metadata.pop(adj_idx)._block_length
                     )
                     num_metadata_blocks -= 1
                     if index is not None:
@@ -1909,11 +1923,132 @@ class FLACAudio(Audio):
         self,
         *,
         to_index: int,
-        indices: int | Collection[int] | None = None,
-        types: int | Collection[int] | None = None,
+        indices: int | OrderedCollection[int] | None = None,
+        block_types: int | Collection[int] | None = None,
     ) -> None:
-        """ """
-        ...  # TODO
+        """
+        Move FLAC metadata blocks.
+
+        .. note::
+
+           Adjacent :code:`PADDING` blocks are always merged, with the
+           redundant four-byte headers reclaimed.
+
+        .. important::
+
+           Exactly one of `indices` or `block_types` must be provided.
+
+        Parameters
+        ----------
+        to_index : int; keyword-only
+            Index to move metadata blocks to. Use
+            :code:`len(self.format_metadata)` to append metadata blocks
+            to the end.
+
+        indices : int or Collection[int]; keyword-only; optional
+            Indices of metadata blocks to move.
+
+        block_types : int or Collection[int]; keyword-only; optional
+            Types of metadata blocks to move.
+
+            **Valid values**:
+
+            * :code:`1` – :code:`PADDING`.
+            * :code:`2` – :code:`APPLICATION`.
+            * :code:`3` – :code:`SEEKTABLE`.
+            * :code:`4` – :code:`VORBIS_COMMENT`.
+            * :code:`5` – :code:`CUESHEET`.
+            * :code:`6` – :code:`PICTURE`.
+        """
+        has_indices = indices is not None
+        has_types = block_types is not None
+        if has_indices == has_types:
+            raise ValueError(
+                "Exactly one of `indices` or `block_types` must be specified."
+            )
+
+        num_metadata_blocks = len(self._format_metadata)
+        max_block_index = num_metadata_blocks - 1
+        validate_number(
+            "to_index",
+            to_index,
+            int,
+            -num_metadata_blocks,
+            num_metadata_blocks,
+        )
+        if to_index < num_metadata_blocks:
+            to_index %= num_metadata_blocks
+        if not to_index:
+            raise ValueError(
+                "Metadata blocks cannot be moved to the first "
+                "position, which is reserved for the STREAMINFO block."
+            )
+
+        if has_indices:
+            validate_type("indices", indices, int | ORDERED_COLLECTION_TYPES)
+            if isinstance(indices, int):
+                indices = [indices]
+            seen_block_indices = set()
+            block_indices = []
+            for idx, block_index in enumerate(indices):
+                validate_number(
+                    f"indices[{idx}]",
+                    block_index,
+                    int,
+                    -num_metadata_blocks,
+                    max_block_index,
+                )
+                block_index %= num_metadata_blocks
+                if block_index == 0:
+                    raise ValueError(
+                        "STREAMINFO metadata blocks cannot be "
+                        "added, moved, or removed."
+                    )
+
+                if block_index in seen_block_indices:
+                    raise ValueError(
+                        "Duplicate metadata block index "
+                        f"{block_index} encountered."
+                    )
+
+                seen_block_indices.add(block_index)
+                block_indices.append(block_index)
+        else:
+            if isinstance(block_types, int):
+                block_types = {block_types}
+            elif not isinstance(block_types, set):
+                block_types = set(block_types)
+            if 0 in block_types:
+                raise ValueError(
+                    "STREAMINFO metadata blocks cannot be added, "
+                    "moved, or removed."
+                )
+
+            block_indices = [
+                block_index
+                for block_index, block in enumerate(self._format_metadata)
+                if block._block_type in block_types
+            ]
+
+        if (
+            not block_indices
+            or len(block_indices) == 1
+            and block_indices[0] == to_index
+        ):
+            return
+
+        moved_blocks = [
+            self._format_metadata[block_index]
+            for block_index in reversed(block_indices)
+        ]
+        for block_index in sorted(block_indices, reverse=True):
+            del self._format_metadata[block_index]
+            if block_index < to_index:
+                to_index -= 1
+
+        for block in moved_blocks:
+            self._format_metadata.insert(to_index, block)
+        self._merge_adjacent_padding()
 
     def optimize_padding(self) -> None:
         """
@@ -1945,7 +2080,7 @@ class FLACAudio(Audio):
         block_types: int | Collection[int] | None = None,
     ) -> None:
         """
-        Remove audio metadata.
+        Remove FLAC metadata blocks.
 
         .. note::
 
@@ -1956,6 +2091,9 @@ class FLACAudio(Audio):
            disk space by stripping all :code:`PADDING` blocks, specify
            :code:`remove_padding=True` when calling
            :meth:`save_metadata`.
+
+           Adjacent :code:`PADDING` blocks are always merged, with the
+           redundant four-byte headers reclaimed.
 
         .. important::
 
@@ -1980,60 +2118,67 @@ class FLACAudio(Audio):
         """
         has_indices = indices is not None
         has_types = block_types is not None
-        if has_indices and has_types:
+        if has_indices == has_types:
             raise ValueError(
                 "Exactly one of `indices` or `block_types` must be specified."
             )
 
         if has_indices:
             num_metadata_blocks = len(self._format_metadata)
+            max_block_index = num_metadata_blocks - 1
+            validate_type("indices", indices, int | COLLECTION_TYPES)
             if isinstance(indices, int):
-                indices = {
-                    (indices + num_metadata_blocks) if indices < 0 else indices
-                }
-            elif not isinstance(indices, set):
-                indices = set(
-                    (idx + num_metadata_blocks) if idx < 0 else idx
-                    for idx in indices
+                validate_range(
+                    "indices", indices, -num_metadata_blocks, max_block_index
                 )
-
-            if 0 in indices:
-                raise ValueError(
-                    "STREAMINFO metadata blocks cannot be added, "
-                    "moved, or removed."
-                )
-
-            for block_idx in indices:
-                if not 0 <= block_idx < num_metadata_blocks:
+                indices %= num_metadata_blocks
+                if not indices:
                     raise ValueError(
-                        f"Metadata block index {block_idx} is out of range."
+                        "STREAMINFO metadata blocks cannot be added, "
+                        "moved, or removed."
                     )
-                self._format_metadata[block_idx] = FLACPadding(
-                    self._format_metadata[block_idx]._block_length
-                )
 
-        elif has_types:
+                self._format_metadata[indices] = FLACPadding(
+                    self._format_metadata[indices]._block_length
+                )
+            else:
+                for idx, block_index in enumerate(indices):
+                    validate_number(
+                        f"indices[{idx}]",
+                        block_index,
+                        int,
+                        -num_metadata_blocks,
+                        max_block_index,
+                    )
+                    block_index %= num_metadata_blocks
+                    if not block_index:
+                        raise ValueError(
+                            "STREAMINFO metadata blocks cannot be added, "
+                            "moved, or removed."
+                        )
+
+                    self._format_metadata[block_index] = FLACPadding(
+                        self._format_metadata[block_index]._block_length
+                    )
+        else:
             if isinstance(block_types, int):
                 block_types = {block_types}
             elif not isinstance(block_types, set):
                 block_types = set(block_types)
             block_types.discard(1)
-
             if 0 in block_types:
                 raise ValueError(
                     "STREAMINFO metadata blocks cannot be added, "
                     "moved, or removed."
                 )
 
-            for block_idx, block in enumerate(self._format_metadata):
+            for block_index, block in enumerate(self._format_metadata):
                 if block._block_type in block_types:
-                    self._format_metadata[block_idx] = FLACPadding(
+                    self._format_metadata[block_index] = FLACPadding(
                         block._block_length
                     )
-        else:
-            raise ValueError(
-                "Exactly one of `indices` or `block_types` must be specified."
-            )
+
+        self._merge_adjacent_padding()
 
     def save(
         self,
@@ -2042,8 +2187,48 @@ class FLACAudio(Audio):
         *,
         remove_padding: bool = False,
     ) -> None:
-        """ """
-        metadata_length = 4 + sum(
-            4 + block._block_length for block in self._format_metadata
+        """
+        Write changes to disk.
+
+        Parameters
+        ----------
+        file_path : str or pathlib.Path; positional-only
+            Path to or name of the FLAC audio file. If not specified,
+            changes are written back to the source file.
+
+        remove_padding : bool; keyword-only; default: :code:`False`
+            Whether to strip all :code:`PADDING` blocks.
+        """
+        metadata_blocks = (
+            [
+                block
+                for block in self._format_metadata
+                if block._block_type != 1
+            ]
+            if remove_padding
+            else self._format_metadata
         )
-        ...  # TODO
+        metadata_length = 4 + sum(
+            4 + block._block_length for block in metadata_blocks
+        )
+
+        last_block_index = len(metadata_blocks) - 1
+        serialized_blocks = (
+            (
+                ((block_index == last_block_index) << 7) | block._block_type
+            ).to_bytes(1, byteorder="big")
+            + block._block_length.to_bytes(3, byteorder="big")
+            + block.serialize()
+            for block_index, block in enumerate(metadata_blocks)
+        )
+        if file_path is None and metadata_length == self._audio_offset:
+            with open(self._file_path, "r+b") as f:
+                f.seek(4)
+                f.write(b"".join(serialized_blocks))
+        else:
+            serialized_blocks = [b"fLaC", *serialized_blocks]
+            with open(self._file_path, "rb") as f:
+                f.seek(self._audio_offset)
+                serialized_blocks.append(f.read())
+            with open(file_path or self._file_path, "wb") as f:
+                f.write(b"".join(serialized_blocks))

@@ -38,7 +38,7 @@ class PrivateQobuzAPIClient(APIClient):
     """
     Private Qobuz API client.
 
-    .. admonition:: attention
+    .. attention::
 
        As the private Qobuz API is not designed to be publicly
        accessible, this client may break without warning if Qobuz makes
