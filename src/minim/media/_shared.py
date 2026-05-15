@@ -4,6 +4,8 @@ import mmap
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from .._utility import validate_type
+
 if TYPE_CHECKING:
     from .._types import BytesLike, PathLike
     from .metadata import AudioStreamInfo, AudioTags
@@ -46,18 +48,25 @@ class Audio(ABC):
         "_format_metadata",
         "_mmap",
         "_stream_info",
+        "_strict",
         "_tags",
         "_view",
     )
 
-    def __init__(self, file_path: PathLike, /) -> None:
+    def __init__(self, file_path: PathLike, /, *, strict: bool = True) -> None:
         """
         Parameters
         ----------
         file_path : str or pathlib.Path; positional-only
             Path to or name of the audio file.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the audio
+            format specifications.
         """
         self._file_path = Path(file_path).expanduser().resolve(strict=True)
+        validate_type("strict", strict, bool)
+        self._strict = strict
         self.load_metadata()
 
     @abstractmethod

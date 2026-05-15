@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from .._types import BytesLike, Collection, OrderedCollection
 
 
-__all__ = ["ID3", "ItemListBox", "VorbisComment", "APICFrame"]
+__all__ = ["ID3v2", "APICFrame", "VorbisComment"]
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -521,38 +521,69 @@ class AudioTags(ABC):
         ...
 
 
-class ID3(AudioTags):
+class ID3v1(AudioTags):
     """
-    ID3 metadata container.
+    ID3v1 metadata container.
     """
 
-    # __slots__ = ("_frames",)
+    _TAG_VERSIONS = {"1.0", "1.1"}
+
+    __slots__ = ("_fields", "_tag_version")
+
+    def __init__(self, tag_version: str = "1.1", /) -> None:
+        if tag_version not in self._TAG_VERSIONS:
+            raise ValueError(
+                f"Invalid ID3v1 tag version {tag_version!r}. "
+                f"Valid values: {join_values(self._TAG_VERSIONS)}."
+            )
+
+        self._tag_version = tag_version
+
+        ...  # TODO
 
 
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-class ID3Frame:
+class ID3v2(AudioTags):
+    """
+    ID3v2 metadata container.
+    """
+
+    _TAG_VERSIONS = {"2.2.0", "2.3.0", "2.4.0"}
+
+    __slots__ = ("_frames", "_tag_version")
+
+    def __init__(self, tag_version: str, /) -> None:
+        if tag_version not in self._TAG_VERSIONS:
+            raise ValueError(
+                f"Invalid ID3v2 tag version {tag_version!r}. "
+                f"Valid values: {join_values(self._TAG_VERSIONS)}."
+            )
+
+        self._tag_version = tag_version
+
+        ...  # TODO
+
+
+class ID3Frame(ABC):
     """
     ID3 frame.
-
-    Parameters
-    ----------
-    id3_tag_version : str; keyword-only; default: :code:`"2.4"`
-        ID3 tag version.
-
-        **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
     """
 
-    _ID3_TAG_VERSIONS = {"2.3", "2.4"}
+    @classmethod
+    @abstractmethod
+    def from_stream(cls, stream: BytesLike, /) -> ID3Frame:
+        """ """
+        ...  # TODO
 
-    #: ID3 tag version.
-    id3_tag_version: str = "2.4"
+    @classmethod
+    @abstractmethod
+    def frame_id(cls, tag_version: str) -> str:
+        """ """
+        ...  # TODO
 
-    def __post_init__(self) -> None:
-        if self.id3_tag_version not in APICFrame._ID3_TAG_VERSIONS:
-            raise ValueError(
-                f"Invalid ID3 tag version {self.id3_tag_version!r}. "
-                f"Valid values: {join_values(APICFrame._ID3_TAG_VERSIONS)}."
-            )
+    @abstractmethod
+    def serialize(self, tag_version: str) -> bytes:
+        """ """
+        ...  # TODO
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -591,11 +622,6 @@ class APICFrame(ID3Frame):
 
     description : int; keyword-only
         Picture description.
-
-    id3_tag_version : str; keyword-only; default: :code:`"2.4"`
-        ID3 tag version.
-
-        **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
     """
 
     _STRUCT_II = struct.Struct(">II")
@@ -608,7 +634,7 @@ class APICFrame(ID3Frame):
     #: Picture data.
     picture_data: bytes
     #: Text encoding for the picture description.
-    text_encoding: int | None = None
+    text_encoding: int = 3
     #: Picture description.
     description: str = ""
 
@@ -633,26 +659,23 @@ class APICFrame(ID3Frame):
         except UnicodeEncodeError:
             is_utf = True
         text_encoding = self.text_encoding
-        if text_encoding is None:
-            self.text_encoding = (
-                (1 if self.id3_tag_version == "2.3" else 3) if is_utf else 0
+        validate_number("text_encoding", text_encoding, 0, 3)
+        if is_utf and text_encoding:
+            raise ValueError(
+                "`picture_description` cannot be encoded using "
+                "ISO-8859-1 (`text_encoding=0`)."
             )
-        else:
-            validate_number("text_encoding", text_encoding, 0, 3)
-            if is_utf and text_encoding:
-                raise ValueError(
-                    "`picture_description` cannot be encoded using "
-                    "ISO-8859-1 (`text_encoding=0`)."
-                )
 
     @classmethod
-    def from_stream(
-        cls,
-        stream: BytesLike,
-        /,
-        *,
-        id3_tag_version: str = "2.4",
-    ) -> APICFrame:
+    def frame_id(cls, tag_version: str) -> str:
+        """ """
+        if tag_version == "2.2.0":
+            return "PIC"
+
+        return "APIC"
+
+    @classmethod
+    def from_stream(cls, stream: BytesLike, /) -> APICFrame:
         """ 
         Instantiate an :class:`APICFrame` object from a bytes-like 
         object.
@@ -663,11 +686,6 @@ class APICFrame(ID3Frame):
         positional-only; optional
             Bytes-like object containing :code:`APIC` data.
 
-        id3_tag_version : str; keyword-only; default: :code:`"2.4"`
-            ID3 tag version.
-
-            **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
-
         Returns
         -------
         attached_picture : minim.media.metadata.APICFrame
@@ -675,7 +693,7 @@ class APICFrame(ID3Frame):
         """
         ...  # TODO
 
-    def serialize(self) -> bytes:
+    def serialize(self, *, tag_version: str = "2.4.0") -> bytes:
         """
         Serialize the :code:`APIC` frame data to a bytestream.
 
@@ -683,6 +701,11 @@ class APICFrame(ID3Frame):
         -------
         bytestream : bytes
             Bytestream containing :code:`APIC` frame data.
+
+        tag_version : str; keyword-only; default: :code:`"2.4.0"`
+            ID3 tag version.
+
+            **Valid values**: :code:`"2.3.0"`, :code:`"2.4.0"`.
         """
         ...  # TODO
 

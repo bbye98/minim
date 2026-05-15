@@ -1,3 +1,7 @@
+"""
+FLAC audio file handler and metadata blocks.
+"""
+
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass
@@ -1372,11 +1376,6 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
     num_indexed_colors : int; keyword-only; default: :code:`0`
         Number of indexed colors. Use :code:`0` if unknown or not
         applicable.
-
-    id3_tag_version : str; keyword-only; default: :code:`"2.4"`
-        ID3 tag version.
-
-        **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
     """
 
     _block_type = 6
@@ -1397,9 +1396,7 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         validate_number("num_indexed_colors", self.num_indexed_colors, int, 0)
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, id3_tag_version: str = "2.4"
-    ) -> FLACPicture:
+    def from_stream(cls, stream: BytesLike, /) -> FLACPicture:
         """ 
         Instantiate an :class:`FLACPicture` object from a bytes-like 
         object.
@@ -1411,22 +1408,11 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
             Bytes-like object containing :code:`PICTURE` metadata block 
             data.
 
-        id3_tag_version : str; keyword-only; default: :code:`"2.4"`
-            ID3 tag version.
-
-            **Valid values**: :code:`"2.3"`, :code:`"2.4"`.
-
         Returns
         -------
         attached_picture : minim.media.metadata.APICFrame
             :code:`APIC` frame.
         """
-        if id3_tag_version not in APICFrame._ID3_TAG_VERSIONS:
-            raise ValueError(
-                f"Invalid ID3 tag version {id3_tag_version!r}. "
-                f"Valid values: {join_values(APICFrame._ID3_TAG_VERSIONS)}."
-            )
-
         picture_type, mime_type_length = APICFrame._STRUCT_II.unpack_from(
             stream
         )
@@ -1442,7 +1428,6 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         description = (
             stream[offset:end_offset].tobytes().decode(encoding="utf-8")
         )
-        text_encoding = 1 if id3_tag_version == "2.3" else 3
 
         offset = end_offset
         width, height, color_depth, num_indexed_colors, data_length = (
@@ -1455,10 +1440,9 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         obj = cls.__new__(cls)
         set_obj_attr(obj, "picture_type", picture_type)
         set_obj_attr(obj, "mime_type", mime_type)
-        set_obj_attr(obj, "text_encoding", text_encoding)
+        set_obj_attr(obj, "text_encoding", 3)
         set_obj_attr(obj, "description", description)
         set_obj_attr(obj, "picture_data", picture_data)
-        set_obj_attr(obj, "id3_tag_version", id3_tag_version)
         set_obj_attr(obj, "width", width)
         set_obj_attr(obj, "height", height)
         set_obj_attr(obj, "color_depth", color_depth)
@@ -1617,7 +1601,7 @@ class FLACAudio(Audio):
     FLAC audio file.
     """
 
-    __slots__ = "_audio_offset", "_keep_empty_tags", "_strict"
+    __slots__ = "_audio_offset", "_keep_empty_tags"
 
     def __init__(
         self,
@@ -1649,9 +1633,7 @@ class FLACAudio(Audio):
         """
         validate_type("keep_empty_tags", keep_empty_tags, bool)
         self._keep_empty_tags = keep_empty_tags
-        validate_type("strict", strict, bool)
-        self._strict = strict
-        super().__init__(file_path)
+        super().__init__(file_path, strict=strict)
 
     @property
     def format_metadata(self) -> FLACMetadataView:
