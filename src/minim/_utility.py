@@ -17,6 +17,34 @@ TRANSLATION_TABLES = {"remove_separators": str.maketrans("", "", "‐‒–—�
 set_obj_attr = object.__setattr__
 
 
+def decode_32_bit_synchsafe_int(
+    byte_1: int, byte_2: int, byte_3: int, byte_4: int, /
+) -> int:
+    """
+    Decode a 32-bit synchsafe integer.
+
+    Parameters
+    ----------
+    byte_1 : int; positional-only
+        First byte in synchsafe integer.
+
+    byte_2 : int; positional-only
+        Second byte in synchsafe integer.
+
+    byte_3 : int; positional-only
+        Third byte in synchsafe integer.
+
+    byte_4 : int; positional-only
+        Fourth byte in synchsafe integer.
+
+    Returns
+    -------
+    value : int
+        Decoded synchsafe integer value.
+    """
+    return (byte_1 << 21) | (byte_2 << 14) | (byte_3 << 7) | byte_4
+
+
 def join_values(
     values: Collection[Any],
     /,

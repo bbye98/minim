@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import (
+    decode_32_bit_synchsafe_int,
     join_values,
     prepare_isrc,
     set_obj_attr,
@@ -23,6 +24,7 @@ from ._id3.frames import (
     ID3v2FrameFormatFlags,
     ID3v2Frame,
     APICFrame,
+    TIT2Frame,
     TXXXFrame,
 )
 from ._shared import as_buffer
@@ -653,8 +655,8 @@ class ID3v2(AudioTags):
     ID3v2 metadata container.
     """
 
-    _FRAMES = {b"APIC": APICFrame, b"TXXX": TXXXFrame}
-    _FRAME_IDS_3_TO_4 = {b"PIC": b"APIC", b"TXX": b"TXXX"}
+    _FRAMES = {b"APIC": APICFrame, b"TIT2": TIT2Frame, b"TXXX": TXXXFrame}
+    _FRAME_IDS_3_TO_4 = {b"PIC": b"APIC", b"TT2": b"TIT2", b"TXX": b"TXXX"}
     _STRUCT_ID3_HEADER = struct.Struct(">3s7B")
     _STRUCT_PARTIAL_FRAME_HEADER_3 = struct.Struct(">4sI")
     _STRUCT_PARTIAL_FRAME_HEADER_4 = struct.Struct(">4s4B")
@@ -706,14 +708,14 @@ class ID3v2(AudioTags):
         obj._flags = ID3v2Flags.from_byte(flags, tag_version, strict=strict)
 
         offset = 10
-        tag_end = offset + cls._decode_32_bit_synchsafe_int(*tag_length)
+        tag_end = offset + decode_32_bit_synchsafe_int(*tag_length)
         obj._frames = frames = []
 
         match tag_version:
             case (2, 2, 0):
-                ...  # TODO
+                raise NotImplementedError  # TODO
             case (2, 3, 0):
-                ...  # TODO
+                raise NotImplementedError  # TODO
             case (2, 4, 0):
                 while offset < tag_end:
                     frame_id, *frame_length = (
@@ -724,7 +726,7 @@ class ID3v2(AudioTags):
                     end_offset = (
                         offset
                         + 10
-                        + cls._decode_32_bit_synchsafe_int(*frame_length)
+                        + decode_32_bit_synchsafe_int(*frame_length)
                     )
                     frame_obj = cls._FRAMES.get(frame_id)
                     if frame_obj is None:
@@ -738,34 +740,6 @@ class ID3v2(AudioTags):
                     )
                     offset = end_offset
         return obj
-
-    @staticmethod
-    def _decode_32_bit_synchsafe_int(
-        byte_1: int, byte_2: int, byte_3: int, byte_4: int, /
-    ) -> int:
-        """
-        Decode a 32-bit synchsafe integer.
-
-        Parameters
-        ----------
-        byte_1 : int; positional-only
-            First byte in synchsafe integer.
-
-        byte_2 : int; positional-only
-            Second byte in synchsafe integer.
-
-        byte_3 : int; positional-only
-            Third byte in synchsafe integer.
-
-        byte_4 : int; positional-only
-            Fourth byte in synchsafe integer.
-
-        Returns
-        -------
-        value : int
-            Decoded synchsafe integer value.
-        """
-        return (byte_1 << 21) | (byte_2 << 14) | (byte_3 << 7) | byte_4
 
     @property
     def album(self) -> str | list[str] | None:
@@ -1751,7 +1725,13 @@ class VorbisComment(AudioTags):
 
         return {field: self.get(field) for field in fields}
 
-    def remove(self, fields: str | Collection[str], /) -> None:
+    def remove(
+        self,
+        fields: str | Collection[str],
+        /,
+        *,
+        indices: Collection[int] | None = None,
+    ) -> None:
         """
         Remove track attributes.
 
@@ -1760,7 +1740,6 @@ class VorbisComment(AudioTags):
         fields : str or Collection[str]; positional-only
             Field names of the attributes.
         """
-        # TODO: Add index argument.
         if not (
             isinstance(fields, str)
             or (
@@ -1773,7 +1752,19 @@ class VorbisComment(AudioTags):
             )
 
         if isinstance(fields, str):
-            del self._fields[self._normalize_field_name(fields)]
+            if indices is None:
+                del self._fields[self._normalize_field_name(fields)]
+            else:
+                field_value = self._fields[self._normalize_field_name(fields)]
+                for idx in sorted(indices, reverse=True):
+                    field_value.pop(idx)
+            return
+
+        if indices is not None:
+            raise ValueError(
+                "`indices` cannot be specified when `fields` is a "
+                "collection of strings."
+            )
 
         for field in fields:
             self.remove(field)
