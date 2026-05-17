@@ -1,0 +1,717 @@
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+import struct
+from typing import TYPE_CHECKING
+
+from ..._utility import (
+    ASCII_CHARS_REGEX,
+    join_values,
+    set_obj_attr,
+    validate_number,
+    validate_type,
+)
+from .._shared import as_buffer
+
+if TYPE_CHECKING:
+    from ..._types import BytesLike
+
+
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+class ID3v2FrameStatusFlags:
+    """
+    Status flags for an ID3v2 frame.
+    """
+
+    discard_on_tag_alter: bool = False
+    discard_on_file_alter: bool = False
+    is_read_only: bool = False
+
+    def __post_init__(self) -> None:
+        validate_type("discard_on_tag_alter", self.discard_on_tag_alter, bool)
+        validate_type(
+            "discard_on_file_alter", self.discard_on_file_alter, bool
+        )
+        validate_type("is_read_only", self.is_read_only, bool)
+
+    @classmethod
+    def from_byte(
+        cls,
+        byte_: int,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> ID3v2FrameStatusFlags:
+        """
+        Instantiate a :class:`ID3v2FrameStatusFlags` object from a byte.
+
+        Parameters
+        ----------
+        byte_ : int; positional-only
+            Flags byte.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        flags : minim.media.metadata.ID3v2FrameStatusFlags
+            Status flags for an ID3v2 frame.
+        """
+        validate_number("byte_", byte_, int, 0)
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+
+        obj = cls.__new__(cls)
+        match tag_version:
+            case (2, 2, 0):
+                if strict and byte_:
+                    raise ValueError(
+                        "Reserved bits set in ID3v2 frame status flags byte."
+                    )
+                set_obj_attr(obj, "discard_on_tag_alter", False)
+                set_obj_attr(obj, "discard_on_file_alter", False)
+                set_obj_attr(obj, "is_read_only", False)
+            case (2, 3, 0):
+                if strict and byte_ & 0x1F:
+                    raise ValueError(
+                        "Reserved bits set in ID3v2 frame status flags byte."
+                    )
+                set_obj_attr(obj, "discard_on_tag_alter", bool(byte_ & 0x80))
+                set_obj_attr(obj, "discard_on_file_alter", bool(byte_ & 0x40))
+                set_obj_attr(obj, "is_read_only", bool(byte_ & 0x20))
+            case (2, 4, 0):
+                if strict and byte_ & 0x8F:
+                    raise ValueError(
+                        "Reserved bits set in ID3v2 frame status flags byte."
+                    )
+                set_obj_attr(obj, "discard_on_tag_alter", bool(byte_ & 0x40))
+                set_obj_attr(obj, "discard_on_file_alter", bool(byte_ & 0x20))
+                set_obj_attr(obj, "is_read_only", bool(byte_ & 0x10))
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+
+        return obj
+
+
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+class ID3v2FrameFormatFlags:
+    """
+    Format flags for an ID3v2 frame.
+    """
+
+    has_grouping: bool = False
+    is_compressed: bool = False
+    is_encrypted: bool = False
+    is_unsynchronized: bool = False
+    has_data_length_indicator: bool = False
+
+    def __post_init__(self) -> None:
+        validate_type("has_grouping", self.has_grouping, bool)
+        validate_type("is_compressed", self.is_compressed, bool)
+        validate_type("is_encrypted", self.is_encrypted, bool)
+        validate_type("is_unsynchronized", self.is_unsynchronized, bool)
+        validate_type(
+            "has_data_length_indicator", self.has_data_length_indicator, bool
+        )
+
+    @classmethod
+    def from_byte(
+        cls,
+        byte_: int,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> ID3v2FrameFormatFlags:
+        """
+        Instantiate a :class:`ID3v2FrameFormatFlags` object from a byte.
+
+        Parameters
+        ----------
+        byte_ : int; positional-only
+            Flags byte.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        flags : minim.media.metadata.ID3v2FrameFormatFlags
+            Format flags for an ID3v2 frame.
+        """
+        validate_number("byte_", byte_, int, 0)
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+
+        obj = cls.__new__(cls)
+        match tag_version:
+            case (2, 2, 0):
+                if strict and byte_:
+                    raise ValueError(
+                        "Reserved bits set in ID3v2 frame status flags byte."
+                    )
+                set_obj_attr(obj, "has_grouping", False)
+                set_obj_attr(obj, "is_compressed", False)
+                set_obj_attr(obj, "is_encrypted", False)
+                set_obj_attr(obj, "is_unsynchronized", False)
+                set_obj_attr(obj, "has_data_length_indicator", False)
+            case (2, 3, 0):
+                if strict and byte_ & 0x1F:
+                    raise ValueError(
+                        "Reserved bits set in ID3v2 frame status flags byte."
+                    )
+                set_obj_attr(obj, "is_compressed", bool(byte_ & 0x80))
+                set_obj_attr(obj, "is_encrypted", bool(byte_ & 0x40))
+                set_obj_attr(obj, "has_grouping", bool(byte_ & 0x20))
+                set_obj_attr(obj, "is_unsynchronized", False)
+                set_obj_attr(obj, "has_data_length_indicator", False)
+            case (2, 4, 0):
+                if strict and byte_ & 0x70:
+                    raise ValueError(
+                        "Reserved bits set in ID3v2 frame status flags byte."
+                    )
+                set_obj_attr(obj, "has_grouping", bool(byte_ & 0x40))
+                set_obj_attr(obj, "is_compressed", bool(byte_ & 0x08))
+                set_obj_attr(obj, "is_encrypted", bool(byte_ & 0x04))
+                set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x02))
+                set_obj_attr(
+                    obj, "has_data_length_indicator", bool(byte_ & 0x01)
+                )
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+
+        return obj
+
+
+class ID3v2Frame(ABC):
+    """
+    ID3v2 frame.
+    """
+
+    _TEXT_ENCODINGS = {0: "iso-8859-1", 1: "utf-16", 2: "utf-16be", 3: "utf-8"}
+    _STRUCT_FRAME_HEADER = struct.Struct(">4sIBB")
+
+    __slots__ = "_format_flags", "_status_flags"
+
+    def __init__(
+        self,
+        *,
+        format_flags: ID3v2FrameFormatFlags = ID3v2FrameFormatFlags(),
+        status_flags: ID3v2FrameStatusFlags = ID3v2FrameStatusFlags(),
+    ) -> None:
+        """
+        Parameters
+        ----------
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags for an ID3v2 frame.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags for an ID3v2 frame.
+        """
+        validate_type("format_flags", format_flags, ID3v2FrameFormatFlags)
+        self._format_flags = format_flags
+        validate_type("status_flags", status_flags, ID3v2FrameStatusFlags)
+        self._status_flags = status_flags
+
+    @classmethod
+    @abstractmethod
+    def from_stream(
+        cls, stream: BytesLike, /, tag_version: str | tuple[int, int, int]
+    ) -> ID3v2Frame:
+        """ 
+        Instantiate a :class:`ID3v2Frame` object from a bytes-like 
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing an ID3v2 frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame : minim.media.metadata.ID3v2Frame
+            ID3v2 frame.
+        """
+        ...
+
+    @classmethod
+    @abstractmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> str:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : str
+            ID3v2 frame ID.
+        """
+        ...
+
+    @property
+    def format_flags(self) -> ID3v2FrameFormatFlags:
+        """
+        Format flags for an ID3v2 frame.
+        """
+        return self._format_flags
+
+    @property
+    def status_flags(self) -> ID3v2FrameStatusFlags:
+        """
+        Status flags for an ID3v2 frame.
+        """
+        return self._status_flags
+
+    @abstractmethod
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the ID3v2 frame to a bytestream.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing the ID3v2 frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+        """
+        ...
+
+
+class APICFrame(ID3v2Frame):
+    """
+    Attached picture (APIC) frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.15. Attached picture
+       <https://id3.org/id3v2.3.0#Attached_picture>`_.
+
+       `ID3v2.4.0 Native Frames: 4.14. Attached picture
+       <https://id3.org/id3v2.4.0-frames>`_.
+
+    Parameters
+    ----------
+    picture_type : int; keyword-only
+        Picture type.
+
+    mime_type : str; keyword-only
+        MIME type.
+
+    picture_data : bytes; keyword-only
+        Picture data.
+
+    text_encoding : str; keyword-only; default: :code:`"utf-16"`
+        Text encoding for the picture description.
+
+        **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+        :code:`"utf-16be"`, :code:`"utf-8"`.
+
+    description : str; keyword-only
+        Picture description.
+
+    format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+    keyword-only; optional
+        Format flags.
+
+    status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+    keyword-only; optional
+        Status flags.
+    """
+
+    _STRUCT_II = struct.Struct(">II")
+    _STRUCT_IIIII = struct.Struct(">5I")
+
+    __slots__ = (
+        "_picture_type",
+        "_mime_type",
+        "_picture_data",
+        "_text_encoding",
+        "_description",
+    )
+
+    def __init__(
+        self,
+        *,
+        picture_type: int,
+        mime_type: str,
+        picture_data: bytes,
+        text_encoding: str = "utf-16",
+        description: str = "",
+    ) -> None:
+        """
+        Parameters
+        ----------
+        picture_type : int; keyword-only
+            Picture type.
+
+        mime_type : str; keyword-only
+            MIME type.
+
+            **Examples**: :code:`"image/jpeg"`, :code:`"image/png"`,
+            :code:`"-->"`.
+
+        picture_data : bytes; keyword-only
+            Picture data.
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding for the picture description.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        description : str; keyword-only; default: :code:`""`
+            Picture description.
+        """
+        validate_number("picture_type", picture_type, int, 0, 20)
+        self._picture_type = picture_type
+
+        validate_type("mime_type", mime_type, str)
+        mime_type = mime_type.lower()
+        if not ASCII_CHARS_REGEX.match(mime_type):
+            raise ValueError(
+                "`mime_type` must contain only ASCII characters 0x20 "
+                "(' ') through 0x7D ('}')."
+            )
+        self._mime_type = mime_type
+
+        validate_type("picture_data", picture_data, bytes)
+        self._picture_data = picture_data
+
+        validate_type("description", description, str)
+        self._description = description
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        if text_encoding == "iso-8859-1":
+            try:
+                description.encode(encoding=text_encoding)
+                is_utf = False
+            except UnicodeEncodeError:
+                is_utf = True
+            if is_utf:
+                raise ValueError(
+                    "`picture_description` cannot be encoded using ISO-8859-1."
+                )
+        self._text_encoding = text_encoding
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> APICFrame:
+        """ 
+        Instantiate an :class:`APICFrame` object from a bytes-like 
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the :code:`APIC` frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        attached_picture : minim.media.metadata.APICFrame
+            :code:`APIC` frame.
+        """
+        ...  # TODO
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> str:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : str
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return "PIC"
+        return "APIC"
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the :code:`APIC` frame to a bytestream.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing :code:`APIC` frame data.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+        """
+        ...  # TODO
+
+
+class TXXXFrame(ID3v2Frame):
+    """
+    User-defined text information frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.2. User defined text information frame
+       <https://id3.org/id3v2.3.0#User_defined_text_information_frame>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.6. User defined text information
+       frame <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    __slots__ = "_description", "_value", "_text_encoding"
+
+    def __init__(
+        self, description: str, value: str, *, text_encoding: str = "utf-16"
+    ) -> None:
+        """
+        Parameters
+        ----------
+        description : str
+            Description.
+
+        value : str
+            Value.
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+        """
+        validate_type("description", description, str)
+        self._description = description
+
+        validate_type("value", value, str)
+        self._value = value
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        if text_encoding == "iso-8859-1":
+            try:
+                description.encode(encoding=text_encoding)
+                value.encode(encoding=text_encoding)
+                is_utf = False
+            except UnicodeEncodeError:
+                is_utf = True
+            if is_utf:
+                raise ValueError(
+                    "`description` or `value` cannot be encoded using "
+                    "ISO-8859-1."
+                )
+        self._text_encoding = text_encoding
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> TXXXFrame:
+        """ 
+        Instantiate an :class:`TXXXFrame` object from a bytes-like 
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the :code:`TXXX` frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.   
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications. 
+
+        Returns
+        -------
+        text_info : minim.media.metadata.TXXXFrame
+            :code:`TXXX` frame.
+        """
+        stream = as_buffer(stream)
+        match tag_version:
+            case (2, 2, 0):
+                pass
+            case (2, 3, 0) | (2, 4, 0):
+                frame_id, frame_length, format_flags, status_flags = (
+                    cls._STRUCT_FRAME_HEADER.unpack_from(stream)
+                )
+                if frame_id != b"TXXX":
+                    raise ValueError(
+                        "`bytestream` does not contain a TXXX frame."
+                    )
+
+                format_flags = ID3v2FrameFormatFlags.from_byte(
+                    format_flags, tag_version=tag_version, strict=strict
+                )
+                status_flags = ID3v2FrameStatusFlags.from_byte(
+                    status_flags, tag_version=tag_version, strict=strict
+                )
+                text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+                description, value, *end = (
+                    stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+                )
+                if len(end) != 1 or end[0]:
+                    raise ValueError("Invalid TXXX frame data.")
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+
+        obj = cls.__new__(cls)
+        obj._format_flags = format_flags
+        obj._status_flags = status_flags
+        obj._description = description.decode(encoding=text_encoding)
+        obj._value = value.decode(encoding=text_encoding)
+        obj._text_encoding = text_encoding
+        return obj
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> str:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : str
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return "TXX"
+        return "TXXX"
+
+    @property
+    def description(self) -> str:
+        """
+        Description.
+        """
+        return self._description
+
+    @property
+    def value(self) -> str:
+        """
+        Value.
+        """
+        return self._value
+
+    @property
+    def text_encoding(self) -> str:
+        """
+        Text encoding.
+        """
+        return self._text_encoding
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the :code:`TXXX` frame to a bytestream.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing the :code:`TXXX` frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+        """
+        ...  # TODO

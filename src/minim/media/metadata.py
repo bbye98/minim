@@ -10,12 +10,20 @@ from typing import TYPE_CHECKING
 from .. import __version__
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import (
-    ASCII_CHARS_REGEX,
     join_values,
     prepare_isrc,
+    set_obj_attr,
     validate_number,
     validate_numeric,
+    validate_range,
     validate_type,
+)
+from ._id3.frames import (
+    ID3v2FrameStatusFlags,
+    ID3v2FrameFormatFlags,
+    ID3v2Frame,
+    APICFrame,
+    TXXXFrame,
 )
 from ._shared import as_buffer
 
@@ -23,9 +31,19 @@ if TYPE_CHECKING:
     from typing import Any
 
     from .._types import BytesLike, Collection, OrderedCollection
+    from ._id3.frames import ID3v2Frame
 
 
-__all__ = ["ID3v2", "APICFrame", "VorbisComment"]
+__all__ = [
+    "ID3v2",
+    "VorbisComment",
+    "ID3v2Flags",
+    "ID3v2FrameStatusFlags",
+    "ID3v2FrameFormatFlags",
+    "ID3v2Frame",
+    "APICFrame",
+    "TXXXFrame",
+]
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -521,25 +539,113 @@ class AudioTags(ABC):
         ...
 
 
-class ID3v1(AudioTags):
+# class ID3v1(AudioTags):
+#     """
+#     ID3v1 metadata container.
+#     """
+
+#     _TAG_VERSIONS = {(1, 0), (1, 1)}
+
+#     __slots__ = ("_fields", "_tag_version")
+
+#     def __init__(self, tag_version: str | tuple[int, int], /) -> None:
+#         if isinstance(tag_version, str):
+#             tag_version = (int(v) for v in tag_version.split("."))
+#         if tag_version not in self._TAG_VERSIONS:
+#             raise ValueError(
+#                 f"Invalid ID3v1 tag version {tag_version!r}. "
+#                 f"Valid values: {join_values(self._TAG_VERSIONS)}."
+#             )
+
+#         self._tag_version = tag_version
+
+#         ...  # TODO
+
+
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+class ID3v2Flags:
     """
-    ID3v1 metadata container.
+    Flags for ID3v2 tags.
     """
 
-    _TAG_VERSIONS = {"1.0", "1.1"}
+    is_unsynchronized: bool = False
+    has_extended_header: bool = False
+    is_experimental: bool = False
+    has_footer: bool = False
+    is_compressed: bool = False
 
-    __slots__ = ("_fields", "_tag_version")
+    def __post_init__(self) -> None:
+        validate_type("is_unsynchronized", self.is_unsynchronized, bool)
+        validate_type("has_extended_header", self.has_extended_header, bool)
+        validate_type("is_experimental", self.is_experimental, bool)
+        validate_type("has_footer", self.has_footer, bool)
+        validate_type("is_compressed", self.is_compressed, bool)
 
-    def __init__(self, tag_version: str = "1.1", /) -> None:
-        if tag_version not in self._TAG_VERSIONS:
-            raise ValueError(
-                f"Invalid ID3v1 tag version {tag_version!r}. "
-                f"Valid values: {join_values(self._TAG_VERSIONS)}."
-            )
+    @classmethod
+    def from_byte(
+        cls,
+        byte_: int,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> ID3v2Flags:
+        """
+        Instantiate a :class:`ID3v2Flags` object from a byte.
 
-        self._tag_version = tag_version
+        Parameters
+        ----------
+        byte_ : int; positional-only
+            Flags byte.
 
-        ...  # TODO
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        flags : minim.media.metadata.ID3v2Flags
+            Flags for ID3v2 tags.
+        """
+        validate_number("byte_", byte_, int, 0)
+        if isinstance(tag_version, str):
+            tag_version = (int(v) for v in tag_version.split("."))
+
+        obj = cls.__new__(cls)
+        match tag_version:
+            case (2, 2, 0):
+                if strict and byte_ & 0x3F:
+                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
+                set_obj_attr(obj, "has_extended_header", False)
+                set_obj_attr(obj, "is_experimental", False)
+                set_obj_attr(obj, "has_footer", False)
+                set_obj_attr(obj, "is_compressed", bool(byte_ & 0x40))
+            case (2, 3, 0):
+                if strict and byte_ & 0x1F:
+                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
+                set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
+                set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
+                set_obj_attr(obj, "has_footer", False)
+                set_obj_attr(obj, "is_compressed", False)
+            case (2, 4, 0):
+                if strict and byte_ & 0xF:
+                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
+                set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
+                set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
+                set_obj_attr(obj, "has_footer", bool(byte_ & 0x10))
+                set_obj_attr(obj, "is_compressed", False)
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+
+        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
+        return obj
 
 
 class ID3v2(AudioTags):
@@ -547,11 +653,25 @@ class ID3v2(AudioTags):
     ID3v2 metadata container.
     """
 
-    _TAG_VERSIONS = {"2.2.0", "2.3.0", "2.4.0"}
+    _FRAMES = {b"APIC": APICFrame, b"TXXX": TXXXFrame}
+    _FRAME_IDS_3_TO_4 = {b"PIC": b"APIC", b"TXX": b"TXXX"}
+    _STRUCT_ID3_HEADER = struct.Struct(">3s7B")
+    _STRUCT_PARTIAL_FRAME_HEADER_3 = struct.Struct(">4sI")
+    _STRUCT_PARTIAL_FRAME_HEADER_4 = struct.Struct(">4s4B")
+    _TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
 
-    __slots__ = ("_frames", "_tag_version")
+    __slots__ = ("_flags", "_frames", "_tag_version")
 
-    def __init__(self, tag_version: str, /) -> None:
+    def __init__(
+        self,
+        frames: list[ID3v2Frame],
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        flags: int | dict[str, bool] | ID3v2Flags = 0,
+    ) -> None:
+        if isinstance(tag_version, str):
+            tag_version = (int(v) for v in tag_version.split("."))
         if tag_version not in self._TAG_VERSIONS:
             raise ValueError(
                 f"Invalid ID3v2 tag version {tag_version!r}. "
@@ -562,152 +682,432 @@ class ID3v2(AudioTags):
 
         ...  # TODO
 
-
-class ID3Frame(ABC):
-    """
-    ID3 frame.
-    """
-
     @classmethod
-    @abstractmethod
-    def from_stream(cls, stream: BytesLike, /) -> ID3Frame:
+    def from_stream(
+        cls, stream: BytesLike, /, *, strict: bool = True
+    ) -> ID3v2:
         """ """
-        ...  # TODO
+        stream = as_buffer(stream)
+        frame_id, minor, patch, flags, *tag_length = (
+            cls._STRUCT_ID3_HEADER.unpack_from(stream)
+        )
+        if frame_id != b"ID3":
+            raise ValueError("`stream` does not contain an ID3v2 tag.")
 
-    @classmethod
-    @abstractmethod
-    def frame_id(cls, tag_version: str) -> str:
-        """ """
-        ...  # TODO
-
-    @abstractmethod
-    def serialize(self, tag_version: str) -> bytes:
-        """ """
-        ...  # TODO
-
-
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-class APICFrame(ID3Frame):
-    """
-    Attached picture (APIC) frame.
-
-    .. seealso::
-
-       `ID3v2.3.0: 4.15. Attached picture
-       <https://id3.org/id3v2.3.0#Attached_picture>`_.
-
-       `ID3v2.4.0 Native Frames: 4.14. Attached picture
-       <https://id3.org/id3v2.4.0-frames>`_.
-
-    Parameters
-    ----------
-    picture_type : int; keyword-only
-        Picture type.
-
-    mime_type : str; keyword-only
-        MIME type.
-
-    picture_data : bytes; keyword-only
-        Picture data.
-
-    text_encoding : int; keyword-only; optional
-        Text encoding for the picture description.
-
-        **Valid values**:
-
-        * :code:`0` – ISO-8859-1.
-        * :code:`1` – UTF-16 (with byte order mark (BOM)).
-        * :code:`2` – UTF-16BE (without BOM).
-        * :code:`3` – UTF-8.
-
-    description : int; keyword-only
-        Picture description.
-    """
-
-    _STRUCT_II = struct.Struct(">II")
-    _STRUCT_IIIII = struct.Struct(">5I")
-
-    #: Picture type.
-    picture_type: int
-    #: MIME type.
-    mime_type: str
-    #: Picture data.
-    picture_data: bytes
-    #: Text encoding for the picture description.
-    text_encoding: int = 3
-    #: Picture description.
-    description: str = ""
-
-    def __post_init__(self) -> None:
-        validate_number("picture_type", self.picture_type, int, 0, 20)
-
-        mime_type = self.mime_type
-        validate_type("mime_type", mime_type, str)
-        mime_type = self.mime_type = mime_type.lower()
-        if not ASCII_CHARS_REGEX.match(mime_type):
+        tag_version = 2, minor, patch
+        if tag_version not in cls._TAG_VERSIONS:
             raise ValueError(
-                "`mime_type` must contain only ASCII characters 0x20 "
-                "(' ') through 0x7D ('}')."
+                f"Invalid ID3v2 tag version {tag_version!r}. "
+                f"Valid values: {join_values(cls._TAG_VERSIONS)}."
             )
 
-        validate_type("picture_data", self.picture_data, bytes)
+        obj = cls.__new__(cls)
+        obj._tag_version = tag_version
+        obj._flags = ID3v2Flags.from_byte(flags, tag_version, strict=strict)
 
-        validate_type("description", self.description, str)
-        try:
-            self.description.encode(encoding="iso-8859-1")
-            is_utf = False
-        except UnicodeEncodeError:
-            is_utf = True
-        text_encoding = self.text_encoding
-        validate_number("text_encoding", text_encoding, 0, 3)
-        if is_utf and text_encoding:
-            raise ValueError(
-                "`picture_description` cannot be encoded using "
-                "ISO-8859-1 (`text_encoding=0`)."
-            )
+        offset = 10
+        tag_end = offset + cls._decode_32_bit_synchsafe_int(*tag_length)
+        obj._frames = frames = []
 
-    @classmethod
-    def frame_id(cls, tag_version: str) -> str:
-        """ """
-        if tag_version == "2.2.0":
-            return "PIC"
+        match tag_version:
+            case (2, 2, 0):
+                ...  # TODO
+            case (2, 3, 0):
+                ...  # TODO
+            case (2, 4, 0):
+                while offset < tag_end:
+                    frame_id, *frame_length = (
+                        cls._STRUCT_PARTIAL_FRAME_HEADER_4.unpack_from(
+                            stream, offset
+                        )
+                    )
+                    end_offset = (
+                        offset
+                        + 10
+                        + cls._decode_32_bit_synchsafe_int(*frame_length)
+                    )
+                    frame_obj = cls._FRAMES.get(frame_id)
+                    if frame_obj is None:
+                        raise NotImplementedError
+                    frames.append(
+                        frame_obj.from_stream(
+                            stream[offset:end_offset],
+                            tag_version=tag_version,
+                            strict=strict,
+                        )
+                    )
+                    offset = end_offset
+        return obj
 
-        return "APIC"
-
-    @classmethod
-    def from_stream(cls, stream: BytesLike, /) -> APICFrame:
-        """ 
-        Instantiate an :class:`APICFrame` object from a bytes-like 
-        object.
+    @staticmethod
+    def _decode_32_bit_synchsafe_int(
+        byte_1: int, byte_2: int, byte_3: int, byte_4: int, /
+    ) -> int:
+        """
+        Decode a 32-bit synchsafe integer.
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
-            Bytes-like object containing :code:`APIC` data.
+        byte_1 : int; positional-only
+            First byte in synchsafe integer.
+
+        byte_2 : int; positional-only
+            Second byte in synchsafe integer.
+
+        byte_3 : int; positional-only
+            Third byte in synchsafe integer.
+
+        byte_4 : int; positional-only
+            Fourth byte in synchsafe integer.
 
         Returns
         -------
-        attached_picture : minim.media.metadata.APICFrame
-            :code:`APIC` frame.
+        value : int
+            Decoded synchsafe integer value.
         """
-        ...  # TODO
+        return (byte_1 << 21) | (byte_2 << 14) | (byte_3 << 7) | byte_4
 
-    def serialize(self, *, tag_version: str = "2.4.0") -> bytes:
+    @property
+    def album(self) -> str | list[str] | None:
         """
-        Serialize the :code:`APIC` frame data to a bytestream.
+        Title of the album or collection.
+        """
+        ...
+
+    @album.setter
+    def album(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def album_artist(self) -> str | list[str] | None:
+        """
+        Main artists credited for the entire album or collection.
+        """
+        ...
+
+    @album_artist.setter
+    def album_artist(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def artist(self) -> str | list[str] | None:
+        """
+        Main artists of the recording (e.g., the performing band or
+        singers in popular music, the composers for classical music, or
+        the authors of the original text in audiobooks).
+        """
+        ...
+
+    @artist.setter
+    def artist(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def bpm(self) -> int | list[str] | None:
+        """
+        Tempo in beats per minute (BPM).
+        """
+        ...
+
+    @bpm.setter
+    def bpm(
+        self,
+        value: int | float | str | OrderedCollection[int | float | str],
+        /,
+    ) -> None: ...
+
+    @property
+    def comment(self) -> str | list[str] | None:
+        """
+        Free-form comments.
+        """
+        ...
+
+    @comment.setter
+    def comment(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def compilation(self) -> bool | list[str] | None:
+        """
+        Whether the recording is part of a compilation.
+        """
+        ...
+
+    @compilation.setter
+    def compilation(
+        self, value: bool | int | str | OrderedCollection[bool | int | str], /
+    ) -> None: ...
+
+    @property
+    def composer(self) -> str | list[str] | None:
+        """
+        Composers or songwriters.
+        """
+        ...
+
+    @composer.setter
+    def composer(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def contact(self) -> str | list[str] | None:
+        """
+        Contact information for the creators or distributors.
+        """
+        ...
+
+    @contact.setter
+    def contact(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def copyright(self) -> str | list[str] | None:
+        """
+        Copyright attribution.
+        """
+        ...
+
+    @copyright.setter
+    def copyright(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def date(self) -> str | list[str] | None:
+        """
+        Release date.
+        """
+        ...
+
+    @date.setter
+    def date(
+        self, value: str | datetime | OrderedCollection[str | datetime], /
+    ) -> None: ...
+
+    @property
+    def description(self) -> str | list[str] | None:
+        """
+        General description.
+        """
+        ...
+
+    @description.setter
+    def description(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def disc_number(self) -> int | str | list[str] | None:
+        """
+        Disc number within a multi-disc set.
+        """
+        ...
+
+    @disc_number.setter
+    def disc_number(
+        self, value: int | str | OrderedCollection[int | str], /
+    ) -> None: ...
+
+    @property
+    def disc_total(self) -> int | str | list[str] | None:
+        """
+        Total number of discs.
+        """
+        ...
+
+    @disc_total.setter
+    def disc_total(
+        self, value: int | str | OrderedCollection[int | str], /
+    ) -> None: ...
+
+    @property
+    def encoder(self) -> str | list[str] | None:
+        """
+        Software or hardware used for encoding, or the person or
+        organization that encoded the audio file.
+        """
+        ...
+
+    @encoder.setter
+    def encoder(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def genre(self) -> str | list[str] | None:
+        """
+        Musical genres.
+        """
+        ...
+
+    @genre.setter
+    def genre(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def grouping(self) -> str | list[str] | None:
+        """
+        Content group description.
+        """
+        ...
+
+    @grouping.setter
+    def grouping(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def isrc(self) -> str | list[str] | None:
+        """
+        International Standard Recording Code (ISRC).
+        """
+        ...
+
+    @isrc.setter
+    def isrc(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def label(self) -> str | list[str] | None:
+        """
+        Publisher or record label.
+        """
+        ...
+
+    @label.setter
+    def label(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def license(self) -> str | list[str] | None:
+        """
+        License information.
+        """
+        ...
+
+    @license.setter
+    def license(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def location(self) -> str | list[str] | None:
+        """
+        Recording locations.
+        """
+        ...
+
+    @location.setter
+    def location(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def lyrics(self) -> str | list[str] | None:
+        """
+        Lyrics or transcription.
+        """
+        ...
+
+    @lyrics.setter
+    def lyrics(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def performer(self) -> str | list[str] | None:
+        """
+        Performers (e.g., the conductor, orchestra, and/or soloists in
+        classical music, or the narrator in audiobooks).
+        """
+        ...
+
+    @performer.setter
+    def performer(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def title(self) -> str | list[str] | None:
+        """
+        Title of the recording.
+        """
+        ...
+
+    @title.setter
+    def title(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def track_number(self) -> int | list[str] | None:
+        """
+        Track number within the album or collection.
+        """
+        ...
+
+    @track_number.setter
+    def track_number(
+        self, value: int | str | OrderedCollection[int | str], /
+    ) -> None: ...
+
+    @property
+    def track_total(self) -> int | list[str] | None:
+        """
+        Total number of tracks.
+        """
+        ...
+
+    @track_total.setter
+    def track_total(
+        self, value: int | str | OrderedCollection[int | str], /
+    ) -> None: ...
+
+    @property
+    def version(self) -> str | list[str] | None:
+        """
+        Version of the recording (e.g., remix information).
+        """
+        ...
+
+    @version.setter
+    def version(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    def get(
+        self,
+        fields: str | Collection[str],
+        /,
+        *args: tuple[Any, ...],
+        **kwargs: dict[str, Any],
+    ) -> Any | dict[str, Any]:
+        """
+        Get track attributes.
+
+        Parameters
+        ----------
+        fields : str or Collection[str]; positional-only
+            Field names of the attributes.
+
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+
+        Returns
+        -------
+        attributes : Any or dict[str, Any]
+            Track attributes. If `fields` is a collection of strings, a
+            dictionary mapping field names to their corresponding values
+            is returned.
+        """
+        ...
+
+    def serialize(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> bytes:
+        """
+        Serialize metadata to a bytestream.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
 
         Returns
         -------
         bytestream : bytes
-            Bytestream containing :code:`APIC` frame data.
-
-        tag_version : str; keyword-only; default: :code:`"2.4.0"`
-            ID3 tag version.
-
-            **Valid values**: :code:`"2.3.0"`, :code:`"2.4.0"`.
+            Bytestream containing the serialized metadata.
         """
-        ...  # TODO
+        ...
+
+    def set(self, **kwargs: dict[str, Any]) -> None:
+        """
+        Set track attributes.
+
+        Parameters
+        ----------
+        **kwargs : dict[str, Any]
+            Key–value pairs of track attributes.
+        """
+        ...
 
 
 class ItemListBox(AudioTags):

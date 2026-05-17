@@ -13,15 +13,19 @@ import warnings
 from .._utility import (
     ASCII_CHARS_REGEX,
     set_obj_attr,
-    join_values,
     prepare_isrc,
     validate_number,
     validate_range,
     validate_type,
 )
 from .._types import BytesLike, COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
+from ._id3.frames import (
+    ID3v2FrameFormatFlags,
+    ID3v2FrameStatusFlags,
+    APICFrame,
+)
 from ._shared import as_buffer, Audio
-from .metadata import APICFrame, AudioStreamInfo, VorbisComment
+from .metadata import AudioStreamInfo, VorbisComment
 
 if TYPE_CHECKING:
     from .._types import PathLike, Collection, OrderedCollection
@@ -1335,7 +1339,7 @@ class FLACCueSheetTrackIndex(
         return self._STRUCT.pack(*self, 3 * b"\x00")
 
 
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+@dataclass(kw_only=True, repr=False, slots=True)
 class FLACPicture(FLACMetadataBlock, APICFrame):
     """
     FLAC :code:`PICTURE` metadata block data.
@@ -1447,6 +1451,8 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         set_obj_attr(obj, "height", height)
         set_obj_attr(obj, "color_depth", color_depth)
         set_obj_attr(obj, "num_indexed_colors", num_indexed_colors)
+        set_obj_attr(obj, "format_flags", ID3v2FrameFormatFlags())
+        set_obj_attr(obj, "status_flags", ID3v2FrameStatusFlags())
         return obj
 
     @property

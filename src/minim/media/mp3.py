@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from ._shared import Audio
+from .metadata import ID3v2
+
+__all__ = ["MP3Audio"]
 
 
 class MP3Audio(Audio):
@@ -18,9 +21,16 @@ class MP3Audio(Audio):
         file_path = self._file_path
         view = self._view
 
-        if self._strict:
+        self._format_metadata = []
+        strict = self._strict
+        if strict:
+            offset = 10 + ID3v2._decode_32_bit_synchsafe_int(*view[7:11])
             if view[:3] == b"ID3":
-                debug = True
+                tags = ID3v2.from_stream(view[:offset], strict=strict)
+                self._format_metadata.append(tags)
+                self._tags = tags
+                self._audio_offset = offset
+                ...  # TODO
             else:
                 self._audio_offset = 0
 
@@ -30,10 +40,13 @@ class MP3Audio(Audio):
         self.close()
 
     def add_metadata(self) -> None:
-        pass
+        """ """
+        ...  # TODO
 
     def remove_metadata(self) -> None:
-        pass
+        """ """
+        ...  # TODO
 
     def save(self) -> None:
-        pass
+        """ """
+        ...  # TODO
