@@ -22,7 +22,7 @@ from .._types import BytesLike, COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ._id3.frames import (
     ID3v2FrameFormatFlags,
     ID3v2FrameStatusFlags,
-    APICFrame,
+    ID3v2APICFrame,
 )
 from ._shared import as_buffer, Audio
 from .metadata import AudioStreamInfo, VorbisComment
@@ -1340,7 +1340,7 @@ class FLACCueSheetTrackIndex(
 
 
 @dataclass(kw_only=True, repr=False, slots=True)
-class FLACPicture(FLACMetadataBlock, APICFrame):
+class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
     """
     FLAC :code:`PICTURE` metadata block data.
 
@@ -1417,7 +1417,7 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
         attached_picture : minim.media.metadata.APICFrame
             :code:`APIC` frame.
         """
-        picture_type, mime_type_length = APICFrame._STRUCT_II.unpack_from(
+        picture_type, mime_type_length = ID3v2APICFrame._STRUCT_II.unpack_from(
             stream
         )
         validate_number("picture_type", picture_type, int, 0, 20)
@@ -1435,18 +1435,20 @@ class FLACPicture(FLACMetadataBlock, APICFrame):
 
         offset = end_offset
         width, height, color_depth, num_indexed_colors, data_length = (
-            APICFrame._STRUCT_IIIII.unpack_from(stream, offset)
+            ID3v2APICFrame._STRUCT_IIIII.unpack_from(stream, offset)
         )
-
         offset += 20
-        picture_data = stream[offset : offset + data_length].tobytes()
 
         obj = cls.__new__(cls)
         set_obj_attr(obj, "picture_type", picture_type)
         set_obj_attr(obj, "mime_type", mime_type)
         set_obj_attr(obj, "text_encoding", 3)
         set_obj_attr(obj, "description", description)
-        set_obj_attr(obj, "picture_data", picture_data)
+        set_obj_attr(
+            obj,
+            "picture_data",
+            stream[offset : offset + data_length].tobytes(),
+        )
         set_obj_attr(obj, "width", width)
         set_obj_attr(obj, "height", height)
         set_obj_attr(obj, "color_depth", color_depth)

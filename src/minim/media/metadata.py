@@ -16,16 +16,19 @@ from .._utility import (
     set_obj_attr,
     validate_number,
     validate_numeric,
-    validate_range,
     validate_type,
 )
 from ._id3.frames import (
     ID3v2FrameStatusFlags,
     ID3v2FrameFormatFlags,
     ID3v2Frame,
-    APICFrame,
-    TIT2Frame,
-    TXXXFrame,
+    ID3v2APICFrame,
+    ID3v2TALBFrame,
+    ID3v2TBPMFrame,
+    ID3v2TIT2Frame,
+    ID3v2TPE1Frame,
+    ID3v2TPE2Frame,
+    ID3v2TXXXFrame,
 )
 from ._shared import as_buffer
 
@@ -43,8 +46,13 @@ __all__ = [
     "ID3v2FrameStatusFlags",
     "ID3v2FrameFormatFlags",
     "ID3v2Frame",
-    "APICFrame",
-    "TXXXFrame",
+    "ID3v2APICFrame",
+    "ID3v2TALBFrame",
+    "ID3v2TBPMFrame",
+    "ID3v2TIT2Frame",
+    "ID3v2TPE1Frame",
+    "ID3v2TPE2Frame",
+    "ID3v2TXXXFrame",
 ]
 
 
@@ -655,8 +663,6 @@ class ID3v2(AudioTags):
     ID3v2 metadata container.
     """
 
-    _FRAMES = {b"APIC": APICFrame, b"TIT2": TIT2Frame, b"TXXX": TXXXFrame}
-    _FRAME_IDS_3_TO_4 = {b"PIC": b"APIC", b"TT2": b"TIT2", b"TXX": b"TXXX"}
     _STRUCT_ID3_HEADER = struct.Struct(">3s7B")
     _STRUCT_PARTIAL_FRAME_HEADER_3 = struct.Struct(">4sI")
     _STRUCT_PARTIAL_FRAME_HEADER_4 = struct.Struct(">4s4B")
@@ -728,7 +734,7 @@ class ID3v2(AudioTags):
                         + 10
                         + decode_32_bit_synchsafe_int(*frame_length)
                     )
-                    frame_obj = cls._FRAMES.get(frame_id)
+                    frame_obj = ID3v2Frame._get_class(frame_id)
                     if frame_obj is None:
                         raise NotImplementedError
                     frames.append(

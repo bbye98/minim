@@ -10,11 +10,14 @@ from ..._utility import (
     join_values,
     set_obj_attr,
     validate_number,
+    validate_numeric,
     validate_type,
 )
 from .._shared import as_buffer
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from ..._types import BytesLike
 
 
@@ -208,14 +211,15 @@ class ID3v2Frame(ABC):
     """
 
     _TEXT_ENCODINGS = {0: "iso-8859-1", 1: "utf-16", 2: "utf-16be", 3: "utf-8"}
+    _REGISTRY = {}
 
     __slots__ = "_format_flags", "_status_flags"
 
     def __init__(
         self,
         *,
-        format_flags: ID3v2FrameFormatFlags = ID3v2FrameFormatFlags(),
-        status_flags: ID3v2FrameStatusFlags = ID3v2FrameStatusFlags(),
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -228,10 +232,40 @@ class ID3v2Frame(ABC):
         keyword-only; optional
             Status flags for an ID3v2 frame.
         """
-        validate_type("format_flags", format_flags, ID3v2FrameFormatFlags)
-        self._format_flags = format_flags
-        validate_type("status_flags", status_flags, ID3v2FrameStatusFlags)
-        self._status_flags = status_flags
+        if format_flags is None:
+            self._format_flags = ID3v2FrameFormatFlags()
+        else:
+            validate_type("format_flags", format_flags, ID3v2FrameFormatFlags)
+            self._format_flags = format_flags
+
+        if status_flags is None:
+            self._status_flags = ID3v2FrameFormatFlags()
+        else:
+            validate_type("status_flags", status_flags, ID3v2FrameStatusFlags)
+            self._status_flags = status_flags
+
+    def __init_subclass__(cls, **kwargs: dict[str, Any]) -> None:
+        super().__init_subclass__(**kwargs)
+        for tag_version in ((2, 2, 0), (2, 3, 0), (2, 4, 0)):
+            if frame_id := cls.get_frame_id(tag_version):
+                cls._REGISTRY[frame_id] = cls
+
+    @classmethod
+    def _get_class(cls, frame_id: bytes, /) -> ID3v2Frame:
+        """
+        Get the class corresponding to an ID3v2 frame ID.
+
+        Parameters
+        ----------
+        frame_id : bytes; positional-only
+            ID3v2 frame ID.
+
+        Returns
+        -------
+        cls : ID3v2Frame
+            ID3v2 frame class.
+        """
+        return cls._REGISTRY.get(frame_id)
 
     @classmethod
     @abstractmethod
@@ -354,7 +388,7 @@ class ID3v2Frame(ABC):
         ...
 
 
-class APICFrame(ID3v2Frame):
+class ID3v2APICFrame(ID3v2Frame):
     """
     Attached picture (APIC) frame.
 
@@ -365,34 +399,6 @@ class APICFrame(ID3v2Frame):
 
        `ID3v2.4.0 Native Frames: 4.14. Attached picture
        <https://id3.org/id3v2.4.0-frames>`_.
-
-    Parameters
-    ----------
-    picture_type : int; keyword-only
-        Picture type.
-
-    mime_type : str; keyword-only
-        MIME type.
-
-    picture_data : bytes; keyword-only
-        Picture data.
-
-    text_encoding : str; keyword-only; default: :code:`"utf-16"`
-        Text encoding for the picture description.
-
-        **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
-        :code:`"utf-16be"`, :code:`"utf-8"`.
-
-    description : str; keyword-only
-        Picture description.
-
-    format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-    keyword-only; optional
-        Format flags.
-
-    status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-    keyword-only; optional
-        Status flags.
     """
 
     _STRUCT_II = struct.Struct(">II")
@@ -412,8 +418,10 @@ class APICFrame(ID3v2Frame):
         picture_type: int,
         mime_type: str,
         picture_data: bytes,
-        text_encoding: str = "utf-16",
         description: str = "",
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -430,15 +438,25 @@ class APICFrame(ID3v2Frame):
         picture_data : bytes; keyword-only
             Picture data.
 
+        description : str; keyword-only; default: :code:`""`
+            Picture description.
+
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding for the picture description.
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        description : str; keyword-only; default: :code:`""`
-            Picture description.
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
         """
+        super().__init__(format_flags=format_flags, status_flags=status_flags)
+
         validate_number("picture_type", picture_type, int, 0, 20)
         self._picture_type = picture_type
 
@@ -484,9 +502,9 @@ class APICFrame(ID3v2Frame):
         tag_version: str | tuple[int, int, int],
         *,
         strict: bool = True,
-    ) -> APICFrame:
+    ) -> ID3v2APICFrame:
         """ 
-        Instantiate an :class:`APICFrame` object from a bytes-like 
+        Instantiate an :class:`ID3v2APICFrame` object from a bytes-like 
         object.
 
         Parameters
@@ -559,24 +577,73 @@ class APICFrame(ID3v2Frame):
         raise NotImplementedError  # TODO
 
 
-class TIT2Frame(ID3v2Frame):
+class ID3v2TextInfoFrame(ID3v2Frame):
     """
-    Title, song name, or content description frame.
+    Text information frame.
 
     .. seealso::
 
-       `ID3v2.3.0: 4.2.1. Text information frames - details
-       <https://id3.org/id3v2.3.0#TIT2>`_.
+       `ID3v2.3.0: 4.2. Text information frames
+       <https://id3.org/id3v2.3.0#Text_information_frames>`_.
 
-       `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
-       frame <https://id3.org/id3v2.4.0-frames>`_.
+       `ID3v2.4.0 Native Frames: 4.2. Text information frames
+       <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    __slots__ = "_title"
+    __slots__ = ("_text_info", "_text_encoding")
 
-    def __init__(self, title: str, /) -> None:
-        validate_type("title", title, str)
-        self._title = title
+    def __init__(
+        self,
+        text_info: str,
+        /,
+        *,
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        text_info : str; positional-only
+            Text information.
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
+        """
+        super().__init__(format_flags=format_flags, status_flags=status_flags)
+
+        validate_type("text_info", text_info, str)
+        self._text_info = text_info
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        if text_encoding == "iso-8859-1":
+            try:
+                text_info.encode(encoding=text_encoding)
+                is_utf = False
+            except UnicodeEncodeError:
+                is_utf = True
+            if is_utf:
+                raise ValueError(
+                    "`text_info` cannot be encoded using ISO-8859-1."
+                )
+        self._text_encoding = text_encoding
 
     @classmethod
     def from_stream(
@@ -586,16 +653,16 @@ class TIT2Frame(ID3v2Frame):
         tag_version: str | tuple[int, int, int],
         *,
         strict: bool = True,
-    ) -> TIT2Frame:
+    ) -> ID3v2TextInfoFrame:
         """ 
-        Instantiate an :class:`TIT2Frame` object from a bytes-like 
-        object.
+        Instantiate an ID3v2 text information frame object from a 
+        bytes-like object.
 
         Parameters
         ----------
         bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
-            Bytes-like object containing the :code:`TIT2` frame.
+            Bytes-like object containing the text information frame.
 
         tag_version : str or tuple[int, int, int]
             ID3v2 tag version.
@@ -610,8 +677,8 @@ class TIT2Frame(ID3v2Frame):
 
         Returns
         -------
-        title : minim.media.metadata.TIT2Frame
-            :code:`TIT2` frame.
+        text_info : minim.media.metadata.ID3v2TextInfoFrame
+            Text information frame.
         """
         stream = as_buffer(stream)
         obj = super().from_stream(
@@ -626,16 +693,250 @@ class TIT2Frame(ID3v2Frame):
             case (2, 4, 0):
                 frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
                 text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-                title, *end = (
+                text_info, *end = (
                     stream[11 : 10 + frame_length].tobytes().split(b"\x00")
                 )
                 if len(end) != 1 or end[0]:
-                    raise ValueError("Invalid TIT2 frame data.")
+                    raise ValueError("Invalid text information frame data.")
             case _:
                 raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
 
-        obj._title = title.decode(encoding=text_encoding)
+        obj._text_info = text_info.decode(encoding=text_encoding)
+        obj._text_encoding = text_encoding
         return obj
+
+    @property
+    def text_info(self) -> str:
+        """
+        Text information.
+        """
+        return self._text_info
+
+    @property
+    def text_encoding(self) -> str:
+        """
+        Text encoding.
+        """
+        return self._text_encoding
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the text information frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing text information frame.
+        """
+        raise NotImplementedError  # TODO
+
+
+class ID3v2TALBFrame(ID3v2TextInfoFrame):
+    """
+    Album, movie, or show title frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TALB>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
+       frame <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"TAL"
+        return b"TALB"
+
+
+class ID3v2TBPMFrame(ID3v2TextInfoFrame):
+    """
+    Beats per minute (BPM) frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TBPM>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.3. Derived and subjective
+       properties frames <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    def __init__(
+        self,
+        bpm: int | str,
+        /,
+        *,
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        bpm : int or str; positional-only
+            BPM.
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
+        """
+        super(ID3v2TextInfoFrame, self).__init__(
+            format_flags=format_flags, status_flags=status_flags
+        )
+
+        validate_numeric("bpm", bpm, int, 0)
+        self._text_info = str(bpm)
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        self._text_encoding = text_encoding
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> ID3v2TBPMFrame:
+        """ 
+        Instantiate a :class:`ID3v2TBPMFrame` frame object from a 
+        bytes-like object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the text information frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.   
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications. 
+
+        Returns
+        -------
+        bpm : minim.media.metadata.ID3v2TBPMFrame
+            BPM frame.
+        """
+        stream = as_buffer(stream)
+        obj = super().from_stream(
+            stream, tag_version=tag_version, strict=strict
+        )
+
+        match tag_version:
+            case (2, 2, 0):
+                raise NotImplementedError  # TODO
+            case (2, 3, 0):
+                raise NotImplementedError  # TODO
+            case (2, 4, 0):
+                frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+                text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+                bpm, *end = (
+                    stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+                )
+                if len(end) != 1 or end[0]:
+                    raise ValueError("Invalid text information frame data.")
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+
+        obj._text_info = bpm = bpm.decode(encoding=text_encoding)
+        if strict:
+            validate_numeric("bpm", bpm, int, 0)
+        obj._text_encoding = text_encoding
+        return obj
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"TBP"
+        return b"TBPM"
+
+
+class ID3v2TIT2Frame(ID3v2TextInfoFrame):
+    """
+    Title, song name, or content description frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TIT2>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
+       frame <https://id3.org/id3v2.4.0-frames>`_.
+    """
 
     @classmethod
     def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
@@ -662,16 +963,24 @@ class TIT2Frame(ID3v2Frame):
             return b"TT2"
         return b"TIT2"
 
-    @property
-    def title(self) -> str:
-        """
-        Title.
-        """
-        return self._title
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+class ID3v2TPE1Frame(ID3v2TextInfoFrame):
+    """
+    Lead artist, performer, soloist, or performing group frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TPE1>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       frame <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Serialize the :code:`TIT2` frame to a bytestream.
+        Get the ID3v2 frame ID.
 
         Parameters
         ----------
@@ -684,13 +993,56 @@ class TIT2Frame(ID3v2Frame):
 
         Returns
         -------
-        bytestream : bytes
-            Bytestream containing :code:`TIT2` frame data.
+        frame_id : bytes
+            ID3v2 frame ID.
         """
-        raise NotImplementedError  # TODO
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"TP1"
+        return b"TPE1"
 
 
-class TXXXFrame(ID3v2Frame):
+class ID3v2TPE2Frame(ID3v2TextInfoFrame):
+    """
+    Band, orchestra, or accompaniment frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TPE2>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       frame <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"TP2"
+        return b"TPE2"
+
+
+class ID3v2TXXXFrame(ID3v2TextInfoFrame):
     """
     User-defined text information frame.
 
@@ -703,18 +1055,25 @@ class TXXXFrame(ID3v2Frame):
        frame <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    __slots__ = "_description", "_value", "_text_encoding"
+    __slots__ = ("_description",)
 
     def __init__(
-        self, description: str, value: str, *, text_encoding: str = "utf-16"
+        self,
+        description: str,
+        value: str,
+        /,
+        *,
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
     ) -> None:
         """
         Parameters
         ----------
-        description : str
+        description : str; positional-only
             Description.
 
-        value : str
+        value : str; positional-only
             Value.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
@@ -722,12 +1081,24 @@ class TXXXFrame(ID3v2Frame):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
         """
+        super(ID3v2TextInfoFrame, self).__init__(
+            format_flags=format_flags, status_flags=status_flags
+        )
+
         validate_type("description", description, str)
         self._description = description
 
         validate_type("value", value, str)
-        self._value = value
+        self._text_info = value
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -758,9 +1129,9 @@ class TXXXFrame(ID3v2Frame):
         tag_version: str | tuple[int, int, int],
         *,
         strict: bool = True,
-    ) -> TXXXFrame:
+    ) -> ID3v2TXXXFrame:
         """ 
-        Instantiate an :class:`TXXXFrame` object from a bytes-like 
+        Instantiate an :class:`ID3v2TXXXFrame` object from a bytes-like 
         object.
 
         Parameters
@@ -782,11 +1153,11 @@ class TXXXFrame(ID3v2Frame):
 
         Returns
         -------
-        text_info : minim.media.metadata.TXXXFrame
+        text_info : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXXX` frame.
         """
         stream = as_buffer(stream)
-        obj = super().from_stream(
+        obj = super(ID3v2TextInfoFrame, cls).from_stream(
             stream, tag_version=tag_version, strict=strict
         )
 
@@ -807,7 +1178,7 @@ class TXXXFrame(ID3v2Frame):
                 raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
 
         obj._description = description.decode(encoding=text_encoding)
-        obj._value = value.decode(encoding=text_encoding)
+        obj._text_info = value.decode(encoding=text_encoding)
         obj._text_encoding = text_encoding
         return obj
 
@@ -842,20 +1213,6 @@ class TXXXFrame(ID3v2Frame):
         Description.
         """
         return self._description
-
-    @property
-    def value(self) -> str:
-        """
-        Value.
-        """
-        return self._value
-
-    @property
-    def text_encoding(self) -> str:
-        """
-        Text encoding.
-        """
-        return self._text_encoding
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
