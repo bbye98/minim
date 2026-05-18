@@ -36,7 +36,6 @@ if TYPE_CHECKING:
     from typing import Any
 
     from .._types import BytesLike, Collection, OrderedCollection
-    from ._id3.frames import ID3v2Frame
 
 
 __all__ = [
@@ -734,6 +733,10 @@ class ID3v2(AudioTags):
                         + 10
                         + decode_32_bit_synchsafe_int(*frame_length)
                     )
+                    if frame_id in {b"TRCK", b"TPOS", b"TDRC", b"APIC"}:
+                        # TODO
+                        offset = end_offset
+                        continue
                     frame_obj = ID3v2Frame._get_class(frame_id)
                     if frame_obj is None:
                         raise NotImplementedError

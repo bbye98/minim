@@ -1382,6 +1382,8 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         applicable.
     """
 
+    _REGISTER = False
+
     _block_type = 6
 
     #: Image width in pixels.

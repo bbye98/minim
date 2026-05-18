@@ -211,6 +211,7 @@ class ID3v2Frame(ABC):
     """
 
     _TEXT_ENCODINGS = {0: "iso-8859-1", 1: "utf-16", 2: "utf-16be", 3: "utf-8"}
+    _REGISTER = True
     _REGISTRY = {}
 
     __slots__ = "_format_flags", "_status_flags"
@@ -246,6 +247,9 @@ class ID3v2Frame(ABC):
 
     def __init_subclass__(cls, **kwargs: dict[str, Any]) -> None:
         super().__init_subclass__(**kwargs)
+        if not cls._REGISTER:
+            return
+
         for tag_version in ((2, 2, 0), (2, 3, 0), (2, 4, 0)):
             if frame_id := cls.get_frame_id(tag_version):
                 cls._REGISTRY[frame_id] = cls
@@ -390,7 +394,7 @@ class ID3v2Frame(ABC):
 
 class ID3v2APICFrame(ID3v2Frame):
     """
-    Attached picture (APIC) frame.
+    Attached picture frame.
 
     .. seealso::
 
@@ -577,6 +581,134 @@ class ID3v2APICFrame(ID3v2Frame):
         raise NotImplementedError  # TODO
 
 
+class ID3v2COMMFrame(ID3v2Frame):
+    """
+    Comment frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.11. Comments
+       <https://id3.org/id3v2.3.0#Comments>`_.
+
+       `ID3v2.4.0 Native Frames: 4.10. Comments
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    __slots__ = ("_description", "_comment", "_text_encoding")
+
+    def __init__(
+        self,
+        description: str,
+        comment: str,
+        *,
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        description : str
+            Short content description.
+
+        comment : str
+            Comment.
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding for the picture description.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
+        """
+        super().__init__(format_flags=format_flags, status_flags=status_flags)
+
+        validate_type("description", description, str)
+        self._description = description
+
+        validate_type("comment", comment, str)
+        self._comment = comment
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        if text_encoding == "iso-8859-1":
+            try:
+                description.encode(encoding=text_encoding)
+                comment.encode(encoding=text_encoding)
+                is_utf = False
+            except UnicodeEncodeError:
+                is_utf = True
+            if is_utf:
+                raise ValueError(
+                    "`description` or `comment` cannot be encoded "
+                    "using ISO-8859-1."
+                )
+        self._text_encoding = text_encoding
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> ID3v2COMMFrame:
+        """ """
+        stream = as_buffer(stream)
+        obj = super().from_stream(
+            stream, tag_version=tag_version, strict=strict
+        )
+
+        ...  # TODO
+
+        return obj
+
+    @classmethod
+    @abstractmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"COM"
+        return b"COMM"
+
+
+# class ID3v2TPOSFrame(ID3v2Frame): ...  # TODO
+
+
+# class ID3v2TRCKFrame(ID3v2Frame): ...  # TODO
+
+
 class ID3v2TextInfoFrame(ID3v2Frame):
     """
     Text information frame.
@@ -750,7 +882,7 @@ class ID3v2TALBFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.3.0#TALB>`_.
 
        `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
-       frame <https://id3.org/id3v2.4.0-frames>`_.
+       <https://id3.org/id3v2.4.0-frames>`_.
     """
 
     @classmethod
@@ -925,6 +1057,123 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         return b"TBPM"
 
 
+class ID3v2TCOMFrame(ID3v2TextInfoFrame):
+    """
+    Composer frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TCOM>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"TCM"
+        return b"TCOM"
+
+
+class ID3v2TCONFrame(ID3v2TextInfoFrame):
+    """
+    Content type frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TCON>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.3. Derived and subjective
+       properties frames <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"TCO"
+        return b"TCON"
+
+
+class ID3v2TCOPFrame(ID3v2TextInfoFrame):
+    """
+    Copyright message frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TCOP>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.4. Rights and license frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"TCR"
+        return b"TCOP"
+
+
 class ID3v2TIT2Frame(ID3v2TextInfoFrame):
     """
     Title, song name, or content description frame.
@@ -935,7 +1184,7 @@ class ID3v2TIT2Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.3.0#TIT2>`_.
 
        `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
-       frame <https://id3.org/id3v2.4.0-frames>`_.
+       <https://id3.org/id3v2.4.0-frames>`_.
     """
 
     @classmethod
@@ -974,7 +1223,7 @@ class ID3v2TPE1Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.3.0#TPE1>`_.
 
        `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
-       frame <https://id3.org/id3v2.4.0-frames>`_.
+       <https://id3.org/id3v2.4.0-frames>`_.
     """
 
     @classmethod
@@ -1013,7 +1262,7 @@ class ID3v2TPE2Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.3.0#TPE2>`_.
 
        `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
-       frame <https://id3.org/id3v2.4.0-frames>`_.
+       <https://id3.org/id3v2.4.0-frames>`_.
     """
 
     @classmethod
@@ -1040,6 +1289,45 @@ class ID3v2TPE2Frame(ID3v2TextInfoFrame):
         if tag_version == (2, 2, 0):
             return b"TP2"
         return b"TPE2"
+
+
+class ID3v2TSSEFrame(ID3v2TextInfoFrame):
+    """
+    Software, hardware, and settings used for encoding frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TSSE>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if isinstance(tag_version, str):
+            tag_version = tuple(int(v) for v in tag_version.split("."))
+        if tag_version == (2, 2, 0):
+            return b"TSS"
+        return b"TSSE"
 
 
 class ID3v2TXXXFrame(ID3v2TextInfoFrame):
