@@ -29,6 +29,7 @@ from ._id3.frames import (
     ID3v2TPE1Frame,
     ID3v2TPE2Frame,
     ID3v2TXXXFrame,
+    ID3v2Padding,
 )
 from ._shared import as_buffer
 
@@ -52,6 +53,7 @@ __all__ = [
     "ID3v2TPE1Frame",
     "ID3v2TPE2Frame",
     "ID3v2TXXXFrame",
+    "ID3v2Padding",
 ]
 
 
@@ -723,6 +725,12 @@ class ID3v2(AudioTags):
                 raise NotImplementedError  # TODO
             case (2, 4, 0):
                 while offset < tag_end:
+                    if not stream[offset]:
+                        frames.append(
+                            ID3v2Padding.from_stream(stream[offset:])
+                        )
+                        break
+
                     frame_id, *frame_length = (
                         cls._STRUCT_PARTIAL_FRAME_HEADER_4.unpack_from(
                             stream, offset

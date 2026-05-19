@@ -308,16 +308,19 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
 class FLACPadding(FLACMetadataBlock):
     """
     FLAC :code:`PADDING` metadata block data.
-
-    Parameters
-    ----------
-    block_length : int; positional-only
-        :code:`PADDING` metadata block length in bytes.
     """
 
     _block_type = 1
 
+    __slots__ = ("_length",)
+
     def __init__(self, block_length: int, /) -> None:
+        """
+        Parameters
+        ----------
+        block_length : int; positional-only
+            :code:`PADDING` metadata block length in bytes.
+        """
         self.block_length = block_length
 
     @property
@@ -367,7 +370,8 @@ class FLACPadding(FLACMetadataBlock):
         cls, stream: BytesLike, /, *, strict: bool = True
     ) -> FLACPadding:
         """
-        Instantiate a :class:`FLACPadding` object from a bytes-like object.
+        Instantiate a :class:`FLACPadding` object from a bytes-like 
+        object.
 
         Parameters
         ----------
@@ -1592,6 +1596,8 @@ class FLACMetadataView:
     """
     View of FLAC metadata blocks.
     """
+
+    __slots__ = ("_blocks",)
 
     def __init__(self, blocks: list[FLACMetadataBlock], /) -> None:
         self._blocks = blocks

@@ -1521,3 +1521,90 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             Bytestream containing the :code:`TXXX` frame.
         """
         raise NotImplementedError  # TODO
+
+
+class ID3v2Padding:
+    """
+    ID3v2 padding.
+    """
+
+    __slots__ = ("_length",)
+
+    def __init__(self, length: int, /) -> None:
+        """
+        Parameters
+        ----------
+        length : int; positional-only
+            Padding length in bytes.
+        """
+        self.length = length
+
+    @property
+    def length(self) -> int:
+        """
+        Padding length in bytes.
+        """
+        return self._length
+
+    @length.setter
+    def length(self, length: int, /) -> None:
+        validate_number("length", length, int, 0)
+        self._length = length
+
+    def adjust_length(self, change: int, /) -> None:
+        """
+        Adjust the padding length.
+
+        Parameters
+        ----------
+        change : int; positional-only
+            Change to the padding length in bytes.
+        """
+        self.length += change
+
+    def set_length(self, block_length: int, /) -> None:
+        """
+        Resize padding.
+
+        Parameters
+        ----------
+        length : int; positional-only
+            New padding length in bytes.
+        """
+        self.length = block_length
+
+    @classmethod
+    def from_stream(cls, stream: BytesLike, /) -> ID3v2Padding:
+        """
+        Instantiate a :class:`ID3v2Padding` object from a bytes-like 
+        object.
+
+        Parameters
+        ----------
+        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing padding.
+
+        Returns
+        -------
+        padding : minim.media.metadata.ID3v2Padding
+            Padding.
+        """
+        stream = as_buffer(stream)
+        if any(stream):
+            raise ValueError("Non-zero bits found in ID3v2 padding bytes.")
+
+        obj = cls.__new__(cls)
+        obj._length = len(stream)
+        return obj
+
+    def serialize(self) -> bytes:
+        """
+        Serialize the padding to a bytestream.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing the padding bytes.
+        """
+        return self._length * b"\x00"
