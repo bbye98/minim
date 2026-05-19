@@ -8,7 +8,7 @@ from .._utility import validate_type
 
 if TYPE_CHECKING:
     from .._types import BytesLike, PathLike
-    from .metadata import AudioStreamInfo, AudioTags
+    from .metadata._shared import AudioStreamInfo, AudioTags
 
     from typing import Any
 

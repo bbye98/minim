@@ -209,7 +209,7 @@ class ID3v2(AudioTags):
     @property
     def album(self) -> str | list[str] | None:
         """
-        Title of the album or collection.
+        :code:`TAL`/:code:`TALB` – Title of the album or collection.
         """
         ...
 
@@ -219,7 +219,8 @@ class ID3v2(AudioTags):
     @property
     def album_artist(self) -> str | list[str] | None:
         """
-        Main artists credited for the entire album or collection.
+        :code:`TP2`/:code:`TPE2` – Main artists credited for the entire
+        album or collection.
         """
         ...
 
@@ -229,9 +230,10 @@ class ID3v2(AudioTags):
     @property
     def artist(self) -> str | list[str] | None:
         """
-        Main artists of the recording (e.g., the performing band or
-        singers in popular music, the composers for classical music, or
-        the authors of the original text in audiobooks).
+        :code:`TP1`/:code:`TPE1` – Main artists of the recording (e.g.,
+        the performing band or singers in popular music, the composers
+        for classical music, or the authors of the original text in
+        audiobooks).
         """
         ...
 
@@ -241,7 +243,7 @@ class ID3v2(AudioTags):
     @property
     def bpm(self) -> int | list[str] | None:
         """
-        Tempo in beats per minute (BPM).
+        :code:`TBP`/:code:`TBPM` – Tempo in beats per minute (BPM).
         """
         ...
 
@@ -277,7 +279,7 @@ class ID3v2(AudioTags):
     @property
     def composer(self) -> str | list[str] | None:
         """
-        Composers or songwriters.
+        :code:`TCM`/:code:`TCOM` – Composers or songwriters.
         """
         ...
 
@@ -297,7 +299,7 @@ class ID3v2(AudioTags):
     @property
     def copyright(self) -> str | list[str] | None:
         """
-        Copyright attribution.
+        :code:`TCR`/:code:`TCOP` – Copyright attribution.
         """
         ...
 
@@ -319,7 +321,7 @@ class ID3v2(AudioTags):
     @property
     def description(self) -> str | list[str] | None:
         """
-        General description.
+        :code:`TT3`/:code:`TIT3` – General description.
         """
         ...
 
@@ -353,8 +355,9 @@ class ID3v2(AudioTags):
     @property
     def encoder(self) -> str | list[str] | None:
         """
-        Software or hardware used for encoding, or the person or
-        organization that encoded the audio file.
+        :code:`TSS`/:code:`TSSE` – Software or hardware used for
+        encoding, or the person or organization that encoded the audio
+        file.
         """
         ...
 
@@ -364,7 +367,7 @@ class ID3v2(AudioTags):
     @property
     def genre(self) -> str | list[str] | None:
         """
-        Musical genres.
+        :code:`TCO`/:code:`TCON` –  Musical genres.
         """
         ...
 
@@ -374,7 +377,7 @@ class ID3v2(AudioTags):
     @property
     def grouping(self) -> str | list[str] | None:
         """
-        Content group description.
+        :code:`TT1`/:code:`TIT1` – Content group description.
         """
         ...
 
@@ -384,7 +387,8 @@ class ID3v2(AudioTags):
     @property
     def isrc(self) -> str | list[str] | None:
         """
-        International Standard Recording Code (ISRC).
+        :code:`TRC`/:code:`TSRC` – International Standard Recording Code
+        (ISRC).
         """
         ...
 
@@ -394,7 +398,7 @@ class ID3v2(AudioTags):
     @property
     def label(self) -> str | list[str] | None:
         """
-        Publisher or record label.
+        :code:`TPB`/:code:`TPUB` – Publisher or record label.
         """
         ...
 
@@ -445,7 +449,7 @@ class ID3v2(AudioTags):
     @property
     def title(self) -> str | list[str] | None:
         """
-        Title of the recording.
+        :code:`TT2`/:code:`TIT2` – Title of the recording.
         """
         ...
 
