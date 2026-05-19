@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from .._utility import decode_32_bit_synchsafe_int
 from ._shared import Audio
-from .metadata import ID3v2
+from .metadata.id3._core import ID3v2
 
 
 __all__ = ["MP3Audio"]

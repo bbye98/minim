@@ -1,0 +1,549 @@
+from __future__ import annotations
+from dataclasses import dataclass
+from datetime import datetime
+import struct
+from typing import TYPE_CHECKING
+
+from ...._utility import (
+    decode_32_bit_synchsafe_int,
+    join_values,
+    set_obj_attr,
+    validate_number,
+    validate_type,
+)
+from ..._shared import as_buffer
+from .._shared import AudioTags
+from ._frames import ID3v2Frame, ID3v2Padding
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from ...._types import BytesLike, Collection, OrderedCollection
+
+
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+class ID3v2Flags:
+    """
+    Flags for ID3v2 tags.
+    """
+
+    is_unsynchronized: bool = False
+    has_extended_header: bool = False
+    is_experimental: bool = False
+    has_footer: bool = False
+    is_compressed: bool = False
+
+    def __post_init__(self) -> None:
+        validate_type("is_unsynchronized", self.is_unsynchronized, bool)
+        validate_type("has_extended_header", self.has_extended_header, bool)
+        validate_type("is_experimental", self.is_experimental, bool)
+        validate_type("has_footer", self.has_footer, bool)
+        validate_type("is_compressed", self.is_compressed, bool)
+
+    @classmethod
+    def from_byte(
+        cls,
+        byte_: int,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> ID3v2Flags:
+        """
+        Instantiate a :class:`ID3v2Flags` object from a byte.
+
+        Parameters
+        ----------
+        byte_ : int; positional-only
+            Flags byte.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        flags : minim.media.metadata.ID3v2Flags
+            Flags for ID3v2 tags.
+        """
+        validate_number("byte_", byte_, int, 0)
+        if isinstance(tag_version, str):
+            tag_version = (int(v) for v in tag_version.split("."))
+
+        obj = cls.__new__(cls)
+        match tag_version:
+            case (2, 2, 0):
+                if strict and byte_ & 0x3F:
+                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
+                set_obj_attr(obj, "has_extended_header", False)
+                set_obj_attr(obj, "is_experimental", False)
+                set_obj_attr(obj, "has_footer", False)
+                set_obj_attr(obj, "is_compressed", bool(byte_ & 0x40))
+            case (2, 3, 0):
+                if strict and byte_ & 0x1F:
+                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
+                set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
+                set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
+                set_obj_attr(obj, "has_footer", False)
+                set_obj_attr(obj, "is_compressed", False)
+            case (2, 4, 0):
+                if strict and byte_ & 0xF:
+                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
+                set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
+                set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
+                set_obj_attr(obj, "has_footer", bool(byte_ & 0x10))
+                set_obj_attr(obj, "is_compressed", False)
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+
+        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
+        return obj
+
+
+class ID3v2(AudioTags):
+    """
+    ID3v2 metadata container.
+    """
+
+    _STRUCT_ID3_HEADER = struct.Struct(">3s7B")
+    _STRUCT_PARTIAL_FRAME_HEADER_3 = struct.Struct(">4sI")
+    _STRUCT_PARTIAL_FRAME_HEADER_4 = struct.Struct(">4s4B")
+    _TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
+
+    __slots__ = ("_flags", "_frames", "_tag_version")
+
+    def __init__(
+        self,
+        frames: list[ID3v2Frame],
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        flags: int | dict[str, bool] | ID3v2Flags = 0,
+    ) -> None:
+        if isinstance(tag_version, str):
+            tag_version = (int(v) for v in tag_version.split("."))
+        if tag_version not in self._TAG_VERSIONS:
+            raise ValueError(
+                f"Invalid ID3v2 tag version {tag_version!r}. "
+                f"Valid values: {join_values(self._TAG_VERSIONS)}."
+            )
+
+        self._tag_version = tag_version
+
+        ...  # TODO
+
+    @classmethod
+    def from_stream(
+        cls, stream: BytesLike, /, *, strict: bool = True
+    ) -> ID3v2:
+        """ """
+        stream = as_buffer(stream)
+        frame_id, minor, patch, flags, *tag_length = (
+            cls._STRUCT_ID3_HEADER.unpack_from(stream)
+        )
+        if frame_id != b"ID3":
+            raise ValueError("`stream` does not contain an ID3v2 tag.")
+
+        tag_version = 2, minor, patch
+        if tag_version not in cls._TAG_VERSIONS:
+            raise ValueError(
+                f"Invalid ID3v2 tag version {tag_version!r}. "
+                f"Valid values: {join_values(cls._TAG_VERSIONS)}."
+            )
+
+        obj = cls.__new__(cls)
+        obj._tag_version = tag_version
+        obj._flags = ID3v2Flags.from_byte(flags, tag_version, strict=strict)
+
+        offset = 10
+        tag_end = offset + decode_32_bit_synchsafe_int(*tag_length)
+        obj._frames = frames = []
+
+        match tag_version:
+            case (2, 2, 0):
+                raise NotImplementedError  # TODO
+            case (2, 3, 0):
+                raise NotImplementedError  # TODO
+            case (2, 4, 0):
+                while offset < tag_end:
+                    if not stream[offset]:
+                        frames.append(
+                            ID3v2Padding.from_stream(stream[offset:])
+                        )
+                        break
+
+                    frame_id, *frame_length = (
+                        cls._STRUCT_PARTIAL_FRAME_HEADER_4.unpack_from(
+                            stream, offset
+                        )
+                    )
+                    end_offset = (
+                        offset
+                        + 10
+                        + decode_32_bit_synchsafe_int(*frame_length)
+                    )
+                    if frame_id in {b"TRCK", b"TPOS", b"TDRC", b"APIC"}:
+                        # TODO
+                        offset = end_offset
+                        continue
+                    frame_obj = ID3v2Frame._get_class(frame_id)
+                    if frame_obj is None:
+                        raise NotImplementedError
+                    frames.append(
+                        frame_obj.from_stream(
+                            stream[offset:end_offset],
+                            tag_version=tag_version,
+                            strict=strict,
+                        )
+                    )
+                    offset = end_offset
+        return obj
+
+    @property
+    def album(self) -> str | list[str] | None:
+        """
+        Title of the album or collection.
+        """
+        ...
+
+    @album.setter
+    def album(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def album_artist(self) -> str | list[str] | None:
+        """
+        Main artists credited for the entire album or collection.
+        """
+        ...
+
+    @album_artist.setter
+    def album_artist(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def artist(self) -> str | list[str] | None:
+        """
+        Main artists of the recording (e.g., the performing band or
+        singers in popular music, the composers for classical music, or
+        the authors of the original text in audiobooks).
+        """
+        ...
+
+    @artist.setter
+    def artist(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def bpm(self) -> int | list[str] | None:
+        """
+        Tempo in beats per minute (BPM).
+        """
+        ...
+
+    @bpm.setter
+    def bpm(
+        self,
+        value: int | float | str | OrderedCollection[int | float | str],
+        /,
+    ) -> None: ...
+
+    @property
+    def comment(self) -> str | list[str] | None:
+        """
+        Free-form comments.
+        """
+        ...
+
+    @comment.setter
+    def comment(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def compilation(self) -> bool | list[str] | None:
+        """
+        Whether the recording is part of a compilation.
+        """
+        ...
+
+    @compilation.setter
+    def compilation(
+        self, value: bool | int | str | OrderedCollection[bool | int | str], /
+    ) -> None: ...
+
+    @property
+    def composer(self) -> str | list[str] | None:
+        """
+        Composers or songwriters.
+        """
+        ...
+
+    @composer.setter
+    def composer(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def contact(self) -> str | list[str] | None:
+        """
+        Contact information for the creators or distributors.
+        """
+        ...
+
+    @contact.setter
+    def contact(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def copyright(self) -> str | list[str] | None:
+        """
+        Copyright attribution.
+        """
+        ...
+
+    @copyright.setter
+    def copyright(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def date(self) -> str | list[str] | None:
+        """
+        Release date.
+        """
+        ...
+
+    @date.setter
+    def date(
+        self, value: str | datetime | OrderedCollection[str | datetime], /
+    ) -> None: ...
+
+    @property
+    def description(self) -> str | list[str] | None:
+        """
+        General description.
+        """
+        ...
+
+    @description.setter
+    def description(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def disc_number(self) -> int | str | list[str] | None:
+        """
+        Disc number within a multi-disc set.
+        """
+        ...
+
+    @disc_number.setter
+    def disc_number(
+        self, value: int | str | OrderedCollection[int | str], /
+    ) -> None: ...
+
+    @property
+    def disc_total(self) -> int | str | list[str] | None:
+        """
+        Total number of discs.
+        """
+        ...
+
+    @disc_total.setter
+    def disc_total(
+        self, value: int | str | OrderedCollection[int | str], /
+    ) -> None: ...
+
+    @property
+    def encoder(self) -> str | list[str] | None:
+        """
+        Software or hardware used for encoding, or the person or
+        organization that encoded the audio file.
+        """
+        ...
+
+    @encoder.setter
+    def encoder(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def genre(self) -> str | list[str] | None:
+        """
+        Musical genres.
+        """
+        ...
+
+    @genre.setter
+    def genre(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def grouping(self) -> str | list[str] | None:
+        """
+        Content group description.
+        """
+        ...
+
+    @grouping.setter
+    def grouping(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def isrc(self) -> str | list[str] | None:
+        """
+        International Standard Recording Code (ISRC).
+        """
+        ...
+
+    @isrc.setter
+    def isrc(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def label(self) -> str | list[str] | None:
+        """
+        Publisher or record label.
+        """
+        ...
+
+    @label.setter
+    def label(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def license(self) -> str | list[str] | None:
+        """
+        License information.
+        """
+        ...
+
+    @license.setter
+    def license(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def location(self) -> str | list[str] | None:
+        """
+        Recording locations.
+        """
+        ...
+
+    @location.setter
+    def location(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def lyrics(self) -> str | list[str] | None:
+        """
+        Lyrics or transcription.
+        """
+        ...
+
+    @lyrics.setter
+    def lyrics(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def performer(self) -> str | list[str] | None:
+        """
+        Performers (e.g., the conductor, orchestra, and/or soloists in
+        classical music, or the narrator in audiobooks).
+        """
+        ...
+
+    @performer.setter
+    def performer(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def title(self) -> str | list[str] | None:
+        """
+        Title of the recording.
+        """
+        ...
+
+    @title.setter
+    def title(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    @property
+    def track_number(self) -> int | list[str] | None:
+        """
+        Track number within the album or collection.
+        """
+        ...
+
+    @track_number.setter
+    def track_number(
+        self, value: int | str | OrderedCollection[int | str], /
+    ) -> None: ...
+
+    @property
+    def track_total(self) -> int | list[str] | None:
+        """
+        Total number of tracks.
+        """
+        ...
+
+    @track_total.setter
+    def track_total(
+        self, value: int | str | OrderedCollection[int | str], /
+    ) -> None: ...
+
+    @property
+    def version(self) -> str | list[str] | None:
+        """
+        Version of the recording (e.g., remix information).
+        """
+        ...
+
+    @version.setter
+    def version(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    def get(
+        self,
+        fields: str | Collection[str],
+        /,
+        *args: tuple[Any, ...],
+        **kwargs: dict[str, Any],
+    ) -> Any | dict[str, Any]:
+        """
+        Get track attributes.
+
+        Parameters
+        ----------
+        fields : str or Collection[str]; positional-only
+            Field names of the attributes.
+
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+
+        Returns
+        -------
+        attributes : Any or dict[str, Any]
+            Track attributes. If `fields` is a collection of strings, a
+            dictionary mapping field names to their corresponding values
+            is returned.
+        """
+        ...
+
+    def serialize(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> bytes:
+        """
+        Serialize metadata to a bytestream.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing the serialized metadata.
+        """
+        ...
+
+    def set(self, **kwargs: dict[str, Any]) -> None:
+        """
+        Set track attributes.
+
+        Parameters
+        ----------
+        **kwargs : dict[str, Any]
+            Key–value pairs of track attributes.
+        """
+        ...

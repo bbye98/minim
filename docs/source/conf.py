@@ -50,7 +50,7 @@ html_logo = "../../assets/icon.svg"
 html_show_sourcelink = False
 html_static_path = ["_static"]
 html_theme = "shibuya"
-html_theme_options = {"accent_color": "gray", "toctree_maxdepth": 5}
+html_theme_options = {"accent_color": "gray", "toctree_maxdepth": 6}
 
 
 autodoc_bases_to_skip = (tuple,)

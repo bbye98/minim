@@ -19,13 +19,14 @@ from .._utility import (
     validate_type,
 )
 from .._types import BytesLike, COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ._id3.frames import (
+from ._shared import as_buffer, Audio
+from .metadata._shared import AudioStreamInfo
+from .metadata._vorbis import VorbisComment
+from .metadata.id3._frames import (
     ID3v2FrameFormatFlags,
     ID3v2FrameStatusFlags,
     ID3v2APICFrame,
 )
-from ._shared import as_buffer, Audio
-from .metadata import AudioStreamInfo, VorbisComment
 
 if TYPE_CHECKING:
     from .._types import PathLike, Collection, OrderedCollection
