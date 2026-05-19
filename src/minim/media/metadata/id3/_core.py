@@ -141,7 +141,12 @@ class ID3v2(AudioTags):
 
     @classmethod
     def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
+        cls,
+        stream: BytesLike,
+        /,
+        *,
+        infer_frame: bool = False,
+        strict: bool = True,
     ) -> ID3v2:
         """ """
         stream = as_buffer(stream)
@@ -194,6 +199,7 @@ class ID3v2(AudioTags):
                         offset = end_offset
                         continue
                     frame_obj = ID3v2Frame._get_class(frame_id)
+                    # TODO: Implement infer_frame logic.
                     if frame_obj is None:
                         raise NotImplementedError
                     frames.append(
