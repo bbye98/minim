@@ -105,7 +105,7 @@ class FLACMetadataBlock(ABC):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing the metadata block data.
         """
         ...
@@ -218,7 +218,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing the :code:`STREAMINFO` metadata
             block data.
@@ -285,7 +285,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`STREAMINFO` metadata block
             data.
         """
@@ -376,7 +376,7 @@ class FLACPadding(FLACMetadataBlock):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing :code:`PADDING` metadata block 
             data.
@@ -405,7 +405,7 @@ class FLACPadding(FLACMetadataBlock):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`PADDING` metadata block data.
         """
         return self._length * b"\x00"
@@ -461,7 +461,7 @@ class FLACApplication(FLACMetadataBlock):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing :code:`APPLICATION` metadata
             block data.
@@ -492,7 +492,7 @@ class FLACApplication(FLACMetadataBlock):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`APPLICATION` metadata block
             data.
         """
@@ -537,7 +537,7 @@ class FLACSeekTable(FLACMetadataBlock):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing :code:`SEEKTABLE` metadata
             block data.
@@ -644,7 +644,7 @@ class FLACSeekTable(FLACMetadataBlock):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`SEEKTABLE` metadata block data.
         """
         return b"".join(
@@ -721,7 +721,7 @@ class FLACSeekPoint(
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing :code:`SEEKPOINT` data.
 
@@ -738,7 +738,7 @@ class FLACSeekPoint(
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`SEEKPOINT` data.
         """
         return self._STRUCT.pack(*self)
@@ -827,7 +827,7 @@ class FLACCueSheet(FLACMetadataBlock):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing :code:`CUESHEET` metadata block
             data.
@@ -1018,7 +1018,7 @@ class FLACCueSheet(FLACMetadataBlock):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`CUESHEET` metadata block data.
         """
         return self._STRUCT.pack(
@@ -1103,7 +1103,7 @@ class FLACCueSheetTrack:
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing :code:`CUESHEET_TRACK` data.
 
@@ -1223,7 +1223,7 @@ class FLACCueSheetTrack:
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`CUESHEET_TRACK` data.
         """
         return self._STRUCT.pack(
@@ -1309,7 +1309,7 @@ class FLACCueSheetTrackIndex(
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing :code:`CUESHEET_TRACK_INDEX`
             data.
@@ -1338,7 +1338,7 @@ class FLACCueSheetTrackIndex(
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`CUESHEET_TRACK_INDEX` data.
         """
         return self._STRUCT.pack(*self, 3 * b"\x00")
@@ -1414,7 +1414,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing :code:`PICTURE` metadata block 
             data.
@@ -1483,7 +1483,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`PICTURE` metadata block data.
         """
         mime_type = self.mime_type.encode(encoding="ascii")
@@ -1546,7 +1546,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing the metadata block data.
 
@@ -1587,7 +1587,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing metadata block data.
         """
         return self._block_data

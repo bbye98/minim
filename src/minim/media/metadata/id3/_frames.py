@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import FrozenInstanceError, dataclass
 import struct
 from typing import TYPE_CHECKING
 
@@ -86,11 +86,9 @@ class ID3v2FrameStatusFlags:
             Status flags for an ID3v2 frame.
         """
         validate_number("byte_", byte_, int, 0)
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
 
         obj = cls.__new__(cls)
-        match tag_version:
+        match ID3v2Frame._normalize_tag_version(tag_version):
             case (2, 2, 0):
                 if strict and byte_:
                     raise ValueError(
@@ -201,11 +199,9 @@ class ID3v2FrameFormatFlags:
             Format flags for an ID3v2 frame.
         """
         validate_number("byte_", byte_, int, 0)
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
 
         obj = cls.__new__(cls)
-        match tag_version:
+        match ID3v2Frame._normalize_tag_version(tag_version):
             case (2, 2, 0):
                 if strict and byte_:
                     raise ValueError(
@@ -326,7 +322,7 @@ class ID3v2Frame(ABC):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing an ID3v2 frame.
 
@@ -346,7 +342,7 @@ class ID3v2Frame(ABC):
         frame : minim.media.metadata.ID3v2Frame
             ID3v2 frame.
         """
-        match tag_version:
+        match tag_version := cls._normalize_tag_version(tag_version):
             case (2, 2, 0):
                 raise NotImplementedError  # TODO
             case (2, 3, 0):
@@ -395,6 +391,31 @@ class ID3v2Frame(ABC):
         """
         ...
 
+    @staticmethod
+    def _normalize_tag_version(
+        tag_version: str | tuple[int, int, int], /
+    ) -> tuple[int, int, int]:
+        """
+        Normalize ID3v2 tag version.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        tag_version : tuple[int, int, int]
+            ID3v2 tag version.
+        """
+        if isinstance(tag_version, tuple):
+            return tag_version
+        return tuple(int(v) for v in tag_version.split("."))
+
     @property
     def format_flags(self) -> ID3v2FrameFormatFlags:
         """
@@ -425,7 +446,7 @@ class ID3v2Frame(ABC):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing the ID3v2 frame.
         """
         ...
@@ -552,7 +573,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing the :code:`APIC` frame.
 
@@ -593,9 +614,7 @@ class ID3v2APICFrame(ID3v2Frame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"PIC"
         return b"APIC"
 
@@ -614,7 +633,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing :code:`APIC` frame data.
         """
         raise NotImplementedError  # TODO
@@ -633,13 +652,14 @@ class ID3v2COMMFrame(ID3v2Frame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    __slots__ = ("_description", "_comment", "_text_encoding")
+    __slots__ = "_description", "_comment", "_language", "_text_encoding"
 
     def __init__(
         self,
         description: str,
         comment: str,
         *,
+        language: str = "eng",
         text_encoding: str = "utf-16",
         format_flags: ID3v2FrameFormatFlags | None = None,
         status_flags: ID3v2FrameStatusFlags | None = None,
@@ -652,6 +672,9 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         comment : str
             Comment.
+
+        language : str; keyword-only; default: :code:`"eng"`
+            ISO 639-2 code for the language.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding for the picture description.
@@ -674,6 +697,11 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         validate_type("comment", comment, str)
         self._comment = comment
+
+        validate_type("language", language, str)
+        if len(language) != 3:
+            raise ValueError(f"Invalid ISO 639-2 code {language!r}.")
+        self._language = language
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -705,14 +733,59 @@ class ID3v2COMMFrame(ID3v2Frame):
         *,
         strict: bool = True,
     ) -> ID3v2COMMFrame:
-        """ """
+        """ 
+        Instantiate an :class:`ID3v2COMMFrame` object from a 
+        bytes-like object.
+
+         Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the comment frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.   
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications. 
+
+        Returns
+        -------
+        comment : minim.media.metadata.ID3v2COMMFrame
+            Comment frame.
+        """
         stream = as_buffer(stream)
+        tag_version = cls._normalize_tag_version(tag_version)
         obj = super().from_stream(
             stream, tag_version=tag_version, strict=strict
         )
 
-        ...  # TODO
+        match tag_version:
+            case (2, 2, 0):
+                raise NotImplementedError  # TODO
+            case (2, 3, 0):
+                raise NotImplementedError  # TODO
+            case (2, 4, 0):
+                frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+                text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+                language = stream[11:14].tobytes()
+                description, comment, *end = (
+                    stream[14 : 10 + frame_length].tobytes().split(b"\x00")
+                )
+                if len(end) != 1 or end[0]:
+                    raise ValueError("Invalid comment frame data.")
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
 
+        obj._language = language
+        obj._description = description
+        obj._comment = comment
+        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -735,11 +808,29 @@ class ID3v2COMMFrame(ID3v2Frame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"COM"
         return b"COMM"
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the comment frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the comment frame.
+        """
+        raise NotImplementedError  # TODO
 
 
 # class ID3v2TPOSFrame(ID3v2Frame): ...  # TODO
@@ -761,7 +852,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    __slots__ = ("_text_info", "_text_encoding")
+    __slots__ = "_text_info", "_text_encoding"
 
     def __init__(
         self,
@@ -831,7 +922,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing the text information frame.
 
@@ -852,6 +943,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             Text information frame.
         """
         stream = as_buffer(stream)
+        tag_version = cls._normalize_tag_version(tag_version)
         obj = super().from_stream(
             stream, tag_version=tag_version, strict=strict
         )
@@ -905,8 +997,8 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Returns
         -------
-        bytestream : bytes
-            Bytestream containing text information frame.
+        stream : bytes
+            Bytestream containing the text information frame.
         """
         raise NotImplementedError  # TODO
 
@@ -943,9 +1035,7 @@ class ID3v2TALBFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TAL"
         return b"TALB"
 
@@ -1023,7 +1113,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing the text information frame.
 
@@ -1044,6 +1134,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
             BPM frame.
         """
         stream = as_buffer(stream)
+        tag_version = cls._normalize_tag_version(tag_version)
         obj = super().from_stream(
             stream, tag_version=tag_version, strict=strict
         )
@@ -1089,11 +1180,43 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TBP"
         return b"TBPM"
+
+
+class ID3v2TCMPFrame(ID3v2TextInfoFrame):
+    """
+    iTunes compilation flag frame.
+
+    .. seealso::
+
+       `TCMP - iTunes Compilation Flag (class 4)
+       <https://id3.org/iTunes%20Compilation%20Flag>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
+            return b"TCP"
+        return b"TCMP"
 
 
 class ID3v2TCOMFrame(ID3v2TextInfoFrame):
@@ -1128,9 +1251,7 @@ class ID3v2TCOMFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TCM"
         return b"TCOM"
 
@@ -1167,9 +1288,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TCO"
         return b"TCON"
 
@@ -1206,9 +1325,7 @@ class ID3v2TCOPFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TCR"
         return b"TCOP"
 
@@ -1245,9 +1362,7 @@ class ID3v2TIT1Frame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TT1"
         return b"TIT1"
 
@@ -1284,9 +1399,7 @@ class ID3v2TIT2Frame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TT2"
         return b"TIT2"
 
@@ -1323,9 +1436,7 @@ class ID3v2TIT3Frame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TT3"
         return b"TIT3"
 
@@ -1362,9 +1473,7 @@ class ID3v2TPE1Frame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TP1"
         return b"TPE1"
 
@@ -1401,9 +1510,7 @@ class ID3v2TPE2Frame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TP2"
         return b"TPE2"
 
@@ -1440,9 +1547,7 @@ class ID3v2TPUBFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TPB"
         return b"TPUB"
 
@@ -1479,9 +1584,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TRC"
         return b"TSRC"
 
@@ -1518,9 +1621,7 @@ class ID3v2TSSEFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TSS"
         return b"TSSE"
 
@@ -1619,7 +1720,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing the :code:`TXXX` frame.
 
@@ -1640,6 +1741,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             :code:`TXXX` frame.
         """
         stream = as_buffer(stream)
+        tag_version = cls._normalize_tag_version(tag_version)
         obj = super(ID3v2TextInfoFrame, cls).from_stream(
             stream, tag_version=tag_version, strict=strict
         )
@@ -1684,9 +1786,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         frame_id : bytes
             ID3v2 frame ID.
         """
-        if isinstance(tag_version, str):
-            tag_version = tuple(int(v) for v in tag_version.split("."))
-        if tag_version == (2, 2, 0):
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
             return b"TXX"
         return b"TXXX"
 
@@ -1712,8 +1812,174 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing the :code:`TXXX` frame.
+        """
+        raise NotImplementedError  # TODO
+
+
+class UnknownID3v2Frame(ID3v2Frame):
+    """
+    Unknown ID3v2 frame.
+    """
+
+    _REGISTER = False
+
+    __slots__ = "_frame_id", "_frame_data"
+
+    def __init__(
+        self, frame_id: bytes | bytearray, frame_data: bytes | bytearray
+    ) -> None:
+        """
+        Parameters
+        ----------
+        frame_id : bytes or bytearray
+            ID3v2 frame ID.
+
+        frame_data : bytes or bytearray
+            ID3v2 frame data.
+        """
+        validate_type("frame_id", frame_id, bytes | bytearray)
+        if not 3 <= len(frame_id) <= 4:
+            raise ValueError(
+                "`frame_id` must be three- or four-characters long."
+            )
+        set_obj_attr(self, "_frame_id", bytes(frame_id))
+        validate_type("frame_data", frame_data, bytes | bytearray)
+        set_obj_attr(self, "_frame_data", bytes(frame_data))
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        raise FrozenInstanceError(f"cannot assign to field {name!r}")
+
+    def __delattr__(self, name: str) -> None:
+        raise FrozenInstanceError(f"cannot delete field {name!r}")
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> UnknownID3v2Frame:
+        """
+        Instantiate a :class:`UnknownID3v2Frame` object from a 
+        bytes-like object.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the ID3v2 frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.   
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications. 
+
+        Returns
+        -------
+        frame : minim.media.flac.UnknownID3v2Frame
+            ID3v2 frame.
+        """
+        stream = as_buffer(stream)
+        tag_version = cls._normalize_tag_version(tag_version)
+        obj = super().from_stream(
+            stream, tag_version=tag_version, strict=strict
+        )
+
+        match tag_version:
+            case (2, 2, 0):
+                raise NotImplementedError  # TODO
+            case (2, 3, 0):
+                raise NotImplementedError  # TODO
+            case (2, 4, 0):
+                frame_id = stream[:4].tobytes()
+                frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+                frame_data = stream[10 : 10 + frame_length].tobytes()
+                if frame_data[-1]:
+                    raise ValueError(
+                        "ID3v2 frame does not end with a null character."
+                    )
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+
+        obj._frame_id = frame_id
+        obj._frame_data = frame_data
+        return obj
+
+    @property
+    def frame_id(self) -> bytes:
+        """
+        Frame ID.
+        """
+        return self._frame_id
+
+    @property
+    def frame_data(self) -> bytes:
+        """
+        Raw frame data.
+        """
+        return self._frame_data
+
+    def get_frame_id(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        frame_id = self._frame_id
+        if self._normalize_tag_version(tag_version) == (2, 2, 0):
+            if len(frame_id) != 3:
+                raise ValueError(
+                    f"Frame ID {frame_id!r} is incompatible with "
+                    f"ID3v2 tag version {tag_version!r}."
+                )
+            return frame_id
+
+        if len(frame_id) != 4:
+            raise ValueError(
+                f"Frame ID {frame_id!r} is incompatible with "
+                f"ID3v2 tag version {tag_version!r}."
+            )
+        return frame_id
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the ID3v2 frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the ID3v2 frame.
         """
         raise NotImplementedError  # TODO
 
@@ -1776,7 +2042,7 @@ class ID3v2Padding:
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing padding.
 
@@ -1799,7 +2065,7 @@ class ID3v2Padding:
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing the padding bytes.
         """
         return self._length * b"\x00"

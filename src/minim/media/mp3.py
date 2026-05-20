@@ -56,17 +56,23 @@ class MP3Audio(Audio):
         self._format_metadata = []
         strict = self._strict
         if strict:
-            offset = 10 + decode_32_bit_synchsafe_int(*view[6:10])
+            # Process ID3v2 tags, if any
             if view[:3] == b"ID3":
+                offset = 10 + decode_32_bit_synchsafe_int(*view[6:10])
                 tags = ID3v2.from_stream(
                     view[:offset], infer_frame=self._infer_frame, strict=strict
                 )
                 self._format_metadata.append(tags)
                 self._tags = tags
                 self._audio_offset = offset
-                ...  # TODO
             else:
                 self._audio_offset = 0
+
+            # Process ID3v1 tags, if any
+            ...  # TODO
+
+            # Process APE tags, if any
+            ...  # TODO
 
         else:
             raise NotImplementedError

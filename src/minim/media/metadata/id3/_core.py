@@ -13,7 +13,7 @@ from ...._utility import (
 )
 from ..._shared import as_buffer
 from .._shared import AudioTags
-from ._frames import ID3v2Frame, ID3v2Padding
+from ._frames import ID3v2Frame, UnknownID3v2Frame, ID3v2Padding
 
 if TYPE_CHECKING:
     from typing import Any
@@ -148,25 +148,25 @@ class ID3v2(AudioTags):
 
     __slots__ = ("_flags", "_frames", "_tag_version")
 
-    def __init__(
-        self,
-        frames: list[ID3v2Frame],
-        /,
-        tag_version: str | tuple[int, int, int],
-        *,
-        flags: int | dict[str, bool] | ID3v2Flags = 0,
-    ) -> None:
-        if isinstance(tag_version, str):
-            tag_version = (int(v) for v in tag_version.split("."))
-        if tag_version not in self._TAG_VERSIONS:
-            raise ValueError(
-                f"Invalid ID3v2 tag version {tag_version!r}. "
-                f"Valid values: {join_values(self._TAG_VERSIONS)}."
-            )
+    # def __init__(
+    #     self,
+    #     frames: list[ID3v2Frame],
+    #     /,
+    #     tag_version: str | tuple[int, int, int],
+    #     *,
+    #     flags: int | dict[str, bool] | ID3v2Flags = 0,
+    # ) -> None:
+    #     if isinstance(tag_version, str):
+    #         tag_version = (int(v) for v in tag_version.split("."))
+    #     if tag_version not in self._TAG_VERSIONS:
+    #         raise ValueError(
+    #             f"Invalid ID3v2 tag version {tag_version!r}. "
+    #             f"Valid values: {join_values(self._TAG_VERSIONS)}."
+    #         )
 
-        self._tag_version = tag_version
+    #     self._tag_version = tag_version
 
-        ...  # TODO
+    #     ...  # TODO
 
     @classmethod
     def from_stream(
@@ -223,22 +223,48 @@ class ID3v2(AudioTags):
                         + 10
                         + decode_32_bit_synchsafe_int(*frame_length)
                     )
+
+                    # TODO: Temporary skip.
                     if frame_id in {b"TRCK", b"TPOS", b"TDRC", b"APIC"}:
-                        # TODO
                         offset = end_offset
                         continue
-                    frame_obj = ID3v2Frame._get_class(frame_id)
-                    # TODO: Implement infer_frame logic.
-                    if frame_obj is None:
-                        raise NotImplementedError
+
+                    if frame_id == b"TXXX" and infer_frame:
+                        _frame_id, text_info, *end = (
+                            stream[offset + 11 : end_offset]
+                            .tobytes()
+                            .split(b"\x00")
+                        )
+                        if frame_obj := ID3v2Frame._get_class(_frame_id):
+                            if len(end) != 1 or end[0]:
+                                raise ValueError(
+                                    "Invalid text information frame data."
+                                )
+
+                            text_encoding = frame_obj._TEXT_ENCODINGS[
+                                stream[offset + 10]
+                            ]
+                            frames.append(
+                                frame_obj(
+                                    text_info.decode(encoding=text_encoding),
+                                    text_encoding=text_encoding,
+                                )
+                            )
+                            offset = end_offset
+                            continue
+
                     frames.append(
-                        frame_obj.from_stream(
+                        (
+                            ID3v2Frame._get_class(frame_id)
+                            or UnknownID3v2Frame
+                        ).from_stream(
                             stream[offset:end_offset],
                             tag_version=tag_version,
                             strict=strict,
                         )
                     )
                     offset = end_offset
+
         return obj
 
     @property
@@ -292,7 +318,7 @@ class ID3v2(AudioTags):
     @property
     def comment(self) -> str | list[str] | None:
         """
-        Free-form comments.
+        :code:`COM`/:code:`COMM` – Free-form comments.
         """
         ...
 
@@ -302,7 +328,8 @@ class ID3v2(AudioTags):
     @property
     def compilation(self) -> bool | list[str] | None:
         """
-        Whether the recording is part of a compilation.
+        :code:`TCP`/:code:`TCMP` – Whether the recording is part of a
+        compilation.
         """
         ...
 
