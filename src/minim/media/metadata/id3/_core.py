@@ -235,6 +235,8 @@ class ID3v2(AudioTags):
                             .tobytes()
                             .split(b"\x00")
                         )
+
+                        # TODO: Need to optimize object instantiation.
                         if frame_obj := ID3v2Frame._get_class(_frame_id):
                             if len(end) != 1 or end[0]:
                                 raise ValueError(
@@ -393,7 +395,7 @@ class ID3v2(AudioTags):
     @property
     def disc_number(self) -> int | str | list[str] | None:
         """
-        Disc number within a multi-disc set.
+        :code:`TPA`/:code:`TPOS` – Disc number within a multi-disc set.
         """
         ...
 
@@ -405,7 +407,7 @@ class ID3v2(AudioTags):
     @property
     def disc_total(self) -> int | str | list[str] | None:
         """
-        Total number of discs.
+        :code:`TPA`/:code:`TPOS` – Total number of discs.
         """
         ...
 
@@ -490,7 +492,9 @@ class ID3v2(AudioTags):
     @property
     def lyrics(self) -> str | list[str] | None:
         """
-        Lyrics or transcription.
+        :code:`SLT`/:code:`SYLT` (synchronized) or
+        :code:`ULT`/:code:`USLT` (unsynchronized) – Lyrics or
+        transcription.
         """
         ...
 
@@ -521,7 +525,8 @@ class ID3v2(AudioTags):
     @property
     def track_number(self) -> int | list[str] | None:
         """
-        Track number within the album or collection.
+        :code:`TRK`/:code:`TRCK` – Track number within the album or
+        collection.
         """
         ...
 
@@ -533,7 +538,7 @@ class ID3v2(AudioTags):
     @property
     def track_total(self) -> int | list[str] | None:
         """
-        Total number of tracks.
+        :code:`TRK`/:code:`TRCK` – Total number of tracks.
         """
         ...
 

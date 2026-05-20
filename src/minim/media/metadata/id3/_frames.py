@@ -8,6 +8,7 @@ from ...._utility import (
     ASCII_CHARS_REGEX,
     decode_32_bit_synchsafe_int,
     join_values,
+    prepare_isrc,
     set_obj_attr,
     validate_number,
     validate_numeric,
@@ -839,6 +840,12 @@ class ID3v2COMMFrame(ID3v2Frame):
 # class ID3v2TRCKFrame(ID3v2Frame): ...  # TODO
 
 
+# class ID3v2SYLTFrame(ID3v2Frame): ...  # TODO
+
+
+# class ID3v2USLTFrame(ID3v2Frame): ...  # TODO
+
+
 class ID3v2TextInfoFrame(ID3v2Frame):
     """
     Text information frame.
@@ -1564,6 +1571,67 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
        `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
        <https://id3.org/id3v2.4.0-frames>`_.
     """
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        tag_version: str | tuple[int, int, int],
+        *,
+        strict: bool = True,
+    ) -> ID3v2TSRCFrame:
+        """ 
+        Instantiate an :code:`ID3v2TSRCFrame` object from a bytes-like 
+        object.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the text information frame.
+
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.   
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications. 
+
+        Returns
+        -------
+        isrc : minim.media.metadata.ID3v2TSRCFrame
+            ISRC frame.
+        """
+        stream = as_buffer(stream)
+        tag_version = cls._normalize_tag_version(tag_version)
+        obj = super(ID3v2TextInfoFrame, cls).from_stream(
+            stream, tag_version=tag_version, strict=strict
+        )
+
+        match tag_version:
+            case (2, 2, 0):
+                raise NotImplementedError  # TODO
+            case (2, 3, 0):
+                raise NotImplementedError  # TODO
+            case (2, 4, 0):
+                frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+                text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+                text_info, *end = (
+                    stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+                )
+                if len(end) != 1 or end[0]:
+                    raise ValueError("Invalid text information frame data.")
+            case _:
+                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+
+        obj._text_info = prepare_isrc(text_info.decode(encoding=text_encoding))
+        obj._text_encoding = text_encoding
+        return obj
 
     @classmethod
     def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:

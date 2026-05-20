@@ -19,6 +19,7 @@ from ._frames import (
     ID3v2TSRCFrame,
     ID3v2TSSEFrame,
     ID3v2TXXXFrame,
+    UnknownID3v2Frame,
     ID3v2Padding,
 )
 
@@ -44,5 +45,6 @@ __all__ = [
     "ID3v2TSRCFrame",
     "ID3v2TSSEFrame",
     "ID3v2TXXXFrame",
+    "UnknownID3v2Frame",
     "ID3v2Padding",
 ]
