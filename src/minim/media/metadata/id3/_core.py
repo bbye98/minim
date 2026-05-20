@@ -25,12 +25,41 @@ if TYPE_CHECKING:
 class ID3v2Flags:
     """
     Flags for ID3v2 tags.
+
+    Parameters
+    ----------
+    is_unsynchronized : bool; keyword-only; default: :code:`False`
+        Whether the current tag has had unsynchronization applied to
+        avoid false MPEG frame sync patterns in the metadata.
+
+    has_extended_header : bool; keyword-only; default: :code:`False`
+        Whether the current tag contains an extended header immediately
+        after the main ID3v2 header.
+
+    is_experimental : bool; keyword-only; default: :code:`False`
+        Whether the current tag is marked as experimental by the
+        encoder.
+
+    has_footer : bool; keyword-only; default: :code:`False`
+        Whether the current tag includes a 10-byte footer following the
+        tag data.
+
+    is_compressed : bool; keyword-only; default: :code:`False`
+        Whether the current tag has compressed data.
     """
 
+    #: Whether the current tag has had unsynchronization applied to
+    #: avoid false MPEG frame sync patterns in the metadata.
     is_unsynchronized: bool = False
+    #: Whether the current tag contains an extended header immediately
+    #: after the main ID3v2 header.
     has_extended_header: bool = False
+    #: Whether the current tag is marked as experimental by the encoder.
     is_experimental: bool = False
+    #: Whether the current tag includes a 10-byte footer following the
+    #: tag data.
     has_footer: bool = False
+    #: Whether the current tag has compressed data.
     is_compressed: bool = False
 
     def __post_init__(self) -> None:

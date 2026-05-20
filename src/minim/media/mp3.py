@@ -16,7 +16,7 @@ class MP3Audio(Audio):
     MP3 audio file.
     """
 
-    __slots__ = ("_audio_offset",)
+    __slots__ = "_audio_offset", "_infer_frame"
 
     def __init__(
         self,

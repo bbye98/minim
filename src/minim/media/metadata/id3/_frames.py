@@ -25,6 +25,17 @@ if TYPE_CHECKING:
 class ID3v2FrameStatusFlags:
     """
     Status flags for an ID3v2 frame.
+
+    Parameters
+    ----------
+    discard_on_tag_alter : bool; keyword-only; default: :code:`False`
+        Whether to discard the current frame when the ID3 tag is edited.
+
+    discard_on_file_alter : bool; keyword-only; default: :code:`False`
+        Whether to discard the current frame when the audio data changes.
+
+    is_read_only : bool; keyword-only; default: :code:`False`
+        Whether the current frame is read-only.
     """
 
     #: Whether to discard the current frame when the ID3 tag is edited.
@@ -114,6 +125,25 @@ class ID3v2FrameStatusFlags:
 class ID3v2FrameFormatFlags:
     """
     Format flags for an ID3v2 frame.
+
+    Parameters
+    ----------
+    has_grouping : bool; keyword-only; default: :code:`False`
+        Whether the current frame has a grouping identifier.
+
+    is_compressed : bool; keyword-only; default: :code:`False`
+        Whether the current frame is compressed.
+
+    is_encrypted : bool; keyword-only; default: :code:`False`
+        Whether the current frame is encrypted.
+
+    is_unsynchronized : bool; keyword-only; default: :code:`False`
+        Whether the current frame has frame-level unsynchronization.
+
+    has_data_length_indicator : bool; keyword-only; \
+    default: :code:`False`
+        Whether the current frame has an extra synchsafe integer
+        preceding the payload.
     """
 
     #: Whether the current frame has a grouping identifier.
