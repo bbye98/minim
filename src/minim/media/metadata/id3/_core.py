@@ -70,6 +70,105 @@ class ID3v2Flags:
         validate_type("is_compressed", self.is_compressed, bool)
 
     @classmethod
+    def _from_byte_2_2_0(
+        cls, byte_: int, /, *, strict: bool = True
+    ) -> ID3v2Flags:
+        """
+        Instantiate a :class:`ID3v2Flags` object from a ID3v2.2 flags
+        byte.
+
+        Parameters
+        ----------
+        byte_ : int; positional-only
+            Flags byte.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        flags : minim.media.metadata.ID3v2Flags
+            Flags for ID3v2 tags.
+        """
+        if strict and byte_ & 0x3F:
+            raise ValueError("Reserved bits set in ID3v2 flags byte.")
+
+        obj = cls.__new__(cls)
+        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
+        set_obj_attr(obj, "has_extended_header", False)
+        set_obj_attr(obj, "is_experimental", False)
+        set_obj_attr(obj, "has_footer", False)
+        set_obj_attr(obj, "is_compressed", bool(byte_ & 0x40))
+        return obj
+
+    @classmethod
+    def _from_byte_2_3_0(
+        cls, byte_: int, /, *, strict: bool = True
+    ) -> ID3v2Flags:
+        """
+        Instantiate a :class:`ID3v2Flags` object from a ID3v2.3 flags
+        byte.
+
+        Parameters
+        ----------
+        byte_ : int; positional-only
+            Flags byte.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        flags : minim.media.metadata.ID3v2Flags
+            Flags for ID3v2 tags.
+        """
+        if strict and byte_ & 0x1F:
+            raise ValueError("Reserved bits set in ID3v2 flags byte.")
+
+        obj = cls.__new__(cls)
+        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
+        set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
+        set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
+        set_obj_attr(obj, "has_footer", False)
+        set_obj_attr(obj, "is_compressed", False)
+        return obj
+
+    @classmethod
+    def _from_byte_2_4_0(
+        cls, byte_: int, /, *, strict: bool = True
+    ) -> ID3v2Flags:
+        """
+        Instantiate a :class:`ID3v2Flags` object from a ID3v2.4 flags
+        byte.
+
+        Parameters
+        ----------
+        byte_ : int; positional-only
+            Flags byte.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        flags : minim.media.metadata.ID3v2Flags
+            Flags for ID3v2 tags.
+        """
+        if strict and byte_ & 0xF:
+            raise ValueError("Reserved bits set in ID3v2 flags byte.")
+
+        obj = cls.__new__(cls)
+        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
+        set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
+        set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
+        set_obj_attr(obj, "has_footer", bool(byte_ & 0x10))
+        set_obj_attr(obj, "is_compressed", False)
+        return obj
+
+    @classmethod
     def from_byte(
         cls,
         byte_: int,
@@ -103,37 +202,19 @@ class ID3v2Flags:
             Flags for ID3v2 tags.
         """
         validate_number("byte_", byte_, int, 0)
-        if isinstance(tag_version, str):
-            tag_version = (int(v) for v in tag_version.split("."))
-
-        obj = cls.__new__(cls)
-        match tag_version:
-            case (2, 2, 0):
-                if strict and byte_ & 0x3F:
-                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
-                set_obj_attr(obj, "has_extended_header", False)
-                set_obj_attr(obj, "is_experimental", False)
-                set_obj_attr(obj, "has_footer", False)
-                set_obj_attr(obj, "is_compressed", bool(byte_ & 0x40))
-            case (2, 3, 0):
-                if strict and byte_ & 0x1F:
-                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
-                set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
-                set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
-                set_obj_attr(obj, "has_footer", False)
-                set_obj_attr(obj, "is_compressed", False)
+        match (
+            tuple(int(v) for v in tag_version.split("."))
+            if isinstance(tag_version, str)
+            else tag_version
+        ):
             case (2, 4, 0):
-                if strict and byte_ & 0xF:
-                    raise ValueError("Reserved bits set in ID3v2 flags byte.")
-                set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
-                set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
-                set_obj_attr(obj, "has_footer", bool(byte_ & 0x10))
-                set_obj_attr(obj, "is_compressed", False)
+                return cls._from_byte_2_4_0(byte_, strict=strict)
+            case (2, 3, 0):
+                return cls._from_byte_2_3_0(byte_, strict=strict)
+            case (2, 2, 0):
+                return cls._from_byte_2_2_0(byte_, strict=strict)
             case _:
                 raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
-
-        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
-        return obj
 
 
 class ID3v2(AudioTags):
@@ -185,27 +266,14 @@ class ID3v2(AudioTags):
         if frame_id != b"ID3":
             raise ValueError("`stream` does not contain an ID3v2 tag.")
 
-        tag_version = 2, minor, patch
-        if tag_version not in cls._TAG_VERSIONS:
-            raise ValueError(
-                f"Invalid ID3v2 tag version {tag_version!r}. "
-                f"Valid values: {join_values(cls._TAG_VERSIONS)}."
-            )
-
-        obj = cls.__new__(cls)
-        obj._tag_version = tag_version
-        obj._flags = ID3v2Flags.from_byte(flags, tag_version, strict=strict)
-
         offset = 10
         tag_end = offset + decode_32_bit_synchsafe_int(*tag_length)
+        obj = cls.__new__(cls)
+        obj._tag_version = tag_version = 2, minor, patch
         obj._frames = frames = []
-
         match tag_version:
-            case (2, 2, 0):
-                raise NotImplementedError  # TODO
-            case (2, 3, 0):
-                raise NotImplementedError  # TODO
             case (2, 4, 0):
+                obj._flags = ID3v2Flags._from_byte_2_4_0(flags, strict=strict)
                 while offset < tag_end:
                     if not stream[offset]:
                         frames.append(
@@ -266,6 +334,15 @@ class ID3v2(AudioTags):
                         )
                     )
                     offset = end_offset
+            case (2, 3, 0):
+                raise NotImplementedError  # TODO
+            case (2, 2, 0):
+                raise NotImplementedError  # TODO
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(cls._TAG_VERSIONS)}."
+                )
 
         return obj
 
