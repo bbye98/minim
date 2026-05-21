@@ -231,23 +231,13 @@ class ID3v2(AudioTags):
 
     # def __init__(
     #     self,
-    #     frames: list[ID3v2Frame],
+    #     frames: OrderedCollection[ID3v2Frame],
     #     /,
     #     tag_version: str | tuple[int, int, int],
     #     *,
     #     flags: int | dict[str, bool] | ID3v2Flags = 0,
     # ) -> None:
-    #     if isinstance(tag_version, str):
-    #         tag_version = (int(v) for v in tag_version.split("."))
-    #     if tag_version not in self._TAG_VERSIONS:
-    #         raise ValueError(
-    #             f"Invalid ID3v2 tag version {tag_version!r}. "
-    #             f"Valid values: {join_values(self._TAG_VERSIONS)}."
-    #         )
-
-    #     self._tag_version = tag_version
-
-    #     ...  # TODO
+    #     """ """
 
     @classmethod
     def from_stream(
@@ -273,7 +263,9 @@ class ID3v2(AudioTags):
         obj._frames = frames = []
         match tag_version:
             case (2, 4, 0):
-                obj._flags = ID3v2Flags._from_byte_2_4_0(flags, strict=strict)
+                obj._flags = flags = ID3v2Flags._from_byte_2_4_0(
+                    flags, strict=strict
+                )
                 while offset < tag_end:
                     if not stream[offset]:
                         frames.append(
