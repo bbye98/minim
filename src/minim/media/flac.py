@@ -371,14 +371,14 @@ class FLACPadding(FLACMetadataBlock):
         cls, stream: BytesLike, /, *, strict: bool = True
     ) -> FLACPadding:
         """
-        Instantiate a :class:`FLACPadding` object from a bytes-like 
+        Instantiate a :class:`FLACPadding` object from a bytes-like
         object.
 
         Parameters
         ----------
         stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
-            Bytes-like object containing :code:`PADDING` metadata block 
+            Bytes-like object containing :code:`PADDING` metadata block
             data.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1408,15 +1408,15 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACPicture:
-        """ 
-        Instantiate an :class:`FLACPicture` object from a bytes-like 
+        """
+        Instantiate an :class:`FLACPicture` object from a bytes-like
         object.
 
         Parameters
         ----------
         stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
-            Bytes-like object containing :code:`PICTURE` metadata block 
+            Bytes-like object containing :code:`PICTURE` metadata block
             data.
 
         Returns
@@ -1447,21 +1447,21 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         offset += 20
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "picture_type", picture_type)
-        set_obj_attr(obj, "mime_type", mime_type)
-        set_obj_attr(obj, "text_encoding", 3)
-        set_obj_attr(obj, "description", description)
+        set_obj_attr(obj, "_picture_type", picture_type)
+        set_obj_attr(obj, "_mime_type", mime_type)
+        set_obj_attr(obj, "_text_encoding", 3)
+        set_obj_attr(obj, "_description", description)
         set_obj_attr(
             obj,
-            "picture_data",
+            "_picture_data",
             stream[offset : offset + data_length].tobytes(),
         )
         set_obj_attr(obj, "width", width)
         set_obj_attr(obj, "height", height)
         set_obj_attr(obj, "color_depth", color_depth)
         set_obj_attr(obj, "num_indexed_colors", num_indexed_colors)
-        set_obj_attr(obj, "format_flags", ID3v2FrameFormatFlags())
-        set_obj_attr(obj, "status_flags", ID3v2FrameStatusFlags())
+        set_obj_attr(obj, "_format_flags", ID3v2FrameFormatFlags())
+        set_obj_attr(obj, "_status_flags", ID3v2FrameStatusFlags())
         return obj
 
     @property
@@ -1471,9 +1471,9 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         """
         return (
             32
-            + len(self.mime_type.encode(encoding="ascii"))
-            + len(self.description.encode(encoding="utf-8"))
-            + len(self.picture_data)
+            + len(self._mime_type.encode(encoding="ascii"))
+            + len(self._description.encode(encoding="utf-8"))
+            + len(self._picture_data)
         )
 
     def serialize(self) -> bytes:
@@ -1486,22 +1486,22 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         stream : bytes
             Bytestream containing :code:`PICTURE` metadata block data.
         """
-        mime_type = self.mime_type.encode(encoding="ascii")
-        description = self.description.encode(encoding="utf-8")
+        mime_type = self._mime_type.encode(encoding="ascii")
+        description = self._description.encode(encoding="utf-8")
         return b"".join(
             (
-                self._STRUCT_II.pack(self.picture_type, len(mime_type)),
+                self._STRUCT_II.pack(self._picture_type, len(mime_type)),
                 mime_type,
                 len(description).to_bytes(4, byteorder="big"),
                 description,
                 self._STRUCT_IIIII.pack(
-                    self.width,
-                    self.height,
-                    self.color_depth,
-                    self.num_indexed_colors,
-                    len(self.picture_data),
+                    self._width,
+                    self._height,
+                    self._color_depth,
+                    self._num_indexed_colors,
+                    len(self._picture_data),
                 ),
-                self.picture_data,
+                self._picture_data,
             )
         )
 
