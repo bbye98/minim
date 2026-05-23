@@ -28,6 +28,9 @@ class MusixmatchLyricsAPIClient(APIClient):
     Musixmatch Lyrics API client.
     """
 
+    _APP_RE = re.compile(r'http[^"]*/_app[^"]*\.js')
+    _KEY_RE = re.compile(r'from\("(.*?)"')
+
     _ENV_VAR_PREFIX = "MUSIXMATCH_LYRICS_API"
     _PROVIDER = "Musixmatch"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
@@ -196,26 +199,15 @@ class MusixmatchLyricsAPIClient(APIClient):
         client_key : bytes
             Client key.
         """
-        with httpx.Client() as client:
-            m = re.search(
-                r'http[^"]*/_app[^"]*\.js',
-                client.get(
-                    "https://www.musixmatch.com/search",
-                    headers={
-                        "user-agent": self._client.headers.get(
-                            "user-agent", ""
-                        )
-                    },
-                ).text,
-            )
-            if m is None:
-                raise RuntimeError("'_app*.js' was not found.")
-            app = client.get(
-                m.group(0),
-            ).text
-            # https://s.mxmcdn.net/mxm-com/prod/1.37.3/_next/static/chunks/pages/_app-0e3826f6a28b74cf.js
+        m = self._APP_RE.search(
+            self._client.get("https://www.musixmatch.com/search").text,
+        )
+        if m is None:
+            raise RuntimeError("'_app*.js' was not found.")
 
-        m = re.search(r'from\("(.*?)"', app)
+        # https://s.mxmcdn.net/mxm-com/prod/1.37.3/_next/static/chunks
+        # /pages/_app-0e3826f6a28b74cf.js
+        m = self._KEY_RE.search(self._client.get(m.group(0)).text)
         if m is None:
             raise RuntimeError("A client key was not found in '_app*.js'.")
 

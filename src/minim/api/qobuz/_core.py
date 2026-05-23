@@ -7,11 +7,14 @@ import json
 import os
 import re
 from typing import TYPE_CHECKING
+from urllib.parse import urlencode, urlparse
+import warnings
 
 import httpx
 
 from ... import FOUND
-from .._shared import APIClient, TokenDatabase
+from ..._utility import join_values
+from .._shared import OAuthAPIClient, TokenDatabase
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
 from ._private_api.catalog import PrivateCatalogAPI
@@ -34,7 +37,7 @@ if TYPE_CHECKING:
     from ..._types import Collection
 
 
-class PrivateQobuzAPIClient(APIClient):
+class PrivateQobuzAPIClient(OAuthAPIClient):
     """
     Private Qobuz API client.
 
@@ -47,25 +50,37 @@ class PrivateQobuzAPIClient(APIClient):
        <https://static.qobuz.com/apps/api/QobuzAPI-TermsofUse.pdf>`_.
     """
 
-    _ALLOWED_AUTH_FLOWS = {
+    _APP_RE = re.compile(r"/resources/.*/bundle.js")
+    _ID_KEY_RE = re.compile(
+        r'production:\{api:\{appId:"([^"]+)",appSecret.*?privateKey:\s*"([^"]+)"'
+    )
+    _SEED_RE = re.compile(
+        r'[a-z]\.initialSeed\("([^"]+)",window\.utimezone\.([^)]+)\)'
+    )
+
+    _ALLOWED_AUTH_FLOWS = _AUTH_FLOWS = {
         None: "unauthenticated client",
+        "ext_auth_code": "Qobuz authorization code flow",
         "password": "Qobuz Web Player login flow",
     }
     _ENV_VAR_PREFIX = "PRIVATE_QOBUZ_API"
+    _OPTIONAL_AUTH = True
     _PROVIDER = "Qobuz"
+    _REDIRECT_FLOWS = {"ext_auth_code"}
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
     _VERSION = "1.17"
+
+    AUTH_URL = "https://www.qobuz.com/signin/oauth"
     BASE_URL = "https://www.qobuz.com/api.json/0.2"
+    TOKEN_URL = f"{BASE_URL}/oauth/callback"
     #: Web Player URL.
     WEB_PLAYER_URL = "https://play.qobuz.com"
 
     __slots__ = (
-        "_auth_flow",
         "_app_id",
         "_app_secret",
-        "_user_identifier",
+        "_auth_key",
         "_credential_handler",
-        "_store_tokens",
         "_token_extras",
         "albums",
         "artists",
@@ -87,9 +102,13 @@ class PrivateQobuzAPIClient(APIClient):
         auth_flow: str | None = None,
         app_id: str | None = None,
         app_secret: str | None = None,
+        auth_key: str | None = None,
         user_identifier: str | None = None,
+        redirect_uri: str | None = None,
         user_auth_token: str | None = None,
         credential_handler: str | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
         user_agent: str | None = None,
@@ -104,6 +123,7 @@ class PrivateQobuzAPIClient(APIClient):
             **Valid values**:
 
             * :code:`None` – No authentication.
+            * :code:`"ext_auth_code"` – Qobuz authorization code flow.
             * :code:`"password"` – Qobuz Web Player login flow.
 
         app_id : str; keyword-only; optional
@@ -118,6 +138,12 @@ class PrivateQobuzAPIClient(APIClient):
             :code:`PRIVATE_QOBUZ_API_APP_SECRET` or from the local token
             storage if available, or retrieved from the Qobuz Web Player
             login page otherwise.
+
+        auth_key : str; keyword-only; optional
+            Authorization key used in the Authorization Code flow. If
+            not provided, it is loaded from the system environment
+            variable :code:`PRIVATE_QOBUZ_API_AUTH_KEY` if available, or
+            retrieved from the Qobuz Web Player login page otherwise.
 
         user_identifier : str; keyword-only; optional
             Identifier for the user account. Used when
@@ -136,6 +162,9 @@ class PrivateQobuzAPIClient(APIClient):
             Prefixing the identifier with a tilde (:code:`~`) bypasses
             token retrieval, forces reauthorization, and stores the new
             token under the suffix.
+
+        redirect_uri : str; keyword-only; optional
+            Redirect URI. Required for the Authorization Code flow.
 
         user_auth_token : str; keyword-only; optional
             User authentication token. If provided, the authorization
@@ -156,6 +185,25 @@ class PrivateQobuzAPIClient(APIClient):
               terminal.
             * :code:`"playwright"` – Open the Qobuz Web Player login
               page in a Playwright Firefox browser.
+
+        redirect_handler : str or None; keyword-only; optional
+            Backend for handling redirects during the Authorization Code
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
+
+            **Valid values**:
+
+            * :code:`None` – Show authorization URL in and have the user
+              manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept the
+              redirect after user authorization in any local browser.
+            * :code:`"playwright"` – Use a Playwright Firefox browser to
+              complete the user authorization.
+
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code flow. If
+            :code:`False`, the URL is printed to the terminal.
 
         enable_cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
@@ -227,9 +275,15 @@ class PrivateQobuzAPIClient(APIClient):
             app_id = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_ID")
             app_secret = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_SECRET")
 
-        # If the app ID is still missing, get it from Qobuz
-        if app_id is None:
-            app_id, app_secret = self._resolve_app_credentials()
+        # If the authorization key for the Authorization Code Flow is
+        # not provided, try to retrieve it from environment variables
+        if auth_flow == "auth_code" and auth_key is None:
+            auth_key = os.environ.get(f"{self._ENV_VAR_PREFIX}_AUTH_KEY")
+
+        # If the app ID or authorization key is still missing, get it
+        # from Qobuz
+        if app_id is None or auth_flow == "auth_code" and auth_key is None:
+            app_id, auth_key, app_secret = self._resolve_app_credentials()
 
         if auth_flow is not None:
             if user_identifier and user_identifier[0] == "~":
@@ -246,6 +300,7 @@ class PrivateQobuzAPIClient(APIClient):
                 # to retrieve it from local token storage
                 user_auth_token = account["access_token"]
                 app_secret = account["client_secret"]
+                redirect_uri = account["redirect_uri"]
                 self._token_extras = (
                     json.loads(token_extras)
                     if isinstance(token_extras := account["extras"], str)
@@ -256,8 +311,12 @@ class PrivateQobuzAPIClient(APIClient):
             auth_flow,
             app_id=app_id,
             app_secret=app_secret,
+            auth_key=auth_key,
             user_identifier=user_identifier,
+            redirect_uri=redirect_uri,
             credential_handler=credential_handler,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
             store_tokens=store_tokens,
             authenticate=False,
         )
@@ -337,7 +396,7 @@ class PrivateQobuzAPIClient(APIClient):
         )
 
     @classmethod
-    def _resolve_app_credentials(cls) -> tuple[str, list[str]]:
+    def _resolve_app_credentials(cls) -> tuple[str, list[str], str]:
         """
         Resolve the application ID and secret using the Qobuz Web Player
         login page.
@@ -347,21 +406,24 @@ class PrivateQobuzAPIClient(APIClient):
         app_id : str
             Application ID.
 
+        auth_key : str
+            Authorization key used in the Authorization Code flow.
+
         app_secrets : list[str]
             Possible application secrets.
         """
         with httpx.Client(
             base_url=cls.WEB_PLAYER_URL, follow_redirects=True
         ) as client:
-            m = re.search("/resources/.*/bundle.js", client.get("login").text)
+            m = cls._APP_RE.search(client.get("login").text)
             if m is None:
                 raise RuntimeError("'bundle.js' was not found.")
-            bundle = client.get(m.group(0)).text
+
             # /resources/8.1.0-b019/bundle.js
+            bundle = client.get(m.group(0)).text
+
         return (
-            re.search(
-                '(?:production:{api:{appId:")(.*?)(?:",appSecret)', bundle
-            ).group(1),
+            *cls._ID_KEY_RE.search(bundle).groups(),
             [
                 base64.b64decode(
                     "".join((secret, *match.groups()))[:-44]
@@ -375,11 +437,7 @@ class PrivateQobuzAPIClient(APIClient):
                             bundle,
                         ),
                     )
-                    for secret, city in re.findall(
-                        r'(?:[a-z].initialSeed\(")(.*?)'
-                        r'(?:",window.utimezone.)(.*?)\)',
-                        bundle,
-                    )
+                    for secret, city in cls._SEED_RE.findall(bundle)
                 )
                 if match
             ],
@@ -402,6 +460,28 @@ class PrivateQobuzAPIClient(APIClient):
                 raise RuntimeError(
                     "No valid application secret was found in 'bundle.js'."
                 )
+
+    def _get_ext_auth_code(self) -> str:
+        """
+        Get the authorization code for the Qobuz authorization code
+        flow.
+
+        Returns
+        -------
+        auth_code : str
+            Authorization code.
+        """
+        params = {
+            "ext_app_id": self._app_id,
+            "redirect_url": self._redirect_uri,
+        }
+        auth_code = self._handle_redirect(
+            f"{self.AUTH_URL}?{urlencode(params)}", url_component="query"
+        ).get("code_autorisation")
+        if not auth_code:
+            raise RuntimeError("Authorization failed.")
+
+        return auth_code
 
     def _login(
         self,
@@ -476,6 +556,9 @@ class PrivateQobuzAPIClient(APIClient):
             **kwargs,
         )
 
+    def _obtain_access_token(self):
+        pass  # Implemented as _obtain_user_auth_token()
+
     def _obtain_user_auth_token(
         self, auth_flow: str | None = None, **kwargs: dict[str, Any]
     ) -> None:
@@ -501,17 +584,29 @@ class PrivateQobuzAPIClient(APIClient):
         if not auth_flow:
             auth_flow = self._auth_flow
 
-        if auth_flow is None:
-            self.set_user_auth_token(None)
+        match auth_flow:
+            case None:
+                self.set_user_auth_token(None)
+                return
 
-        # auth_flow == "password"
-        resp_json = self._login(**kwargs)
+            case "ext_auth_code":
+                resp_json = self._client.get(
+                    self.TOKEN_URL,
+                    params={
+                        "code": self._get_ext_auth_code(),
+                        "private_key": self._auth_key,
+                    },
+                ).json()
+
+            case "password":
+                resp_json = self._login(**kwargs)
+
         user_auth_token = resp_json.pop(
             "token" if "token" in resp_json else "user_auth_token"
         )
         self.set_user_auth_token(user_auth_token)
         self._token_extras = resp_json
-        if self._user_identifier is None and self._auth_flow is not None:
+        if not self._user_identifier and self._auth_flow is not None:
             self._user_identifier = self._resolve_user_identifier()
 
         # Figure out the working application secret from the possible
@@ -525,7 +620,7 @@ class PrivateQobuzAPIClient(APIClient):
                 client_id=self._app_id,
                 client_secret=self._app_secret,
                 user_identifier=self._user_identifier,
-                redirect_uri=None,
+                redirect_uri=self._redirect_uri,
                 token_type=None,
                 access_token=user_auth_token,
                 refresh_token=None,
@@ -634,8 +729,12 @@ class PrivateQobuzAPIClient(APIClient):
         *,
         app_id: str | None = None,
         app_secret: str | None = None,
+        auth_key: str | None = None,
         user_identifier: str | None = None,
+        redirect_uri: str | None = None,
         credential_handler: str | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
         store_tokens: bool = True,
         authenticate: bool = True,
         **kwargs: dict[str, Any],
@@ -657,18 +756,23 @@ class PrivateQobuzAPIClient(APIClient):
             **Valid values**:
 
             * :code:`None` – No authentication.
+            * :code:`"ext_auth_code"` – Qobuz authorization code flow.
             * :code:`"password"` – Qobuz Web Player login flow.
 
         app_id : str; keyword-only; optional
             Application ID. If not provided, it is loaded from the
-            system environment variable :code:`PRIVATE_QOBUZ_API_APP_ID`
-            or retrieved from the Qobuz Web Player login page.
+            system environment variable
+            :code:`PRIVATE_QOBUZ_API_APP_ID`.
 
         app_secret : str; keyword-only; optional
             Application secret. If not provided, it is loaded from the
             system environment variable
-            :code:`PRIVATE_QOBUZ_API_APP_SECRET` or retrieved from the
-            Qobuz Web Player login page.
+            :code:`PRIVATE_QOBUZ_API_APP_SECRET`.
+
+        auth_key : str; keyword-only; optional
+            Authorization key used in the Authorization Code flow. If
+            not provided, it is loaded from the system environment
+            variable :code:`PRIVATE_QOBUZ_API_AUTH_KEY`.
 
         user_identifier : str; keyword-only; optional
             Identifier for the user account. Used when
@@ -688,6 +792,9 @@ class PrivateQobuzAPIClient(APIClient):
             token retrieval, forces reauthorization, and stores the new
             token under the suffix.
 
+        redirect_uri : str; keyword-only; optional
+            Redirect URI. Required for the Authorization Code flow.
+
         credential_handler : str; keyword-only; optional
             Backend for handling user credentials during the Qobuz Web
             Player login flow. If not specified, the client first looks
@@ -702,6 +809,26 @@ class PrivateQobuzAPIClient(APIClient):
               terminal.
             * :code:`"playwright"` – Open the Qobuz Web Player login
               page in a Playwright Firefox browser.
+
+        redirect_handler : str or None; keyword-only; optional
+            Backend for handling redirects during the Authorization Code
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
+
+            **Valid values**:
+
+            * :code:`None` – Show authorization URL in and have the
+              user manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept
+              the redirect after user authorization in any local
+              browser.
+            * :code:`"playwright"` – Use a Playwright Firefox
+              browser to complete the user authorization.
+
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code flow. If
+            :code:`False`, the URL is printed to the terminal.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
@@ -734,33 +861,59 @@ class PrivateQobuzAPIClient(APIClient):
             Keyword arguments to pass to
             :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
         """
-        if auth_flow not in self._ALLOWED_AUTH_FLOWS:
-            raise ValueError(
-                f"Invalid authorization flow {auth_flow!r}. "
-                f"Valid values: {self._join_values(self._ALLOWED_AUTH_FLOWS)}."
-            )
-        self._auth_flow = auth_flow
+        if auth_flow == "auth_code" and auth_key is None:
+            auth_key = os.environ.get(f"f{self._ENV_VAR_PREFIX}_AUTH_KEY")
+            if auth_key is None:
+                raise ValueError(
+                    "The authorization key must be provided via the "
+                    "`auth_key` parameter."
+                )
+
         if app_id is None or app_secret is None:
             app_id = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_ID")
+            if app_id is None:
+                raise ValueError(
+                    "An application ID must be provided via the `app_id` "
+                    "parameter."
+                )
+
             app_secret = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_SECRET")
-        if app_id is None:
+            if app_secret is None:
+                raise ValueError(
+                    "An application secret must be provided via the "
+                    "`app_secret` parameter."
+                )
+
+        if auth_flow not in self._AUTH_FLOWS:
             raise ValueError(
-                "An application ID must be provided via the `app_id` "
-                "parameter."
+                f"Invalid authorization flow {auth_flow!r}. "
+                f"Valid values: {self._join_values(self._AUTH_FLOWS)}."
             )
-        if app_secret is None:
-            raise ValueError(
-                "An application secret must be provided via the "
-                "`app_secret` parameter."
-            )
+
         self._client.headers["x-app-id"] = self._app_id = app_id
         self._app_secret = app_secret
-        self._user_identifier = user_identifier
+        self._auth_key = auth_key
         self._credential_handler = credential_handler
-        self._store_tokens = store_tokens
+
+        super().set_auth_flow(
+            auth_flow=auth_flow,
+            user_identifier=user_identifier,
+            redirect_uri=redirect_uri,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            store_tokens=store_tokens,
+            authenticate=False,
+        )
 
         if authenticate and auth_flow is not None:
             self._obtain_user_auth_token(**kwargs)
+
+    def set_access_token(self) -> None:
+        """
+        Not implemented for this API client; use
+        :meth:`set_user_auth_token` instead.
+        """
+        raise NotImplementedError
 
     def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
         """
@@ -775,7 +928,7 @@ class PrivateQobuzAPIClient(APIClient):
             if self._auth_flow is not None:
                 raise ValueError(
                     "`user_auth_token` cannot be None when using the "
-                    f"{self._ALLOWED_AUTH_FLOWS[self._auth_flow]}."
+                    f"{self._AUTH_FLOWS[self._auth_flow]}."
                 )
             if "x-user-auth-token" in self._client.headers:
                 del self._client.headers["x-user-auth-token"]
