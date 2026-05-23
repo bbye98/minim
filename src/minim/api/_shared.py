@@ -379,7 +379,9 @@ class TokenDatabase:
                 token_type,
                 access_token,
                 access_token_secret,
-                prepare_datetime(expires_at, "%Y-%m-%dT%H:%M:%SZ"),
+                prepare_datetime(expires_at, "%Y-%m-%dT%H:%M:%SZ")
+                if expires_at
+                else None,
                 refresh_token,
                 json.dumps(extras) if isinstance(extras, dict) else None,
                 prepare_datetime(
