@@ -72,6 +72,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
 
     AUTH_URL = "https://www.qobuz.com/signin/oauth"
     BASE_URL = "https://www.qobuz.com/api.json/0.2"
+    #: Token endpoint.
     TOKEN_URL = f"{BASE_URL}/oauth/callback"
     #: Web Player URL.
     WEB_PLAYER_URL = "https://play.qobuz.com"
@@ -910,12 +911,26 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         if authenticate and auth_flow is not None:
             self._obtain_user_auth_token(**kwargs)
 
-    def set_access_token(self) -> None:
+    def set_access_token(self, access_token: str) -> None:
         """
-        Not implemented for this API client; use
-        :meth:`set_user_auth_token` instead.
+        Set or update the access token.
+
+        .. note::
+
+           For this API client, access tokens are user authentication
+           tokens.
+
+        .. seealso::
+
+           :meth:`set_user_auth_token` – Set or update the user
+           authentication token.
+
+        Parameters
+        ----------
+        access_token : str or None; positional-only
+            Access token.
         """
-        raise NotImplementedError
+        self.set_user_auth_token(access_token)
 
     def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
         """
