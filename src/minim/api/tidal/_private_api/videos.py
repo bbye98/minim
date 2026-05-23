@@ -28,6 +28,10 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
+    _M3U_RE = re.compile(
+        r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
+        r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
+    )
     _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
 
     __slots__ = ()
@@ -57,10 +61,9 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
         if manifest[0] == 123:  # JSON
             _, codec, m3u = max(
-                re.compile(
-                    r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
-                    r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
-                ).findall(httpx.get(json.loads(manifest)["urls"][0]).text),
+                self._M3U_RE.findall(
+                    httpx.get(json.loads(manifest)["urls"][0]).text
+                ),
                 key=lambda m3u: int(m3u[0]),
             )
             return codec, b"".join(

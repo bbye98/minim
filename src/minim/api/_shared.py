@@ -229,7 +229,7 @@ class TokenDatabase:
         clause : str
             Updated SQL :code:`WHERE` clause.
         """
-        prefix = f"AND {field} " if clause else field + " "
+        prefix = f"{clause} {'AND' if clause else 'WHERE'} {field} "
         if isinstance(values, str):
             params.append(values)
             return f"{prefix}= ?"
@@ -389,7 +389,9 @@ class TokenDatabase:
                 token_type,
                 access_token,
                 access_token_secret,
-                prepare_datetime(expires_at, "%Y-%m-%dT%H:%M:%SZ"),
+                prepare_datetime(expires_at, "%Y-%m-%dT%H:%M:%SZ")
+                if expires_at
+                else None,
                 refresh_token,
                 json.dumps(extras) if isinstance(extras, dict) else None,
                 prepare_datetime(
@@ -970,12 +972,7 @@ class OAuthAPIClient(APIClient):
         ...
 
     @abstractmethod
-    def set_access_token(
-        self,
-        access_token: str | None,
-        *args: tuple[Any, ...],
-        **kwargs: dict[str, Any],
-    ) -> None:
+    def set_access_token(self, access_token: str | None) -> None:
         """
         Set or update the access token and its related metadata.
 
@@ -1698,7 +1695,7 @@ class OAuth1APIClient(OAuthAPIClient):
         access_token_secret = oauth.pop("oauth_token_secret")
         self.set_access_token(access_token, access_token_secret)
         self._token_extras = oauth
-        if self._user_identifier is None:
+        if not self._user_identifier:
             self._user_identifier = self._resolve_user_identifier()
 
         if self._store_tokens:
@@ -2431,9 +2428,7 @@ class OAuth2APIClient(OAuthAPIClient):
             user_identifiers=user_identifiers,
         )
 
-    def _get_authorization_code(
-        self, code_challenge: str | None = None
-    ) -> str:
+    def _get_auth_code(self, code_challenge: str | None = None) -> str:
         """
         Get the authorization code for the Authorization Code and
         Authorization Code with PKCE flows.
@@ -2446,7 +2441,7 @@ class OAuth2APIClient(OAuthAPIClient):
 
         Returns
         -------
-        authorization_code : str
+        auth_code : str
             Authorization code.
         """
         params = {
@@ -2621,7 +2616,7 @@ class OAuth2APIClient(OAuthAPIClient):
                     data["code_verifier"] = code_verifier = (
                         secrets.token_urlsafe(96)
                     )
-                    data["code"] = self._get_authorization_code(
+                    data["code"] = self._get_auth_code(
                         code_challenge=base64.urlsafe_b64encode(
                             hashlib.sha256(
                                 code_verifier.encode(encoding="utf-8")
@@ -2631,7 +2626,7 @@ class OAuth2APIClient(OAuthAPIClient):
                         .rstrip("=")
                     )
                 else:
-                    data["code"] = self._get_authorization_code()
+                    data["code"] = self._get_auth_code()
 
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
@@ -2661,7 +2656,7 @@ class OAuth2APIClient(OAuthAPIClient):
             + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )
         self._token_extras = resp_json
-        if self._user_identifier is None and self._auth_flow not in {
+        if not self._user_identifier and self._auth_flow not in {
             None,
             "client_credentials",
         }:

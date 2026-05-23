@@ -395,13 +395,13 @@ class DeezerAPIClient(OAuth2APIClient):
             for permission in cls.resolve_permissions(match)
         }
 
-    def _get_authorization_code(self) -> str:
+    def _get_auth_code(self) -> str:
         """
         Get the authorization code for the Authorization Code flow.
 
         Returns
         -------
-        authorization_code : str
+        auth_code : str
             Authorization code.
         """
         params = {
@@ -469,7 +469,7 @@ class DeezerAPIClient(OAuth2APIClient):
                         data={
                             "app_id": self._app_id,
                             "secret": self._app_secret,
-                            "code": self._get_authorization_code(),
+                            "code": self._get_auth_code(),
                         },
                     ).text
                 )
@@ -482,7 +482,7 @@ class DeezerAPIClient(OAuth2APIClient):
             else None,
         )
         self._token_extras = resp_json
-        if self._user_identifier is None and self._auth_flow is not None:
+        if not self._user_identifier and self._auth_flow is not None:
             self._user_identifier = self._resolve_user_identifier()
         if self._store_tokens:
             TokenDatabase.add_token(
