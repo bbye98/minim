@@ -498,7 +498,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
     """
     Private TIDAL API client.
 
-    .. attention
+    .. attention::
 
        As the private TIDAL API is not designed to be publicly
        accessible, this client may break without warning if TIDAL makes
