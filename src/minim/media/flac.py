@@ -4,6 +4,7 @@ FLAC audio file handler and metadata blocks.
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from dataclasses import FrozenInstanceError, dataclass
 import string
 import struct
@@ -1655,7 +1656,7 @@ class FLACAudio(Audio):
     @property
     def format_metadata(self) -> FLACMetadataView:
         """
-        Structural metadata intrinsic to the file format or container.
+        Structural metadata intrinsic to the FLAC file.
 
         .. tip::
 
@@ -1690,7 +1691,7 @@ class FLACAudio(Audio):
         if view[:offset] != b"fLaC":
             raise ValueError(f"{file_path} is not a valid FLAC file.")
 
-        self._format_metadata = []
+        self._format_metadata = metadata_blocks = []
         strict = self._strict
         seen_vorbis_comment = False
         block_header = 0x7F
@@ -1710,7 +1711,7 @@ class FLACAudio(Audio):
 
             match block_type := block_header & 0x7F:
                 case 0:  # STREAMINFO
-                    if self._format_metadata:
+                    if metadata_blocks:
                         raise RuntimeError(
                             "STREAMINFO block is not the first "
                             "metadata block or appears multiple times "
@@ -1725,14 +1726,12 @@ class FLACAudio(Audio):
                     metadata_block = FLACStreamInfo.from_stream(
                         block_data, strict=strict
                     )
-                    self._format_metadata.append(metadata_block)
+                    metadata_blocks.append(metadata_block)
                     self._stream_info = metadata_block
                 case 1:  # PADDING
                     if (
-                        self._format_metadata
-                        and (
-                            prev_block := self._format_metadata[-1]
-                        )._block_type
+                        metadata_blocks
+                        and (prev_block := metadata_blocks[-1])._block_type
                         == 1
                     ):
                         if strict and any(block_data):
@@ -1741,15 +1740,15 @@ class FLACAudio(Audio):
                             )
                         prev_block.adjust_length(4 + block_length)
                     else:
-                        self._format_metadata.append(
+                        metadata_blocks.append(
                             FLACPadding.from_stream(block_data, strict=strict)
                         )
                 case 2:  # APPLICATION
-                    self._format_metadata.append(
+                    metadata_blocks.append(
                         FLACApplication.from_stream(block_data)
                     )
                 case 3:  # SEEKTABLE
-                    self._format_metadata.append(
+                    metadata_blocks.append(
                         FLACSeekTable.from_stream(block_data, strict=strict)
                     )
                 case 4:  # VORBIS_COMMENT
@@ -1762,16 +1761,14 @@ class FLACAudio(Audio):
                     metadata_block = VorbisComment.from_stream(
                         block_data, keep_empty_values=self._keep_empty_tags
                     )
-                    self._format_metadata.append(metadata_block)
+                    metadata_blocks.append(metadata_block)
                     self._tags = metadata_block
                 case 5:  # CUESHEET
-                    self._format_metadata.append(
+                    metadata_blocks.append(
                         FLACCueSheet.from_stream(block_data, strict=strict)
                     )
                 case 6:  # PICTURE
-                    self._format_metadata.append(
-                        FLACPicture.from_stream(block_data)
-                    )
+                    metadata_blocks.append(FLACPicture.from_stream(block_data))
                 case 127:  # INVALID
                     raise ValueError(
                         "Metadata block with invalid block type found "
@@ -1786,16 +1783,13 @@ class FLACAudio(Audio):
                         raise ValueError(msg)
 
                     warnings.warn(msg)
-                    self._format_metadata.append(
+                    metadata_blocks.append(
                         UnknownFLACMetadataBlock.from_stream(
                             block_data, block_type=block_type
                         )
                     )
 
-        if (
-            not self._format_metadata
-            or self._format_metadata[0]._block_type != 0
-        ):
+        if not metadata_blocks or metadata_blocks[0]._block_type != 0:
             raise RuntimeError(
                 f"STREAMINFO block was not found in '{file_path}'."
             )
@@ -1855,7 +1849,8 @@ class FLACAudio(Audio):
                     "moved, or removed."
                 )
 
-        num_metadata_blocks = len(self._format_metadata)
+        metadata_blocks = self._format_metadata
+        num_metadata_blocks = len(metadata_blocks)
         if index is not None:
             if index < 0:
                 index += num_metadata_blocks
@@ -1871,17 +1866,17 @@ class FLACAudio(Audio):
             # Try to insert new non-PADDING blocks inside existing
             # PADDING blocks if a target index was not specified
             if index is None and not is_padding:
-                for idx, block in enumerate(self._format_metadata):
+                for idx, block in enumerate(metadata_blocks):
                     if block._block_type == 1:
                         if block._block_length == new_block._block_length:
-                            self._format_metadata[idx] = new_block
+                            metadata_blocks[idx] = new_block
                             placed_idx = idx
                             break
                         elif block._block_length >= (
                             new_block_length := 4 + new_block._block_length
                         ):
                             block.adjust_length(-new_block_length)
-                            self._format_metadata.insert(idx, new_block)
+                            metadata_blocks.insert(idx, new_block)
                             placed_idx = idx
                             num_metadata_blocks += 1
                             break
@@ -1890,7 +1885,7 @@ class FLACAudio(Audio):
             # no suitable PADDING block was found for it
             if placed_idx is None:
                 placed_idx = num_metadata_blocks if index is None else index
-                self._format_metadata.insert(placed_idx, new_block)
+                metadata_blocks.insert(placed_idx, new_block)
                 num_metadata_blocks += 1
                 if index is not None:
                     index += 1
@@ -1900,19 +1895,19 @@ class FLACAudio(Audio):
             if is_padding:
                 if (
                     adj_idx := placed_idx + 1
-                ) < num_metadata_blocks and self._format_metadata[
+                ) < num_metadata_blocks and metadata_blocks[
                     adj_idx
                 ]._block_type == 1:  # right
                     new_block.adjust_length(
-                        4 + self._format_metadata.pop(adj_idx)._block_length
+                        4 + metadata_blocks.pop(adj_idx)._block_length
                     )
                     num_metadata_blocks -= 1
 
-                if (adj_idx := placed_idx - 1) >= 0 and self._format_metadata[
+                if (adj_idx := placed_idx - 1) >= 0 and metadata_blocks[
                     adj_idx
                 ]._block_type == 1:  # left
                     new_block.adjust_length(
-                        4 + self._format_metadata.pop(adj_idx)._block_length
+                        4 + metadata_blocks.pop(adj_idx)._block_length
                     )
                     num_metadata_blocks -= 1
                     if index is not None:
@@ -1966,7 +1961,8 @@ class FLACAudio(Audio):
                 "Exactly one of `indices` or `block_types` must be specified."
             )
 
-        num_metadata_blocks = len(self._format_metadata)
+        metadata_blocks = self._format_metadata
+        num_metadata_blocks = len(metadata_blocks)
         max_block_index = num_metadata_blocks - 1
         validate_number(
             "to_index",
@@ -2025,7 +2021,7 @@ class FLACAudio(Audio):
 
             block_indices = [
                 block_index
-                for block_index, block in enumerate(self._format_metadata)
+                for block_index, block in enumerate(metadata_blocks)
                 if block._block_type in block_types
             ]
 
@@ -2037,16 +2033,16 @@ class FLACAudio(Audio):
             return
 
         moved_blocks = [
-            self._format_metadata[block_index]
+            metadata_blocks[block_index]
             for block_index in reversed(block_indices)
         ]
         for block_index in sorted(block_indices, reverse=True):
-            del self._format_metadata[block_index]
+            del metadata_blocks[block_index]
             if block_index < to_index:
                 to_index -= 1
 
         for block in moved_blocks:
-            self._format_metadata.insert(to_index, block)
+            metadata_blocks.insert(to_index, block)
         self._merge_adjacent_padding()
 
     def optimize_padding(self) -> None:
@@ -2122,8 +2118,9 @@ class FLACAudio(Audio):
                 "Exactly one of `indices` or `block_types` must be specified."
             )
 
+        metadata_blocks = self._format_metadata
         if has_indices:
-            num_metadata_blocks = len(self._format_metadata)
+            num_metadata_blocks = len(metadata_blocks)
             max_block_index = num_metadata_blocks - 1
             validate_type("indices", indices, int | COLLECTION_TYPES)
             if isinstance(indices, int):
@@ -2137,8 +2134,8 @@ class FLACAudio(Audio):
                         "moved, or removed."
                     )
 
-                self._format_metadata[indices] = FLACPadding(
-                    self._format_metadata[indices]._block_length
+                metadata_blocks[indices] = FLACPadding(
+                    metadata_blocks[indices]._block_length
                 )
             else:
                 for idx, block_index in enumerate(indices):
@@ -2156,8 +2153,8 @@ class FLACAudio(Audio):
                             "moved, or removed."
                         )
 
-                    self._format_metadata[block_index] = FLACPadding(
-                        self._format_metadata[block_index]._block_length
+                    metadata_blocks[block_index] = FLACPadding(
+                        metadata_blocks[block_index]._block_length
                     )
         else:
             if isinstance(block_types, int):
@@ -2171,9 +2168,9 @@ class FLACAudio(Audio):
                     "moved, or removed."
                 )
 
-            for block_index, block in enumerate(self._format_metadata):
+            for block_index, block in enumerate(metadata_blocks):
                 if block._block_type in block_types:
-                    self._format_metadata[block_index] = FLACPadding(
+                    metadata_blocks[block_index] = FLACPadding(
                         block._block_length
                     )
 
