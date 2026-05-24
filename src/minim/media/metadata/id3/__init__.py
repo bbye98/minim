@@ -1,4 +1,6 @@
-from ._frames import (
+TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
+
+from ._frames import (  # noqa: E402
     ID3v2FrameStatusFlags,
     ID3v2FrameFormatFlags,
     ID3v2APICFrame,

@@ -14,6 +14,7 @@ from ...._utility import (
 from ..._shared import as_buffer
 from .._shared import AudioTags
 from ._frames import ID3v2Frame, UnknownID3v2Frame, ID3v2Padding
+from . import TAG_VERSIONS
 
 if TYPE_CHECKING:
     from typing import Any
@@ -70,17 +71,17 @@ class ID3v2Flags:
         validate_type("is_compressed", self.is_compressed, bool)
 
     @classmethod
-    def _from_byte_2_2_0(
+    def _from_byte_2_2(
         cls, byte_: int, /, *, strict: bool = True
     ) -> ID3v2Flags:
         """
-        Instantiate a :class:`ID3v2Flags` object from a ID3v2.2 flags
-        byte.
+        Instantiate an :class:`ID3v2Flags` object from an ID3v2.2 tag
+        flags byte.
 
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2.2 tag flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -92,7 +93,7 @@ class ID3v2Flags:
             Flags for ID3v2 tags.
         """
         if strict and byte_ & 0x3F:
-            raise ValueError("Reserved bits set in ID3v2 flags byte.")
+            raise ValueError("Reserved bits set in ID3v2.2 flags byte.")
 
         obj = cls.__new__(cls)
         set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
@@ -103,17 +104,17 @@ class ID3v2Flags:
         return obj
 
     @classmethod
-    def _from_byte_2_3_0(
+    def _from_byte_2_3(
         cls, byte_: int, /, *, strict: bool = True
     ) -> ID3v2Flags:
         """
-        Instantiate a :class:`ID3v2Flags` object from a ID3v2.3 flags
-        byte.
+        Instantiate an :class:`ID3v2Flags` object from an ID3v2.3 tag
+        flags byte.
 
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2.3 tag flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -125,7 +126,7 @@ class ID3v2Flags:
             Flags for ID3v2 tags.
         """
         if strict and byte_ & 0x1F:
-            raise ValueError("Reserved bits set in ID3v2 flags byte.")
+            raise ValueError("Reserved bits set in ID3v2.3 flags byte.")
 
         obj = cls.__new__(cls)
         set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
@@ -136,17 +137,17 @@ class ID3v2Flags:
         return obj
 
     @classmethod
-    def _from_byte_2_4_0(
+    def _from_byte_2_4(
         cls, byte_: int, /, *, strict: bool = True
     ) -> ID3v2Flags:
         """
-        Instantiate a :class:`ID3v2Flags` object from a ID3v2.4 flags
-        byte.
+        Instantiate an :class:`ID3v2Flags` object from an ID3v2.4 tag
+        flags byte.
 
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2.4 tag flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -158,7 +159,7 @@ class ID3v2Flags:
             Flags for ID3v2 tags.
         """
         if strict and byte_ & 0xF:
-            raise ValueError("Reserved bits set in ID3v2 flags byte.")
+            raise ValueError("Reserved bits set in ID3v2.4 flags byte.")
 
         obj = cls.__new__(cls)
         set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
@@ -178,7 +179,7 @@ class ID3v2Flags:
         strict: bool = True,
     ) -> ID3v2Flags:
         """
-        Instantiate a :class:`ID3v2Flags` object from a byte.
+        Instantiate an :class:`ID3v2Flags` object from a byte.
 
         Parameters
         ----------
@@ -202,19 +203,18 @@ class ID3v2Flags:
             Flags for ID3v2 tags.
         """
         validate_number("byte_", byte_, int, 0)
-        match (
-            tuple(int(v) for v in tag_version.split("."))
-            if isinstance(tag_version, str)
-            else tag_version
-        ):
-            case (2, 4, 0):
-                return cls._from_byte_2_4_0(byte_, strict=strict)
-            case (2, 3, 0):
-                return cls._from_byte_2_3_0(byte_, strict=strict)
-            case (2, 2, 0):
-                return cls._from_byte_2_2_0(byte_, strict=strict)
+        match ID3v2Frame._normalize_tag_version(tag_version):
+            case (2, 4, _):
+                return cls._from_byte_2_4(byte_, strict=strict)
+            case (2, 3, _):
+                return cls._from_byte_2_3(byte_, strict=strict)
+            case (2, 2, _):
+                return cls._from_byte_2_2(byte_, strict=strict)
             case _:
-                raise ValueError(f"Invalid ID3v2 tag version {tag_version!r}.")
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 class ID3v2(AudioTags):
@@ -223,9 +223,8 @@ class ID3v2(AudioTags):
     """
 
     _STRUCT_ID3_HEADER = struct.Struct(">3s7B")
-    _STRUCT_PARTIAL_FRAME_HEADER_3 = struct.Struct(">4sI")
-    _STRUCT_PARTIAL_FRAME_HEADER_4 = struct.Struct(">4s4B")
-    _TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
+    _STRUCT_PARTIAL_FRAME_HEADER_2_3 = struct.Struct(">4sI")
+    _STRUCT_PARTIAL_FRAME_HEADER_2_4 = struct.Struct(">4s4B")
 
     __slots__ = ("_flags", "_frames", "_tag_version")
 
@@ -241,12 +240,7 @@ class ID3v2(AudioTags):
 
     @classmethod
     def from_stream(
-        cls,
-        stream: BytesLike,
-        /,
-        *,
-        infer_frame: bool = False,
-        strict: bool = True,
+        cls, stream: BytesLike, /, *, strict: bool = True
     ) -> ID3v2:
         """ """
         stream = as_buffer(stream)
@@ -262,8 +256,8 @@ class ID3v2(AudioTags):
         obj._tag_version = tag_version = 2, minor, patch
         obj._frames = frames = []
         match tag_version:
-            case (2, 4, 0):
-                obj._flags = flags = ID3v2Flags._from_byte_2_4_0(
+            case (2, 4, _):
+                obj._flags = flags = ID3v2Flags._from_byte_2_4(
                     flags, strict=strict
                 )
                 while offset < tag_end:
@@ -274,7 +268,7 @@ class ID3v2(AudioTags):
                         break
 
                     frame_id, *frame_length = (
-                        cls._STRUCT_PARTIAL_FRAME_HEADER_4.unpack_from(
+                        cls._STRUCT_PARTIAL_FRAME_HEADER_2_4.unpack_from(
                             stream, offset
                         )
                     )
@@ -289,32 +283,6 @@ class ID3v2(AudioTags):
                         offset = end_offset
                         continue
 
-                    if frame_id == b"TXXX" and infer_frame:
-                        _frame_id, text_info, *end = (
-                            stream[offset + 11 : end_offset]
-                            .tobytes()
-                            .split(b"\x00")
-                        )
-
-                        # TODO: Need to optimize object instantiation.
-                        if frame_obj := ID3v2Frame._get_class(_frame_id):
-                            if len(end) != 1 or end[0]:
-                                raise ValueError(
-                                    "Invalid text information frame data."
-                                )
-
-                            text_encoding = frame_obj._TEXT_ENCODINGS[
-                                stream[offset + 10]
-                            ]
-                            frames.append(
-                                frame_obj(
-                                    text_info.decode(encoding=text_encoding),
-                                    text_encoding=text_encoding,
-                                )
-                            )
-                            offset = end_offset
-                            continue
-
                     frames.append(
                         (
                             ID3v2Frame._get_class(frame_id)
@@ -326,14 +294,14 @@ class ID3v2(AudioTags):
                         )
                     )
                     offset = end_offset
-            case (2, 3, 0):
+            case (2, 3, _):
                 raise NotImplementedError  # TODO
-            case (2, 2, 0):
+            case (2, 2, _):
                 raise NotImplementedError  # TODO
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(cls._TAG_VERSIONS)}."
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
 
         return obj

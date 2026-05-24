@@ -7,13 +7,11 @@ import json
 import os
 import re
 from typing import TYPE_CHECKING
-from urllib.parse import urlencode, urlparse
-import warnings
+from urllib.parse import urlencode
 
 import httpx
 
 from ... import FOUND
-from ..._utility import join_values
 from .._shared import OAuthAPIClient, TokenDatabase
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
@@ -911,26 +909,12 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         if authenticate and auth_flow is not None:
             self._obtain_user_auth_token(**kwargs)
 
-    def set_access_token(self, access_token: str) -> None:
+    def set_access_token(self) -> None:
         """
-        Set or update the access token.
-
-        .. note::
-
-           For this API client, access tokens are user authentication
-           tokens.
-
-        .. seealso::
-
-           :meth:`set_user_auth_token` – Set or update the user
-           authentication token.
-
-        Parameters
-        ----------
-        access_token : str or None; positional-only
-            Access token.
+        Not implemented for this API client; use
+        :meth:`set_user_auth_token` instead.
         """
-        self.set_user_auth_token(access_token)
+        raise NotImplementedError
 
     def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
         """
