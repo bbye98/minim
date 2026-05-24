@@ -279,7 +279,7 @@ class ID3v2(AudioTags):
                     )
 
                     # TODO: Temporary skip.
-                    if frame_id in {b"TRCK", b"TPOS", b"TDRC", b"APIC"}:
+                    if frame_id in {b"TDRC"}:
                         offset = end_offset
                         continue
 
@@ -541,8 +541,9 @@ class ID3v2(AudioTags):
     @property
     def performer(self) -> str | list[str] | None:
         """
-        Performers (e.g., the conductor, orchestra, and/or soloists in
-        classical music, or the narrator in audiobooks).
+        :code:`TP3`/:code:`TPE3` – Performers (e.g., the conductor,
+        orchestra, and/or soloists in classical music, or the narrator
+        in audiobooks).
         """
         ...
 

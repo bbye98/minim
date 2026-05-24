@@ -642,9 +642,12 @@ class ID3v2Frame(ABC):
         ...
 
 
+# class ID3v2DateFrame(ID3v2Frame): ...  # TODO
+
+
 class ID3v2APICFrame(ID3v2Frame):
     """
-    Attached picture frame.
+    "Attached picture" frame.
 
     .. seealso::
 
@@ -752,8 +755,37 @@ class ID3v2APICFrame(ID3v2Frame):
     def _from_stream_2_4(
         cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
-        """ """
-        raise NotImplementedError  # TODO
+        """
+        Instantiate an :class:`ID3v2APICFrame` object from an ID3v2.4
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the :code:`APIC` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        picture : minim.media.metadata.ID3v2APICFrame
+            :code:`APIC` frame.
+        """
+        obj = super()._from_stream_2_4(stream, strict=strict)
+        obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        mime_type, stream = (
+            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])]
+            .tobytes()
+            .split(b"\x00", maxsplit=1)
+        )
+        obj._mime_type = mime_type.decode(encoding=text_encoding)
+        obj._picture_type = stream[0]
+        description, obj._picture_data = stream[1:].split(b"\x00", maxsplit=1)
+        obj._description = description.decode(encoding=text_encoding)
+        return obj
 
     @classmethod
     def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
@@ -780,7 +812,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Serialize the :code:`APIC` frame to a bytestream.
+        Serialize the ID3v2 frame to a bytestream.
 
         Parameters
         ----------
@@ -794,14 +826,14 @@ class ID3v2APICFrame(ID3v2Frame):
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`APIC` frame data.
+            Bytestream containing the "attached picture" frame.
         """
         raise NotImplementedError  # TODO
 
 
 class ID3v2COMMFrame(ID3v2Frame):
     """
-    Comment frame.
+    "Comments" frame.
 
     .. seealso::
 
@@ -947,7 +979,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Serialize the comment frame to a bytestream.
+        Serialize the ID3v2 frame to a bytestream.
 
         Parameters
         ----------
@@ -961,15 +993,9 @@ class ID3v2COMMFrame(ID3v2Frame):
         Returns
         -------
         stream : bytes
-            Bytestream containing the comment frame.
+            Bytestream containing the "comments" frame.
         """
         raise NotImplementedError  # TODO
-
-
-# class ID3v2TPOSFrame(ID3v2Frame): ...  # TODO
-
-
-# class ID3v2TRCKFrame(ID3v2Frame): ...  # TODO
 
 
 # class ID3v2SYLTFrame(ID3v2Frame): ...  # TODO
@@ -1097,7 +1123,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Serialize the text information frame to a bytestream.
+        Serialize the ID3v2 frame to a bytestream.
 
         Parameters
         ----------
@@ -1118,7 +1144,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
 class ID3v2TALBFrame(ID3v2TextInfoFrame):
     """
-    Album, movie, or show title frame.
+    "Album, movie, or show title" frame.
 
     .. seealso::
 
@@ -1155,7 +1181,7 @@ class ID3v2TALBFrame(ID3v2TextInfoFrame):
 
 class ID3v2TBPMFrame(ID3v2TextInfoFrame):
     """
-    Beats per minute (BPM) frame.
+    "Beats per minute (BPM)" frame.
 
     .. seealso::
 
@@ -1199,8 +1225,8 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        validate_numeric("bpm", bpm, int, 0)
-        self._text_info = str(bpm)
+        validate_numeric("bpm", bpm, float, 0)
+        self._text_info = str(round(float(bpm)))
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -1271,7 +1297,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
 class ID3v2TCMPFrame(ID3v2TextInfoFrame):
     """
-    iTunes compilation flag frame.
+    "iTunes compilation flag" frame.
 
     .. seealso::
 
@@ -1393,7 +1419,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
 class ID3v2TCOMFrame(ID3v2TextInfoFrame):
     """
-    Composer frame.
+    "Composer" frame.
 
     .. seealso::
 
@@ -1430,7 +1456,7 @@ class ID3v2TCOMFrame(ID3v2TextInfoFrame):
 
 class ID3v2TCONFrame(ID3v2TextInfoFrame):
     """
-    Content type frame.
+    "Content type" frame.
 
     .. seealso::
 
@@ -1467,7 +1493,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
 
 class ID3v2TCOPFrame(ID3v2TextInfoFrame):
     """
-    Copyright message frame.
+    "Copyright message" frame.
 
     .. seealso::
 
@@ -1504,7 +1530,7 @@ class ID3v2TCOPFrame(ID3v2TextInfoFrame):
 
 class ID3v2TIT1Frame(ID3v2TextInfoFrame):
     """
-    Content group description frame.
+    "Content group description" frame.
 
     .. seealso::
 
@@ -1541,7 +1567,7 @@ class ID3v2TIT1Frame(ID3v2TextInfoFrame):
 
 class ID3v2TIT2Frame(ID3v2TextInfoFrame):
     """
-    Title, song name, or content description frame.
+    "Title, song name, or content description" frame.
 
     .. seealso::
 
@@ -1578,7 +1604,7 @@ class ID3v2TIT2Frame(ID3v2TextInfoFrame):
 
 class ID3v2TIT3Frame(ID3v2TextInfoFrame):
     """
-    Subtitle or description refinement frame.
+    "Subtitle or description refinement" frame.
 
     .. seealso::
 
@@ -1615,7 +1641,7 @@ class ID3v2TIT3Frame(ID3v2TextInfoFrame):
 
 class ID3v2TPE1Frame(ID3v2TextInfoFrame):
     """
-    Lead artist, performer, soloist, or performing group frame.
+    "Lead artist, performer, soloist, or performing group" frame.
 
     .. seealso::
 
@@ -1652,7 +1678,7 @@ class ID3v2TPE1Frame(ID3v2TextInfoFrame):
 
 class ID3v2TPE2Frame(ID3v2TextInfoFrame):
     """
-    Band, orchestra, or accompaniment frame.
+    "Band, orchestra, or accompaniment" frame.
 
     .. seealso::
 
@@ -1687,9 +1713,207 @@ class ID3v2TPE2Frame(ID3v2TextInfoFrame):
         return b"TPE2"
 
 
+class ID3v2TPE3Frame(ID3v2TextInfoFrame):
+    """
+    "Conductor or performer refinement" frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TPE3>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
+            return b"TP3"
+        return b"TPE3"
+
+
+class ID3v2TPOSFrame(ID3v2TextInfoFrame):
+    """
+    "Part of a set" frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TPOS>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    __slots__ = "_disc_number", "_disc_total"
+
+    def __init__(
+        self,
+        disc_number: int | str,
+        /,
+        *,
+        disc_total: int | str | None = None,
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        disc_number : int or str; positional-only
+            Disc number.
+
+        disc_total : int or str; keyword-only; optional
+            Total number of discs.
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
+        """
+        super(ID3v2TextInfoFrame, self).__init__(
+            format_flags=format_flags, status_flags=status_flags
+        )
+
+        validate_numeric("disc_number", disc_number, int, 1)
+        self.disc_number = str(disc_number)
+
+        if disc_total is not None:
+            validate_numeric("disc_total", disc_total, int, 1)
+            disc_total = int(disc_total)
+        self._disc_total = disc_total
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        self._text_encoding = text_encoding
+
+    @property
+    def _text_info(self) -> str:
+        """
+        Text information.
+        """
+        if self._disc_total is None:
+            return str(self._disc_number)
+        return f"{self._disc_number}/{self._disc_total}"
+
+    @classmethod
+    def _from_stream_2_4(
+        cls, stream: memoryview, /, *, strict: bool = True
+    ) -> ID3v2TPOSFrame:
+        """
+        Instantiate an :class:`ID3v2TPOSFrame` object from an ID3v2.4
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only; optional
+            Bytes-like object containing the :code:`TPOS` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        disc_number : minim.media.metadata.ID3v2TPOSFrame
+            :code:`TPOS` frame.
+        """
+        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        text_info, *end = (
+            stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+        )
+        if len(end) != 1 or end[0]:
+            raise ValueError("Invalid text information frame data.")
+
+        disc_number, *disc_total = text_info.split(b"/", maxsplit=1)
+        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
+            stream, strict=strict
+        )
+        obj._disc_number = int(disc_number)
+        obj._disc_total = int(disc_total[0]) if disc_total else None
+        obj._text_encoding = text_encoding
+        return obj
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
+            return b"TPA"
+        return b"TPOS"
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the ID3v2 frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the ID3v2 frame.
+        """
+        raise NotImplementedError  # TODO
+
+
 class ID3v2TPUBFrame(ID3v2TextInfoFrame):
     """
-    Publisher frame.
+    "Publisher" frame.
 
     .. seealso::
 
@@ -1724,9 +1948,170 @@ class ID3v2TPUBFrame(ID3v2TextInfoFrame):
         return b"TPUB"
 
 
+class ID3v2TRCKFrame(ID3v2TextInfoFrame):
+    """
+    "Track number and position in set" frame.
+
+    .. seealso::
+
+       `ID3v2.3.0: 4.2.1. Text information frames - details
+       <https://id3.org/id3v2.3.0#TRCK>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    __slots__ = "_track_number", "_track_total"
+
+    def __init__(
+        self,
+        track_number: int | str,
+        /,
+        *,
+        track_total: int | str | None = None,
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        track_number : int or str; positional-only
+            Track number.
+
+        track_total : int or str; keyword-only; optional
+            Total number of tracks.
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
+        """
+        super(ID3v2TextInfoFrame, self).__init__(
+            format_flags=format_flags, status_flags=status_flags
+        )
+
+        validate_numeric("track_number", track_number, int, 1)
+        self._track_number = str(track_number)
+
+        if track_total is not None:
+            validate_numeric("track_total", track_total, int, 1)
+            track_total = int(track_total)
+        self._track_total = track_total
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        self._text_encoding = text_encoding
+
+    @property
+    def _text_info(self) -> str:
+        """
+        Text information.
+        """
+        if self._track_total is None:
+            return str(self._track_number)
+        return f"{self._track_number}/{self._track_total}"
+
+    @classmethod
+    def _from_stream_2_4(
+        cls, stream: memoryview, /, *, strict: bool = True
+    ) -> ID3v2TRCKFrame:
+        """
+        Instantiate an :class:`ID3v2TRCKFrame` object from an ID3v2.4
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only; optional
+            Bytes-like object containing the :code:`TRCK` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        track_number : minim.media.metadata.ID3v2TRCKFrame
+            :code:`TRCK` frame.
+        """
+        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        text_info, *end = (
+            stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+        )
+        if len(end) != 1 or end[0]:
+            raise ValueError("Invalid text information frame data.")
+
+        track_number, *track_total = text_info.split(b"/", maxsplit=1)
+        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
+            stream, strict=strict
+        )
+        obj._track_number = int(track_number)
+        obj._track_total = int(track_total[0]) if track_total else None
+        obj._text_encoding = text_encoding
+        return obj
+
+    @classmethod
+    def get_frame_id(cls, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the ID3v2 frame ID.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            ID3v2 frame ID.
+        """
+        if cls._normalize_tag_version(tag_version) == (2, 2, 0):
+            return b"TRK"
+        return b"TRCK"
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the ID3v2 frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the ID3v2 frame.
+        """
+        raise NotImplementedError  # TODO
+
+
 class ID3v2TSRCFrame(ID3v2TextInfoFrame):
     """
-    ISRC (International Standard Recording Code) frame.
+    "ISRC (International Standard Recording Code)" frame.
 
     .. seealso::
 
@@ -1806,7 +2191,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
 class ID3v2TSSEFrame(ID3v2TextInfoFrame):
     """
-    Software, hardware, and settings used for encoding frame.
+    "Software, hardware, and settings used for encoding" frame.
 
     .. seealso::
 
@@ -1843,7 +2228,7 @@ class ID3v2TSSEFrame(ID3v2TextInfoFrame):
 
 class ID3v2TXXXFrame(ID3v2TextInfoFrame):
     """
-    User-defined text information frame.
+    "User-defined text information" frame.
 
     .. seealso::
 
@@ -1991,7 +2376,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Serialize the :code:`TXXX` frame to a bytestream.
+        Serialize the ID3v2 frame to a bytestream.
 
         Parameters
         ----------
@@ -2005,7 +2390,8 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         Returns
         -------
         stream : bytes
-            Bytestream containing the :code:`TXXX` frame.
+            Bytestream containing the "user-defined text information"
+            frame.
         """
         raise NotImplementedError  # TODO
 
