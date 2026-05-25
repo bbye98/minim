@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass
-from datetime import datetime
+from datetime import MINYEAR, MAXYEAR, datetime
 import re
 from typing import TYPE_CHECKING
 
@@ -13,6 +13,7 @@ from ...._utility import (
     set_obj_attr,
     validate_number,
     validate_numeric,
+    validate_range,
     validate_type,
 )
 from ..._shared import as_buffer
@@ -555,9 +556,9 @@ class ID3v2Frame(ABC):
     @classmethod
     def get_frame_id(
         cls, tag_version: str | tuple[int, int, int]
-    ) -> bytes | None:
+    ) -> bytes | list[bytes] | None:
         """
-        Get the ID3v2 frame ID.
+        Get the ID3v2 frame IDs.
 
         Parameters
         ----------
@@ -570,8 +571,8 @@ class ID3v2Frame(ABC):
 
         Returns
         -------
-        frame_id : bytes or None
-            ID3v2 frame ID. If no native frame is available for the
+        frame_id : bytes, list[bytes], or None
+            ID3v2 frame IDs. If no native frame is available for the
             specified ID3v2 tag version, :code:`None` is returned.
         """
         match cls._normalize_tag_version(tag_version):
@@ -667,17 +668,6 @@ class ID3v2Frame(ABC):
 class ID3v2TextInfoFrame(ID3v2Frame):
     """
     Text information frame.
-
-    .. seealso::
-
-       `ID3v2.2.0 Informal Standard: 4.2. Text information frames
-       <https://id3.org/id3v2-00>`_.
-
-       `ID3v2.3.0 Informal Standard: 4.2. Text information frames
-       <https://id3.org/id3v2.3.0#Text_information_frames>`_.
-
-       `ID3v2.4.0 Native Frames: 4.2. Text information frames
-       <https://id3.org/id3v2.4.0-frames>`_.
     """
 
     _frame_ids = {}
@@ -756,7 +746,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Returns
         -------
-        text_info : minim.media.metadata.ID3v2TextInfoFrame
+        text_info_frame : minim.media.metadata.ID3v2TextInfoFrame
             Text information frame.
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
@@ -894,7 +884,44 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         self._text_encoding = text_encoding
 
         if dt is None:
-            pass
+            if year is None:
+                raise ValueError(
+                    "Either `dt` or at least `year` must be specified."
+                )
+
+            validate_numeric("year", year, int, MINYEAR, MAXYEAR)
+            self._year = int(year)
+
+            if month is None:
+                return
+            validate_numeric("month", month, int, 1, 12)
+            self._month = int(month)
+
+            if day is None:
+                return
+            validate_numeric(
+                "day",
+                day,
+                int,
+                1,
+                self._get_num_days_in(self._month, year=self._year),
+            )
+            self._day = int(day)
+
+            if hour is None:
+                return
+            validate_numeric("hour", hour, int, 0, 23)
+            self._hour = int(hour)
+
+            if minute is None:
+                return
+            validate_numeric("minute", minute, int, 0, 59)
+            self._minute = int(minute)
+
+            if second is None:
+                return
+            validate_numeric("second", second, int, 0, 59)
+            self._second = int(second)
         else:
             if any(
                 v is not None for v in (year, month, day, hour, minute, second)
@@ -905,7 +932,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 )
 
             if isinstance(dt, str):
-                self._parse_datetime_string(dt)
+                self._load_from_datetime_string(dt)
             elif isinstance(dt, datetime):
                 self._year = dt.year
                 self._month = dt.month
@@ -923,7 +950,25 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
     def _from_stream_2_4(
         cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
-        """ """
+        """
+        Instantiate an ID3v2 datetime frame object from an ID3v2.4
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the datetime frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
+            Datetime frame.
+        """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         dt, *end = stream[11 : 10 + frame_length].tobytes().split(b"\x00")
@@ -933,13 +978,28 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._parse_datetime_string(dt.decode(encoding=text_encoding))
+        obj._load_from_datetime_string(dt.decode(encoding=text_encoding))
         obj._text_encoding = text_encoding
         return obj
 
     @staticmethod
     def _get_num_days_in_month(month: int, /, year: int) -> int:
-        """ """
+        """
+        Get the number of days in a month for a given year.
+
+        Parameters
+        ----------
+        month : int; positional-only
+            Month.
+
+        year : int; positional-only
+            Year.
+
+        Returns
+        -------
+        num_days : int
+            Number of days in the month for the given year.
+        """
         if month in {1, 3, 5, 7, 8, 10, 12}:
             return 31
         elif month in {4, 6, 9, 11}:
@@ -950,8 +1010,29 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             else:
                 return 28
 
-    def _parse_datetime_string(self, dt: str) -> None:
-        """ """
+    @property
+    def _text_info(self) -> str:
+        """
+        Text information.
+        """
+        values = [self._year]
+        for attr in self._DATETIME_COMPONENTS[1:]:
+            val = getattr(self, f"_{attr}")
+            if val is None:
+                break
+            values.append(val)
+        return self._STRFTIME_FORMATS[len(values) - 1].format(*values)
+
+    def _load_from_datetime_string(self, dt: str, /) -> None:
+        """
+        Parse and store datetime components from a datetime string in
+        ISO-8601 format.
+
+        Parameters
+        ----------
+        dt : str; positional-only
+            Datetime string in ISO-8601 format.
+        """
         length = len(dt)
         if length > 19:
             dt = dt[:19]
@@ -972,57 +1053,25 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 setattr(self, f"_{dt_comp}", None)
 
             year = self._year
-            validate_number("year", year, int, 0)
+            validate_range("year", year, MINYEAR, MAXYEAR)
             month = self._month
             if month is not None:
-                validate_number("month", month, int, 1, 12)
+                validate_range("month", month, 1, 12)
             if self._day is not None:
-                validate_number(
+                validate_range(
                     "day",
                     self._day,
-                    int,
                     1,
                     self._get_num_days_in_month(month, year=year),
                 )
             if self._hour is not None:
-                validate_number("hour", self._hour, int, 0, 23)
+                validate_range("hour", self._hour, 0, 23)
             if self._minute is not None:
-                validate_number("minute", self._minute, int, 0, 59)
+                validate_range("minute", self._minute, 0, 59)
             if self._second is not None:
-                validate_number("second", self._second, int, 0, 59)
+                validate_range("second", self._second, 0, 59)
         else:
             raise ValueError(f"Invalid datetime string {dt!r}.")
-
-    @property
-    def _text_info(self) -> str:
-        """ """
-        values = [self._year]
-        for attr in self._DATETIME_COMPONENTS[1:]:
-            val = getattr(self, f"_{attr}")
-            if val is None:
-                break
-            values.append(val)
-        return self._STRFTIME_FORMATS[len(values) - 1].format(*values)
-
-
-class ID3v2TDRCFrame(ID3v2DateTimeFrame):
-    """ """
-
-    _frame_ids = {
-        2: [b"TYE", b"TDA", b"TIM"],
-        3: [b"TYER", b"TDAT", b"TIME"],
-        4: b"TDRC",
-    }
-
-    __slots__ = ()
-
-
-class ID3v2TDRLFrame(ID3v2DateTimeFrame):
-    """ """
-
-    _frame_ids = {4: b"TDRL"}
-
-    __slots__ = ()
 
 
 class ID3v2APICFrame(ID3v2Frame):
@@ -1153,7 +1202,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Returns
         -------
-        picture : minim.media.metadata.ID3v2APICFrame
+        picture_frame : minim.media.metadata.ID3v2APICFrame
             :code:`APIC` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -1298,7 +1347,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         Returns
         -------
-        comment : minim.media.metadata.ID3v2COMMFrame
+        comment_frame : minim.media.metadata.ID3v2COMMFrame
             :code:`COMM` frame.
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
@@ -1448,7 +1497,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        bpm : minim.media.metadata.ID3v2TBPMFrame
+        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
             :code:`TBPM` frame.
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
@@ -1547,7 +1596,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        is_compilation : minim.media.metadata.ID3v2TCMPFrame
+        compilation_flag_frame : minim.media.metadata.ID3v2TCMPFrame
             :code:`TCMP` frame.
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
@@ -1629,6 +1678,104 @@ class ID3v2TCOPFrame(ID3v2TextInfoFrame):
     _frame_ids = {2: b"TCR", 3: b"TCOP", 4: b"TCOP"}
 
     __slots__ = ()
+
+
+class ID3v2TDRCFrame(ID3v2DateTimeFrame):
+    """
+    "Recording date" frame.
+
+    .. note::
+
+       For ID3v2.2/2.3 tags, information in this frame is stored in the
+       :code:`TYE`/:code:`TYER`, :code:`TDA`/:code:`TDAT`, and
+       :code:`TIM`/`TIME` frames.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TDAT>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids = {
+        2: [b"TYE", b"TDA", b"TIM"],
+        3: [b"TYER", b"TDAT", b"TIME"],
+        4: b"TDRC",
+    }
+
+    __slots__ = ()
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the :code:`TDRC` frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the :code:`TDRC` or
+            :code:`TYE`/:code:`TYER`, :code:`TDA`/:code:`TDAT`, and/or
+            :code:`TIM`/`TIME` frames.
+        """
+        raise NotImplementedError  # TODO
+
+
+class ID3v2TDRLFrame(ID3v2DateTimeFrame):
+    """
+    "Release date" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids = {4: b"TDRL"}
+
+    __slots__ = ()
+
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        description: str = "TDRL",
+    ) -> bytes:
+        """
+        Serialize the :code:`TDRL` frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        description : str; keyword-only; default: :code:`"TDRL"`
+            Description for the ID3v2.2/2.3 user-defined text
+            information frame.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the :code:`TDRL` or
+            :code:`TXX`/:code:`TXXX` frame.
+        """
+        raise NotImplementedError  # TODO
 
 
 class ID3v2TIT1Frame(ID3v2TextInfoFrame):
@@ -1859,7 +2006,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        disc_number : minim.media.metadata.ID3v2TPOSFrame
+        disc_frame : minim.media.metadata.ID3v2TPOSFrame
             :code:`TPOS` frame.
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
@@ -1878,26 +2025,6 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         obj._disc_total = int(disc_total[0]) if disc_total else None
         obj._text_encoding = text_encoding
         return obj
-
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
-        """
-        Serialize the ID3v2 frame to a bytestream.
-
-        Parameters
-        ----------
-        tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
-
-            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
-            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
-            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
-
-        Returns
-        -------
-        stream : bytes
-            Bytestream containing the ID3v2 frame.
-        """
-        raise NotImplementedError  # TODO
 
 
 class ID3v2TPUBFrame(ID3v2TextInfoFrame):
@@ -2023,7 +2150,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        track_number : minim.media.metadata.ID3v2TRCKFrame
+        track_frame : minim.media.metadata.ID3v2TRCKFrame
             :code:`TRCK` frame.
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
@@ -2042,26 +2169,6 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         obj._track_total = int(track_total[0]) if track_total else None
         obj._text_encoding = text_encoding
         return obj
-
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
-        """
-        Serialize the ID3v2 frame to a bytestream.
-
-        Parameters
-        ----------
-        tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
-
-            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
-            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
-            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
-
-        Returns
-        -------
-        stream : bytes
-            Bytestream containing the ID3v2 frame.
-        """
-        raise NotImplementedError  # TODO
 
 
 class ID3v2TSRCFrame(ID3v2TextInfoFrame):
@@ -2109,7 +2216,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        isrc : minim.media.metadata.ID3v2TSRCFrame
+        isrc_frame : minim.media.metadata.ID3v2TSRCFrame
             :code:`TSRC` frame.
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
@@ -2254,7 +2361,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        text_info : minim.media.metadata.ID3v2TXXXFrame
+        text_info_frame : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXXX` frame.
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
