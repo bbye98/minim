@@ -242,7 +242,24 @@ class ID3v2(AudioTags):
     def from_stream(
         cls, stream: BytesLike, /, *, strict: bool = True
     ) -> ID3v2:
-        """ """
+        """
+        Instantiate an :class:`ID3v2` object from a bytestream.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing an ID3v2 tag.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        tag : minim.media.metadata.ID3v2
+            ID3v2 tag.
+        """
         stream = as_buffer(stream)
         frame_id, minor, patch, flags, *tag_length = (
             cls._STRUCT_ID3_HEADER.unpack_from(stream)
@@ -379,8 +396,7 @@ class ID3v2(AudioTags):
     @property
     def contact(self) -> str | list[str] | None:
         """
-        :code:`TXX:CONTACT`/:code:`TXXX:CONTACT` or
-        :code:`WXX:CONTACT`/:code:`WXXX:CONTACT` – Contact information
+        :code:`TXX:CONTACT`/:code:`TXXX:CONTACT` – Contact information
         for the creators or distributors.
         """
         ...
@@ -401,6 +417,8 @@ class ID3v2(AudioTags):
     @property
     def date(self) -> str | list[str] | None:
         """
+        :code:`TYE` + :code:`TDA` + :code:`TIM`/:code:`TYER` +
+        :code:`TDAT` + :code:`TIME`/:code:`TDRC`/:code:`TDRL` –
         Recording or release date.
         """
         ...
@@ -501,7 +519,7 @@ class ID3v2(AudioTags):
     @property
     def license(self) -> str | list[str] | None:
         """
-        License information.
+        :code:`TXX:LICENSE`/:code:`USER` - License information.
         """
         ...
 

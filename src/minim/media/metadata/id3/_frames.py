@@ -502,7 +502,7 @@ class ID3v2Frame(ABC):
     @classmethod
     def from_stream(
         cls,
-        stream: memoryview,
+        stream: BytesLike,
         /,
         tag_version: str | tuple[int, int, int],
         *,
@@ -514,7 +514,8 @@ class ID3v2Frame(ABC):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
             Bytes-like object containing an ID3v2 frame.
 
         tag_version : str or tuple[int, int, int]
@@ -838,25 +839,25 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         dt : str or datetime.datetime; positional-only; optional
-            Release datetime, in ISO-8601 format.
+            Datetime, in ISO-8601 format.
 
         year : int or str; keyword-only; optional
-            Release year.
+            Year.
 
         month : int or str; keyword-only; optional
-            Release month.
+            Month.
 
         day : int or str; keyword-only; optional
-            Release day.
+            Day.
 
         hour : int or str; keyword-only; optional
-            Release hour.
+            Hour.
 
         minute : int or str; keyword-only; optional
-            Release minute.
+            Minute.
 
         second : int or str; keyword-only; optional
-            Release second.
+            Second.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -866,11 +867,11 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
         format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
         keyword-only; optional
-            Format flags for an ID3v2 frame.
+            Format flags.
 
         status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
         keyword-only; optional
-            Status flags for an ID3v2 frame.
+            Status flags.
         """
         super().__init__(format_flags=format_flags, status_flags=status_flags)
 
