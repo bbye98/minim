@@ -147,6 +147,21 @@ class Audio(ABC):
             self._view.release()
             del self._view
         if hasattr(self, "_mmap") and not self._mmap.closed:
+            import gc
+            import inspect
+
+            for obj in gc.get_objects():
+                if isinstance(obj, memoryview):
+                    try:
+                        refs = gc.get_referrers(obj)
+                    except ValueError:
+                        continue
+
+                    for r in refs:
+                        if inspect.isframe(r):
+                            print("FRAME:", r.f_code.co_name)
+                            print("LOCALS:", r.f_locals.keys())
+                            print()
             self._mmap.close()
             del self._mmap
         if hasattr(self, "_file") and not self._file.closed:

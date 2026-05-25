@@ -4,7 +4,6 @@ FLAC audio file handler and metadata blocks.
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from dataclasses import FrozenInstanceError, dataclass
 import string
 import struct
@@ -1388,8 +1387,9 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         applicable.
     """
 
-    _REGISTER = False
-
+    _STRUCT_II = struct.Struct(">II")
+    _STRUCT_IIIII = struct.Struct(">5I")
+    _frame_ids = {}
     _block_type = 6
 
     #: Image width in pixels.

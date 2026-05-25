@@ -336,7 +336,8 @@ class VorbisComment(AudioTags):
     @property
     def date(self) -> list[str] | None:
         """
-        :code:`DATE` or :code:`YEAR` (legacy) – Release date.
+        :code:`DATE` or :code:`YEAR` (legacy) – Recording or release
+        date.
         """
         return self.get("DATE") or self.get("YEAR")
 
@@ -432,13 +433,13 @@ class VorbisComment(AudioTags):
     @property
     def label(self) -> list[str] | None:
         """
-        :code:`LABEL` – Publisher or record label.
+        :code:`ORGANIZATION` – Publishers or record labels.
         """
-        return self.get("LABEL")
+        return self.get("ORGANIZATION")
 
     @label.setter
     def label(self, value: str | OrderedCollection[str], /) -> None:
-        self.set(LABEL=value)
+        self.set(ORGANIZATION=value)
 
     @property
     def license(self) -> list[str] | None:
@@ -500,7 +501,8 @@ class VorbisComment(AudioTags):
     @property
     def track_number(self) -> list[str] | None:
         """
-        :code:`TRACKNUMBER` – Track number within the album or collection.
+        :code:`TRACKNUMBER` – Track number within the album or
+        collection.
         """
         return self.get("TRACKNUMBER")
 

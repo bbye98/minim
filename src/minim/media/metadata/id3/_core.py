@@ -13,7 +13,7 @@ from ...._utility import (
 )
 from ..._shared import as_buffer
 from .._shared import AudioTags
-from ._frames import ID3v2Frame, UnknownID3v2Frame, ID3v2Padding
+from ._frames import ID3v2Frame, ID3v2Padding
 from . import TAG_VERSIONS
 
 if TYPE_CHECKING:
@@ -277,20 +277,9 @@ class ID3v2(AudioTags):
                         + 10
                         + decode_32_bit_synchsafe_int(*frame_length)
                     )
-
-                    # TODO: Temporary skip.
-                    if frame_id in {b"TDRC"}:
-                        offset = end_offset
-                        continue
-
                     frames.append(
-                        (
-                            ID3v2Frame._get_class(frame_id)
-                            or UnknownID3v2Frame
-                        ).from_stream(
-                            stream[offset:end_offset],
-                            tag_version=tag_version,
-                            strict=strict,
+                        ID3v2Frame._get_class(frame_id)._from_stream_2_4(
+                            stream[offset:end_offset], strict=strict
                         )
                     )
                     offset = end_offset
@@ -390,7 +379,9 @@ class ID3v2(AudioTags):
     @property
     def contact(self) -> str | list[str] | None:
         """
-        Contact information for the creators or distributors.
+        :code:`TXX:CONTACT`/:code:`TXXX:CONTACT` or
+        :code:`WXX:CONTACT`/:code:`WXXX:CONTACT` – Contact information
+        for the creators or distributors.
         """
         ...
 
@@ -410,7 +401,7 @@ class ID3v2(AudioTags):
     @property
     def date(self) -> str | list[str] | None:
         """
-        Release date.
+        Recording or release date.
         """
         ...
 
@@ -422,7 +413,8 @@ class ID3v2(AudioTags):
     @property
     def description(self) -> str | list[str] | None:
         """
-        :code:`TT3`/:code:`TIT3` – General description.
+        :code:`TXX:DESCRIPTION`/:code:`TXXX:DESCRIPTION` – General
+        description.
         """
         ...
 
@@ -499,7 +491,7 @@ class ID3v2(AudioTags):
     @property
     def label(self) -> str | list[str] | None:
         """
-        :code:`TPB`/:code:`TPUB` – Publisher or record label.
+        :code:`TPB`/:code:`TPUB` – Publishers or record labels.
         """
         ...
 
@@ -519,7 +511,8 @@ class ID3v2(AudioTags):
     @property
     def location(self) -> str | list[str] | None:
         """
-        Recording locations.
+        :code:`TXX:LOCATION`/:code:`TXXX:LOCATION` – Recording
+        locations.
         """
         ...
 
@@ -588,7 +581,8 @@ class ID3v2(AudioTags):
     @property
     def version(self) -> str | list[str] | None:
         """
-        Version of the recording (e.g., remix information).
+        :code:`TT3`/:code:`TIT3` – Version of the recording (e.g., remix
+        information).
         """
         ...
 
