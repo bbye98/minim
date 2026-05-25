@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass
 from datetime import datetime
+import re
 from typing import TYPE_CHECKING
 
 from ...._utility import (
@@ -812,14 +813,17 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
     """
 
     _DATETIME_COMPONENTS = "year", "month", "day", "hour", "minute", "second"
-    _DATETIME_FORMATS = [
-        "%Y-%m-%dT%H:%M:%S",
-        "%Y-%m-%dT%H:%M",
-        "%Y-%m-%dT%H",
-        "%Y-%m-%d",
-        "%Y-%m",
-        "%Y",
-    ]
+    _DATETIME_RE = re.compile(
+        r"^(\d{4})(?:-(\d{2})(?:-(\d{2})(?:T(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?)?)?$"
+    )
+    _STRFTIME_FORMATS = (
+        "{:04d}",
+        "{:04d}-{:02d}",
+        "{:04d}-{:02d}-{:02d}",
+        "{:04d}-{:02d}-{:02d}T{:02d}",
+        "{:04d}-{:02d}-{:02d}T{:02d}:{:02d}",
+        "{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}",
+    )
 
     _frame_ids = {}
 
@@ -915,31 +919,90 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                     "format or a datetime.datetime object."
                 )
 
+    @classmethod
+    def _from_stream_2_4(
+        cls, stream: memoryview, /, *, strict: bool = True
+    ) -> ID3v2DateTimeFrame:
+        """ """
+        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        dt, *end = stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+        if len(end) != 1 or end[0]:
+            raise ValueError("Invalid text information frame data.")
+
+        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
+            stream, strict=strict
+        )
+        obj._parse_datetime_string(dt.decode(encoding=text_encoding))
+        obj._text_encoding = text_encoding
+        return obj
+
+    @staticmethod
+    def _get_num_days_in_month(month: int, /, year: int) -> int:
+        """ """
+        if month in {1, 3, 5, 7, 8, 10, 12}:
+            return 31
+        elif month in {4, 6, 9, 11}:
+            return 30
+        elif month == 2:
+            if (year % 4 == 0 and year % 100 != 0) or year % 400 == 0:
+                return 29
+            else:
+                return 28
+
     def _parse_datetime_string(self, dt: str) -> None:
         """ """
-        # TODO: mmap not released when datetime.strptime is called.
-        # Not sure why.
-        if len(dt) > 19:
+        length = len(dt)
+        if length > 19:
             dt = dt[:19]
+            length = 19
         dt = dt.upper()
-        for dt_fmt_idx, dt_fmt in enumerate(self._DATETIME_FORMATS):
-            try:
-                dt = datetime.strptime(dt, dt_fmt)
-            except ValueError:
-                continue
-            else:
-                up_to_idx = len(self._DATETIME_COMPONENTS) - dt_fmt_idx
-                for dt_comp in self._DATETIME_COMPONENTS[:up_to_idx]:
-                    setattr(self, f"_{dt_comp}", getattr(dt, dt_comp))
-                for dt_comp in self._DATETIME_COMPONENTS[up_to_idx:]:
-                    setattr(self, f"_{dt_comp}", None)
-                break
+
+        if match := self._DATETIME_RE.match(dt):
+            last_idx = 0
+            for dt_comp, value in zip(
+                self._DATETIME_COMPONENTS, match.groups()
+            ):
+                if value is None:
+                    break
+                setattr(self, f"_{dt_comp}", int(value))
+                last_idx += 1
+
+            for dt_comp in self._DATETIME_COMPONENTS[last_idx:]:
+                setattr(self, f"_{dt_comp}", None)
+
+            year = self._year
+            validate_number("year", year, int, 0)
+            month = self._month
+            if month is not None:
+                validate_number("month", month, int, 1, 12)
+            if self._day is not None:
+                validate_number(
+                    "day",
+                    self._day,
+                    int,
+                    1,
+                    self._get_num_days_in_month(month, year=year),
+                )
+            if self._hour is not None:
+                validate_number("hour", self._hour, int, 0, 23)
+            if self._minute is not None:
+                validate_number("minute", self._minute, int, 0, 59)
+            if self._second is not None:
+                validate_number("second", self._second, int, 0, 59)
         else:
             raise ValueError(f"Invalid datetime string {dt!r}.")
 
     @property
     def _text_info(self) -> str:
-        pass
+        """ """
+        values = [self._year]
+        for attr in self._DATETIME_COMPONENTS[1:]:
+            val = getattr(self, f"_{attr}")
+            if val is None:
+                break
+            values.append(val)
+        return self._STRFTIME_FORMATS[len(values) - 1].format(*values)
 
 
 class ID3v2TDRCFrame(ID3v2DateTimeFrame):
@@ -953,37 +1016,13 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
     __slots__ = ()
 
-    @classmethod
-    def _from_stream_2_4(
-        cls, stream: memoryview, /, *, strict: bool = True
-    ) -> ID3v2TDRCFrame:
-        """ """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        dt, *end = stream[11 : 10 + frame_length].tobytes().split(b"\x00")
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid text information frame data.")
 
-        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
-            stream, strict=strict
-        )
-        dt = dt.decode(encoding=text_encoding)
-        obj._parse_datetime_string(dt.decode(encoding=text_encoding))
-        obj._text_encoding = text_encoding
-        return obj
+class ID3v2TDRLFrame(ID3v2DateTimeFrame):
+    """ """
 
+    _frame_ids = {4: b"TDRL"}
 
-# class ID3v2TDRLFrame(ID3v2DateTimeFrame):
-#     """ """
-
-#     _frame_ids = {4: b"TDRL"}
-
-#     @classmethod
-#     def _from_stream_2_4(
-#         cls, stream: memoryview, /, *, strict: bool = True
-#     ) -> ID3v2TDRLFrame:
-#         """ """
-#         raise NotImplementedError  # TODO
+    __slots__ = ()
 
 
 class ID3v2APICFrame(ID3v2Frame):
