@@ -1689,7 +1689,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
        For ID3v2.2/2.3 tags, information in this frame is stored in the
        :code:`TYE`/:code:`TYER`, :code:`TDA`/:code:`TDAT`, and
-       :code:`TIM`/`TIME` frames.
+       :code:`TIM`/:code:`TIME` frames.
 
     .. seealso::
 
