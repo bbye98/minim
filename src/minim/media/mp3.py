@@ -12,7 +12,7 @@ class MP3Audio(Audio):
     MP3 audio file.
     """
 
-    __slots__ = "_audio_offset", "_infer_frame"
+    __slots__ = ("_audio_offset",)
 
     def load_metadata(self) -> None:
         """

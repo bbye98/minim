@@ -226,15 +226,14 @@ class ID3v2(AudioTags):
     _STRUCT_PARTIAL_FRAME_HEADER_2_3 = struct.Struct(">4sI")
     _STRUCT_PARTIAL_FRAME_HEADER_2_4 = struct.Struct(">4s4B")
 
-    __slots__ = ("_flags", "_frames", "_tag_version")
+    __slots__ = "_flags", "_frames"
 
     # def __init__(
     #     self,
     #     frames: OrderedCollection[ID3v2Frame],
     #     /,
-    #     tag_version: str | tuple[int, int, int],
     #     *,
-    #     flags: int | dict[str, bool] | ID3v2Flags = 0,
+    #     flags: ID3v2Flags | None = None,
     # ) -> None:
     #     """ """
 
@@ -270,7 +269,7 @@ class ID3v2(AudioTags):
         offset = 10
         tag_end = offset + decode_32_bit_synchsafe_int(*tag_length)
         obj = cls.__new__(cls)
-        obj._tag_version = tag_version = 2, minor, patch
+        tag_version = 2, minor, patch
         obj._frames = frames = []
         match tag_version:
             case (2, 4, _):

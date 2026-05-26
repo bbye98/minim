@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from ...._utility import (
     ASCII_CHARS_REGEX,
+    DateTime,
     decode_32_bit_synchsafe_int,
     join_values,
     prepare_isrc,
@@ -22,7 +23,7 @@ from . import TAG_VERSIONS
 if TYPE_CHECKING:
     from typing import Any
 
-    from ...._types import BytesLike
+    from ...._types import BytesLike, OrderedCollection
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -407,8 +408,16 @@ class ID3v2Frame(ABC):
     ID3v2 frame.
     """
 
+    _NULL_SEPARATORS = {
+        "iso-8859-1": b"\x00",
+        "utf-16": b"\x00\x00",
+        "utf-16be": b"\x00\x00",
+        "utf-8": b"\x00",
+    }
     _TEXT_ENCODINGS = {0: "iso-8859-1", 1: "utf-16", 2: "utf-16be", 3: "utf-8"}
     _REGISTRY = {}
+
+    _ALLOW_MULTIPLE: bool
 
     __slots__ = "_format_flags", "_status_flags"
 
@@ -671,13 +680,15 @@ class ID3v2TextInfoFrame(ID3v2Frame):
     Text information frame.
     """
 
+    _ALLOW_MULTIPLE = False
+
     _frame_ids = {}
 
     __slots__ = "_text_info", "_text_encoding"
 
     def __init__(
         self,
-        text_info: str,
+        text_info: str | OrderedCollection[str],
         /,
         *,
         text_encoding: str = "utf-16",
@@ -687,7 +698,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         """
         Parameters
         ----------
-        text_info : str; positional-only
+        text_info : str or OrderedCollection[str]; positional-only
             Text information.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
@@ -706,7 +717,15 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         """
         super().__init__(format_flags=format_flags, status_flags=status_flags)
 
-        validate_type("text_info", text_info, str)
+        if isinstance(text_info, str):
+            text_info = [text_info]
+        elif isinstance(text_info, tuple):
+            text_info = list(text_info)
+        elif not isinstance(text_info, list):
+            raise TypeError(
+                "`text_info` must be a string or an ordered collection "
+                "of strings."
+            )
         self._text_info = text_info
 
         validate_type("text_encoding", text_encoding, str)
@@ -718,7 +737,8 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             )
         if text_encoding == "iso-8859-1":
             try:
-                text_info.encode(encoding=text_encoding)
+                for ti in text_info:
+                    ti.encode(encoding=text_encoding)
                 is_utf = False
             except UnicodeEncodeError:
                 is_utf = True
@@ -752,19 +772,23 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        text_info, *end = (
-            stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
+        text_info = (
+            stream[11 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char)
         )
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid text information frame data.")
 
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_info = text_info.decode(encoding=text_encoding)
+        obj._text_info = [
+            ti.decode(encoding=text_encoding) for ti in text_info
+        ]
         obj._text_encoding = text_encoding
         return obj
 
     @property
-    def text_info(self) -> str:
+    def text_info(self) -> list[str]:
         """
         Text information.
         """
@@ -818,19 +842,16 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     _frame_ids = {}
 
-    __slots__ = tuple(f"_{dt_comp}" for dt_comp in _DATETIME_COMPONENTS)
+    __slots__ = ("_datetimes",)
 
     def __init__(
         self,
-        dt: str | datetime | None = None,
+        datetimes: str
+        | datetime
+        | tuple[int | str, ...]
+        | list[str | datetime | tuple[int | str, ...]],
         /,
         *,
-        year: int | str | None = None,
-        month: int | str | None = None,
-        day: int | str | None = None,
-        hour: int | str | None = None,
-        minute: int | str | None = None,
-        second: int | str | None = None,
         text_encoding: str = "utf-16",
         format_flags: ID3v2FrameFormatFlags | None = None,
         status_flags: ID3v2FrameStatusFlags | None = None,
@@ -838,26 +859,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        dt : str or datetime.datetime; positional-only; optional
-            Datetime, in ISO-8601 format.
-
-        year : int or str; keyword-only; optional
-            Year.
-
-        month : int or str; keyword-only; optional
-            Month.
-
-        day : int or str; keyword-only; optional
-            Day.
-
-        hour : int or str; keyword-only; optional
-            Hour.
-
-        minute : int or str; keyword-only; optional
-            Minute.
-
-        second : int or str; keyword-only; optional
-            Second.
+        datetimes : str, datetime.datetime, tuple[int | str, ...], or
+        list[str | datetime | tuple[int | str, ...]]; positional-only
+            Datetimes, in ISO-8601 format.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -873,7 +877,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         keyword-only; optional
             Status flags.
         """
-        super().__init__(format_flags=format_flags, status_flags=status_flags)
+        super(ID3v2TextInfoFrame, self).__init__(
+            format_flags=format_flags, status_flags=status_flags
+        )
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -883,69 +889,10 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 f"values: {join_values(self._TEXT_ENCODINGS.values())}."
             )
         self._text_encoding = text_encoding
-
-        if dt is None:
-            if year is None:
-                raise ValueError(
-                    "Either `dt` or at least `year` must be specified."
-                )
-
-            validate_numeric("year", year, int, MINYEAR, MAXYEAR)
-            self._year = int(year)
-
-            if month is None:
-                return
-            validate_numeric("month", month, int, 1, 12)
-            self._month = int(month)
-
-            if day is None:
-                return
-            validate_numeric(
-                "day",
-                day,
-                int,
-                1,
-                self._get_num_days_in(self._month, year=self._year),
-            )
-            self._day = int(day)
-
-            if hour is None:
-                return
-            validate_numeric("hour", hour, int, 0, 23)
-            self._hour = int(hour)
-
-            if minute is None:
-                return
-            validate_numeric("minute", minute, int, 0, 59)
-            self._minute = int(minute)
-
-            if second is None:
-                return
-            validate_numeric("second", second, int, 0, 59)
-            self._second = int(second)
-        else:
-            if any(
-                v is not None for v in (year, month, day, hour, minute, second)
-            ):
-                raise ValueError(
-                    "Cannot specify both `dt` and individual datetime "
-                    "components."
-                )
-
-            if isinstance(dt, str):
-                self._load_from_datetime_string(dt)
-            elif isinstance(dt, datetime):
-                self._year = dt.year
-                self._month = dt.month
-                self._day = dt.day
-                self._hour = dt.hour
-                self._minute = dt.minute
-                self._second = dt.second
-            else:
-                raise TypeError(
-                    "When provided, `dt` must be a string in ISO-8601 "
-                    "format or a datetime.datetime object."
-                )
+        datetimes = self._parse_datetimes(datetimes)
+        if not isinstance(datetimes, list):
+            datetimes = [datetimes]
+        self._datetimes = datetimes
 
     @classmethod
     def _from_stream_2_4(
@@ -972,107 +919,83 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        dt, *end = stream[11 : 10 + frame_length].tobytes().split(b"\x00")
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid text information frame data.")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
 
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._load_from_datetime_string(dt.decode(encoding=text_encoding))
+        obj._datetimes = obj._parse_datetimes(
+            (
+                stream[11 : 10 + frame_length]
+                .tobytes()
+                .rstrip(null_char)
+                .split(null_char)
+            ),
+            encoding=text_encoding,
+        )
         obj._text_encoding = text_encoding
         return obj
 
     @staticmethod
-    def _get_num_days_in_month(month: int, /, year: int) -> int:
+    def _parse_datetimes(
+        datetimes: str
+        | datetime
+        | tuple[int | str, ...]
+        | list[str | datetime | tuple[int | str, ...]],
+        /,
+        *,
+        encoding: str = "utf-16",
+    ) -> DateTime | list[DateTime]:
         """
-        Get the number of days in a month for a given year.
+        Parse datetimes.
 
         Parameters
         ----------
-        month : int; positional-only
-            Month.
+        datetimes : bytes, str, datetime.datetime, \
+        tuple[int | str, ...], or \
+        list[bytes | str | datetime | tuple[int | str, ...]]; \
+        positional-only
+            Datetimes, in ISO-8601 format.
 
-        year : int; positional-only
-            Year.
+        encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding for the datetimes.
 
         Returns
         -------
-        num_days : int
-            Number of days in the month for the given year.
+        datetimes : DateTime or list[DateTime]
+            Parsed datetimes.
         """
-        if month in {1, 3, 5, 7, 8, 10, 12}:
-            return 31
-        elif month in {4, 6, 9, 11}:
-            return 30
-        elif month == 2:
-            if (year % 4 == 0 and year % 100 != 0) or year % 400 == 0:
-                return 29
-            else:
-                return 28
+        if isinstance(datetimes, bytes):
+            return DateTime.from_string(datetimes.decode(encoding=encoding))
+        if isinstance(datetimes, str):
+            return DateTime.from_string(datetimes)
+        if isinstance(datetimes, datetime):
+            return DateTime(
+                datetimes.year,
+                datetimes.month,
+                datetimes.day,
+                datetimes.hour,
+                datetimes.minute,
+                datetimes.second,
+            )
+        if isinstance(datetimes, tuple):
+            return DateTime.from_tuple(datetimes)
+        if isinstance(datetimes, list):
+            return [
+                ID3v2DateTimeFrame._parse_datetimes(dt, encoding=encoding)
+                for dt in datetimes
+            ]
+        raise TypeError(
+            "`datetimes` must be one or more strings, "
+            "datetime.datetime objects, or tuples of integers."
+        )
 
     @property
-    def _text_info(self) -> str:
+    def _text_info(self) -> list[str]:
         """
         Text information.
         """
-        values = [self._year]
-        for attr in self._DATETIME_COMPONENTS[1:]:
-            val = getattr(self, f"_{attr}")
-            if val is None:
-                break
-            values.append(val)
-        return self._STRFTIME_FORMATS[len(values) - 1].format(*values)
-
-    def _load_from_datetime_string(self, dt: str, /) -> None:
-        """
-        Parse and store datetime components from a datetime string in
-        ISO-8601 format.
-
-        Parameters
-        ----------
-        dt : str; positional-only
-            Datetime string in ISO-8601 format.
-        """
-        length = len(dt)
-        if length > 19:
-            dt = dt[:19]
-            length = 19
-        dt = dt.upper()
-
-        if match := self._DATETIME_RE.match(dt):
-            last_idx = 0
-            for dt_comp, value in zip(
-                self._DATETIME_COMPONENTS, match.groups()
-            ):
-                if value is None:
-                    break
-                setattr(self, f"_{dt_comp}", int(value))
-                last_idx += 1
-
-            for dt_comp in self._DATETIME_COMPONENTS[last_idx:]:
-                setattr(self, f"_{dt_comp}", None)
-
-            year = self._year
-            validate_range("year", year, MINYEAR, MAXYEAR)
-            month = self._month
-            if month is not None:
-                validate_range("month", month, 1, 12)
-            if self._day is not None:
-                validate_range(
-                    "day",
-                    self._day,
-                    1,
-                    self._get_num_days_in_month(month, year=year),
-                )
-            if self._hour is not None:
-                validate_range("hour", self._hour, 0, 23)
-            if self._minute is not None:
-                validate_range("minute", self._minute, 0, 59)
-            if self._second is not None:
-                validate_range("second", self._second, 0, 59)
-        else:
-            raise ValueError(f"Invalid datetime string {dt!r}.")
+        return [dt.to_string() for dt in self._datetimes]
 
 
 class ID3v2APICFrame(ID3v2Frame):
@@ -1090,6 +1013,8 @@ class ID3v2APICFrame(ID3v2Frame):
        `ID3v2.4.0 Native Frames: 4.14. Attached picture
        <https://id3.org/id3v2.4.0-frames>`_.
     """
+
+    _ALLOW_MULTIPLE = True
 
     _frame_ids = {2: b"PIC", 3: b"APIC", 4: b"APIC"}
 
@@ -1208,14 +1133,17 @@ class ID3v2APICFrame(ID3v2Frame):
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        null_char = cls._NULL_SEPARATORS[text_encoding]
         mime_type, stream = (
             stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])]
             .tobytes()
-            .split(b"\x00", maxsplit=1)
+            .split(null_char, maxsplit=1)
         )
         obj._mime_type = mime_type.decode(encoding=text_encoding)
         obj._picture_type = stream[0]
-        description, obj._picture_data = stream[1:].split(b"\x00", maxsplit=1)
+        description, obj._picture_data = stream[1:].split(
+            null_char, maxsplit=1
+        )
         obj._description = description.decode(encoding=text_encoding)
         return obj
 
@@ -1255,6 +1183,8 @@ class ID3v2COMMFrame(ID3v2Frame):
        `ID3v2.4.0 Native Frames: 4.10. Comments
        <https://id3.org/id3v2.4.0-frames>`_.
     """
+
+    _ALLOW_MULTIPLE = True
 
     _frame_ids = {2: b"COM", 3: b"COMM", 4: b"COMM"}
 
@@ -1353,17 +1283,18 @@ class ID3v2COMMFrame(ID3v2Frame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        language = stream[11:14].tobytes()
-        description, comment, *end = (
-            stream[14 : 10 + frame_length].tobytes().split(b"\x00")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
+        description, comment = (
+            stream[14 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char)
         )
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid COMM frame data.")
 
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._language = language
-        obj._description = description
-        obj._comment = comment
+        obj._language = stream[11:14].tobytes().decode(encoding="ascii")
+        obj._description = description.decode(encoding=text_encoding)
+        obj._comment = comment.decode(encoding=text_encoding)
         obj._text_encoding = text_encoding
         return obj
 
@@ -1503,14 +1434,19 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        bpm, *end = stream[11 : 10 + frame_length].tobytes().split(b"\x00")
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid text information frame data.")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
+        bpm = (
+            stream[11 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char)
+        )
 
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_info = bpm = bpm.decode(encoding=text_encoding)
+        obj._text_info = [v.decode(encoding=text_encoding) for v in bpm]
         if strict:
-            validate_numeric("bpm", bpm, int, 0)
+            for v in bpm:
+                validate_numeric("bpm", v, int, 0)
         obj._text_encoding = text_encoding
         return obj
 
@@ -1602,18 +1538,21 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        is_compilation, *end = (
-            stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
+        is_compilation = (
+            stream[11 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char)
         )
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid text information frame data.")
 
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_info = is_compilation = is_compilation.decode(
-            encoding=text_encoding
-        )
+        obj._text_info = is_compilation = [
+            v.decode(encoding=text_encoding) for v in is_compilation
+        ]
         if strict:
-            validate_numeric("is_compilation", is_compilation, int, 0, 1)
+            for v in is_compilation:
+                validate_numeric("is_compilation", v, int, 0, 1)
         obj._text_encoding = text_encoding
         return obj
 
@@ -1925,7 +1864,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     __slots__ = "_disc_number", "_disc_total"
 
-    def __init__(
+    def __init__(  # TODO: Make _text_info a list.
         self,
         disc_number: int | str,
         /,
@@ -2069,7 +2008,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
     __slots__ = "_track_number", "_track_total"
 
-    def __init__(
+    def __init__(  # TODO: Make _text_info a list.
         self,
         track_number: int | str,
         /,
@@ -2222,16 +2161,20 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        text_info, *end = (
-            stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
+        isrc = (
+            stream[11 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char)
         )
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid ISRC frame data.")
 
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._text_info = prepare_isrc(text_info.decode(encoding=text_encoding))
+        obj._text_info = [
+            prepare_isrc(v.decode(encoding=text_encoding)) for v in isrc
+        ]
         obj._text_encoding = text_encoding
         return obj
 
@@ -2278,7 +2221,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
     __slots__ = ("_description",)
 
-    def __init__(
+    def __init__(  # TODO: Make _text_info a list.
         self,
         description: str,
         value: str,
@@ -2469,17 +2412,11 @@ class UnknownID3v2Frame(ID3v2Frame):
         frame : minim.media.flac.UnknownID3v2Frame
             ID3v2 frame.
         """
-        frame_id = stream[:4].tobytes()
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        frame_data = stream[10 : 10 + frame_length].tobytes()
-        if frame_data[-1]:
-            raise ValueError(
-                "ID3v2.4 frame does not end with a null character."
-            )
-
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._frame_id = frame_id
-        obj._frame_data = frame_data
+        obj._frame_id = stream[:4].tobytes()
+        obj._frame_data = stream[
+            10 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])
+        ].tobytes()
         return obj
 
     @property
