@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass
 from datetime import MINYEAR, MAXYEAR, datetime
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
+from ...._types import ORDERED_COLLECTION_TYPES
 from ...._utility import (
     ASCII_CHARS_REGEX,
-    DateTime,
     decode_32_bit_synchsafe_int,
     join_values,
     prepare_isrc,
@@ -24,6 +24,182 @@ if TYPE_CHECKING:
     from typing import Any
 
     from ...._types import BytesLike, OrderedCollection
+
+
+class DateTime(NamedTuple):
+    """
+    Datetime with optional components.
+    """
+
+    year: int
+    month: int | None = None
+    day: int | None = None
+    hour: int | None = None
+    minute: int | None = None
+    second: int | None = None
+
+    _DATETIME_RE = re.compile(
+        r"^(\d{4})(?:-(\d{2})(?:-(\d{2})(?:T(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?)?)?$"
+    )
+
+    @classmethod
+    def from_string(cls, dt: str, /) -> DateTime:
+        """
+        Instantiate a :cls:`DateTime` object from a datetime string in
+        ISO-8601 format.
+
+        Parameters
+        ----------
+        dt : str; positional-only
+            Datetime, in ISO-8601 format.
+
+        Returns
+        -------
+        dt : DateTime
+            Datetime.
+        """
+        length = len(dt)
+        if length > 19:
+            dt = dt[:19]
+            length = 19
+        dt = dt.upper()
+
+        if match := cls._DATETIME_RE.match(dt):
+            groups = match.groups()
+            try:
+                end_idx = groups.index(None)
+            except ValueError:
+                end_idx = None
+            dt = DateTime(*(int(dt_comp) for dt_comp in groups[:end_idx]))
+            cls._validate_datetime(dt)
+            return dt
+        else:
+            raise ValueError(f"Invalid datetime string {dt!r}.")
+
+    @classmethod
+    def from_tuple(cls, dt: tuple[int, ...], /) -> DateTime:
+        """
+        Instantiate a :cls:`DateTime` object from a tuple of datetime
+        components.
+
+        Parameters
+        ----------
+        dt : tuple[int, ...]; positional-only
+            Datetime components, in order of year, month, day, hour,
+            minute, second. Optional components may be omitted or be
+            represented as :code:`None`.
+
+        Returns
+        -------
+        dt : DateTime
+            Datetime.
+        """
+        if not 1 <= len(dt) <= 6:
+            raise ValueError(
+                f"Datetime component tuple {dt!r} must have between "
+                f"one and six components."
+            )
+        dt = DateTime(
+            *(None if dt_comp is None else int(dt_comp) for dt_comp in dt)
+        )
+        cls._validate_datetime(dt)
+        return dt
+
+    @staticmethod
+    def _get_num_days_in_month(month: int, /, year: int) -> int:
+        """
+        Get the number of days in a month for a given year.
+
+        Parameters
+        ----------
+        month : int; positional-only
+            Month.
+
+        year : int; positional-only
+            Year.
+
+        Returns
+        -------
+        num_days : int
+            Number of days in the month for the given year.
+        """
+        if month in {1, 3, 5, 7, 8, 10, 12}:
+            return 31
+        elif month in {4, 6, 9, 11}:
+            return 30
+        elif month == 2:
+            if (year % 4 == 0 and year % 100 != 0) or year % 400 == 0:
+                return 29
+            else:
+                return 28
+
+    @staticmethod
+    def _validate_datetime(dt: DateTime, /) -> None:
+        """
+        Validate datetime components.
+
+        Parameters
+        ----------
+        dt : DateTime; positional-only
+            Datetime.
+        """
+        year = dt.year
+        validate_range("year", year, MINYEAR, MAXYEAR)
+        month = dt.month
+        if month is not None:
+            validate_range("month", month, 1, 12)
+        if dt.day is not None:
+            validate_range(
+                "day",
+                dt.day,
+                1,
+                DateTime._get_num_days_in_month(month, year=year),
+            )
+        if dt.hour is not None:
+            validate_range("hour", dt.hour, 0, 23)
+        if dt.minute is not None:
+            validate_range("minute", dt.minute, 0, 59)
+        if dt.second is not None:
+            validate_range("second", dt.second, 0, 59)
+
+    def to_string(self) -> str:
+        """
+        Convert the datetime to a string in ISO-8601 format.
+
+        Returns
+        -------
+        dt : str
+            Datetime, in ISO-8601 format.
+        """
+        dt = f"{self.year:04}"
+        if self.month is not None:
+            dt += f"-{self.month:02}"
+            if self.day is not None:
+                dt += f"-{self.day:02}"
+                if self.hour is not None:
+                    dt += f"T{self.hour:02}"
+                    if self.minute is not None:
+                        dt += f":{self.minute:02}"
+                        if self.second is not None:
+                            dt += f":{self.second:02}"
+        return dt
+
+
+class Position(NamedTuple):  # TODO
+    """
+    Position within a set.
+    """
+
+    number: int
+    total: int | None = None
+
+    @classmethod
+    def from_string(cls, pos: str, /) -> Position:
+        pass
+
+    @classmethod
+    def from_tuple(cls, pos: tuple[int, int | None], /) -> Position:
+        pass
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -166,7 +342,8 @@ class ID3v2FrameStatusFlags:
         strict: bool = True,
     ) -> ID3v2FrameStatusFlags:
         """
-        Instantiate an :class:`ID3v2FrameStatusFlags` object from a byte.
+        Instantiate an :class:`ID3v2FrameStatusFlags` object from a
+        byte.
 
         Parameters
         ----------
@@ -718,15 +895,17 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         super().__init__(format_flags=format_flags, status_flags=status_flags)
 
         if isinstance(text_info, str):
-            text_info = [text_info]
-        elif isinstance(text_info, tuple):
-            text_info = list(text_info)
-        elif not isinstance(text_info, list):
+            self._text_info = [text_info]
+        elif isinstance(text_info, ORDERED_COLLECTION_TYPES):
+            self._text_info = _text_info = []
+            for ti_idx, ti in enumerate(text_info):
+                validate_type(f"text_info[{ti_idx}]", ti, str)
+                _text_info.append(ti)
+        else:
             raise TypeError(
                 "`text_info` must be a string or an ordered collection "
                 "of strings."
             )
-        self._text_info = text_info
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -773,16 +952,16 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         null_char = cls._NULL_SEPARATORS[text_encoding]
-        text_info = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .rstrip(null_char)
-            .split(null_char)
-        )
 
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._text_info = [
-            ti.decode(encoding=text_encoding) for ti in text_info
+            ti.decode(encoding=text_encoding)
+            for ti in (
+                stream[11 : 10 + frame_length]
+                .tobytes()
+                .rstrip(null_char)
+                .split(null_char)
+            )
         ]
         obj._text_encoding = text_encoding
         return obj
@@ -924,7 +1103,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._datetimes = obj._parse_datetimes(
+        obj._datetimes = cls._parse_datetimes(  # TODO: Allow arbitrary if strict=False
             (
                 stream[11 : 10 + frame_length]
                 .tobytes()
@@ -938,10 +1117,11 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     @staticmethod
     def _parse_datetimes(
-        datetimes: str
+        datetimes: bytes
+        | str
         | datetime
         | tuple[int | str, ...]
-        | list[str | datetime | tuple[int | str, ...]],
+        | list[bytes | str | datetime | tuple[int | str, ...]],
         /,
         *,
         encoding: str = "utf-16",
@@ -965,30 +1145,34 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         datetimes : DateTime or list[DateTime]
             Parsed datetimes.
         """
-        if isinstance(datetimes, bytes):
-            return DateTime.from_string(datetimes.decode(encoding=encoding))
-        if isinstance(datetimes, str):
-            return DateTime.from_string(datetimes)
-        if isinstance(datetimes, datetime):
-            return DateTime(
-                datetimes.year,
-                datetimes.month,
-                datetimes.day,
-                datetimes.hour,
-                datetimes.minute,
-                datetimes.second,
-            )
-        if isinstance(datetimes, tuple):
-            return DateTime.from_tuple(datetimes)
-        if isinstance(datetimes, list):
-            return [
-                ID3v2DateTimeFrame._parse_datetimes(dt, encoding=encoding)
-                for dt in datetimes
-            ]
-        raise TypeError(
-            "`datetimes` must be one or more strings, "
-            "datetime.datetime objects, or tuples of integers."
-        )
+        match datetimes:
+            case bytes():
+                return DateTime.from_string(
+                    datetimes.decode(encoding=encoding)
+                )
+            case str():
+                return DateTime.from_string(datetimes)
+            case datetime():
+                return DateTime(
+                    datetimes.year,
+                    datetimes.month,
+                    datetimes.day,
+                    datetimes.hour,
+                    datetimes.minute,
+                    datetimes.second,
+                )
+            case tuple():
+                return DateTime.from_tuple(datetimes)
+            case list():
+                return [
+                    ID3v2DateTimeFrame._parse_datetimes(dt, encoding=encoding)
+                    for dt in datetimes
+                ]
+            case _:
+                raise TypeError(
+                    "`datetimes` must be one or more strings, "
+                    "datetime.datetime objects, or tuples of integers."
+                )
 
     @property
     def _text_info(self) -> list[str]:
@@ -1368,7 +1552,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
     def __init__(
         self,
-        bpm: int | str,
+        bpm: int | float | str | OrderedCollection[int | float | str],
         /,
         *,
         text_encoding: str = "utf-16",
@@ -1378,8 +1562,9 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        bpm : int or str; positional-only
-            BPM.
+        bpm : int, float, str, or \
+        OrderedCollection[int | float | str]; positional-only
+            Tempo, in beats per minute (BPM).
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -1399,8 +1584,18 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        validate_numeric("bpm", bpm, float, 0)
-        self._text_info = str(round(float(bpm)))
+        if isinstance(bpm, (int, float, str)):
+            self._text_info = [str(round(float(bpm)))]
+        elif isinstance(bpm, ORDERED_COLLECTION_TYPES):
+            self._text_info = _text_info = []
+            for bpm_idx, _bpm in enumerate(bpm):
+                validate_numeric(f"bpm[{bpm_idx}]", _bpm, float, 0)
+                _text_info.append(str(round(float(_bpm))))
+        else:
+            raise TypeError(
+                "`bpm` must be a number, a string, or an ordered "
+                "collection of numbers and/or strings."
+            )
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -1441,12 +1636,12 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
             .rstrip(null_char)
             .split(null_char)
         )
+        if strict:
+            for idx, v in enumerate(bpm):
+                validate_numeric(f"bpm[{idx}]", v, int, 0)
 
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._text_info = [v.decode(encoding=text_encoding) for v in bpm]
-        if strict:
-            for v in bpm:
-                validate_numeric("bpm", v, int, 0)
         obj._text_encoding = text_encoding
         return obj
 
@@ -1467,7 +1662,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
     def __init__(
         self,
-        is_compilation: bool | int | str,
+        is_compilation: bool | int | str | OrderedCollection[bool | int | str],
         /,
         *,
         text_encoding: str = "utf-16",
@@ -1477,10 +1672,11 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        is_compilation : bool, int, or str; positional-only
+        is_compilation : bool, int, str, or \
+        OrderedCollection[bool | int | str]; positional-only
             Whether the recording is part of a compilation.
 
-            **Examples**: :code:`True`, :code:`1`, :code:`"1"`
+            **Examples**: :code:`True`, :code:`1`, :code:`"1"`.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -1500,11 +1696,19 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        if isinstance(is_compilation, bool):
-            self._text_info = str(int(is_compilation))
+        if isinstance(is_compilation, bool | int | str):
+            self._text_info = [str(int(is_compilation))]
+        elif isinstance(is_compilation, ORDERED_COLLECTION_TYPES):
+            self._text_info = _text_info = []
+            for ic_idx, ic in enumerate(is_compilation):
+                validate_numeric(f"is_compilation[{ic_idx}]", ic, int, 0, 1)
+                _text_info.append(str(int(ic)))
         else:
-            validate_numeric("is_compilation", is_compilation, int, 0, 1)
-            self._text_info = str(is_compilation)
+            raise TypeError(
+                "`is_compilation` must be a boolean, a number, a "
+                "string, or an ordered collection of booleans, "
+                "numbers, and/or strings."
+            )
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -1545,14 +1749,14 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
             .rstrip(null_char)
             .split(null_char)
         )
+        if strict:
+            for idx, v in enumerate(is_compilation):
+                validate_numeric(f"is_compilation[{idx}]", v, int, 0, 1)
 
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._text_info = is_compilation = [
             v.decode(encoding=text_encoding) for v in is_compilation
         ]
-        if strict:
-            for v in is_compilation:
-                validate_numeric("is_compilation", v, int, 0, 1)
         obj._text_encoding = text_encoding
         return obj
 
@@ -1862,14 +2066,16 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     _frame_ids = {2: b"TPA", 3: b"TPOS", 4: b"TPOS"}
 
-    __slots__ = "_disc_number", "_disc_total"
+    __slots__ = ("_disc",)
 
-    def __init__(  # TODO: Make _text_info a list.
+    def __init__(
         self,
-        disc_number: int | str,
+        disc: int
+        | str
+        | tuple[int | str, int | str | None]
+        | list[int | str | tuple[int | str, int | str | None]],
         /,
         *,
-        disc_total: int | str | None = None,
         text_encoding: str = "utf-16",
         format_flags: ID3v2FrameFormatFlags | None = None,
         status_flags: ID3v2FrameStatusFlags | None = None,
@@ -1877,11 +2083,13 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        disc_number : int or str; positional-only
-            Disc number.
+        disc : int, str, tuple[int | str, int | str | None], or \
+        list[int | str | tuple[int | str, int | str | None]]; \
+        positional-only
+            Disc number and optionally, the total number of discs.
 
-        disc_total : int or str; keyword-only; optional
-            Total number of discs.
+            **Examples**: :code:`1`, :code:`"1"`, :code:`(1, None)`, 
+            :code:`(1, 1)`, :code:`"1/1"`.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -1901,13 +2109,10 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        validate_numeric("disc_number", disc_number, int, 1)
-        self.disc_number = str(disc_number)
-
-        if disc_total is not None:
-            validate_numeric("disc_total", disc_total, int, 1)
-            disc_total = int(disc_total)
-        self._disc_total = disc_total
+        disc = self._parse_discs(disc)
+        if not isinstance(disc, list):
+            disc = [disc]
+        self._disc = disc
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -1918,17 +2123,8 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             )
         self._text_encoding = text_encoding
 
-    @property
-    def _text_info(self) -> str:
-        """
-        Text information.
-        """
-        if self._disc_total is None:
-            return str(self._disc_number)
-        return f"{self._disc_number}/{self._disc_total}"
-
     @classmethod
-    def _from_stream_2_4(
+    def _from_stream_2_4(  # TODO: Make _text_info a list.
         cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TPOSFrame:
         """
@@ -1951,20 +2147,75 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        text_info, *end = (
-            stream[11 : 10 + frame_length].tobytes().split(b"\x00")
-        )
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid text information frame data.")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
 
-        disc_number, *disc_total = text_info.split(b"/", maxsplit=1)
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._disc_number = int(disc_number)
-        obj._disc_total = int(disc_total[0]) if disc_total else None
+        obj._disc = cls._parse_discs(
+            stream[11 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char)
+        )
         obj._text_encoding = text_encoding
         return obj
+
+    @staticmethod
+    def _parse_discs(
+        disc: bytes
+        | int
+        | str
+        | tuple[int | str, int | str | None]
+        | list[bytes | int | str | tuple[int | str, int | str | None]],
+        /,
+    ) -> list[tuple[int, int | None]]:
+        """ """
+        match disc:
+            case int():
+                return (disc, None)
+            case bytes() | str():
+                sep = "/" if isinstance(disc, str) else b"/"
+                num_slashes = disc.count(sep)
+                if num_slashes > 1:
+                    raise ValueError(f"Invalid disc number {disc!r}.")
+                if num_slashes:
+                    disc = disc.split(sep, maxsplit=1)
+                    validate_numeric("disc[0]", disc[0], int, 1)
+                    if disc[1]:
+                        validate_numeric("disc[1]", disc[1], int, 1)
+                        return int(disc[0]), int(disc[1])
+                    return int(disc[0]), None
+                else:
+                    validate_numeric("disc", disc, int, 1)
+                    return int(disc), None
+            case tuple() if len(disc) == 2:
+                validate_numeric("disc[0]", disc[0], int, 1)
+                if disc[1]:
+                    validate_numeric("disc[1]", disc[1], int, 1)
+                    return int(disc[0]), int(disc[1])
+                return int(disc[0]), None
+            case list():
+                return [ID3v2TPOSFrame._parse_discs(d) for d in disc]
+            case _:
+                raise TypeError(
+                    "`disc` must be an integer, a string, a tuple of "
+                    "two integers and/or strings, or a list of "
+                    "integers, strings, and/or tuples of two integers "
+                    "and/or strings."
+                )
+
+    @property
+    def _text_info(self) -> list[str]:
+        """
+        Text information.
+        """
+        return [
+            f"{disc_number}/{disc_total}"
+            if disc_total is not None
+            else str(disc_number)
+            for disc_number, disc_total in self._disc
+        ]
 
 
 class ID3v2TPUBFrame(ID3v2TextInfoFrame):
@@ -2131,6 +2382,8 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
     __slots__ = ()
 
+    # TODO: __init__: Make _text_info a list.
+
     @classmethod
     def _from_stream_2_4(cls, stream: memoryview, /, *, strict: bool = True):
         """
@@ -2221,10 +2474,10 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
     __slots__ = ("_description",)
 
-    def __init__(  # TODO: Make _text_info a list.
+    def __init__(
         self,
         description: str,
-        value: str,
+        value: str,  # TODO: Make _text_info a list.
         /,
         *,
         text_encoding: str = "utf-16",
@@ -2310,17 +2563,19 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        description, value, *end = (
-            stream[11 : 10 + frame_length].tobytes().split(b"\x00")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
+        description, *value = (
+            stream[11 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char)
         )
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid TXXX frame data.")
 
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
         obj._description = description.decode(encoding=text_encoding)
-        obj._text_info = value.decode(encoding=text_encoding)
+        obj._text_info = [v.decode(encoding=text_encoding) for v in value]
         obj._text_encoding = text_encoding
         return obj
 
