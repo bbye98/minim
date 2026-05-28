@@ -43,7 +43,7 @@ class DateTime(NamedTuple):
     )
 
     @classmethod
-    def from_string(cls, dt: str, /) -> DateTime:
+    def from_string(cls, dt: str, /, *, strict: bool = True) -> DateTime:
         """
         Instantiate a :cls:`DateTime` object from a datetime string in
         ISO-8601 format.
@@ -53,9 +53,13 @@ class DateTime(NamedTuple):
         dt : str; positional-only
             Datetime, in ISO-8601 format.
 
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the audio
+            format specifications.
+
         Returns
         -------
-        dt : DateTime
+        dt : minim.metadata.id3.DateTime
             Datetime.
         """
         length = len(dt)
@@ -71,13 +75,16 @@ class DateTime(NamedTuple):
             except ValueError:
                 end_idx = None
             dt = DateTime(*(int(dt_comp) for dt_comp in groups[:end_idx]))
-            cls._validate_datetime(dt)
+            if strict:
+                cls._validate_datetime(dt)
             return dt
         else:
             raise ValueError(f"Invalid datetime string {dt!r}.")
 
     @classmethod
-    def from_tuple(cls, dt: tuple[int, ...], /) -> DateTime:
+    def from_tuple(
+        cls, dt: tuple[int, ...], /, *, strict: bool = True
+    ) -> DateTime:
         """
         Instantiate a :cls:`DateTime` object from a tuple of datetime
         components.
@@ -89,9 +96,13 @@ class DateTime(NamedTuple):
             minute, second. Optional components may be omitted or be
             represented as :code:`None`.
 
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the audio
+            format specifications.
+
         Returns
         -------
-        dt : DateTime
+        dt : minim.metadata.id3.DateTime
             Datetime.
         """
         if not 1 <= len(dt) <= 6:
@@ -102,7 +113,8 @@ class DateTime(NamedTuple):
         dt = DateTime(
             *(None if dt_comp is None else int(dt_comp) for dt_comp in dt)
         )
-        cls._validate_datetime(dt)
+        if strict:
+            cls._validate_datetime(dt)
         return dt
 
     @staticmethod
@@ -140,7 +152,7 @@ class DateTime(NamedTuple):
 
         Parameters
         ----------
-        dt : DateTime; positional-only
+        dt : minim.metadata.id3.DateTime; positional-only
             Datetime.
         """
         year = dt.year
@@ -185,7 +197,7 @@ class DateTime(NamedTuple):
         return dt
 
 
-class Position(NamedTuple):  # TODO
+class Position(NamedTuple):
     """
     Position within a set.
     """
@@ -194,12 +206,97 @@ class Position(NamedTuple):  # TODO
     total: int | None = None
 
     @classmethod
-    def from_string(cls, pos: str, /) -> Position:
-        pass
+    def from_string(
+        cls, position: str, /, *, name: str = "position", strict: bool = True
+    ) -> Position:
+        """
+        Instantiate a :cls:`Position` object from a string.
+
+        Parameters
+        ----------
+        position : str; positional-only
+            Position within a set.
+
+        name : str; keyword-only; default: :code:`"position"`
+            Type of position.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the audio
+            format specifications.
+
+        Returns
+        -------
+        position : minim.metadata.id3.Position
+            Position within a set.
+        """
+        num_slashes = position.count("/")
+        if num_slashes > 1:
+            raise ValueError(f"Invalid {name} number {position!r}.")
+        if num_slashes:
+            position = position.split("/", maxsplit=1)
+            if strict:
+                validate_numeric(f"{name}[0]", position[0], int, 1)
+            if position[1]:
+                if strict:
+                    validate_numeric(f"{name}[1]", position[1], int, 1)
+                return cls(int(position[0]), int(position[1]))
+            return cls(int(position[0]), None)
+        else:
+            if strict:
+                validate_numeric(name, position, int, 1)
+            return cls(int(position), None)
 
     @classmethod
-    def from_tuple(cls, pos: tuple[int, int | None], /) -> Position:
-        pass
+    def from_tuple(
+        cls,
+        position: tuple[int, int | None],
+        /,
+        *,
+        name: str = "position",
+        strict: bool = True,
+    ) -> Position:
+        """
+        Instantiate a :cls:`Position` object from a tuple.
+
+        Parameters
+        ----------
+        position : tuple[int, int | None]; positional-only
+            Position within a set.
+
+        name : str; keyword-only; default: :code:`"position"`
+            Type of position.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the audio
+            format specifications.
+
+        Returns
+        -------
+        position : minim.metadata.id3.Position
+            Position within a set.
+        """
+        if strict:
+            validate_numeric(f"{name}[0]", position[0], int, 1)
+        if position[1]:
+            if strict:
+                validate_numeric(f"{name}[1]", position[1], int, 1)
+            return cls(int(position[0]), int(position[1]))
+        return cls(int(position[0]), None)
+
+    def to_string(self) -> str:
+        """
+        Convert the position to a string.
+
+        Returns
+        -------
+        position : str
+            Position within a set as a string.
+        """
+        return (
+            f"{self.number}/{self.total}"
+            if self.total is not None
+            else str(self.number)
+        )
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -1103,7 +1200,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._datetimes = cls._parse_datetimes(  # TODO: Allow arbitrary if strict=False
+        obj._datetimes = cls._parse_datetimes(
             (
                 stream[11 : 10 + frame_length]
                 .tobytes()
@@ -1111,6 +1208,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 .split(null_char)
             ),
             encoding=text_encoding,
+            strict=strict,
         )
         obj._text_encoding = text_encoding
         return obj
@@ -1125,6 +1223,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         /,
         *,
         encoding: str = "utf-16",
+        strict: bool = True,
     ) -> DateTime | list[DateTime]:
         """
         Parse datetimes.
@@ -1140,6 +1239,10 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding for the datetimes.
 
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
         Returns
         -------
         datetimes : DateTime or list[DateTime]
@@ -1148,10 +1251,10 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         match datetimes:
             case bytes():
                 return DateTime.from_string(
-                    datetimes.decode(encoding=encoding)
+                    datetimes.decode(encoding=encoding), strict=strict
                 )
             case str():
-                return DateTime.from_string(datetimes)
+                return DateTime.from_string(datetimes, strict=strict)
             case datetime():
                 return DateTime(
                     datetimes.year,
@@ -1162,10 +1265,12 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                     datetimes.second,
                 )
             case tuple():
-                return DateTime.from_tuple(datetimes)
+                return DateTime.from_tuple(datetimes, strict=strict)
             case list():
                 return [
-                    ID3v2DateTimeFrame._parse_datetimes(dt, encoding=encoding)
+                    ID3v2DateTimeFrame._parse_datetimes(
+                        dt, encoding=encoding, strict=strict
+                    )
                     for dt in datetimes
                 ]
             case _:
@@ -1552,7 +1657,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
     def __init__(
         self,
-        bpm: int | float | str | OrderedCollection[int | float | str],
+        bpms: int | float | str | OrderedCollection[int | float | str],
         /,
         *,
         text_encoding: str = "utf-16",
@@ -1562,9 +1667,9 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        bpm : int, float, str, or \
+        bpms : int, float, str, or \
         OrderedCollection[int | float | str]; positional-only
-            Tempo, in beats per minute (BPM).
+            Tempos, in beats per minute (BPM).
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -1584,16 +1689,16 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        if isinstance(bpm, (int, float, str)):
-            self._text_info = [str(round(float(bpm)))]
-        elif isinstance(bpm, ORDERED_COLLECTION_TYPES):
+        if isinstance(bpms, (int, float, str)):
+            self._text_info = [str(round(float(bpms)))]
+        elif isinstance(bpms, ORDERED_COLLECTION_TYPES):
             self._text_info = _text_info = []
-            for bpm_idx, _bpm in enumerate(bpm):
-                validate_numeric(f"bpm[{bpm_idx}]", _bpm, float, 0)
-                _text_info.append(str(round(float(_bpm))))
+            for idx, bpm in enumerate(bpms):
+                validate_numeric(f"bpm[{idx}]", bpm, float, 0)
+                _text_info.append(str(round(float(bpm))))
         else:
             raise TypeError(
-                "`bpm` must be a number, a string, or an ordered "
+                "`bpms` must be a number, a string, or an ordered "
                 "collection of numbers and/or strings."
             )
 
@@ -1630,18 +1735,18 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         null_char = cls._NULL_SEPARATORS[text_encoding]
-        bpm = (
+        bpms = (
             stream[11 : 10 + frame_length]
             .tobytes()
             .rstrip(null_char)
             .split(null_char)
         )
         if strict:
-            for idx, v in enumerate(bpm):
-                validate_numeric(f"bpm[{idx}]", v, int, 0)
+            for idx, bpm in enumerate(bpms):
+                validate_numeric(f"bpms[{idx}]", bpm, int, 0)
 
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_info = [v.decode(encoding=text_encoding) for v in bpm]
+        obj._text_info = [bpm.decode(encoding=text_encoding) for bpm in bpms]
         obj._text_encoding = text_encoding
         return obj
 
@@ -1662,7 +1767,10 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
     def __init__(
         self,
-        is_compilation: bool | int | str | OrderedCollection[bool | int | str],
+        compilation_flags: bool
+        | int
+        | str
+        | OrderedCollection[bool | int | str],
         /,
         *,
         text_encoding: str = "utf-16",
@@ -1672,9 +1780,10 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        is_compilation : bool, int, str, or \
+        compilation_flags : bool, int, str, or \
         OrderedCollection[bool | int | str]; positional-only
-            Whether the recording is part of a compilation.
+            Flags indicating whether the recording is part of a 
+            compilation.
 
             **Examples**: :code:`True`, :code:`1`, :code:`"1"`.
 
@@ -1696,16 +1805,18 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        if isinstance(is_compilation, bool | int | str):
-            self._text_info = [str(int(is_compilation))]
-        elif isinstance(is_compilation, ORDERED_COLLECTION_TYPES):
+        if isinstance(compilation_flags, bool | int | str):
+            self._text_info = [str(int(compilation_flags))]
+        elif isinstance(compilation_flags, ORDERED_COLLECTION_TYPES):
             self._text_info = _text_info = []
-            for ic_idx, ic in enumerate(is_compilation):
-                validate_numeric(f"is_compilation[{ic_idx}]", ic, int, 0, 1)
-                _text_info.append(str(int(ic)))
+            for idx, compilation_flag in enumerate(compilation_flags):
+                validate_numeric(
+                    f"compilation_flags[{idx}]", compilation_flag, int, 0, 1
+                )
+                _text_info.append(str(int(compilation_flag)))
         else:
             raise TypeError(
-                "`is_compilation` must be a boolean, a number, a "
+                "`compilation_flags` must be a boolean, a number, a "
                 "string, or an ordered collection of booleans, "
                 "numbers, and/or strings."
             )
@@ -1743,19 +1854,22 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         null_char = cls._NULL_SEPARATORS[text_encoding]
-        is_compilation = (
+        compilation_flags = (
             stream[11 : 10 + frame_length]
             .tobytes()
             .rstrip(null_char)
             .split(null_char)
         )
         if strict:
-            for idx, v in enumerate(is_compilation):
-                validate_numeric(f"is_compilation[{idx}]", v, int, 0, 1)
+            for idx, compilation_flag in enumerate(compilation_flags):
+                validate_numeric(
+                    f"compilation_flags[{idx}]", compilation_flag, int, 0, 1
+                )
 
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_info = is_compilation = [
-            v.decode(encoding=text_encoding) for v in is_compilation
+        obj._text_info = [
+            compilation_flag.decode(encoding=text_encoding)
+            for compilation_flag in compilation_flags
         ]
         obj._text_encoding = text_encoding
         return obj
@@ -2066,11 +2180,11 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     _frame_ids = {2: b"TPA", 3: b"TPOS", 4: b"TPOS"}
 
-    __slots__ = ("_disc",)
+    __slots__ = ("_discs",)
 
     def __init__(
         self,
-        disc: int
+        discs: int
         | str
         | tuple[int | str, int | str | None]
         | list[int | str | tuple[int | str, int | str | None]],
@@ -2083,10 +2197,10 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        disc : int, str, tuple[int | str, int | str | None], or \
+        discs : int, str, tuple[int | str, int | str | None], or \
         list[int | str | tuple[int | str, int | str | None]]; \
         positional-only
-            Disc number and optionally, the total number of discs.
+            Disc numbers and optionally, the total number of discs.
 
             **Examples**: :code:`1`, :code:`"1"`, :code:`(1, None)`, 
             :code:`(1, 1)`, :code:`"1/1"`.
@@ -2109,10 +2223,10 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        disc = self._parse_discs(disc)
-        if not isinstance(disc, list):
-            disc = [disc]
-        self._disc = disc
+        discs = self._parse_discs(discs)
+        if not isinstance(discs, list):
+            discs = [discs]
+        self._discs = discs
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -2124,7 +2238,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         self._text_encoding = text_encoding
 
     @classmethod
-    def _from_stream_2_4(  # TODO: Make _text_info a list.
+    def _from_stream_2_4(
         cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TPOSFrame:
         """
@@ -2152,51 +2266,71 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._disc = cls._parse_discs(
+        obj._discs = cls._parse_discs(
             stream[11 : 10 + frame_length]
             .tobytes()
             .rstrip(null_char)
-            .split(null_char)
+            .split(null_char),
+            encoding=text_encoding,
+            strict=strict,
         )
         obj._text_encoding = text_encoding
         return obj
 
     @staticmethod
     def _parse_discs(
-        disc: bytes
+        discs: bytes
         | int
         | str
         | tuple[int | str, int | str | None]
         | list[bytes | int | str | tuple[int | str, int | str | None]],
         /,
-    ) -> list[tuple[int, int | None]]:
-        """ """
-        match disc:
+        *,
+        encoding: str = "utf-16",
+        strict: bool = True,
+    ) -> tuple[int, int | None] | list[tuple[int, int | None]]:
+        """
+        Parse disc numbers.
+
+        Parameters
+        ----------
+        discs : bytes, int, str, tuple[int | str, int | str | None], or \
+        list[bytes | int | str | tuple[int | str, int | str | None]]; \
+        positional-only
+            Disc numbers and, optionally, the total number of discs.
+
+        encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding for the disc numbers.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        discs : tuple[int, int or None] | list[tuple[int, int or None]]
+            Parsed disc numbers.
+        """
+        match discs:
             case int():
-                return (disc, None)
-            case bytes() | str():
-                sep = "/" if isinstance(disc, str) else b"/"
-                num_slashes = disc.count(sep)
-                if num_slashes > 1:
-                    raise ValueError(f"Invalid disc number {disc!r}.")
-                if num_slashes:
-                    disc = disc.split(sep, maxsplit=1)
-                    validate_numeric("disc[0]", disc[0], int, 1)
-                    if disc[1]:
-                        validate_numeric("disc[1]", disc[1], int, 1)
-                        return int(disc[0]), int(disc[1])
-                    return int(disc[0]), None
-                else:
-                    validate_numeric("disc", disc, int, 1)
-                    return int(disc), None
-            case tuple() if len(disc) == 2:
-                validate_numeric("disc[0]", disc[0], int, 1)
-                if disc[1]:
-                    validate_numeric("disc[1]", disc[1], int, 1)
-                    return int(disc[0]), int(disc[1])
-                return int(disc[0]), None
+                return Position(discs)
+            case bytes():
+                return Position.from_string(
+                    discs.decode(encoding=encoding),
+                    name="discs",
+                    strict=strict,
+                )
+            case str():
+                return Position.from_string(discs, name="discs", strict=strict)
+            case tuple() if len(discs) == 2:
+                return Position.from_tuple(discs, name="discs", strict=strict)
             case list():
-                return [ID3v2TPOSFrame._parse_discs(d) for d in disc]
+                return [
+                    ID3v2TPOSFrame._parse_discs(
+                        d, encoding=encoding, strict=strict
+                    )
+                    for d in discs
+                ]
             case _:
                 raise TypeError(
                     "`disc` must be an integer, a string, a tuple of "
@@ -2210,12 +2344,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         """
         Text information.
         """
-        return [
-            f"{disc_number}/{disc_total}"
-            if disc_total is not None
-            else str(disc_number)
-            for disc_number, disc_total in self._disc
-        ]
+        return [disc.to_string() for disc in self._discs]
 
 
 class ID3v2TPUBFrame(ID3v2TextInfoFrame):
@@ -2257,14 +2386,16 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
     _frame_ids = {2: b"TRK", 3: b"TRCK", 4: b"TRCK"}
 
-    __slots__ = "_track_number", "_track_total"
+    __slots__ = ("_tracks",)
 
-    def __init__(  # TODO: Make _text_info a list.
+    def __init__(
         self,
-        track_number: int | str,
+        tracks: int
+        | str
+        | tuple[int | str, int | str | None]
+        | list[int | str | tuple[int | str, int | str | None]],
         /,
         *,
-        track_total: int | str | None = None,
         text_encoding: str = "utf-16",
         format_flags: ID3v2FrameFormatFlags | None = None,
         status_flags: ID3v2FrameStatusFlags | None = None,
@@ -2272,11 +2403,13 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        track_number : int or str; positional-only
-            Track number.
+        tracks : int, str, tuple[int | str, int | str | None], or \
+        list[int | str | tuple[int | str, int | str | None]]; \
+        positional-only
+            Track numbers and optionally, the total number of tracks.
 
-        track_total : int or str; keyword-only; optional
-            Total number of tracks.
+            **Examples**: :code:`1`, :code:`"2"`, :code:`(3, None)`, 
+            :code:`(4, 5)`, :code:`"6/7"`.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -2296,13 +2429,10 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        validate_numeric("track_number", track_number, int, 1)
-        self._track_number = str(track_number)
-
-        if track_total is not None:
-            validate_numeric("track_total", track_total, int, 1)
-            track_total = int(track_total)
-        self._track_total = track_total
+        tracks = self._parse_tracks(tracks)
+        if not isinstance(tracks, list):
+            tracks = [tracks]
+        self._tracks = tracks
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -2312,15 +2442,6 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
                 f"values: {join_values(self._TEXT_ENCODINGS.values())}."
             )
         self._text_encoding = text_encoding
-
-    @property
-    def _text_info(self) -> str:
-        """
-        Text information.
-        """
-        if self._track_total is None:
-            return str(self._track_number)
-        return f"{self._track_number}/{self._track_total}"
 
     @classmethod
     def _from_stream_2_4(
@@ -2346,20 +2467,94 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        text_info, *end = (
-            stream[11 : 10 + frame_length].tobytes().split(b"\x00")
-        )
-        if len(end) != 1 or end[0]:
-            raise ValueError("Invalid text information frame data.")
+        null_char = cls._NULL_SEPARATORS[text_encoding]
 
-        track_number, *track_total = text_info.split(b"/", maxsplit=1)
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._track_number = int(track_number)
-        obj._track_total = int(track_total[0]) if track_total else None
+        obj._tracks = cls._parse_tracks(
+            stream[11 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char),
+            encoding=text_encoding,
+            strict=strict,
+        )
         obj._text_encoding = text_encoding
         return obj
+
+    @staticmethod
+    def _parse_tracks(
+        tracks: bytes
+        | int
+        | str
+        | tuple[int | str, int | str | None]
+        | list[bytes | int | str | tuple[int | str, int | str | None]],
+        /,
+        *,
+        encoding: str = "utf-16",
+        strict: bool = True,
+    ) -> tuple[int, int | None] | list[tuple[int, int | None]]:
+        """
+        Parse track numbers.
+
+        Parameters
+        ----------
+        tracks : bytes, int, str, tuple[int | str, int | str | None], or \
+        list[bytes | int | str | tuple[int | str, int | str | None]]; \
+        positional-only
+            Track numbers and, optionally, the total number of tracks.
+
+        encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding for the track numbers.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        tracks : tuple[int, int or None] | list[tuple[int, int or None]]
+            Parsed track numbers.
+        """
+        match tracks:
+            case int():
+                return Position(tracks)
+            case bytes():
+                return Position.from_string(
+                    tracks.decode(encoding=encoding),
+                    name="tracks",
+                    strict=strict,
+                )
+            case str():
+                return Position.from_string(
+                    tracks, name="tracks", strict=strict
+                )
+            case tuple() if len(tracks) == 2:
+                return Position.from_tuple(
+                    tracks, name="tracks", strict=strict
+                )
+            case list():
+                return [
+                    ID3v2TRCKFrame._parse_tracks(
+                        t, encoding=encoding, strict=strict
+                    )
+                    for t in tracks
+                ]
+            case _:
+                raise TypeError(
+                    "`tracks` must be an integer, a string, a tuple of "
+                    "two integers and/or strings, or a list of "
+                    "integers, strings, and/or tuples of two integers "
+                    "and/or strings."
+                )
+
+    @property
+    def _text_info(self) -> str:
+        """
+        Text information.
+        """
+        return [track.to_string() for track in self._tracks]
 
 
 class ID3v2TSRCFrame(ID3v2TextInfoFrame):
@@ -2382,7 +2577,51 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
     __slots__ = ()
 
-    # TODO: __init__: Make _text_info a list.
+    def __init__(
+        self,
+        isrcs: str | OrderedCollection[str],
+        /,
+        *,
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        isrcs : str or OrderedCollection[str]; positional-only
+            ISRCs (International Standard Recording Codes).
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
+        """
+        super(ID3v2TextInfoFrame, self).__init__(
+            format_flags=format_flags, status_flags=status_flags
+        )
+
+        if isinstance(isrcs, str):
+            isrcs = [isrcs]
+        self._text_info = [prepare_isrc(isrc) for isrc in isrcs]
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        self._text_encoding = text_encoding
 
     @classmethod
     def _from_stream_2_4(cls, stream: memoryview, /, *, strict: bool = True):
@@ -2415,7 +2654,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         null_char = cls._NULL_SEPARATORS[text_encoding]
-        isrc = (
+        isrcs = (
             stream[11 : 10 + frame_length]
             .tobytes()
             .rstrip(null_char)
@@ -2426,7 +2665,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._text_info = [
-            prepare_isrc(v.decode(encoding=text_encoding)) for v in isrc
+            prepare_isrc(isrc.decode(encoding=text_encoding)) for isrc in isrcs
         ]
         obj._text_encoding = text_encoding
         return obj
@@ -2470,6 +2709,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
        frame <https://id3.org/id3v2.4.0-frames>`_.
     """
 
+    _ALLOW_MULTIPLE = True
     _frame_ids = {2: b"TXX", 3: b"TXXX", 4: b"TXXX"}
 
     __slots__ = ("_description",)
@@ -2477,7 +2717,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
     def __init__(
         self,
         description: str,
-        value: str,  # TODO: Make _text_info a list.
+        value: str,
         /,
         *,
         text_encoding: str = "utf-16",
@@ -2613,6 +2853,7 @@ class UnknownID3v2Frame(ID3v2Frame):
     Unknown ID3v2 frame.
     """
 
+    _ALLOW_MULTIPLE = True
     _frame_ids = {}
 
     __slots__ = "_frame_id", "_frame_data"
