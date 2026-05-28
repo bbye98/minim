@@ -1118,11 +1118,11 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     _frame_ids = {}
 
-    __slots__ = ("_datetimes",)
+    __slots__ = ("_datetime",)
 
     def __init__(
         self,
-        datetimes: str
+        datetime_: str
         | datetime
         | tuple[int | str, ...]
         | list[str | datetime | tuple[int | str, ...]],
@@ -1135,9 +1135,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        datetimes : str, datetime.datetime, tuple[int | str, ...], or
+        datetime_ : str, datetime.datetime, tuple[int | str, ...], or \
         list[str | datetime | tuple[int | str, ...]]; positional-only
-            Datetimes, in ISO-8601 format.
+            Datetime, in ISO-8601 format.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -1165,10 +1165,10 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 f"values: {join_values(self._TEXT_ENCODINGS.values())}."
             )
         self._text_encoding = text_encoding
-        datetimes = self._parse_datetimes(datetimes)
-        if not isinstance(datetimes, list):
-            datetimes = [datetimes]
-        self._datetimes = datetimes
+        datetime_ = self._parse_datetimes(datetime_)
+        if not isinstance(datetime_, list):
+            datetime_ = [datetime_]
+        self._datetime = datetime_
 
     @classmethod
     def _from_stream_2_4(
@@ -1200,7 +1200,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._datetimes = cls._parse_datetimes(
+        obj._datetime = cls._parse_datetimes(
             (
                 stream[11 : 10 + frame_length]
                 .tobytes()
@@ -1657,7 +1657,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
     def __init__(
         self,
-        bpms: int | float | str | OrderedCollection[int | float | str],
+        bpm: int | float | str | OrderedCollection[int | float | str],
         /,
         *,
         text_encoding: str = "utf-16",
@@ -1667,9 +1667,9 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        bpms : int, float, str, or \
+        bpm : int, float, str, or \
         OrderedCollection[int | float | str]; positional-only
-            Tempos, in beats per minute (BPM).
+            Tempo, in beats per minute (BPM).
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -1689,16 +1689,16 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        if isinstance(bpms, (int, float, str)):
-            self._text_info = [str(round(float(bpms)))]
-        elif isinstance(bpms, ORDERED_COLLECTION_TYPES):
+        if isinstance(bpm, (int, float, str)):
+            self._text_info = [str(round(float(bpm)))]
+        elif isinstance(bpm, ORDERED_COLLECTION_TYPES):
             self._text_info = _text_info = []
-            for idx, bpm in enumerate(bpms):
+            for idx, bpm_ in enumerate(bpm):
                 validate_numeric(f"bpm[{idx}]", bpm, float, 0)
-                _text_info.append(str(round(float(bpm))))
+                _text_info.append(str(round(float(bpm_))))
         else:
             raise TypeError(
-                "`bpms` must be a number, a string, or an ordered "
+                "`bpm` must be a number, a string, or an ordered "
                 "collection of numbers and/or strings."
             )
 
@@ -1767,7 +1767,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
     def __init__(
         self,
-        compilation_flags: bool
+        compilation_flag: bool
         | int
         | str
         | OrderedCollection[bool | int | str],
@@ -1780,10 +1780,9 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        compilation_flags : bool, int, str, or \
+        compilation_flag : bool, int, str, or \
         OrderedCollection[bool | int | str]; positional-only
-            Flags indicating whether the recording is part of a 
-            compilation.
+            Whether the recording is part of a compilation.
 
             **Examples**: :code:`True`, :code:`1`, :code:`"1"`.
 
@@ -1805,14 +1804,12 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        if isinstance(compilation_flags, bool | int | str):
-            self._text_info = [str(int(compilation_flags))]
-        elif isinstance(compilation_flags, ORDERED_COLLECTION_TYPES):
+        if isinstance(compilation_flag, bool | int | str):
+            self._text_info = [str(int(compilation_flag))]
+        elif isinstance(compilation_flag, ORDERED_COLLECTION_TYPES):
             self._text_info = _text_info = []
-            for idx, compilation_flag in enumerate(compilation_flags):
-                validate_numeric(
-                    f"compilation_flags[{idx}]", compilation_flag, int, 0, 1
-                )
+            for idx, flag in enumerate(compilation_flag):
+                validate_numeric(f"compilation_flags[{idx}]", flag, int, 0, 1)
                 _text_info.append(str(int(compilation_flag)))
         else:
             raise TypeError(
@@ -1861,15 +1858,12 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
             .split(null_char)
         )
         if strict:
-            for idx, compilation_flag in enumerate(compilation_flags):
-                validate_numeric(
-                    f"compilation_flags[{idx}]", compilation_flag, int, 0, 1
-                )
+            for idx, flag in enumerate(compilation_flags):
+                validate_numeric(f"compilation_flags[{idx}]", flag, int, 0, 1)
 
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._text_info = [
-            compilation_flag.decode(encoding=text_encoding)
-            for compilation_flag in compilation_flags
+            flag.decode(encoding=text_encoding) for flag in compilation_flags
         ]
         obj._text_encoding = text_encoding
         return obj
@@ -2180,11 +2174,11 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     _frame_ids = {2: b"TPA", 3: b"TPOS", 4: b"TPOS"}
 
-    __slots__ = ("_discs",)
+    __slots__ = ("_disc",)
 
     def __init__(
         self,
-        discs: int
+        disc: int
         | str
         | tuple[int | str, int | str | None]
         | list[int | str | tuple[int | str, int | str | None]],
@@ -2197,10 +2191,10 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        discs : int, str, tuple[int | str, int | str | None], or \
+        disc : int, str, tuple[int | str, int | str | None], or \
         list[int | str | tuple[int | str, int | str | None]]; \
         positional-only
-            Disc numbers and optionally, the total number of discs.
+            Disc number and optionally, the total number of discs.
 
             **Examples**: :code:`1`, :code:`"1"`, :code:`(1, None)`, 
             :code:`(1, 1)`, :code:`"1/1"`.
@@ -2223,10 +2217,10 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        discs = self._parse_discs(discs)
-        if not isinstance(discs, list):
-            discs = [discs]
-        self._discs = discs
+        disc = self._parse_discs(disc)
+        if not isinstance(disc, list):
+            disc = [disc]
+        self._disc = disc
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -2266,7 +2260,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._discs = cls._parse_discs(
+        obj._disc = cls._parse_discs(
             stream[11 : 10 + frame_length]
             .tobytes()
             .rstrip(null_char)
@@ -2344,7 +2338,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         """
         Text information.
         """
-        return [disc.to_string() for disc in self._discs]
+        return [disc.to_string() for disc in self._disc]
 
 
 class ID3v2TPUBFrame(ID3v2TextInfoFrame):
@@ -2386,11 +2380,11 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
     _frame_ids = {2: b"TRK", 3: b"TRCK", 4: b"TRCK"}
 
-    __slots__ = ("_tracks",)
+    __slots__ = ("_track",)
 
     def __init__(
         self,
-        tracks: int
+        track: int
         | str
         | tuple[int | str, int | str | None]
         | list[int | str | tuple[int | str, int | str | None]],
@@ -2403,10 +2397,10 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        tracks : int, str, tuple[int | str, int | str | None], or \
+        track : int, str, tuple[int | str, int | str | None], or \
         list[int | str | tuple[int | str, int | str | None]]; \
         positional-only
-            Track numbers and optionally, the total number of tracks.
+            Track number and optionally, the total number of tracks.
 
             **Examples**: :code:`1`, :code:`"2"`, :code:`(3, None)`, 
             :code:`(4, 5)`, :code:`"6/7"`.
@@ -2429,10 +2423,10 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             format_flags=format_flags, status_flags=status_flags
         )
 
-        tracks = self._parse_tracks(tracks)
-        if not isinstance(tracks, list):
-            tracks = [tracks]
-        self._tracks = tracks
+        track = self._parse_tracks(track)
+        if not isinstance(track, list):
+            track = [track]
+        self._track = track
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -2472,7 +2466,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._tracks = cls._parse_tracks(
+        obj._track = cls._parse_tracks(
             stream[11 : 10 + frame_length]
             .tobytes()
             .rstrip(null_char)
@@ -2554,7 +2548,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         """
         Text information.
         """
-        return [track.to_string() for track in self._tracks]
+        return [track.to_string() for track in self._track]
 
 
 class ID3v2TSRCFrame(ID3v2TextInfoFrame):
