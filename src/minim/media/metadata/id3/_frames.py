@@ -1611,7 +1611,157 @@ class ID3v2COMMFrame(ID3v2Frame):
 # class ID3v2SYLTFrame(ID3v2Frame): ...  # TODO
 
 
-# class ID3v2USLTFrame(ID3v2Frame): ...  # TODO
+class ID3v2USLTFrame(ID3v2Frame):
+    """
+    "Unsynchronized lyric/text transcription" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.9. Unsychronised lyrics/text
+       transcription <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.9. Unsychronised lyric/text
+       transcription <https://id3.org/id3v2.3.0
+       #Unsychronised_lyrics.2Ftext_transcription>`_.
+
+       `ID3v2.4.0 Native Frames: 4.8. Unsynchronised lyric/text
+       transcription <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _ALLOW_MULTIPLE = True
+
+    _frame_ids = {2: b"ULT", 3: b"USLT", 4: b"USLT"}
+
+    __slots__ = "_description", "_language", "_lyrics", "_text_encoding"
+
+    def __init__(
+        self,
+        lyrics: str,
+        /,
+        *,
+        description: str = "",
+        language: str = "eng",
+        text_encoding: str = "utf-16",
+        format_flags: ID3v2FrameFormatFlags | None = None,
+        status_flags: ID3v2FrameStatusFlags | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        lyrics : str; positional-only
+            Lyrics.
+
+        description : str; keyword-only; default: :code:`""`
+            Short content description.
+
+        language : str; keyword-only; default: :code:`"eng"`
+            ISO 639-2 code for the language.
+
+        text_encoding : str; keyword-only; default: :code:`"utf-16"`
+            Text encoding for the lyrics and description.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        keyword-only; optional
+            Format flags.
+
+        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
+        keyword-only; optional
+            Status flags.
+        """
+        super().__init__(format_flags=format_flags, status_flags=status_flags)
+
+        validate_type("description", description, str)
+        self._description = description
+
+        validate_type("lyrics", lyrics, str)
+        self._lyrics = lyrics
+
+        validate_type("language", language, str)
+        if len(language) != 3:
+            raise ValueError(f"Invalid ISO 639-2 code {language!r}.")
+        self._language = language
+
+        validate_type("text_encoding", text_encoding, str)
+        text_encoding = text_encoding.lower()
+        if text_encoding not in self._TEXT_ENCODINGS.values():
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. Valid "
+                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
+            )
+        if text_encoding == "iso-8859-1":
+            try:
+                lyrics.encode(encoding=text_encoding)
+                description.encode(encoding=text_encoding)
+                is_utf = False
+            except UnicodeEncodeError:
+                is_utf = True
+            if is_utf:
+                raise ValueError(
+                    "`description` or `lyrics` cannot be encoded "
+                    "using ISO-8859-1."
+                )
+
+    @classmethod
+    def _from_stream_2_4(cls, stream: memoryview, /, *, strict: bool = True):
+        """
+        Instantiate an :class:`ID3v2USLTFrame` object from an ID3v2.4
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing the :code:`USLT` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        lyrics_frame : minim.media.metadata.ID3v2USLTFrame
+            :code:`USLT` frame.
+        """
+        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        null_char = cls._NULL_SEPARATORS[text_encoding]
+        description, lyrics = (
+            stream[14 : 10 + frame_length]
+            .tobytes()
+            .rstrip(null_char)
+            .split(null_char)
+        )
+
+        obj = super()._from_stream_2_4(stream, strict=strict)
+        obj._language = stream[11:14].tobytes().decode(encoding="ascii")
+        obj._description = description.decode(encoding=text_encoding)
+        obj._lyrics = lyrics.decode(encoding=text_encoding)
+        obj._text_encoding = text_encoding
+        return obj
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the ID3v2 frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the "unsynchronized lyric/text
+            transcription" frame.
+        """
+        raise NotImplementedError  # TODO
 
 
 class ID3v2TALBFrame(ID3v2TextInfoFrame):
