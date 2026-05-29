@@ -518,7 +518,7 @@ class ID3v2(AudioTags):
     @property
     def license(self) -> str | list[str] | None:
         """
-        :code:`TXX:LICENSE`/:code:`USER` - License information.
+        :code:`TXX:LICENSE`/:code:`TXXX:LICENSE` - License information.
         """
         ...
 

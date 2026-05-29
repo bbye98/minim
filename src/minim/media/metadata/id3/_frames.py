@@ -1284,7 +1284,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         """
         Text information.
         """
-        return [dt.to_string() for dt in self._datetimes]
+        return [dt.to_string() for dt in self._datetime]
 
 
 class ID3v2APICFrame(ID3v2Frame):
@@ -2196,7 +2196,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         positional-only
             Disc number and optionally, the total number of discs.
 
-            **Examples**: :code:`1`, :code:`"1"`, :code:`(1, None)`, 
+            **Examples**: :code:`1`, :code:`"1"`, :code:`(1, None)`,
             :code:`(1, 1)`, :code:`"1/1"`.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
@@ -2402,7 +2402,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         positional-only
             Track number and optionally, the total number of tracks.
 
-            **Examples**: :code:`1`, :code:`"2"`, :code:`(3, None)`, 
+            **Examples**: :code:`1`, :code:`"2"`, :code:`(3, None)`,
             :code:`(4, 5)`, :code:`"6/7"`.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
