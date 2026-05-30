@@ -273,13 +273,14 @@ class ID3v2(AudioTags):
         obj._frames = frames = []
         match tag_version:
             case (2, 4, _):
-                obj._flags = flags = ID3v2Flags._from_byte_2_4(
-                    flags, strict=strict
-                )
+                obj._flags = ID3v2Flags._from_byte_2_4(flags, strict=strict)
+                # TODO: Apply flags.
                 while offset < tag_end:
                     if not stream[offset]:
                         frames.append(
-                            ID3v2Padding.from_stream(stream[offset:])
+                            ID3v2Padding.from_stream(
+                                stream[offset:], strict=strict
+                            )
                         )
                         break
 
@@ -300,7 +301,29 @@ class ID3v2(AudioTags):
                     )
                     offset = end_offset
             case (2, 3, _):
-                raise NotImplementedError  # TODO
+                obj._flags = ID3v2Flags._from_byte_2_3(flags, strict=strict)
+                # TODO: Apply flags.
+                while offset < tag_end:
+                    if not stream[offset]:
+                        frames.append(
+                            ID3v2Padding.from_stream(
+                                stream[offset:], strict=strict
+                            )
+                        )
+                        break
+
+                    frame_id, frame_length = (
+                        cls._STRUCT_PARTIAL_FRAME_HEADER_2_3.unpack_from(
+                            stream, offset
+                        )
+                    )
+                    end_offset = offset + 10 + frame_length
+                    frames.append(
+                        ID3v2Frame._get_class(frame_id)._from_stream_2_3(
+                            stream[offset:end_offset], strict=strict
+                        )
+                    )
+                    offset = end_offset
             case (2, 2, _):
                 raise NotImplementedError  # TODO
             case _:
