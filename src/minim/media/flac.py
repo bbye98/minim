@@ -1425,9 +1425,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         attached_picture : minim.media.metadata.APICFrame
             :code:`APIC` frame.
         """
-        picture_type, mime_type_length = ID3v2APICFrame._STRUCT_II.unpack_from(
-            stream
-        )
+        picture_type, mime_type_length = cls._STRUCT_II.unpack_from(stream)
         validate_number("picture_type", picture_type, int, 0, 20)
 
         offset = 8 + mime_type_length
@@ -1443,7 +1441,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
         offset = end_offset
         width, height, color_depth, num_indexed_colors, data_length = (
-            ID3v2APICFrame._STRUCT_IIIII.unpack_from(stream, offset)
+            cls._STRUCT_IIIII.unpack_from(stream, offset)
         )
         offset += 20
 
