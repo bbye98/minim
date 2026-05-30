@@ -1503,6 +1503,15 @@ class ID3v2APICFrame(ID3v2Frame):
         obj._description = description.decode(encoding=text_encoding)
         return obj
 
+    @property
+    def _key(self) -> str:
+        """
+        Unique key.
+        """
+        if self._picture_type in {1, 2}:
+            return str(self._picture_type)
+        return self._description
+
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
@@ -1687,6 +1696,13 @@ class ID3v2COMMFrame(ID3v2Frame):
         )
         obj._text_encoding = text_encoding
         return obj
+
+    @property
+    def _key(self) -> str:
+        """
+        Unique key.
+        """
+        return f"{self._language}{self._description}"
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
@@ -1876,6 +1892,13 @@ class ID3v2USLTFrame(ID3v2Frame):
         )
         obj._text_encoding = text_encoding
         return obj
+
+    @property
+    def _key(self) -> str:
+        """
+        Unique key.
+        """
+        return f"{self._language}{self._description}"
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
@@ -3379,6 +3402,13 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         return obj
 
     @property
+    def _key(self) -> str:
+        """
+        Unique key.
+        """
+        return self._description
+
+    @property
     def description(self) -> str:
         """
         Description.
@@ -3503,6 +3533,13 @@ class UnknownID3v2Frame(ID3v2Frame):
             10 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])
         ].tobytes()
         return obj
+
+    @property
+    def _key(self) -> None:
+        """
+        Unique key.
+        """
+        return
 
     @property
     def frame_id(self) -> bytes:

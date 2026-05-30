@@ -110,7 +110,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def album(self) -> str | list[str] | None:
+    def album(self) -> list[str] | None:
         """
         Title of the album or collection.
         """
@@ -122,7 +122,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def album_artist(self) -> str | list[str] | None:
+    def album_artist(self) -> list[str] | None:
         """
         Main artists credited for the entire album or collection.
         """
@@ -134,7 +134,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def artist(self) -> str | list[str] | None:
+    def artist(self) -> list[str] | None:
         """
         Main artists of the recording (e.g., the performing band or
         singers in popular music, the composers for classical music, or
@@ -148,7 +148,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def bpm(self) -> int | list[str] | None:
+    def bpm(self) -> list[str] | None:
         """
         Tempo in beats per minute (BPM).
         """
@@ -164,7 +164,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def comment(self) -> str | list[str] | None:
+    def comment(self) -> list[str] | None:
         """
         Free-form comments.
         """
@@ -176,7 +176,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def compilation(self) -> bool | list[str] | None:
+    def compilation(self) -> list[str] | None:
         """
         Whether the recording is part of a compilation.
         """
@@ -190,7 +190,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def composer(self) -> str | list[str] | None:
+    def composer(self) -> list[str] | None:
         """
         Composers or songwriters.
         """
@@ -202,7 +202,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def contact(self) -> str | list[str] | None:
+    def contact(self) -> list[str] | None:
         """
         Contact information for the creators or distributors.
         """
@@ -214,7 +214,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def copyright(self) -> str | list[str] | None:
+    def copyright(self) -> list[str] | None:
         """
         Copyright attribution.
         """
@@ -226,7 +226,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def date(self) -> str | list[str] | None:
+    def date(self) -> list[str] | None:
         """
         Release date.
         """
@@ -240,7 +240,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def description(self) -> str | list[str] | None:
+    def description(self) -> list[str] | None:
         """
         General description.
         """
@@ -252,7 +252,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def disc_number(self) -> int | str | list[str] | None:
+    def disc_number(self) -> str | list[str] | None:
         """
         Disc number within a multi-disc set.
         """
@@ -266,7 +266,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def disc_total(self) -> int | str | list[str] | None:
+    def disc_total(self) -> str | list[str] | None:
         """
         Total number of discs.
         """
@@ -280,7 +280,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def encoder(self) -> str | list[str] | None:
+    def encoder(self) -> list[str] | None:
         """
         Software or hardware used for encoding, or the person or
         organization that encoded the audio file.
@@ -293,7 +293,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def genre(self) -> str | list[str] | None:
+    def genre(self) -> list[str] | None:
         """
         Musical genres.
         """
@@ -305,7 +305,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def grouping(self) -> str | list[str] | None:
+    def grouping(self) -> list[str] | None:
         """
         Content group description.
         """
@@ -317,7 +317,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def isrc(self) -> str | list[str] | None:
+    def isrc(self) -> list[str] | None:
         """
         International Standard Recording Code (ISRC).
         """
@@ -329,7 +329,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def label(self) -> str | list[str] | None:
+    def label(self) -> list[str] | None:
         """
         Publisher or record label.
         """
@@ -341,7 +341,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def license(self) -> str | list[str] | None:
+    def license(self) -> list[str] | None:
         """
         License information.
         """
@@ -353,7 +353,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def location(self) -> str | list[str] | None:
+    def location(self) -> list[str] | None:
         """
         Recording locations.
         """
@@ -365,7 +365,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def lyrics(self) -> str | list[str] | None:
+    def lyrics(self) -> list[str] | None:
         """
         Lyrics or transcription.
         """
@@ -377,7 +377,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def performer(self) -> str | list[str] | None:
+    def performer(self) -> list[str] | None:
         """
         Performers (e.g., the conductor, orchestra, and/or soloists in
         classical music, or the narrator in audiobooks).
@@ -390,7 +390,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def title(self) -> str | list[str] | None:
+    def title(self) -> list[str] | None:
         """
         Title of the recording.
         """
@@ -402,7 +402,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def track_number(self) -> int | list[str] | None:
+    def track_number(self) -> list[str] | None:
         """
         Track number within the album or collection.
         """
@@ -416,7 +416,7 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def track_total(self) -> int | list[str] | None:
+    def track_total(self) -> list[str] | None:
         """
         Total number of tracks.
         """
@@ -425,12 +425,12 @@ class AudioTags(ABC):
     @track_total.setter
     @abstractmethod
     def track_total(
-        self, value: int | str | OrderedCollection[int | str], /
+        self, value: str | OrderedCollection[int | str], /
     ) -> None: ...
 
     @property
     @abstractmethod
-    def version(self) -> str | list[str] | None:
+    def version(self) -> list[str] | None:
         """
         Version of the recording (e.g., remix information).
         """

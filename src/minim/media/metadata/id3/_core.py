@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 import struct
@@ -13,7 +14,7 @@ from ...._utility import (
 )
 from ..._shared import as_buffer
 from .._shared import AudioTags
-from ._frames import ID3v2Frame, ID3v2Padding
+from ._frames import ID3v2Frame, ID3v2TXXXFrame, ID3v2Padding
 from . import TAG_VERSIONS
 
 if TYPE_CHECKING:
@@ -226,7 +227,14 @@ class ID3v2(AudioTags):
     _STRUCT_PARTIAL_FRAME_HEADER_2_3 = struct.Struct(">4sI")
     _STRUCT_PARTIAL_FRAME_HEADER_2_4 = struct.Struct(">4s4B")
 
-    __slots__ = "_flags", "_frames"
+    __slots__ = (
+        "_flags",
+        "_frames",
+        "_frame_keys",
+        "_multitons",
+        "_singletons",
+        "_txxx",
+    )
 
     # def __init__(
     #     self,
@@ -269,9 +277,13 @@ class ID3v2(AudioTags):
         offset = 10
         tag_end = offset + decode_32_bit_synchsafe_int(*tag_length)
         obj = cls.__new__(cls)
-        tag_version = 2, minor, patch
         obj._frames = frames = []
-        match tag_version:
+        obj._singletons = singletons = {}
+        obj._multitons = multitons = defaultdict(list)
+        obj._txxx = txxx = {}
+        obj._frame_keys = frame_keys = defaultdict(set)
+        frame_keys[ID3v2TXXXFrame] = txxx
+        match tag_version := (2, minor, patch):
             case (2, 4, _):
                 obj._flags = ID3v2Flags._from_byte_2_4(flags, strict=strict)
                 # TODO: Apply flags.
@@ -294,14 +306,33 @@ class ID3v2(AudioTags):
                         + 10
                         + decode_32_bit_synchsafe_int(*frame_length)
                     )
-                    frames.append(
-                        ID3v2Frame._get_class(frame_id)._from_stream_2_4(
-                            stream[offset:end_offset], strict=strict
-                        )
+                    frame_cls = ID3v2Frame._get_class(frame_id)
+                    frame = frame_cls._from_stream_2_4(
+                        stream[offset:end_offset], strict=strict
                     )
+                    if frame_cls._ALLOW_MULTIPLE:
+                        if strict and frame._key in frame_keys[frame_cls]:
+                            frame_id = frame_id.decode(encoding="ascii")
+                            raise ValueError(
+                                f"Duplicate {frame_id} frame found."
+                            )
+                        frames.append(frame)
+                        multitons[frame_cls].append(frame)
+                        if frame_cls is ID3v2TXXXFrame:
+                            txxx[frame._description] = frame
+                        elif frame._key:
+                            frame_keys[frame_cls].add(frame._key)
+                    else:
+                        if frame_cls in singletons:
+                            raise NotImplementedError  # TODO
+                        else:
+                            frames.append(frame)
+                            singletons[frame_cls] = frame
                     offset = end_offset
             case (2, 3, _):
-                obj._flags = ID3v2Flags._from_byte_2_3(flags, strict=strict)
+                obj._flags = flags = ID3v2Flags._from_byte_2_3(
+                    flags, strict=strict
+                )
                 # TODO: Apply flags.
                 while offset < tag_end:
                     if not stream[offset]:
@@ -318,11 +349,28 @@ class ID3v2(AudioTags):
                         )
                     )
                     end_offset = offset + 10 + frame_length
-                    frames.append(
-                        ID3v2Frame._get_class(frame_id)._from_stream_2_3(
-                            stream[offset:end_offset], strict=strict
-                        )
+                    frame_cls = ID3v2Frame._get_class(frame_id)
+                    frame = frame_cls._from_stream_2_3(
+                        stream[offset:end_offset], strict=strict
                     )
+                    if frame_cls._ALLOW_MULTIPLE:
+                        if strict and frame._key in frame_keys[frame_cls]:
+                            frame_id = frame_id.decode(encoding="ascii")
+                            raise ValueError(
+                                f"Duplicate {frame_id} frame found."
+                            )
+                        frames.append(frame)
+                        multitons[frame_cls].append(frame)
+                        if frame_cls is ID3v2TXXXFrame:
+                            txxx[frame._description] = frame
+                        elif frame._key:
+                            frame_keys[frame_cls].add(frame._key)
+                    else:
+                        if frame_cls in singletons:
+                            raise NotImplementedError  # TODO
+                        else:
+                            frames.append(frame)
+                            singletons[frame_cls] = frame
                     offset = end_offset
             case (2, 2, _):
                 raise NotImplementedError  # TODO
@@ -331,49 +379,53 @@ class ID3v2(AudioTags):
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
-
+        # TODO: Handle ID3v1 and APE tags.
         return obj
 
     @property
-    def album(self) -> str | list[str] | None:
+    def album(self) -> list[str] | None:
         """
         :code:`TAL`/:code:`TALB` – Title of the album or collection.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TALB")):
+            return frame._text_info
 
     @album.setter
     def album(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def album_artist(self) -> str | list[str] | None:
+    def album_artist(self) -> list[str] | None:
         """
         :code:`TP2`/:code:`TPE2` – Main artists credited for the entire
         album or collection.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TPE2")):
+            return frame._text_info
 
     @album_artist.setter
     def album_artist(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def artist(self) -> str | list[str] | None:
+    def artist(self) -> list[str] | None:
         """
         :code:`TP1`/:code:`TPE1` – Main artists of the recording (e.g.,
         the performing band or singers in popular music, the composers
         for classical music, or the authors of the original text in
         audiobooks).
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TPE1")):
+            return frame._text_info
 
     @artist.setter
     def artist(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def bpm(self) -> int | list[str] | None:
+    def bpm(self) -> list[str] | None:
         """
         :code:`TBP`/:code:`TBPM` – Tempo in beats per minute (BPM).
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TBPM")):
+            return frame._text_info
 
     @bpm.setter
     def bpm(
@@ -383,22 +435,24 @@ class ID3v2(AudioTags):
     ) -> None: ...
 
     @property
-    def comment(self) -> str | list[str] | None:
+    def comment(self) -> list[str] | None:
         """
         :code:`COM`/:code:`COMM` – Free-form comments.
         """
-        ...
+        if frames := self._multitons.get(ID3v2Frame._get_class(b"COMM")):
+            return [frame._comment for frame in frames]
 
     @comment.setter
     def comment(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def compilation(self) -> bool | list[str] | None:
+    def compilation(self) -> list[str] | None:
         """
         :code:`TCP`/:code:`TCMP` – Whether the recording is part of a
         compilation.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TCMP")):
+            return frame._text_info
 
     @compilation.setter
     def compilation(
@@ -406,44 +460,54 @@ class ID3v2(AudioTags):
     ) -> None: ...
 
     @property
-    def composer(self) -> str | list[str] | None:
+    def composer(self) -> list[str] | None:
         """
         :code:`TCM`/:code:`TCOM` – Composers or songwriters.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TCOM")):
+            return frame._text_info
 
     @composer.setter
     def composer(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def contact(self) -> str | list[str] | None:
+    def contact(self) -> list[str] | None:
         """
         :code:`TXX:CONTACT`/:code:`TXXX:CONTACT` – Contact information
         for the creators or distributors.
         """
-        ...
+        if frame := next(
+            (self._txxx.get(key) for key in ["CONTACT", "contact", "Contact"]),
+            None,
+        ):
+            return frame._text_info
 
     @contact.setter
     def contact(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def copyright(self) -> str | list[str] | None:
+    def copyright(self) -> list[str] | None:
         """
         :code:`TCR`/:code:`TCOP` – Copyright attribution.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TCOP")):
+            return frame._text_info
 
     @copyright.setter
     def copyright(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def date(self) -> str | list[str] | None:
+    def date(self) -> list[str] | None:
         """
         :code:`TYE` + :code:`TDA` + :code:`TIM`/:code:`TYER` +
         :code:`TDAT` + :code:`TIME`/:code:`TDRC`/:code:`TDRL` –
         Recording or release date.
         """
-        ...
+        if frame := (
+            self._singletons.get(ID3v2Frame._get_class(b"TDRC"))
+            or self._singletons.get(ID3v2Frame._get_class(b"TDRL"))
+        ):
+            return frame._text_info
 
     @date.setter
     def date(
@@ -451,22 +515,30 @@ class ID3v2(AudioTags):
     ) -> None: ...
 
     @property
-    def description(self) -> str | list[str] | None:
+    def description(self) -> list[str] | None:
         """
         :code:`TXX:DESCRIPTION`/:code:`TXXX:DESCRIPTION` – General
         description.
         """
-        ...
+        if frame := next(
+            (
+                self._txxx.get(key)
+                for key in ["DESCRIPTION", "description", "Description"]
+            ),
+            None,
+        ):
+            return frame._text_info
 
     @description.setter
     def description(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def disc_number(self) -> int | str | list[str] | None:
+    def disc_number(self) -> list[str] | None:
         """
         :code:`TPA`/:code:`TPOS` – Disc number within a multi-disc set.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TPOS")):
+            return [str(disc.number) for disc in frame._disc]
 
     @disc_number.setter
     def disc_number(
@@ -474,11 +546,12 @@ class ID3v2(AudioTags):
     ) -> None: ...
 
     @property
-    def disc_total(self) -> int | str | list[str] | None:
+    def disc_total(self) -> list[str | None] | None:
         """
         :code:`TPA`/:code:`TPOS` – Total number of discs.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TPOS")):
+            return [str(disc.total) for disc in frame._disc]
 
     @disc_total.setter
     def disc_total(
@@ -486,120 +559,144 @@ class ID3v2(AudioTags):
     ) -> None: ...
 
     @property
-    def encoder(self) -> str | list[str] | None:
+    def encoder(self) -> list[str] | None:
         """
         :code:`TSS`/:code:`TSSE` – Software or hardware used for
         encoding, or the person or organization that encoded the audio
         file.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TSSE")):
+            return frame._text_info
 
     @encoder.setter
     def encoder(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def genre(self) -> str | list[str] | None:
+    def genre(self) -> list[str] | None:
         """
         :code:`TCO`/:code:`TCON` –  Musical genres.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TCON")):
+            return frame._text_info
 
     @genre.setter
     def genre(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def grouping(self) -> str | list[str] | None:
+    def grouping(self) -> list[str] | None:
         """
         :code:`TT1`/:code:`TIT1` – Content group description.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TIT1")):
+            return frame._text_info
 
     @grouping.setter
     def grouping(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def isrc(self) -> str | list[str] | None:
+    def isrc(self) -> list[str] | None:
         """
         :code:`TRC`/:code:`TSRC` – International Standard Recording Code
         (ISRC).
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TSRC")):
+            return frame._text_info
 
     @isrc.setter
     def isrc(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def label(self) -> str | list[str] | None:
+    def label(self) -> list[str] | None:
         """
         :code:`TPB`/:code:`TPUB` – Publishers or record labels.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TPUB")):
+            return frame._text_info
 
     @label.setter
     def label(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def license(self) -> str | list[str] | None:
+    def license(self) -> list[str] | None:
         """
         :code:`TXX:LICENSE`/:code:`TXXX:LICENSE` - License information.
         """
-        ...
+        if frame := next(
+            (self._txxx.get(key) for key in ["LICENSE", "license", "License"]),
+            None,
+        ):
+            return frame._text_info
 
     @license.setter
     def license(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def location(self) -> str | list[str] | None:
+    def location(self) -> list[str] | None:
         """
         :code:`TXX:LOCATION`/:code:`TXXX:LOCATION` – Recording
         locations.
         """
-        ...
+        if frame := next(
+            (
+                self._txxx.get(key)
+                for key in ["LOCATION", "location", "Location"]
+            ),
+            None,
+        ):
+            return frame._text_info
 
     @location.setter
     def location(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def lyrics(self) -> str | list[str] | None:
+    def lyrics(self) -> list[str] | None:
         """
         :code:`SLT`/:code:`SYLT` (synchronized) or
         :code:`ULT`/:code:`USLT` (unsynchronized) – Lyrics or
         transcription.
         """
-        ...
+        lyrics = []
+        if frames := self._multitons.get(ID3v2Frame._get_class(b"SYLT")):
+            lyrics.extend(frame._lyrics for frame in frames)
+        if frames := self._multitons.get(ID3v2Frame._get_class(b"USLT")):
+            lyrics.extend(frame._lyrics for frame in frames)
+        return lyrics
 
     @lyrics.setter
     def lyrics(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def performer(self) -> str | list[str] | None:
+    def performer(self) -> list[str] | None:
         """
         :code:`TP3`/:code:`TPE3` – Performers (e.g., the conductor,
         orchestra, and/or soloists in classical music, or the narrator
         in audiobooks).
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TPE3")):
+            return frame._text_info
 
     @performer.setter
     def performer(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def title(self) -> str | list[str] | None:
+    def title(self) -> list[str] | None:
         """
         :code:`TT2`/:code:`TIT2` – Title of the recording.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TIT2")):
+            return frame._text_info
 
     @title.setter
     def title(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
-    def track_number(self) -> int | list[str] | None:
+    def track_number(self) -> list[str] | None:
         """
         :code:`TRK`/:code:`TRCK` – Track number within the album or
         collection.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TRCK")):
+            return [str(track.number) for track in frame._track]
 
     @track_number.setter
     def track_number(
@@ -607,11 +704,12 @@ class ID3v2(AudioTags):
     ) -> None: ...
 
     @property
-    def track_total(self) -> int | list[str] | None:
+    def track_total(self) -> list[str | None] | None:
         """
         :code:`TRK`/:code:`TRCK` – Total number of tracks.
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TRCK")):
+            return [str(track.total) for track in frame._track]
 
     @track_total.setter
     def track_total(
@@ -619,12 +717,13 @@ class ID3v2(AudioTags):
     ) -> None: ...
 
     @property
-    def version(self) -> str | list[str] | None:
+    def version(self) -> list[str] | None:
         """
         :code:`TT3`/:code:`TIT3` – Version of the recording (e.g., remix
         information).
         """
-        ...
+        if frame := self._singletons.get(ID3v2Frame._get_class(b"TIT3")):
+            return frame._text_info
 
     @version.setter
     def version(self, value: str | OrderedCollection[str], /) -> None: ...
