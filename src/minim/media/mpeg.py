@@ -165,6 +165,9 @@ class MPEGAudio(Audio):
             # Process APE tags, if any
             ...  # TODO
 
+            # Process Xing/LAME VBR header frame, if any
+            ...  # TODO
+
             # Process audio data to get stream information
             # TODO: Get end_byte by subtracting ID3v1 and APE tags.
             self._stream_info = self._get_stream_info(view[offset:])
