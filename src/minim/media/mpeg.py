@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .._utility import decode_32_bit_synchsafe_int
-from ._shared import Audio, AudioStreamInfo
+from ._shared import Audio
+from .metadata._shared import AudioStreamInfo
 from .metadata.id3._core import ID3v2
 
 if TYPE_CHECKING:
@@ -121,13 +122,25 @@ class MPEGAudio(Audio):
     __slots__ = ("_audio_offset",)
 
     @staticmethod
-    def _get_stream_info(stream: BytesLike, /) -> AudioStreamInfo:
+    def _get_stream_info(
+        stream: BytesLike, /, end_byte: int | None = None
+    ) -> AudioStreamInfo:
         """ """
-        pass
+        if end_byte is None:
+            end_byte = len(stream) - 4
+
+        num_channels = sample_rate = bit_depth = num_samples = 1  # TODO
+
+        return AudioStreamInfo(
+            num_channels=num_channels,
+            sample_rate=sample_rate,
+            bit_depth=bit_depth,
+            num_samples=num_samples,
+        )
 
     def load_metadata(self) -> None:
         """
-        Load MP3 metadata blocks.
+        Load ID3 tags and MPEG stream information.
         """
         self.open()
         # file_path = self._file_path
@@ -153,6 +166,7 @@ class MPEGAudio(Audio):
             ...  # TODO
 
             # Process audio data to get stream information
+            # TODO: Get end_byte by subtracting ID3v1 and APE tags.
             self._stream_info = self._get_stream_info(view[offset:])
         else:
             raise NotImplementedError
