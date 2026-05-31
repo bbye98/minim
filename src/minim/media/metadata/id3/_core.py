@@ -227,14 +227,7 @@ class ID3v2(AudioTags):
     _STRUCT_PARTIAL_FRAME_HEADER_2_3 = struct.Struct(">4sI")
     _STRUCT_PARTIAL_FRAME_HEADER_2_4 = struct.Struct(">4s4B")
 
-    __slots__ = (
-        "_flags",
-        "_frames",
-        # "_multitons",
-        # "_singletons",
-        "_frames_by_class",
-        "_keyed_frames",
-    )
+    __slots__ = "_flags", "_frames", "_frames_by_class", "_keyed_frames"
 
     # def __init__(
     #     self,
@@ -278,8 +271,6 @@ class ID3v2(AudioTags):
         tag_end = offset + decode_32_bit_synchsafe_int(*tag_length)
         obj = cls.__new__(cls)
         obj._frames = frames = []
-        # obj._singletons = singletons = {}
-        # obj._multitons = multitons = defaultdict(list)
         obj._frames_by_class = frames_by_class = defaultdict(list)
         obj._keyed_frames = keyed_frames = defaultdict(dict)
         match tag_version := (2, minor, patch):

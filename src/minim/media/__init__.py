@@ -1,3 +1,3 @@
-from . import metadata, flac, mp3
+from . import metadata, flac, mpeg
 
-__all__ = ["metadata", "flac", "mp3"]
+__all__ = ["metadata", "flac", "mpeg"]

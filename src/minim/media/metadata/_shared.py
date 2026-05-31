@@ -61,9 +61,9 @@ class AudioStreamInfo:
     @property
     def bitrate(self) -> int:
         """
-        Bitrate in bits per second.
+        Bitrate in kilobits per second.
         """
-        return self.sample_rate * self.num_channels * self.bit_depth
+        return self.sample_rate * self.num_channels * self.bit_depth / 1_000
 
     @property
     def duration(self) -> float:
