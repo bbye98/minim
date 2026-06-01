@@ -278,6 +278,13 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         set_obj_attr(obj, "md5", stream[18:34].hex())
         return obj
 
+    @property
+    def bitrate(self) -> int:
+        """
+        Bitrate in kilobits per second.
+        """
+        return super().bitrate
+
     def serialize(self) -> bytes:
         """
         Serialize the :code:`STREAMINFO` metadata block data to a

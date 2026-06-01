@@ -42,7 +42,7 @@ class AudioStreamInfo:
     #: Sample rate in hertz.
     sample_rate: int
     #: Bits per sample.
-    bit_depth: int
+    bit_depth: int | None
     #: Total number of samples.
     num_samples: int
 
@@ -53,12 +53,14 @@ class AudioStreamInfo:
         validate_number(
             "sample_rate", self.sample_rate, int, *self._SAMPLE_RATE_RANGE
         )
-        validate_number(
-            "bit_depth", self.bit_depth, int, *self._BIT_DEPTH_RANGE
-        )
+        if self.bit_depth is not None:
+            validate_number(
+                "bit_depth", self.bit_depth, int, *self._BIT_DEPTH_RANGE
+            )
         validate_number("num_samples", self.num_samples, int, 0)
 
     @property
+    @abstractmethod
     def bitrate(self) -> int:
         """
         Bitrate in kilobits per second.
