@@ -107,7 +107,8 @@ class VorbisComment(AudioTags):
                         ]
         self._num_fields = len(self._fields)
 
-        validate_type("vendor", vendor, str | None)
+        if vendor is not None:
+            validate_type("vendor", vendor, str)
         self._vendor = vendor
 
     @classmethod

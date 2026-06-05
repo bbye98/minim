@@ -163,6 +163,22 @@ def prepare_string(
     return string
 
 
+def validate_iso_8859_1_string(name: str, string: bytes | str, /) -> None:
+    """
+    Validate that a string only contains ISO-8859-1 characters.
+
+    Parameters
+    ----------
+    name : str; positional-only
+        Parameter name for the string.
+
+    string : bytes or str; positional-only
+        String.
+    """
+    if string and ord(max(string)) > 255:
+        raise ValueError(f"`{name}` can only contain ISO-8859-1 characters.")
+
+
 def validate_number(
     name: str,
     value: int | float,

@@ -9,7 +9,9 @@ from ...._utility import (
     decode_32_bit_synchsafe_int,
     join_values,
     set_obj_attr,
+    validate_iso_8859_1_string,
     validate_number,
+    validate_numeric,
     validate_type,
 )
 from ..._shared import as_buffer
@@ -21,6 +23,255 @@ if TYPE_CHECKING:
     from typing import Any
 
     from ...._types import BytesLike, Collection, OrderedCollection
+
+
+class ID3v1:
+    """
+    ID3v1 metadata container.
+    """
+
+    _STRUCT = struct.Struct(">30s30s30s4s28sBBB")
+
+    def __init__(
+        self,
+        *,
+        title: str | None = None,
+        artist: str | None = None,
+        album: str | None = None,
+        year: int | str | None = None,
+        comment: str | None = None,
+        track_number: int | None = None,
+        genre: int | str | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        title : str or None; keyword-only; optional
+            Title of the recording.
+
+        artist : str or None; keyword-only; optional
+            Main artists of the recording (e.g., the performing band or
+            singers in popular music, the composers for classical music,
+            or the authors of the original text in audiobooks).
+
+        album : str or None; keyword-only; optional
+            Title of the album or collection.
+
+        year : int, str, or None; keyword-only; optional
+            Recording or release year.
+
+        comment : str or None; keyword-only; optional
+            Free-form comment.
+
+        track_number : int or None; keyword-only; optional
+            Track number within the album or collection.
+
+        genre : int, str, or None; keyword-only; optional
+            Musical genre.
+        """
+        self.title = title
+        self.artist = artist
+        self.album = album
+        self.year = year
+        self.genre = genre
+        if track_number is None:
+            if comment is not None:
+                validate_type("comment", comment, str)
+                if len(comment) > 30:
+                    raise ValueError("`comment` cannot exceed 30 characters.")
+                validate_iso_8859_1_string("comment", comment)
+        else:
+            validate_numeric("track_number", track_number, int, 1, 255)
+            track_number = str(track_number)
+            if comment is not None:
+                validate_type("comment", comment, str)
+                if len(comment) > 28:
+                    raise ValueError(
+                        "`comment` cannot exceed 28 characters when "
+                        "`track_number` is set."
+                    )
+                validate_iso_8859_1_string("comment", comment)
+        self._comment = comment
+        self._track_number = track_number
+
+    @classmethod
+    def from_stream(
+        cls, stream: BytesLike, /, *, strict: bool = True
+    ) -> ID3v1:
+        """
+        Instantiate an :class:`ID3v1` object from a bytestream.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing an ID3v1 tag.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        tag : minim.media.metadata.ID3v1
+            ID3v1 tag.
+        """
+        stream = as_buffer(stream)
+        if stream[:3] != b"TAG":
+            raise ValueError("`stream` does not contain an ID3v1 tag.")
+
+        (
+            title,
+            artist,
+            album,
+            year,
+            comment,
+            marker,
+            track_number,
+            genre,
+        ) = cls._STRUCT.unpack_from(stream, 3)
+        obj = cls.__new__(cls)
+        obj._title = (
+            title.rstrip(b"\x00").decode(encoding="iso-8859-1") or None
+        )
+        obj._artist = (
+            artist.rstrip(b"\x00").decode(encoding="iso-8859-1") or None
+        )
+        obj._album = (
+            album.rstrip(b"\x00").decode(encoding="iso-8859-1") or None
+        )
+        obj._year = year.rstrip(b"\x00").decode(encoding="iso-8859-1") or None
+        if marker == 0 and track_number != 0:
+            obj._track_number = track_number
+            obj._comment = (
+                comment.rstrip(b"\x00").decode(encoding="iso-8859-1") or None
+            )
+        else:
+            obj._track_number = None
+            obj._comment = (comment + marker + track_number).rstrip(
+                b"\x00"
+            ).decode(encoding="iso-8859-1") or None
+        obj._genre = None if genre == 255 else str(genre)
+        return obj
+
+    @property
+    def album(self) -> str | None:
+        """
+        Title of the album or collection.
+        """
+        return self._album
+
+    @album.setter
+    def album(self, value: str | None, /) -> None:
+        if value is not None:
+            validate_type("album", value, str)
+            if len(value) > 30:
+                raise ValueError("`album` cannot exceed 30 characters.")
+            validate_iso_8859_1_string("album", value)
+        self._album = value
+
+    @property
+    def artist(self) -> str | None:
+        """
+        Main artists of the recording (e.g., the performing band or singers
+        in popular music, the composers for classical music, or the
+        authors of the original text in audiobooks).
+        """
+        return self._artist
+
+    @artist.setter
+    def artist(self, value: str | None, /) -> None:
+        if value is not None:
+            validate_type("artist", value, str)
+            if len(value) > 30:
+                raise ValueError("`artist` cannot exceed 30 characters.")
+            validate_iso_8859_1_string("artist", value)
+        self._artist = value
+
+    @property
+    def comment(self) -> str | None:
+        """
+        Free-form comment.
+        """
+        return self._comment
+
+    @comment.setter
+    def comment(self, value: str | None, /) -> None:
+        if value is not None:
+            validate_type("comment", value, str)
+            if self._track_number is None:
+                if len(value) > 30:
+                    raise ValueError("`comment` cannot exceed 30 characters.")
+            elif len(value) > 28:
+                raise ValueError(
+                    "`comment` cannot exceed 28 characters when "
+                    "`track_number` is set."
+                )
+            validate_iso_8859_1_string("comment", value)
+        self._comment = value
+
+    @property
+    def genre(self) -> str | None:
+        """
+        Musical genre.
+        """
+        return self._genre
+
+    @genre.setter
+    def genre(self, value: int | str | None, /) -> None:
+        if value is not None:
+            validate_numeric("genre", value, int, 0, 255)
+            value = str(value)
+        self._genre = value
+
+    @property
+    def title(self) -> str | None:
+        """
+        Title of the recording.
+        """
+        return self._title
+
+    @title.setter
+    def title(self, value: str | None, /) -> None:
+        if value is not None:
+            validate_type("title", value, str)
+            if len(value) > 30:
+                raise ValueError("`title` cannot exceed 30 characters.")
+            validate_iso_8859_1_string("title", value)
+        self._title = value
+
+    @property
+    def track_number(self) -> int | None:
+        """
+        Track number within the album or collection.
+        """
+        return self._track_number
+
+    @track_number.setter
+    def track_number(self, value: int | None, /) -> None:
+        if value is not None:
+            validate_numeric("track_number", value, int, 1, 255)
+            value = str(value)
+            if self._comment is not None and len(self._comment) > 28:
+                raise ValueError(
+                    "`track_number` cannot be set when `comment` "
+                    "exceeds 28 characters."
+                )
+        self._track_number = value
+
+    @property
+    def year(self) -> str | None:
+        """
+        Recording or release year.
+        """
+        return self._year
+
+    @year.setter
+    def year(self, value: int | str | None, /) -> None:
+        if value is not None:
+            validate_numeric("year", value, int, 0, 9_999)
+            value = str(value)
+        self._year = value
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -229,14 +480,14 @@ class ID3v2(AudioTags):
 
     __slots__ = "_flags", "_frames", "_frames_by_class", "_keyed_frames"
 
-    # def __init__(
-    #     self,
-    #     frames: OrderedCollection[ID3v2Frame],
-    #     /,
-    #     *,
-    #     flags: ID3v2Flags | None = None,
-    # ) -> None:
-    #     """ """
+    def __init__(
+        self,
+        frames: OrderedCollection[ID3v2Frame],
+        /,
+        *,
+        flags: ID3v2Flags | None = None,
+    ) -> None:
+        """ """
 
     @classmethod
     def from_stream(
@@ -377,7 +628,7 @@ class ID3v2(AudioTags):
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
-        # TODO: Handle ID3v1 and APE tags.
+
         return obj
 
     @property
