@@ -95,9 +95,7 @@ class ID3v1:
         self._track_number = track_number
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> ID3v1:
+    def from_stream(cls, stream: BytesLike, /) -> ID3v1:
         """
         Instantiate an :class:`ID3v1` object from a bytestream.
 
@@ -106,10 +104,6 @@ class ID3v1:
         stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing an ID3v1 tag.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
 
         Returns
         -------

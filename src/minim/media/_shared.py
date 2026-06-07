@@ -110,7 +110,7 @@ class Audio(ABC):
         ...
 
     @property
-    def stream_info(self) -> AudioStreamInfo:
+    def stream_info(self) -> AudioStreamInfo | None:
         """
         Technical properties of the decoded audio stream.
         """

@@ -24,7 +24,7 @@ class AudioStreamInfo:
         Number of channels.
 
     sample_rate : int; keyword-only
-        Sample rate in hertz.
+        Sample rate, in hertz.
 
     bit_depth : int; keyword-only
         Bits per sample.
