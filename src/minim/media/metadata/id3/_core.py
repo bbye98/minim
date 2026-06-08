@@ -28,6 +28,10 @@ if TYPE_CHECKING:
 class ID3v1:
     """
     ID3v1 metadata container.
+
+    .. seealso::
+
+       `What is ID3 (v1)? <https://id3.org/ID3v1>`_
     """
 
     _STRUCT = struct.Struct(">30s30s30s4s28sBBB")
@@ -466,6 +470,10 @@ class ID3v2Flags:
 class ID3v2(AudioTags):
     """
     ID3v2 metadata container.
+
+    .. seealso::
+
+       `What is ID3v2? <https://id3.org/ID3v2Easy>`_
     """
 
     _STRUCT_ID3_HEADER = struct.Struct(">3s7B")
@@ -520,8 +528,20 @@ class ID3v2(AudioTags):
         obj._keyed_frames = keyed_frames = defaultdict(dict)
         match tag_version := (2, minor, patch):
             case (2, 4, _):
-                obj._flags = ID3v2Flags._from_byte_2_4(flags, strict=strict)
-                # TODO: Apply flags.
+                obj._flags = flags = ID3v2Flags._from_byte_2_4(
+                    flags, strict=strict
+                )
+                if flags.is_unsynchronized:
+                    stream = (
+                        stream[offset:tag_end]
+                        .tobytes()
+                        .replace(b"\xff\x00", b"\xff")
+                    )
+                    tag_end = offset + len(stream)
+
+                if flags.has_extended_header:
+                    ...  # TODO
+
                 while offset < tag_end:
                     if not stream[offset]:
                         frames.append(
@@ -567,12 +587,22 @@ class ID3v2(AudioTags):
                         else:
                             frames.append(frame)
                             frames_by_class[frame_cls].append(frame)
-                    offset = end_offset
+                    offset = end_offset + 10 * flags.has_footer
             case (2, 3, _):
                 obj._flags = flags = ID3v2Flags._from_byte_2_3(
                     flags, strict=strict
                 )
-                # TODO: Apply flags.
+                if flags.is_unsynchronized:
+                    stream = (
+                        stream[offset:tag_end]
+                        .tobytes()
+                        .replace(b"\xff\x00", b"\xff")
+                    )
+                    tag_end = offset + len(stream)
+
+                if flags.has_extended_header:
+                    ...  # TODO
+
                 while offset < tag_end:
                     if not stream[offset]:
                         frames.append(
@@ -616,6 +646,19 @@ class ID3v2(AudioTags):
                             frames_by_class[frame_cls].append(frame)
                     offset = end_offset
             case (2, 2, _):
+                obj._flags = flags = ID3v2Flags._from_byte_2_2(
+                    flags, strict=strict
+                )
+                if flags.is_compressed:
+                    return obj
+                if flags.is_unsynchronized:
+                    stream = (
+                        stream[offset:tag_end]
+                        .tobytes()
+                        .replace(b"\xff\x00", b"\xff")
+                    )
+                    tag_end = offset + len(stream)
+
                 raise NotImplementedError  # TODO
             case _:
                 raise ValueError(

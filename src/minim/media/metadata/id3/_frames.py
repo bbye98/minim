@@ -334,7 +334,7 @@ class ID3v2FrameStatusFlags:
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2.2 frame status flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -367,7 +367,7 @@ class ID3v2FrameStatusFlags:
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2.3 frame status flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -528,7 +528,7 @@ class ID3v2FrameFormatFlags:
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2.2 frame status flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -563,7 +563,7 @@ class ID3v2FrameFormatFlags:
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2.3 frame status flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -598,7 +598,7 @@ class ID3v2FrameFormatFlags:
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2.4 frame status flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -740,7 +740,7 @@ class ID3v2Frame(ABC):
     @classmethod
     @abstractmethod
     def _from_stream_2_3(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2Frame` object from an ID3v2.3 frame
@@ -748,7 +748,7 @@ class ID3v2Frame(ABC):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing an ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -772,7 +772,7 @@ class ID3v2Frame(ABC):
     @classmethod
     @abstractmethod
     def _from_stream_2_4(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2Frame` object from an ID3v2.4 frame
@@ -780,7 +780,7 @@ class ID3v2Frame(ABC):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing an ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1045,7 +1045,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2TextInfoFrame:
         """
         Instantiate an ID3v2 text information frame object from an
@@ -1053,7 +1053,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1081,7 +1081,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2TextInfoFrame:
         """
         Instantiate an ID3v2 text information frame object from an
@@ -1089,7 +1089,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1211,7 +1211,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
         """
         Instantiate an ID3v2 datetime frame object from an ID3v2.4 frame
@@ -1219,8 +1219,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1423,7 +1422,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2APICFrame` object from an ID3v2.3
@@ -1431,8 +1430,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`APIC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1464,7 +1462,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2APICFrame` object from an ID3v2.4
@@ -1472,8 +1470,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`APIC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1626,15 +1623,16 @@ class ID3v2COMMFrame(ID3v2Frame):
         self._text_encoding = text_encoding
 
     @classmethod
-    def _from_stream_2_3(cls, stream: memoryview, /, *, strict: bool = True):
+    def _from_stream_2_3(
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
+    ) -> ID3v2COMMFrame:
         """
         Instantiate an :class:`ID3v2COMMFrame` object from an ID3v2.3
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`COMM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1662,15 +1660,16 @@ class ID3v2COMMFrame(ID3v2Frame):
         return obj
 
     @classmethod
-    def _from_stream_2_4(cls, stream: memoryview, /, *, strict: bool = True):
+    def _from_stream_2_4(
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
+    ) -> ID3v2COMMFrame:
         """
         Instantiate an :class:`ID3v2COMMFrame` object from an ID3v2.4
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`COMM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1822,15 +1821,16 @@ class ID3v2USLTFrame(ID3v2Frame):
                 )
 
     @classmethod
-    def _from_stream_2_3(cls, stream: memoryview, /, *, strict: bool = True):
+    def _from_stream_2_3(
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
+    ) -> ID3v2USLTFrame:
         """
         Instantiate an :class:`ID3v2USLTFrame` object from an ID3v2.3
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`USLT` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1858,15 +1858,16 @@ class ID3v2USLTFrame(ID3v2Frame):
         return obj
 
     @classmethod
-    def _from_stream_2_4(cls, stream: memoryview, /, *, strict: bool = True):
+    def _from_stream_2_4(
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
+    ) -> ID3v2USLTFrame:
         """
         Instantiate an :class:`ID3v2USLTFrame` object from an ID3v2.4
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`USLT` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2020,15 +2021,16 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         self._text_encoding = text_encoding
 
     @classmethod
-    def _from_stream_2_3(cls, stream: memoryview, /, *, strict=True):
+    def _from_stream_2_3(
+        cls, stream: bytes | memoryview, /, *, strict=True
+    ) -> ID3v2TBPMFrame:
         """
         Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.3
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TBPM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2059,15 +2061,16 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         return obj
 
     @classmethod
-    def _from_stream_2_4(cls, stream: memoryview, /, *, strict=True):
+    def _from_stream_2_4(
+        cls, stream: bytes | memoryview, /, *, strict=True
+    ) -> ID3v2TBPMFrame:
         """
         Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.4
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TBPM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2175,15 +2178,16 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         self._text_encoding = text_encoding
 
     @classmethod
-    def _from_stream_2_3(cls, stream: memoryview, /, *, strict=True):
+    def _from_stream_2_3(
+        cls, stream: bytes | memoryview, /, *, strict=True
+    ) -> ID3v2TCMPFrame:
         """
         Instantiate an :class:`ID3v2TCMPFrame` object from an ID3v2.3
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TCMP` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2214,15 +2218,16 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         return obj
 
     @classmethod
-    def _from_stream_2_4(cls, stream: memoryview, /, *, strict=True):
+    def _from_stream_2_4(
+        cls, stream: bytes | memoryview, /, *, strict=True
+    ) -> ID3v2TCMPFrame:
         """
         Instantiate an :class:`ID3v2TCMPFrame` object from an ID3v2.4
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TCMP` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2348,7 +2353,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
         """
         Instantiate an ID3v2 datetime frame object from an ID3v2.3 frame
@@ -2356,8 +2361,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2701,7 +2705,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2TPOSFrame:
         """
         Instantiate an :class:`ID3v2TPOSFrame` object from an ID3v2.3
@@ -2709,7 +2713,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TPOS` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2740,7 +2744,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2TPOSFrame:
         """
         Instantiate an :class:`ID3v2TPOSFrame` object from an ID3v2.4
@@ -2748,7 +2752,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TPOS` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2932,7 +2936,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2TRCKFrame:
         """
         Instantiate an :class:`ID3v2TRCKFrame` object from an ID3v2.3
@@ -2940,7 +2944,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TRCK` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2971,7 +2975,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2TRCKFrame:
         """
         Instantiate an :class:`ID3v2TRCKFrame` object from an ID3v2.4
@@ -2979,7 +2983,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : memoryview; positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TRCK` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3136,15 +3140,16 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         self._text_encoding = text_encoding
 
     @classmethod
-    def _from_stream_2_3(cls, stream: memoryview, /, *, strict: bool = True):
+    def _from_stream_2_3(
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
+    ) -> ID3v2TSRCFrame:
         """
-        Instantiate an :code:`ID3v2TSRCFrame` object from an ID3v2.3
+        Instantiate an :class:`ID3v2TSRCFrame` object from an ID3v2.3
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TSRC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3176,15 +3181,16 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         return obj
 
     @classmethod
-    def _from_stream_2_4(cls, stream: memoryview, /, *, strict: bool = True):
+    def _from_stream_2_4(
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
+    ) -> ID3v2TSRCFrame:
         """
-        Instantiate an :code:`ID3v2TSRCFrame` object from an ID3v2.4
+        Instantiate an :class:`ID3v2TSRCFrame` object from an ID3v2.4
         frame bytestream.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TSRC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3325,7 +3331,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: BytesLike, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2TXXXFrame:
         """
         Instantiate an :class:`ID3v2TXXXFrame` object from an ID3v2.3
@@ -3333,8 +3339,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TXXX` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3364,7 +3369,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: BytesLike, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> ID3v2TXXXFrame:
         """
         Instantiate an :class:`ID3v2TXXXFrame` object from an ID3v2.4
@@ -3372,8 +3377,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the :code:`TXXX` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3476,7 +3480,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: BytesLike, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> UnknownID3v2Frame:
         """
         Instantiate a :class:`UnknownID3v2Frame` object from an ID3v2.3
@@ -3484,8 +3488,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3506,7 +3509,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: BytesLike, /, *, strict: bool = True
+        cls, stream: bytes | memoryview, /, *, strict: bool = True
     ) -> UnknownID3v2Frame:
         """
         Instantiate a :class:`UnknownID3v2Frame` object from an ID3v2.4
@@ -3514,8 +3517,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : bytes or memoryview; positional-only
             Bytes-like object containing the ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`

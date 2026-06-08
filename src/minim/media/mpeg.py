@@ -121,7 +121,45 @@ class MPEGStreamInfo(AudioStreamInfo):
         source: str | None = None,
         encoder: str | None = None,
     ) -> MPEGStreamInfo:
-        """ """
+        """
+        Instantiate a :class:`MPEGStreamInfo` object directly from data.
+
+        Parameters
+        ----------
+        num_channels : int; keyword-only
+            Number of channels.
+
+        sample_rate : int; keyword-only
+            Sample rate in hertz.
+
+        num_samples : int; keyword-only
+            Total number of samples.
+
+        bitrate : int; keyword-only
+            Bitrate, in kilobits per second.
+
+        mpeg_version : int or float; keyword-only
+            MPEG version.
+
+            **Valid values**: :code:`1`, :code:`2`, :code:`2.5`.
+
+        layer : int; keyword-only
+            Layer.
+
+        bitrate_mode : str; keyword-only
+            Bitrate mode.
+
+        source : str; keyword-only; default: :code:`None`
+            Type of frame the stream information is sourced from.
+
+        encoder : str; keyword-only; default: :code:`None`
+            Encoder.
+
+        Returns
+        -------
+        stream_info : minim.media.mpeg.MPEGStreamInfo
+            MPEG audio stream information.
+        """
         obj = cls.__new__(cls)
         set_obj_attr(obj, "num_channels", num_channels)
         set_obj_attr(obj, "sample_rate", sample_rate)
@@ -137,7 +175,7 @@ class MPEGStreamInfo(AudioStreamInfo):
 
 
 class MPEGAudio(Audio):
-    """w
+    """
     Moving Picture Experts Group (MPEG) audio file.
     """
 
