@@ -23,8 +23,7 @@ from ._shared import as_buffer, Audio
 from .metadata._shared import AudioStreamInfo
 from .metadata._vorbis import VorbisComment
 from .metadata.id3._frames import (
-    ID3v2FrameFormatFlags,
-    ID3v2FrameStatusFlags,
+    ID3v2FrameFlags,
     ID3v2APICFrame,
 )
 
@@ -1466,8 +1465,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         set_obj_attr(obj, "height", height)
         set_obj_attr(obj, "color_depth", color_depth)
         set_obj_attr(obj, "num_indexed_colors", num_indexed_colors)
-        set_obj_attr(obj, "_format_flags", ID3v2FrameFormatFlags())
-        set_obj_attr(obj, "_status_flags", ID3v2FrameStatusFlags())
+        set_obj_attr(obj, "_flags", ID3v2FrameFlags())
         return obj
 
     @property

@@ -293,9 +293,9 @@ class Position(NamedTuple):
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-class ID3v2FrameStatusFlags:
+class ID3v2FrameFlags:
     """
-    Status flags for an ID3v2 frame.
+    Flags for an ID3v2 frame.
 
     Parameters
     ----------
@@ -307,177 +307,7 @@ class ID3v2FrameStatusFlags:
 
     is_read_only : bool; keyword-only; default: :code:`False`
         Whether the current frame is read-only.
-    """
 
-    #: Whether to discard the current frame when the ID3 tag is edited.
-    discard_on_tag_alter: bool = False
-    #: Whether to discard the current frame when the audio data changes.
-    discard_on_file_alter: bool = False
-    #: Whether the current frame is read-only.
-    is_read_only: bool = False
-
-    def __post_init__(self) -> None:
-        validate_type("discard_on_tag_alter", self.discard_on_tag_alter, bool)
-        validate_type(
-            "discard_on_file_alter", self.discard_on_file_alter, bool
-        )
-        validate_type("is_read_only", self.is_read_only, bool)
-
-    @classmethod
-    def _from_byte_2_2(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2FrameStatusFlags:
-        """
-        Instantiate an :class:`ID3v2FrameStatusFlags` object from an
-        ID3v2.2 frame status flags byte.
-
-        Parameters
-        ----------
-        byte_ : int; positional-only
-            ID3v2.2 frame status flags byte.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        flags : minim.media.metadata.ID3v2FrameStatusFlags
-            Status flags for an ID3v2 frame.
-        """
-        if strict and byte_:
-            raise ValueError(
-                "Reserved bits set in ID3v2 frame status flags byte."
-            )
-
-        obj = cls.__new__(cls)
-        set_obj_attr(obj, "discard_on_tag_alter", False)
-        set_obj_attr(obj, "discard_on_file_alter", False)
-        set_obj_attr(obj, "is_read_only", False)
-        return obj
-
-    @classmethod
-    def _from_byte_2_3(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2FrameStatusFlags:
-        """
-        Instantiate an :class:`ID3v2FrameStatusFlags` object from an
-        ID3v2.3 frame status flags byte.
-
-        Parameters
-        ----------
-        byte_ : int; positional-only
-            ID3v2.3 frame status flags byte.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        flags : minim.media.metadata.ID3v2FrameStatusFlags
-            Status flags for an ID3v2 frame.
-        """
-        if strict and byte_ & 0x1F:
-            raise ValueError(
-                "Reserved bits set in ID3v2 frame status flags byte."
-            )
-
-        obj = cls.__new__(cls)
-        set_obj_attr(obj, "discard_on_tag_alter", bool(byte_ & 0x80))
-        set_obj_attr(obj, "discard_on_file_alter", bool(byte_ & 0x40))
-        set_obj_attr(obj, "is_read_only", bool(byte_ & 0x20))
-        return obj
-
-    @classmethod
-    def _from_byte_2_4(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2FrameStatusFlags:
-        """
-        Instantiate an :class:`ID3v2FrameStatusFlags` object from an
-        ID3v2.4 frame status flags byte.
-
-        Parameters
-        ----------
-        byte_ : int; positional-only
-            ID3v2.4 frame status flags byte.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        flags : minim.media.metadata.ID3v2FrameStatusFlags
-            Status flags for an ID3v2 frame.
-        """
-        if strict and byte_ & 0x8F:
-            raise ValueError(
-                "Reserved bits set in ID3v2 frame status flags byte."
-            )
-
-        obj = cls.__new__(cls)
-        set_obj_attr(obj, "discard_on_tag_alter", bool(byte_ & 0x40))
-        set_obj_attr(obj, "discard_on_file_alter", bool(byte_ & 0x20))
-        set_obj_attr(obj, "is_read_only", bool(byte_ & 0x10))
-        return obj
-
-    @classmethod
-    def from_byte(
-        cls,
-        byte_: int,
-        /,
-        tag_version: str | tuple[int, int, int],
-        *,
-        strict: bool = True,
-    ) -> ID3v2FrameStatusFlags:
-        """
-        Instantiate an :class:`ID3v2FrameStatusFlags` object from a
-        byte.
-
-        Parameters
-        ----------
-        byte_ : int; positional-only
-            Flags byte.
-
-        tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
-
-            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
-            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
-            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        flags : minim.media.metadata.ID3v2FrameStatusFlags
-            Status flags for an ID3v2 frame.
-        """
-        validate_number("byte_", byte_, int, 0)
-        match ID3v2Frame._normalize_tag_version(tag_version):
-            case (2, 4, _):
-                return cls._from_byte_2_4(byte_, strict=strict)
-            case (2, 3, _):
-                return cls._from_byte_2_3(byte_, strict=strict)
-            case (2, 2, _):
-                return cls._from_byte_2_2(byte_, strict=strict)
-            case _:
-                raise ValueError(
-                    f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
-                )
-
-
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-class ID3v2FrameFormatFlags:
-    """
-    Format flags for an ID3v2 frame.
-
-    Parameters
-    ----------
     has_grouping : bool; keyword-only; default: :code:`False`
         Whether the current frame has a grouping identifier.
 
@@ -496,6 +326,12 @@ class ID3v2FrameFormatFlags:
         preceding the payload.
     """
 
+    #: Whether to discard the current frame when the ID3 tag is edited.
+    discard_on_tag_alter: bool = False
+    #: Whether to discard the current frame when the audio data changes.
+    discard_on_file_alter: bool = False
+    #: Whether the current frame is read-only.
+    is_read_only: bool = False
     #: Whether the current frame has a grouping identifier.
     has_grouping: bool = False
     #: Whether the current frame is compressed.
@@ -509,6 +345,11 @@ class ID3v2FrameFormatFlags:
     has_data_length_indicator: bool = False
 
     def __post_init__(self) -> None:
+        validate_type("discard_on_tag_alter", self.discard_on_tag_alter, bool)
+        validate_type(
+            "discard_on_file_alter", self.discard_on_file_alter, bool
+        )
+        validate_type("is_read_only", self.is_read_only, bool)
         validate_type("has_grouping", self.has_grouping, bool)
         validate_type("is_compressed", self.is_compressed, bool)
         validate_type("is_encrypted", self.is_encrypted, bool)
@@ -518,17 +359,20 @@ class ID3v2FrameFormatFlags:
         )
 
     @classmethod
-    def _from_byte_2_2(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2FrameFormatFlags:
+    def _from_bytes_2_2(
+        cls, status_flags: int, format_flags: int, /, *, strict: bool = True
+    ) -> ID3v2FrameFlags:
         """
-        Instantiate an :class:`ID3v2FrameFormatFlags` object from an
-        ID3v2.2 frame format flags byte.
+        Instantiate an :class:`ID3v2FrameFlags` object from ID3v2.2
+        frame flags bytes.
 
         Parameters
         ----------
-        byte_ : int; positional-only
+        status_flags : int; positional-only
             ID3v2.2 frame status flags byte.
+
+        format_flags : int; positional-only
+            ID3v2.2 frame format flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -536,15 +380,23 @@ class ID3v2FrameFormatFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2FrameFormatFlags
-            Format flags for an ID3v2 frame.
+        flags : minim.media.metadata.ID3v2FrameFlags
+            Flags for an ID3v2 frame.
         """
-        if strict and byte_:
-            raise ValueError(
-                "Reserved bits set in ID3v2 frame format flags byte."
-            )
+        if strict:
+            if status_flags:
+                raise ValueError(
+                    "Reserved bits set in ID3v2 frame status flags byte."
+                )
+            if format_flags:
+                raise ValueError(
+                    "Reserved bits set in ID3v2 frame format flags byte."
+                )
 
         obj = cls.__new__(cls)
+        set_obj_attr(obj, "discard_on_tag_alter", False)
+        set_obj_attr(obj, "discard_on_file_alter", False)
+        set_obj_attr(obj, "is_read_only", False)
         set_obj_attr(obj, "has_grouping", False)
         set_obj_attr(obj, "is_compressed", False)
         set_obj_attr(obj, "is_encrypted", False)
@@ -553,17 +405,20 @@ class ID3v2FrameFormatFlags:
         return obj
 
     @classmethod
-    def _from_byte_2_3(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2FrameFormatFlags:
+    def _from_bytes_2_3(
+        cls, status_flags: int, format_flags: int, /, *, strict: bool = True
+    ) -> ID3v2FrameFlags:
         """
-        Instantiate an :class:`ID3v2FrameFormatFlags` object from an
-        ID3v2.3 frame format flags byte.
+        Instantiate an :class:`ID3v2FrameFlags` object from ID3v2.3
+        frame flags bytes.
 
         Parameters
         ----------
-        byte_ : int; positional-only
+        status_flags : int; positional-only
             ID3v2.3 frame status flags byte.
+
+        format_flags : int; positional-only
+            ID3v2.3 frame format flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -571,34 +426,45 @@ class ID3v2FrameFormatFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2FrameFormatFlags
-            Format flags for an ID3v2 frame.
+        flags : minim.media.metadata.ID3v2FrameFlags
+            Flags for an ID3v2 frame.
         """
-        if strict and byte_ & 0x1F:
-            raise ValueError(
-                "Reserved bits set in ID3v2 frame format flags byte."
-            )
+        if strict:
+            if status_flags & 0x1F:
+                raise ValueError(
+                    "Reserved bits set in ID3v2 frame status flags byte."
+                )
+            if format_flags & 0x1F:
+                raise ValueError(
+                    "Reserved bits set in ID3v2 frame format flags byte."
+                )
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "is_compressed", bool(byte_ & 0x80))
-        set_obj_attr(obj, "is_encrypted", bool(byte_ & 0x40))
-        set_obj_attr(obj, "has_grouping", bool(byte_ & 0x20))
+        set_obj_attr(obj, "discard_on_tag_alter", bool(status_flags & 0x80))
+        set_obj_attr(obj, "discard_on_file_alter", bool(status_flags & 0x40))
+        set_obj_attr(obj, "is_read_only", bool(status_flags))
+        set_obj_attr(obj, "is_compressed", bool(format_flags & 0x80))
+        set_obj_attr(obj, "is_encrypted", bool(format_flags & 0x40))
+        set_obj_attr(obj, "has_grouping", bool(format_flags & 0x20))
         set_obj_attr(obj, "is_unsynchronized", False)
         set_obj_attr(obj, "has_data_length_indicator", False)
         return obj
 
     @classmethod
-    def _from_byte_2_4(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2FrameFormatFlags:
+    def _from_bytes_2_4(
+        cls, status_flags: int, format_flags: int, /, *, strict: bool = True
+    ) -> ID3v2FrameFlags:
         """
-        Instantiate an :class:`ID3v2FrameFormatFlags` object from an
-        ID3v2.4 frame format flags byte.
+        Instantiate an :class:`ID3v2FrameFlags` object from ID3v2.4
+        frame status flags byte.
 
         Parameters
         ----------
-        byte_ : int; positional-only
+        status_flags : int; positional-only
             ID3v2.4 frame status flags byte.
+
+        format_flags : int; positional-only
+            ID3v2.4 frame format flags byte.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -606,38 +472,53 @@ class ID3v2FrameFormatFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2FrameFormatFlags
-            Format flags for an ID3v2 frame.
+        flags : minim.media.metadata.ID3v2FrameFlags
+            Flags for an ID3v2 frame.
         """
-        if strict and byte_ & 0x70:
-            raise ValueError(
-                "Reserved bits set in ID3v2 frame format flags byte."
-            )
+        if strict:
+            if status_flags & 0x8F:
+                raise ValueError(
+                    "Reserved bits set in ID3v2 frame status flags byte."
+                )
+            if format_flags & 0x70:
+                raise ValueError(
+                    "Reserved bits set in ID3v2 frame format flags byte."
+                )
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "has_grouping", bool(byte_ & 0x40))
-        set_obj_attr(obj, "is_compressed", bool(byte_ & 0x08))
-        set_obj_attr(obj, "is_encrypted", bool(byte_ & 0x04))
-        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x02))
-        set_obj_attr(obj, "has_data_length_indicator", bool(byte_ & 0x01))
+        set_obj_attr(obj, "discard_on_tag_alter", bool(status_flags & 0x40))
+        set_obj_attr(obj, "discard_on_file_alter", bool(status_flags & 0x20))
+        set_obj_attr(obj, "is_read_only", bool(status_flags & 0x10))
+        set_obj_attr(obj, "has_grouping", bool(format_flags & 0x40))
+        set_obj_attr(obj, "is_compressed", bool(format_flags & 0x08))
+        set_obj_attr(obj, "is_encrypted", bool(format_flags & 0x04))
+        set_obj_attr(obj, "is_unsynchronized", bool(format_flags & 0x02))
+        set_obj_attr(
+            obj, "has_data_length_indicator", bool(format_flags & 0x01)
+        )
         return obj
 
     @classmethod
-    def from_byte(
+    def from_bytes(
         cls,
-        byte_: int,
+        status_flags: int,
+        format_flags: int,
         /,
         tag_version: str | tuple[int, int, int],
         *,
         strict: bool = True,
-    ) -> ID3v2FrameFormatFlags:
+    ) -> ID3v2FrameFlags:
         """
-        Instantiate an :class:`ID3v2FrameFormatFlags` object from a byte.
+        Instantiate an :class:`ID3v2FrameFlags` object from ID3v2 frame
+        status flags bytes.
 
         Parameters
         ----------
-        byte_ : int; positional-only
-            Flags byte.
+        status_flags : int; positional-only
+            ID3v2 frame status flags byte.
+
+        format_flags : int; positional-only
+            ID3v2 frame format flags byte.
 
         tag_version : str or tuple[int, int, int]
             ID3v2 tag version.
@@ -652,17 +533,24 @@ class ID3v2FrameFormatFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2FrameFormatFlags
-            Format flags for an ID3v2 frame.
+        flags : minim.media.metadata.ID3v2FrameFlags
+            Flags for an ID3v2 frame.
         """
-        validate_number("byte_", byte_, int, 0)
+        validate_number("status_flags", status_flags, int, 0)
+        validate_number("format_flags", format_flags, int, 0)
         match ID3v2Frame._normalize_tag_version(tag_version):
             case (2, 4, _):
-                return cls._from_byte_2_4(byte_, strict=strict)
+                return cls._from_bytes_2_4(
+                    status_flags, format_flags, strict=strict
+                )
             case (2, 3, _):
-                return cls._from_byte_2_3(byte_, strict=strict)
+                return cls._from_bytes_2_3(
+                    status_flags, format_flags, strict=strict
+                )
             case (2, 2, _):
-                return cls._from_byte_2_2(byte_, strict=strict)
+                return cls._from_bytes_2_2(
+                    status_flags, format_flags, strict=strict
+                )
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
@@ -680,36 +568,25 @@ class ID3v2Frame(ABC):
 
     _ALLOW_MULTIPLE: bool
 
-    __slots__ = "_format_flags", "_status_flags"
+    __slots__ = ("_flags",)
 
     def __init__(
         self,
         *,
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
         ----------
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags for an ID3v2 frame.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags for an ID3v2 frame.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags for an ID3v2 frame.
         """
-        if format_flags is None:
-            self._format_flags = ID3v2FrameFormatFlags()
+        if flags is None:
+            self._flags = ID3v2FrameFlags()
         else:
-            validate_type("format_flags", format_flags, ID3v2FrameFormatFlags)
-            self._format_flags = format_flags
-
-        if status_flags is None:
-            self._status_flags = ID3v2FrameFormatFlags()
-        else:
-            validate_type("status_flags", status_flags, ID3v2FrameStatusFlags)
-            self._status_flags = status_flags
+            validate_type("flags", flags, ID3v2FrameFlags)
+            self._flags = flags
 
     def __init_subclass__(cls, **kwargs: dict[str, Any]) -> None:
         super().__init_subclass__(**kwargs)
@@ -761,11 +638,8 @@ class ID3v2Frame(ABC):
             ID3v2 frame.
         """
         obj = cls.__new__(cls)
-        obj._format_flags = ID3v2FrameFormatFlags._from_byte_2_3(
-            stream[8], strict=strict
-        )
-        obj._status_flags = ID3v2FrameStatusFlags._from_byte_2_3(
-            stream[9], strict=strict
+        obj._flags = ID3v2FrameFlags._from_bytes_2_3(
+            stream[8], stream[9], strict=strict
         )
         return obj
 
@@ -793,11 +667,8 @@ class ID3v2Frame(ABC):
             ID3v2 frame.
         """
         obj = cls.__new__(cls)
-        obj._format_flags = ID3v2FrameFormatFlags._from_byte_2_4(
-            stream[8], strict=strict
-        )
-        obj._status_flags = ID3v2FrameStatusFlags._from_byte_2_4(
-            stream[9], strict=strict
+        obj._flags = ID3v2FrameFlags._from_bytes_2_4(
+            stream[8], stream[9], strict=strict
         )
         return obj
 
@@ -933,18 +804,11 @@ class ID3v2Frame(ABC):
         ...
 
     @property
-    def format_flags(self) -> ID3v2FrameFormatFlags:
+    def flags(self) -> ID3v2FrameFlags:
         """
-        Format flags for an ID3v2 frame.
+        Flags for an ID3v2 frame.
         """
-        return self._format_flags
-
-    @property
-    def status_flags(self) -> ID3v2FrameStatusFlags:
-        """
-        Status flags for an ID3v2 frame.
-        """
-        return self._status_flags
+        return self._flags
 
     @abstractmethod
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
@@ -985,8 +849,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         /,
         *,
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -1000,15 +863,11 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super().__init__(format_flags=format_flags, status_flags=status_flags)
+        super().__init__(flags=flags)
 
         if isinstance(text_info, str):
             self._text_info = [text_info]
@@ -1168,8 +1027,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         /,
         *,
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -1184,17 +1042,11 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super(ID3v2TextInfoFrame, self).__init__(
-            format_flags=format_flags, status_flags=status_flags
-        )
+        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -1346,8 +1198,7 @@ class ID3v2APICFrame(ID3v2Frame):
         picture_data: bytes,
         description: str = "",
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -1373,15 +1224,11 @@ class ID3v2APICFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super().__init__(format_flags=format_flags, status_flags=status_flags)
+        super().__init__(flags=flags)
 
         validate_number("picture_type", picture_type, int, 0, 20)
         self._picture_type = picture_type
@@ -1559,8 +1406,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         *,
         language: str = "eng",
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -1580,15 +1426,11 @@ class ID3v2COMMFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super().__init__(format_flags=format_flags, status_flags=status_flags)
+        super().__init__(flags=flags)
 
         validate_type("description", description, str)
         self._description = description
@@ -1758,8 +1600,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         description: str = "",
         language: str = "eng",
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -1779,15 +1620,11 @@ class ID3v2USLTFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super().__init__(format_flags=format_flags, status_flags=status_flags)
+        super().__init__(flags=flags)
 
         validate_type("description", description, str)
         self._description = description
@@ -1970,8 +1807,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         /,
         *,
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -1986,17 +1822,11 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Dlags.
         """
-        super(ID3v2TextInfoFrame, self).__init__(
-            format_flags=format_flags, status_flags=status_flags
-        )
+        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
 
         if isinstance(bpm, (int, float, str)):
             self._text_info = [str(round(float(bpm)))]
@@ -2124,8 +1954,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         /,
         *,
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -2142,17 +1971,11 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super(ID3v2TextInfoFrame, self).__init__(
-            format_flags=format_flags, status_flags=status_flags
-        )
+        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
 
         if isinstance(compilation_flag, bool | int | str):
             self._text_info = [str(int(compilation_flag))]
@@ -2657,8 +2480,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         /,
         *,
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -2677,17 +2499,11 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super(ID3v2TextInfoFrame, self).__init__(
-            format_flags=format_flags, status_flags=status_flags
-        )
+        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
 
         disc = self._parse_discs(disc)
         if not isinstance(disc, list):
@@ -2888,8 +2704,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         /,
         *,
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -2908,17 +2723,11 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super(ID3v2TextInfoFrame, self).__init__(
-            format_flags=format_flags, status_flags=status_flags
-        )
+        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
 
         track = self._parse_tracks(track)
         if not isinstance(track, list):
@@ -3099,8 +2908,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         /,
         *,
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -3114,17 +2922,11 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
-        keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags.
         """
-        super(ID3v2TextInfoFrame, self).__init__(
-            format_flags=format_flags, status_flags=status_flags
-        )
+        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
 
         if isinstance(isrcs, str):
             isrcs = [isrcs]
@@ -3272,8 +3074,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         /,
         *,
         text_encoding: str = "utf-16",
-        format_flags: ID3v2FrameFormatFlags | None = None,
-        status_flags: ID3v2FrameStatusFlags | None = None,
+        flags: ID3v2FrameFlags | None = None,
     ) -> None:
         """
         Parameters
@@ -3290,17 +3091,11 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        format_flags : minim.media.metadata.ID3v2FrameFormatFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
-            Format flags.
-
-        status_flags : minim.media.metadata.ID3v2FrameStatusFlags; \
-        keyword-only; optional
-            Status flags.
+            Flags.
         """
-        super(ID3v2TextInfoFrame, self).__init__(
-            format_flags=format_flags, status_flags=status_flags
-        )
+        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
 
         validate_type("description", description, str)
         self._description = description

@@ -1,8 +1,8 @@
 TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
 
+from ._core import ID3v2Flags  # noqa: E402
 from ._frames import (  # noqa: E402
-    ID3v2FrameStatusFlags,
-    ID3v2FrameFormatFlags,
+    ID3v2FrameFlags,
     ID3v2APICFrame,
     ID3v2COMMFrame,
     ID3v2USLTFrame,
@@ -30,10 +30,9 @@ from ._frames import (  # noqa: E402
     ID3v2Padding,
 )
 
-
 __all__ = [
-    "ID3v2FrameStatusFlags",
-    "ID3v2FrameFormatFlags",
+    "ID3v2Flags",
+    "ID3v2FrameFlags",
     "ID3v2APICFrame",
     "ID3v2COMMFrame",
     "ID3v2USLTFrame",
