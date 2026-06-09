@@ -272,53 +272,74 @@ class ID3v1:
         self._year = value
 
 
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class ID3v2Flags:
     """
-    Flags for ID3v2 tags.
-
-    Parameters
-    ----------
-    is_unsynchronized : bool; keyword-only; default: :code:`False`
-        Whether the current tag has had unsynchronization applied to
-        avoid false MPEG frame sync patterns in the metadata.
-
-    has_extended_header : bool; keyword-only; default: :code:`False`
-        Whether the current tag contains an extended header immediately
-        after the main ID3v2 header.
-
-    is_experimental : bool; keyword-only; default: :code:`False`
-        Whether the current tag is marked as experimental by the
-        encoder.
-
-    has_footer : bool; keyword-only; default: :code:`False`
-        Whether the current tag includes a 10-byte footer following the
-        tag data.
-
-    is_compressed : bool; keyword-only; default: :code:`False`
-        Whether the current tag has compressed data.
+    Flags and extended header for ID3v2 tags.
     """
 
-    #: Whether the current tag has had unsynchronization applied to
-    #: avoid false MPEG frame sync patterns in the metadata.
-    is_unsynchronized: bool = False
-    #: Whether the current tag contains an extended header immediately
-    #: after the main ID3v2 header.
-    has_extended_header: bool = False
-    #: Whether the current tag is marked as experimental by the encoder.
-    is_experimental: bool = False
-    #: Whether the current tag includes a 10-byte footer following the
-    #: tag data.
-    has_footer: bool = False
-    #: Whether the current tag has compressed data.
-    is_compressed: bool = False
+    __slots__ = (
+        "_is_unsynchronized",
+        "_has_extended_header",
+        "_is_experimental",
+        "_has_footer",
+        "_is_compressed",
+        "_is_update",
+        "_has_crc",
+        "_tag_restrictions",
+    )
 
-    def __post_init__(self) -> None:
-        validate_type("is_unsynchronized", self.is_unsynchronized, bool)
-        validate_type("has_extended_header", self.has_extended_header, bool)
-        validate_type("is_experimental", self.is_experimental, bool)
-        validate_type("has_footer", self.has_footer, bool)
-        validate_type("is_compressed", self.is_compressed, bool)
+    def __init__(
+        self,
+        is_unsynchronized: bool = False,
+        has_extended_header: bool = False,
+        is_experimental: bool = False,
+        has_footer: bool = False,
+        is_compressed: bool = False,
+        is_update: bool = False,
+        has_crc: bool = False,
+        tag_restrictions: int | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        is_unsynchronized : bool; keyword-only; default: :code:`False`
+            Whether the current tag has had unsynchronization applied to
+            avoid false MPEG frame sync patterns in the metadata.
+
+        has_extended_header : bool; keyword-only; default: :code:`False`
+            Whether the current tag contains an extended header
+            immediately after the main ID3v2 header.
+
+        is_experimental : bool; keyword-only; default: :code:`False`
+            Whether the current tag is marked as experimental by the
+            encoder.
+
+        has_footer : bool; keyword-only; default: :code:`False`
+            Whether the current tag includes a 10-byte footer following
+            the tag data.
+
+        is_compressed : bool; keyword-only; default: :code:`False`
+            Whether the current tag has compressed data.
+
+        is_update : bool; keyword-only; default: :code:`False`
+            Whether the current tag has an extended header and is
+            identified as an updated version of an earlier tag.
+
+        has_crc : bool; keyword-only; default: :code:`False`
+            Whether the current tag has an extended header with CRC
+            data.
+
+        tag_restrictions : int; keyword-only; optional
+            Tag restrictions byte in the extended header.
+        """
+        self.is_unsynchronized = is_unsynchronized
+        self.has_extended_header = has_extended_header
+        self.is_experimental = is_experimental
+        self.has_footer = has_footer
+        self.is_compressed = is_compressed
+        self.is_update = is_update
+        self.has_crc = has_crc
+        self.tag_restrictions = tag_restrictions
 
     @classmethod
     def _from_byte_2_2(
@@ -346,11 +367,11 @@ class ID3v2Flags:
             raise ValueError("Reserved bits set in ID3v2.2 flags byte.")
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
-        set_obj_attr(obj, "has_extended_header", False)
-        set_obj_attr(obj, "is_experimental", False)
-        set_obj_attr(obj, "has_footer", False)
-        set_obj_attr(obj, "is_compressed", bool(byte_ & 0x40))
+        obj._is_unsynchronized = bool(byte_ & 0x80)
+        obj._is_compressed = bool(byte_ & 0x40)
+        obj._has_extended_header = obj._is_experimental = obj._has_footer = (
+            False
+        )
         return obj
 
     @classmethod
@@ -379,11 +400,10 @@ class ID3v2Flags:
             raise ValueError("Reserved bits set in ID3v2.3 flags byte.")
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
-        set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
-        set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
-        set_obj_attr(obj, "has_footer", False)
-        set_obj_attr(obj, "is_compressed", False)
+        obj._is_unsynchronized = bool(byte_ & 0x80)
+        obj._has_extended_header = bool(byte_ & 0x40)
+        obj._is_experimental = bool(byte_ & 0x20)
+        obj._has_footer = obj._is_compressed = False
         return obj
 
     @classmethod
@@ -412,11 +432,11 @@ class ID3v2Flags:
             raise ValueError("Reserved bits set in ID3v2.4 flags byte.")
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "is_unsynchronized", bool(byte_ & 0x80))
-        set_obj_attr(obj, "has_extended_header", bool(byte_ & 0x40))
-        set_obj_attr(obj, "is_experimental", bool(byte_ & 0x20))
-        set_obj_attr(obj, "has_footer", bool(byte_ & 0x10))
-        set_obj_attr(obj, "is_compressed", False)
+        obj._is_unsynchronized = bool(byte_ & 0x80)
+        obj._has_extended_header = bool(byte_ & 0x40)
+        obj._is_experimental = bool(byte_ & 0x20)
+        obj._has_footer = bool(byte_ & 0x10)
+        obj._is_compressed = False
         return obj
 
     @classmethod
@@ -465,6 +485,109 @@ class ID3v2Flags:
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
+
+    @property
+    def is_unsynchronized(self) -> bool:
+        """
+        Whether the current tag has had unsynchronization applied to
+        avoid false MPEG frame sync patterns in the metadata.
+        """
+        return self._is_unsynchronized
+
+    @is_unsynchronized.setter
+    def is_unsynchronized(self, value: bool, /) -> None:
+        validate_type("is_unsynchronized", value, bool)
+        self._is_unsynchronized = value
+
+    @property
+    def has_extended_header(self) -> bool:
+        """
+        Whether the current tag contains an extended header immediately
+        after the main ID3v2 header.
+        """
+        return self._has_extended_header
+
+    @has_extended_header.setter
+    def has_extended_header(self, value: bool, /) -> bool:
+        validate_type("has_extended_header", value, bool)
+        self._has_extended_header = value
+
+    @property
+    def is_experimental(self) -> None:
+        """
+        Whether the current tag is marked as experimental by the
+        encoder.
+        """
+        return self._is_experimental
+
+    @is_experimental.setter
+    def is_experimental(self, value: bool, /) -> bool:
+        validate_type("is_experimental", value, bool)
+        self._is_experimental = value
+
+    @property
+    def has_footer(self) -> None:
+        """
+        Whether the current tag includes a 10-byte footer following the
+        tag data.
+        """
+        return self._has_footer
+
+    @has_footer.setter
+    def has_footer(self, value: bool, /) -> None:
+        validate_type("has_footer", value, bool)
+        self._has_footer = value
+
+    @property
+    def is_compressed(self) -> bool:
+        """
+        Whether the current tag has compressed data.
+        """
+        return self._is_compressed
+
+    @is_compressed.setter
+    def is_compressed(self, value: bool, /) -> None:
+        validate_type("is_compressed", value, bool)
+        self._is_compressed = value
+
+    @property
+    def is_update(self) -> bool:
+        """
+        Whether the current tag is an updated version of an earlier
+        tag.
+        """
+        return self._is_update
+
+    @is_update.setter
+    def is_update(self, value: bool, /) -> None:
+        validate_type("is_update", value, bool)
+        self._is_update = value
+
+    @property
+    def has_crc(self) -> bool:
+        """
+        Whether the current tag has an extended header with CRC
+        data.
+        """
+        return self._has_crc
+
+    @has_crc.setter
+    def has_crc(self, value: bool, /) -> None:
+        validate_type("has_crc", value, bool)
+        self._has_crc = value
+
+    @property
+    def tag_restrictions(self) -> int:
+        """
+        Tag restrictions byte.
+        """
+        return self._tag_restrictions
+
+    @tag_restrictions.setter
+    def tag_restrictions(self, value: int | None, /) -> None:
+        if value is not None:
+            validate_number("tag_restrictions", value, int, 0, 255)
+        self._tag_restrictions = value
 
 
 class ID3v2(AudioTags):
@@ -537,10 +660,25 @@ class ID3v2(AudioTags):
                         .tobytes()
                         .replace(b"\xff\x00", b"\xff")
                     )
-                    tag_end = offset + len(stream)
+                    offset = 0
+                    tag_end = len(stream)
 
                 if flags.has_extended_header:
-                    ...  # TODO
+                    flag_byte = stream[offset + 5]
+                    if strict and flag_byte & 0x8F:
+                        raise ValueError(
+                            "Non-zero bits found in reserved section "
+                            "of ID3 extended header flags byte."
+                        )
+                    flags._is_update = is_update = bool((flag_byte >> 7) & 1)
+                    flags._has_crc = has_crc = bool((flag_byte >> 6) & 1)
+                    if bool((flag_byte >> 5) & 1):
+                        flags._tag_restrictions = stream[
+                            offset + 7 + is_update + 6 * has_crc
+                        ]
+                    offset += decode_32_bit_synchsafe_int(
+                        *stream[offset : offset + 4]
+                    )
 
                 while offset < tag_end:
                     if not stream[offset]:
@@ -598,10 +736,18 @@ class ID3v2(AudioTags):
                         .tobytes()
                         .replace(b"\xff\x00", b"\xff")
                     )
-                    tag_end = offset + len(stream)
+                    offset = 0
+                    tag_end = len(stream)
 
                 if flags.has_extended_header:
-                    ...  # TODO
+                    flag_byte = stream[offset + 4]
+                    if strict and (flag_byte & 0x80 or stream[offset + 5]):
+                        raise ValueError(
+                            "Non-zero bits found in reserved section "
+                            "of ID3 extended header flags byte."
+                        )
+                    flags._has_crc = bool(flag_byte >> 8)
+                    offset += int.from_bytes(stream[offset : offset + 4]) + 4
 
                 while offset < tag_end:
                     if not stream[offset]:

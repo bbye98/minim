@@ -270,6 +270,7 @@ class MPEGAudio(Audio):
         (2, 1)
     ]
     _BITRATES[(0, 3)] = _BITRATES[(2, 3)]
+
     _SAMPLES_PER_FRAME = {
         (2, 1): 576,  # MPEG-2 Audio Layer III
         (2, 2): 1_152,  # MPEG-2 Audio Layer II
@@ -278,14 +279,22 @@ class MPEGAudio(Audio):
         (3, 2): 1_152,  # MPEG-1 Audio Layer II
         (3, 3): 384,  # MPEG-1 Audio Layer I
     }
-    _SAMPLES_PER_FRAME[(0, 1)] = _SAMPLES_PER_FRAME[(2, 1)]
-    _SAMPLES_PER_FRAME[(0, 2)] = _SAMPLES_PER_FRAME[(2, 2)]
-    _SAMPLES_PER_FRAME[(0, 3)] = _SAMPLES_PER_FRAME[(2, 3)]
+    _SAMPLES_PER_FRAME[(0, 1)] = _SAMPLES_PER_FRAME[
+        (2, 1)
+    ]  # MPEG-2.5 Audio Layer III
+    _SAMPLES_PER_FRAME[(0, 2)] = _SAMPLES_PER_FRAME[
+        (2, 2)
+    ]  # MPEG-2.5 Audio Layer II
+    _SAMPLES_PER_FRAME[(0, 3)] = _SAMPLES_PER_FRAME[
+        (2, 3)
+    ]  # MPEG-2.5 Audio Layer I
+
     _SAMPLE_RATES = {
         0: (11_025, 12_000, 8_000),  # MPEG-2.5
         2: (22_050, 24_000, 16_000),  # MPEG-2
         3: (44_100, 48_000, 32_000),  # MPEG-1
     }
+
     _XING_OFFSETS = {
         (3, 1): 21,  # MPEG-1 Audio Layer III, mono
         (2, 1): 13,  # MPEG-2 Audio Layer III, mono
@@ -294,6 +303,7 @@ class MPEGAudio(Audio):
         (2, 2): 21,  # MPEG-2 Audio Layer III, stereo
         (0, 2): 21,  # MPEG-2.5 Audio Layer III, stereo
     }
+
     _LAME_BITRATE_MODES = {
         0: "CBR",
         1: "VBR",
