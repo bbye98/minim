@@ -804,6 +804,18 @@ class ID3v2Frame(ABC):
         ...
 
     @property
+    def _key(self) -> str:
+        """
+        Unique key.
+        """
+        if not self._ALLOW_MULTIPLE:
+            raise AttributeError(
+                f"{self.__class__.__name__} cannot appear more than "
+                "once in an ID3v2 tag, and thus do not have a unique "
+                "key."
+            )
+
+    @property
     def flags(self) -> ID3v2FrameFlags:
         """
         Flags for an ID3v2 frame.

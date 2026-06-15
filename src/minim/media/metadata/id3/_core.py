@@ -22,7 +22,12 @@ from . import TAG_VERSIONS
 if TYPE_CHECKING:
     from typing import Any
 
-    from ...._types import BytesLike, Collection, OrderedCollection
+    from ...._types import (
+        BytesLike,
+        Collection,
+        OrderedCollection,
+        ORDERED_COLLECTION_TYPES,
+    )
 
 
 class ID3v1:
@@ -612,7 +617,36 @@ class ID3v2(AudioTags):
         *,
         flags: ID3v2Flags | None = None,
     ) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        frames : OrderedCollection[minim.media.metadata.id3.ID3v2Frame]; \
+        positional-only
+            ID3v2 frames.
+
+        flags : minim.media.metadata.id3.ID3v2Flags; keyword-only; \
+        optional
+            Flags and extended header for ID3v2 tags.
+        """
+        if not isinstance(frames, ORDERED_COLLECTION_TYPES):
+            frames = [frames]
+
+        self._frames = _frames = []
+        self._frames_by_class = frames_by_class = defaultdict(list)
+        self._keyed_frames = keyed_frames = defaultdict(dict)
+        for frame_idx, frame in enumerate(frames):
+            validate_type(f"frames[{frame_idx}]", frame, ID3v2Frame)
+            _frames.append(frame)
+            frame_cls = frame.__class__
+            frames_by_class[frame_cls].append(frame)
+            if frame._ALLOW_MULTIPLE:
+                keyed_frames[frame_cls][frame._key] = frame
+
+        if flags is None:
+            self._flags = ID3v2Flags()
+        else:
+            validate_type("flags", flags, ID3v2Flags)
+            self._flags = flags
 
     @classmethod
     def from_stream(
@@ -710,7 +744,7 @@ class ID3v2(AudioTags):
                             and frame._key in _frames
                         ):
                             frame_id = frame_id.decode(encoding="ascii")
-                            raise ValueError(
+                            raise RuntimeError(
                                 f"Duplicate {frame_id} frame found."
                             )
                         frames.append(frame)
@@ -720,8 +754,13 @@ class ID3v2(AudioTags):
                         elif frame._key:
                             keyed_frames[frame_cls][frame._key] = None
                     else:
-                        if frames_by_class.get(frame_cls):
-                            raise NotImplementedError  # TODO
+                        if existing_frame := frames_by_class.get(frame_cls):
+                            if strict:
+                                frame_id = frame_id.decode(encoding="ascii")
+                                raise RuntimeError(
+                                    f"Duplicate {frame_id} frame found."
+                                )
+                            raise NotImplementedError  # Merge
                         else:
                             frames.append(frame)
                             frames_by_class[frame_cls].append(frame)

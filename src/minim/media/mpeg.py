@@ -441,13 +441,13 @@ class MPEGAudio(Audio):
 
             _raw_mpeg_version = (byte_2 >> 3) & 3
             if _raw_mpeg_version == 1:
-                raise RuntimeError("Invalid MPEG version encountered.")
+                break
             if _raw_mpeg_version != raw_mpeg_version:
                 break
 
             _raw_layer = (byte_2 >> 1) & 3
             if not _raw_layer:
-                raise RuntimeError("Invalid layer encountered.")
+                break
             if _raw_layer != raw_layer:
                 break
 
@@ -475,13 +475,13 @@ class MPEGAudio(Audio):
                     + ((byte_3 >> 1) & 1)
                 )
                 if not frame_length:
-                    raise RuntimeError("Invalid frame length encountered.")
+                    break
 
                 seen_bitrates.add(bitrate)
                 num_samples += samples_per_frame
                 total_bytes += frame_length
             except (KeyError, IndexError):
-                raise RuntimeError("Invalid frame header encountered.")
+                break
 
             offset += frame_length
 
@@ -857,9 +857,7 @@ class MPEGAudio(Audio):
                 self._tags = tags
             end_audio_offset -= 128
 
-        # TODO: Process APE tags, if any
-
-        # TODO: Process Lyrics3 tags, if any
+        # TODO: Process APE and Lyrics3 tags, if any
 
         # Process audio data to get stream information
         self._end_audio_offset = end_audio_offset
