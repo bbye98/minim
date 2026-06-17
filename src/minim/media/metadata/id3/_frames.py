@@ -2982,7 +2982,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._text_info = [
-            prepare_isrc(isrc.decode(encoding=text_encoding))
+            prepare_isrc(isrc)
             for isrc in (
                 stream[11 : 10 + frame_length]
                 .tobytes()
@@ -3348,7 +3348,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         """
         Unique key.
         """
-        return
+        return self._frame_id.decode(encoding="ascii")
 
     @property
     def frame_id(self) -> bytes:

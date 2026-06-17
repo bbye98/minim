@@ -914,7 +914,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         Not implemented for this API client; use
         :meth:`set_user_auth_token` instead.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Use set_user_auth_token() instead.")
 
     def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
         """
