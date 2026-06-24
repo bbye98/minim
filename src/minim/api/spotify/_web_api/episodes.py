@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
@@ -253,7 +254,7 @@ class EpisodesAPI(SpotifyResourceAPI):
             "episodes", episode_ids, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.get_my_saved_episodes)
+    @copy_docstring(UsersAPI.get_my_saved_episodes)
     def get_my_saved_episodes(
         self,
         *,
@@ -265,17 +266,17 @@ class EpisodesAPI(SpotifyResourceAPI):
             country_code=country_code, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.save_episodes)
+    @copy_docstring(UsersAPI.save_episodes)
     def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
         self._client.users.save_episodes(episode_ids)
 
-    @_copy_docstring(UsersAPI.remove_saved_episodes)
+    @copy_docstring(UsersAPI.remove_saved_episodes)
     def remove_saved_episodes(
         self, episode_ids: str | Collection[str], /
     ) -> None:
         self._client.users.remove_saved_episodes(episode_ids)
 
-    @_copy_docstring(UsersAPI.are_episodes_saved)
+    @copy_docstring(UsersAPI.are_episodes_saved)
     def are_episodes_saved(
         self, episode_ids: str | Collection[str], /
     ) -> list[bool]:

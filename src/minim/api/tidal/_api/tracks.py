@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
@@ -2106,7 +2107,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @_copy_docstring(SearchAPI.search_tracks)
+    @copy_docstring(SearchAPI.search_tracks)
     def search_tracks(
         self,
         query: str,
@@ -2125,7 +2126,7 @@ class TracksAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_user_saved_tracks)
+    @copy_docstring(UsersAPI.get_user_saved_tracks)
     def get_user_saved_tracks(
         self,
         *,
@@ -2149,7 +2150,7 @@ class TracksAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.save_tracks)
+    @copy_docstring(UsersAPI.save_tracks)
     def save_tracks(
         self,
         track_ids: int
@@ -2169,7 +2170,7 @@ class TracksAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_tracks)
+    @copy_docstring(UsersAPI.remove_saved_tracks)
     def remove_saved_tracks(
         self,
         track_ids: int

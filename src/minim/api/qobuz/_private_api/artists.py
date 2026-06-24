@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 
@@ -1536,7 +1537,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.toggle_item_saved("artist", artist_id)
 
-    @_copy_docstring(PrivateSearchAPI.search_artists)
+    @copy_docstring(PrivateSearchAPI.search_artists)
     def search_artists(
         self,
         query: str,

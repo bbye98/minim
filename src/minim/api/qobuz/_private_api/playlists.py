@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
@@ -1011,7 +1012,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             params=params,
         )
 
-    @_copy_docstring(PrivateSearchAPI.search_playlists)
+    @copy_docstring(PrivateSearchAPI.search_playlists)
     def search_playlists(
         self,
         query: str,
@@ -1024,11 +1025,11 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             query, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.follow_playlist)
+    @copy_docstring(PrivateUsersAPI.follow_playlist)
     def follow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
         return self._client.users.follow_playlist(playlist_id)
 
-    @_copy_docstring(PrivateUsersAPI.unfollow_playlist)
+    @copy_docstring(PrivateUsersAPI.unfollow_playlist)
     def unfollow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
         return self._client.users.unfollow_playlist(playlist_id)
 

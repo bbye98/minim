@@ -17,6 +17,32 @@ TRANSLATION_TABLES = {"remove_separators": str.maketrans("", "", "‐‒–—�
 set_obj_attr = object.__setattr__
 
 
+def copy_docstring(
+    source: Callable[..., Any],
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """
+    Return a decorator that copies the docstring from one function to
+    another.
+
+    Parameters
+    ----------
+    source : Callable[..., Any]
+        Function whose docstring should be copied.
+
+    Returns
+    -------
+    decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
+        Decorator that replaces the docstring of the decorated function
+        with that of `source`.
+    """
+
+    def decorator(destination: Callable[..., Any]) -> Callable[..., Any]:
+        destination.__doc__ = source.__doc__
+        return destination
+
+    return decorator
+
+
 def decode_32_bit_synchsafe_int(
     byte_1: int, byte_2: int, byte_3: int, byte_4: int, /
 ) -> int:

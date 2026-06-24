@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 from .charts import ChartsAPI
 from .matcher import MatcherAPI
@@ -1400,7 +1401,7 @@ class TracksAPI(MusixmatchResourceAPI):
             isrc=isrc,
         )
 
-    @_copy_docstring(ChartsAPI.get_top_tracks)
+    @copy_docstring(ChartsAPI.get_top_tracks)
     def get_top_tracks(
         self,
         chart_name: str | None = None,
@@ -1418,7 +1419,7 @@ class TracksAPI(MusixmatchResourceAPI):
             page=page,
         )
 
-    @_copy_docstring(MatcherAPI.match_track_lyrics)
+    @copy_docstring(MatcherAPI.match_track_lyrics)
     def match_track_lyrics(
         self,
         *,
@@ -1430,7 +1431,7 @@ class TracksAPI(MusixmatchResourceAPI):
             artist=artist, track=track, isrc=isrc
         )
 
-    @_copy_docstring(MatcherAPI.match_track)
+    @copy_docstring(MatcherAPI.match_track)
     def match_track(
         self,
         *,
@@ -1442,7 +1443,7 @@ class TracksAPI(MusixmatchResourceAPI):
             artist=artist, track=track, isrc=isrc
         )
 
-    @_copy_docstring(MatcherAPI.match_track_subtitles)
+    @copy_docstring(MatcherAPI.match_track_subtitles)
     def match_track_subtitles(
         self,
         *,

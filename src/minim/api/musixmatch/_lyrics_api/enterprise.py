@@ -2,7 +2,8 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 from .tracks import TracksAPI
 
@@ -1016,7 +1017,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             "GET", "languages.get", params=params
         ).json()
 
-    @_copy_docstring(TracksAPI.get_track_lyrics_analysis)
+    @copy_docstring(TracksAPI.get_track_lyrics_analysis)
     def get_track_lyrics_analysis(
         self,
         *,

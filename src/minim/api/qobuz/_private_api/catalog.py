@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 
@@ -297,7 +298,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             "catalog/getFeatured", limit=limit, offset=offset, params=params
         )
 
-    @_copy_docstring(PrivateSearchAPI.search)
+    @copy_docstring(PrivateSearchAPI.search)
     def search(
         self,
         query: str,

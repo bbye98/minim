@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
@@ -2116,7 +2117,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(SearchAPI.search_artists)
+    @copy_docstring(SearchAPI.search_artists)
     def search_artists(
         self,
         query: str,
@@ -2135,7 +2136,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_artist_collection)
+    @copy_docstring(UsersAPI.get_artist_collection)
     def get_artist_collection(
         self,
         collection_id: str | None = None,
@@ -2152,7 +2153,7 @@ class ArtistsAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    @_copy_docstring(UsersAPI.get_user_followed_artists)
+    @copy_docstring(UsersAPI.get_user_followed_artists)
     def get_user_followed_artists(
         self,
         *,
@@ -2176,7 +2177,7 @@ class ArtistsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.follow_artists)
+    @copy_docstring(UsersAPI.follow_artists)
     def follow_artists(
         self,
         artist_ids: int
@@ -2196,7 +2197,7 @@ class ArtistsAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    @_copy_docstring(UsersAPI.unfollow_artists)
+    @copy_docstring(UsersAPI.unfollow_artists)
     def unfollow_artists(
         self,
         artist_ids: int

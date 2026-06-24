@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
 
@@ -1334,7 +1335,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             },
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_followed_playlists)
+    @copy_docstring(PrivateUsersAPI.get_followed_playlists)
     def get_followed_playlists(
         self,
         user_id: int | str | None = None,
@@ -1355,7 +1356,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.follow_playlists)
+    @copy_docstring(PrivateUsersAPI.follow_playlists)
     def follow_playlists(
         self,
         playlist_uuids: str | Collection[str],
@@ -1374,7 +1375,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             api_version=api_version,
         )
 
-    @_copy_docstring(PrivateUsersAPI.unfollow_playlists)
+    @copy_docstring(PrivateUsersAPI.unfollow_playlists)
     def unfollow_playlists(
         self,
         playlist_uuids: str | Collection[str],
@@ -1387,7 +1388,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             playlist_uuids, user_id=user_id, api_version=api_version
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_my_playlists)
+    @copy_docstring(PrivateUsersAPI.get_my_playlists)
     def get_my_playlists(
         self,
         *,
@@ -1405,7 +1406,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_my_folder)
+    @copy_docstring(PrivateUsersAPI.get_my_folder)
     def get_my_folder(
         self,
         folder_uuid: str | None = None,
@@ -1426,7 +1427,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_my_folders_and_playlists)
+    @copy_docstring(PrivateUsersAPI.get_my_folders_and_playlists)
     def get_my_folders_and_playlists(
         self,
         *,
@@ -1444,7 +1445,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_user_playlists)
+    @copy_docstring(PrivateUsersAPI.get_user_playlists)
     def get_user_playlists(
         self,
         user_id: int | str | None = None,
@@ -1465,7 +1466,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_user_created_playlists)
+    @copy_docstring(PrivateUsersAPI.get_user_created_playlists)
     def get_user_created_playlists(
         self,
         user_id: int | str | None = None,
@@ -1479,7 +1480,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             user_id, country_code=country_code, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_user_public_playlists)
+    @copy_docstring(PrivateUsersAPI.get_user_public_playlists)
     def get_user_public_playlists(
         self,
         user_id: int | str | None = None,

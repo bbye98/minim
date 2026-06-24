@@ -2,7 +2,8 @@ from __future__ import annotations
 from numbers import Number
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
@@ -459,7 +460,7 @@ class TracksAPI(SpotifyResourceAPI):
             "tracks", track_ids, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.get_my_saved_tracks)
+    @copy_docstring(UsersAPI.get_my_saved_tracks)
     def get_my_saved_tracks(
         self,
         *,
@@ -471,7 +472,7 @@ class TracksAPI(SpotifyResourceAPI):
             country_code=country_code, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.save_tracks)
+    @copy_docstring(UsersAPI.save_tracks)
     def save_tracks(
         self,
         track_ids: str
@@ -482,11 +483,11 @@ class TracksAPI(SpotifyResourceAPI):
     ) -> None:
         self._client.users.save_tracks(track_ids)
 
-    @_copy_docstring(UsersAPI.remove_saved_tracks)
+    @copy_docstring(UsersAPI.remove_saved_tracks)
     def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
         self._client.users.remove_saved_tracks(track_ids)
 
-    @_copy_docstring(UsersAPI.are_tracks_saved)
+    @copy_docstring(UsersAPI.are_tracks_saved)
     def are_tracks_saved(
         self, track_ids: str | Collection[str], /
     ) -> list[bool]:

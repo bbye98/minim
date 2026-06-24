@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
@@ -325,13 +326,13 @@ class AlbumsAPI(DeezerResourceAPI):
             "GET", "album", album_id, "tracks", limit=limit, offset=offset
         )
 
-    @_copy_docstring(ChartsAPI.get_top_albums)
+    @copy_docstring(ChartsAPI.get_top_albums)
     def get_top_albums(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.charts.get_top_albums(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_user_saved_albums)
+    @copy_docstring(UsersAPI.get_user_saved_albums)
     def get_user_saved_albums(
         self,
         user_id: int | str = "me",
@@ -344,7 +345,7 @@ class AlbumsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.save_albums)
+    @copy_docstring(UsersAPI.save_albums)
     def save_albums(
         self,
         album_ids: int | str | Collection[int | str],
@@ -354,13 +355,13 @@ class AlbumsAPI(DeezerResourceAPI):
     ) -> dict[str, str]:
         return self._client.users.save_albums(album_ids, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.remove_saved_album)
+    @copy_docstring(UsersAPI.remove_saved_album)
     def remove_saved_album(
         self, album_id: int | str, /, *, user_id: int | str = "me"
     ) -> dict[str, str]:
         return self._client.users.remove_saved_album(album_id, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.get_user_top_albums)
+    @copy_docstring(UsersAPI.get_user_top_albums)
     def get_user_top_albums(
         self,
         user_id: int | str = "me",
@@ -373,7 +374,7 @@ class AlbumsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_user_album_recommendations)
+    @copy_docstring(UsersAPI.get_user_album_recommendations)
     def get_user_album_recommendations(
         self,
         user_id: int | str = "me",
@@ -386,7 +387,7 @@ class AlbumsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_user_release_recommendations)
+    @copy_docstring(UsersAPI.get_user_release_recommendations)
     def get_user_release_recommendations(
         self,
         user_id: int | str = "me",

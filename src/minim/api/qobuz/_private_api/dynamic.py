@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import _copy_docstring
+from ...._utility import copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .users import PrivateUsersAPI
 
@@ -24,11 +24,11 @@ class PrivateDynamicAPI(PrivateQobuzResourceAPI):
 
     __slots__ = ()
 
-    @_copy_docstring(PrivateUsersAPI.get_personalized_playlists)
+    @copy_docstring(PrivateUsersAPI.get_personalized_playlists)
     def get_personalized_playlists(self) -> list[dict[str, Any]]:
         return self._client.users.get_personalized_playlists()
 
-    @_copy_docstring(PrivateUsersAPI.get_personalized_playlist_tracks)
+    @copy_docstring(PrivateUsersAPI.get_personalized_playlist_tracks)
     def get_personalized_playlist_tracks(
         self,
         playlist_type: str,
@@ -41,7 +41,7 @@ class PrivateDynamicAPI(PrivateQobuzResourceAPI):
             playlist_type, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_track_recommendations)
+    @copy_docstring(PrivateUsersAPI.get_track_recommendations)
     def get_track_recommendations(
         self,
         seed_track_ids: int | str | Collection[int | str],

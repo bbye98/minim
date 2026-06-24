@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import ORDERED_COLLECTION_TYPES
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
@@ -1696,7 +1697,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             resource_identifier_type="uuid",
         )
 
-    @_copy_docstring(SearchAPI.search_playlists)
+    @copy_docstring(SearchAPI.search_playlists)
     def search_playlists(
         self,
         query: str,
@@ -1715,7 +1716,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_playlist_collection)
+    @copy_docstring(UsersAPI.get_playlist_collection)
     def get_playlist_collection(
         self,
         collection_id: str | None = None,
@@ -1732,7 +1733,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    @_copy_docstring(UsersAPI.get_user_followed_playlists)
+    @copy_docstring(UsersAPI.get_user_followed_playlists)
     def get_user_followed_playlists(
         self,
         *,
@@ -1754,7 +1755,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.follow_playlists)
+    @copy_docstring(UsersAPI.follow_playlists)
     def follow_playlists(
         self,
         playlist_uuids: str
@@ -1769,7 +1770,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             playlist_uuids, collection_id=collection_id, user_id=user_id
         )
 
-    @_copy_docstring(UsersAPI.unfollow_playlists)
+    @copy_docstring(UsersAPI.unfollow_playlists)
     def unfollow_playlists(
         self,
         playlist_uuids: str

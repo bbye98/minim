@@ -51,32 +51,6 @@ if TYPE_CHECKING:
     from .._types import Collection, PathLike
 
 
-def _copy_docstring(
-    source: Callable[..., Any],
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """
-    Return a decorator that copies the docstring from one function to
-    another.
-
-    Parameters
-    ----------
-    source : Callable[..., Any]
-        Function whose docstring should be copied.
-
-    Returns
-    -------
-    decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
-        Decorator that replaces the docstring of the decorated function
-        with that of `source`.
-    """
-
-    def decorator(destination: Callable[..., Any]) -> Callable[..., Any]:
-        destination.__doc__ = source.__doc__
-        return destination
-
-    return decorator
-
-
 class OAuthRedirectHandler(BaseHTTPRequestHandler):
     """
     HTTP request handler for OAuth 1.0a and 2.0 redirect URIs.

@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 from .charts import ChartsAPI
 
@@ -400,7 +401,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
             "GET", "artist.search", params=params
         ).json()
 
-    @_copy_docstring(ChartsAPI.get_top_artists)
+    @copy_docstring(ChartsAPI.get_top_artists)
     def get_top_artists(
         self,
         *,

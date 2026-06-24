@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ...._types import PathLike
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
@@ -1134,13 +1135,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "DELETE", f"playlists/{playlist_id}/items", json=payload
         ).json()
 
-    @_copy_docstring(UsersAPI.get_my_playlists)
+    @copy_docstring(UsersAPI.get_my_playlists)
     def get_my_playlists(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.users.get_my_playlists(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_user_playlists)
+    @copy_docstring(UsersAPI.get_user_playlists)
     def get_user_playlists(
         self,
         user_id: str | None = None,
@@ -1660,16 +1661,16 @@ class PlaylistsAPI(SpotifyResourceAPI):
             headers={"content-type": "image/jpeg"},
         )
 
-    @_copy_docstring(UsersAPI.follow_playlist)
+    @copy_docstring(UsersAPI.follow_playlist)
     def follow_playlist(
         self, playlist_id: str, /, *, public: bool | None = None
     ) -> None:
         self._client.users.follow_playlist(playlist_id, public=public)
 
-    @_copy_docstring(UsersAPI.unfollow_playlist)
+    @copy_docstring(UsersAPI.unfollow_playlist)
     def unfollow_playlist(self, playlist_id: str, /) -> None:
         self._client.users.unfollow_playlist(playlist_id)
 
-    @_copy_docstring(UsersAPI.is_following_playlist)
+    @copy_docstring(UsersAPI.is_following_playlist)
     def is_following_playlist(self, playlist_id: str, /) -> bool:
         return self._client.users.is_following_playlist(playlist_id)

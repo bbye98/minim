@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING
 
 import httpx
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
@@ -229,7 +230,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @_copy_docstring(PrivatePagesAPI.get_video_page)
+    @copy_docstring(PrivatePagesAPI.get_video_page)
     def get_video_page(
         self,
         video_id: int | str,
@@ -347,7 +348,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             },
         ).json()
 
-    @_copy_docstring(PrivateUsersAPI.get_user_saved_videos)
+    @copy_docstring(PrivateUsersAPI.get_user_saved_videos)
     def get_user_saved_videos(
         self,
         user_id: int | str | None = None,
@@ -368,7 +369,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.save_videos)
+    @copy_docstring(PrivateUsersAPI.save_videos)
     def save_videos(
         self,
         video_ids: int | str | Collection[int | str],
@@ -385,7 +386,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             on_missing=on_missing,
         )
 
-    @_copy_docstring(PrivateUsersAPI.remove_saved_videos)
+    @copy_docstring(PrivateUsersAPI.remove_saved_videos)
     def remove_saved_videos(
         self,
         video_ids: int | str | Collection[int | str],
@@ -394,7 +395,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
     ) -> None:
         self._client.users.remove_saved_videos(video_ids, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.get_user_blocked_videos)
+    @copy_docstring(PrivateUsersAPI.get_user_blocked_videos)
     def get_user_blocked_videos(
         self,
         user_id: int | str | None = None,
@@ -407,13 +408,13 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.block_video)
+    @copy_docstring(PrivateUsersAPI.block_video)
     def block_video(
         self, video_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.block_video(video_id, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.unblock_video)
+    @copy_docstring(PrivateUsersAPI.unblock_video)
     def unblock_video(
         self, video_id: int | str, /, user_id: int | str | None = None
     ) -> None:

@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
@@ -1209,7 +1210,7 @@ class VideosAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @_copy_docstring(SearchAPI.search_videos)
+    @copy_docstring(SearchAPI.search_videos)
     def search_videos(
         self,
         query: str,
@@ -1228,7 +1229,7 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_user_saved_videos)
+    @copy_docstring(UsersAPI.get_user_saved_videos)
     def get_user_saved_videos(
         self,
         *,
@@ -1252,7 +1253,7 @@ class VideosAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.save_videos)
+    @copy_docstring(UsersAPI.save_videos)
     def save_videos(
         self,
         video_ids: str
@@ -1271,7 +1272,7 @@ class VideosAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_videos)
+    @copy_docstring(UsersAPI.remove_saved_videos)
     def remove_saved_videos(
         self,
         video_ids: str

@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
@@ -1951,7 +1952,7 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @_copy_docstring(SearchAPI.search_albums)
+    @copy_docstring(SearchAPI.search_albums)
     def search_albums(
         self,
         query: str,
@@ -1970,7 +1971,7 @@ class AlbumsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_album_collection)
+    @copy_docstring(UsersAPI.get_album_collection)
     def get_album_collection(
         self,
         collection_id: str | None = None,
@@ -1987,7 +1988,7 @@ class AlbumsAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    @_copy_docstring(UsersAPI.get_user_saved_albums)
+    @copy_docstring(UsersAPI.get_user_saved_albums)
     def get_user_saved_albums(
         self,
         *,
@@ -2011,7 +2012,7 @@ class AlbumsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.save_albums)
+    @copy_docstring(UsersAPI.save_albums)
     def save_albums(
         self,
         album_ids: int
@@ -2031,7 +2032,7 @@ class AlbumsAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_albums)
+    @copy_docstring(UsersAPI.remove_saved_albums)
     def remove_saved_albums(
         self,
         album_ids: int

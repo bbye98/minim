@@ -3,7 +3,8 @@ from datetime import datetime
 import time
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
@@ -1139,7 +1140,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.toggle_item_saved("track", track_id)
 
-    @_copy_docstring(PrivateSearchAPI.search_tracks)
+    @copy_docstring(PrivateSearchAPI.search_tracks)
     def search_tracks(
         self,
         query: str,
@@ -1152,7 +1153,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             query, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_track_recommendations)
+    @copy_docstring(PrivateUsersAPI.get_track_recommendations)
     def get_track_recommendations(
         self,
         seed_track_ids: int | str | Collection[int | str],

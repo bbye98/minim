@@ -7,7 +7,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import httpx
 import json
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
 
@@ -680,7 +681,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             },
         ).json()
 
-    @_copy_docstring(PrivateUsersAPI.get_user_saved_tracks)
+    @copy_docstring(PrivateUsersAPI.get_user_saved_tracks)
     def get_user_saved_tracks(
         self,
         user_id: int | str | None = None,
@@ -701,7 +702,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.save_tracks)
+    @copy_docstring(PrivateUsersAPI.save_tracks)
     def save_tracks(
         self,
         track_ids: int | str | Collection[int | str],
@@ -718,7 +719,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             on_missing=on_missing,
         )
 
-    @_copy_docstring(PrivateUsersAPI.remove_saved_tracks)
+    @copy_docstring(PrivateUsersAPI.remove_saved_tracks)
     def remove_saved_tracks(
         self,
         track_ids: int | str | Collection[int | str],
@@ -727,7 +728,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
     ) -> None:
         self._client.users.remove_saved_tracks(track_ids, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.get_user_blocked_tracks)
+    @copy_docstring(PrivateUsersAPI.get_user_blocked_tracks)
     def get_user_blocked_tracks(
         self,
         user_id: int | str | None = None,
@@ -740,13 +741,13 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.block_track)
+    @copy_docstring(PrivateUsersAPI.block_track)
     def block_track(
         self, track_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.block_track(track_id, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.unblock_track)
+    @copy_docstring(PrivateUsersAPI.unblock_track)
     def unblock_track(
         self, track_id: int | str, /, user_id: int | str | None = None
     ) -> None:
