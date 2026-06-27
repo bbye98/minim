@@ -761,6 +761,7 @@ class MPEGAudio(Audio):
 
         if raw_layer == 1:
             # Process the Xing header, if any
+            num_crc_bytes = 2 * (not (byte_2 & 1))
             if (
                 signature := stream[
                     (
@@ -769,7 +770,7 @@ class MPEGAudio(Audio):
                             + MPEGAudio._XING_OFFSETS[
                                 raw_mpeg_version, num_channels
                             ]
-                            + 2 * (not (byte_2 & 1))
+                            + num_crc_bytes
                         )
                     ) : (end_xing_offset := xing_offset + 4)
                 ].tobytes()
@@ -790,7 +791,7 @@ class MPEGAudio(Audio):
             # Process the VBR Info header, if any
             elif (
                 stream[
-                    (vbri_offset := (offset + 36 + 2 * (not (byte_2 & 1)))) : (
+                    (vbri_offset := offset + 36 + num_crc_bytes) : (
                         end_vbri_offset := vbri_offset + 4
                     )
                 ]
