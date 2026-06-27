@@ -758,7 +758,7 @@ class ID3v2(AudioTags):
                             and frame._key in _frames
                         ):
                             frame_id = frame_id.decode(encoding="ascii")
-                            raise RuntimeError(
+                            raise ValueError(
                                 f"Duplicate {frame_id} frame found."
                             )
                         frames.append(frame)
@@ -769,7 +769,7 @@ class ID3v2(AudioTags):
                         if existing_frame := class_index.get(frame_cls):
                             if strict:
                                 frame_id = frame_id.decode(encoding="ascii")
-                                raise RuntimeError(
+                                raise ValueError(
                                     f"Duplicate {frame_id} frame found."
                                 )
                             raise NotImplementedError  # TODO: Merge
@@ -841,7 +841,7 @@ class ID3v2(AudioTags):
                         if existing_frame := class_index.get(frame_cls):
                             if strict:
                                 frame_id = frame_id.decode(encoding="ascii")
-                                raise RuntimeError(
+                                raise ValueError(
                                     f"Duplicate {frame_id} frame found."
                                 )
                             raise NotImplementedError  # TODO: Merge
