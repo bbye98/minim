@@ -7,7 +7,7 @@ import warnings
 
 from ..._types import ORDERED_COLLECTION_TYPES
 from ..._utility import join_values, validate_country_code
-from .._shared import TTLCache, OAuth2APIClient, ResourceAPI
+from .._shared import TTLCache, OAuth2APIClient
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
