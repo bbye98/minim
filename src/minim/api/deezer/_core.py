@@ -314,7 +314,7 @@ class DeezerAPIClient(OAuth2APIClient):
         user_identifiers : str or Collection[str]; keyword-only; optional
             Identifiers for the user accounts.
         """
-        TokenDatabase.get_tokens(
+        return TokenDatabase.get_tokens(
             client_names=cls.__name__,
             auth_flows=auth_flows,
             client_ids=app_ids,
