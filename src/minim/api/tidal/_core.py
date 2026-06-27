@@ -5,6 +5,8 @@ import time
 from typing import TYPE_CHECKING
 import warnings
 
+from ..._types import ORDERED_COLLECTION_TYPES
+from ..._utility import join_values, validate_country_code
 from .._shared import TTLCache, OAuth2APIClient, ResourceAPI
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
@@ -160,7 +162,7 @@ class BaseTIDALAPIClient(OAuth2APIClient):
         if country_code is None:
             params["countryCode"] = self._my_country_code
         else:
-            ResourceAPI._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["countryCode"] = country_code
 
 
@@ -791,7 +793,10 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
                 dimensions = f"{dimensions}x{dimensions}"
             else:
                 raise ValueError(f"Invalid dimensions {dimensions!r}.")
-        elif isinstance(dimensions, tuple | list) and len(dimensions) == 2:
+        elif (
+            isinstance(dimensions, ORDERED_COLLECTION_TYPES)
+            and len(dimensions) == 2
+        ):
             for ax, dim in zip(("width", "height"), dimensions):
                 if isinstance(dim, str):
                     if not dim.isdecimal():
@@ -807,13 +812,13 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             if item_type not in cls._IMAGE_SIZES:
                 raise ValueError(
                     f"Invalid resource type {item_type!r}. Valid "
-                    f"values: {cls._join_values(cls._IMAGE_SIZES)}."
+                    f"values: {join_values(cls._IMAGE_SIZES)}."
                 )
             if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
                 raise ValueError(
                     f"Invalid dimensions {dimensions!r} for a(n) "
                     f"{item_type} {cls._IMAGE_TYPES[item_type]}. "
-                    f"Valid values: {cls._join_values(sizes)}."
+                    f"Valid values: {join_values(sizes)}."
                 )
         return (
             f"{PrivateTIDALAPIClient.RESOURCE_URL}/{media_type}"

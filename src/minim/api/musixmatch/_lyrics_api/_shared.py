@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import join_values
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
@@ -32,5 +33,5 @@ class MusixmatchResourceAPI(ResourceAPI):
             raise ValueError(
                 f"Invalid {'' if sort_by is None else sort_by + ' '}"
                 f"sort order: {sort_order!r}. Valid values: "
-                f"{ResourceAPI._join_values(allowed_sort_orders)}."
+                f"{join_values(allowed_sort_orders)}."
             )

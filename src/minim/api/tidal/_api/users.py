@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import uuid
 
+from ...._utility import validate_country_code
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 
@@ -300,7 +301,7 @@ class UsersAPI(TIDALResourceAPI):
         self._validate_tidal_ids(id_, recursive=False)
         params = {}
         if country_code is not None:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["countryCode"] = country_code
         self._client._request(
             method,
@@ -1321,7 +1322,7 @@ class UsersAPI(TIDALResourceAPI):
         /userCollectionAlbums
         /post_userCollectionAlbums__id__relationships_items>`_: Add
         albums to a user collection․
-        `User Collections > Add to Albums Relationship 
+        `User Collections > Add to Albums Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /post_userCollections__id__relationships_albums>`_: Add albums
@@ -1399,7 +1400,7 @@ class UsersAPI(TIDALResourceAPI):
         /userCollectionAlbums
         /delete_userCollectionAlbums__id__relationships_items>`_: Remove
         albums from a user collection․
-        `User Collections > Delete from Albums Relationship 
+        `User Collections > Delete from Albums Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /delete_userCollections__id__relationships_albums>`_: Remove
@@ -1420,7 +1421,7 @@ class UsersAPI(TIDALResourceAPI):
            At most one of `collection_id` or `user_id` must be provided.
            If `user_id` is provided, the legacy
            :code:`DELETE /userCollections/{user_id}/relationships
-           /albums` endpoint is used. 
+           /albums` endpoint is used.
 
         Parameters
         ----------
@@ -1902,7 +1903,7 @@ class UsersAPI(TIDALResourceAPI):
            At most one of `collection_id` or `user_id` must be provided.
            If `user_id` is provided, the legacy
            :code:`POST /userCollections/{user_id}/relationships/artists`
-           endpoint is used.    
+           endpoint is used.
 
         Parameters
         ----------
@@ -1982,7 +1983,7 @@ class UsersAPI(TIDALResourceAPI):
            At most one of `collection_id` or `user_id` must be provided.
            If `user_id` is provided, the legacy
            :code:`DELETE /userCollections/{user_id}/relationships
-           /artists` endpoint is used.        
+           /artists` endpoint is used.
 
         Parameters
         ----------
@@ -2445,7 +2446,7 @@ class UsersAPI(TIDALResourceAPI):
         `User Collection Playlists > Delete from Items Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollectionPlaylists
-        /delete_userCollectionPlaylists__id__relationships_items>`_: 
+        /delete_userCollectionPlaylists__id__relationships_items>`_:
         Remove playlists from a user collection․
         `User Collections > Remove Playlists from User's Collection
         <https://tidal-music.github.io/tidal-api-reference/#
@@ -2755,7 +2756,7 @@ class UsersAPI(TIDALResourceAPI):
         /userCollectionTracks
         /post_userCollectionTracks__id__relationships_items>`_: Add
         tracks to a user collection․
-        `User Collections > Add to Tracks Relationship 
+        `User Collections > Add to Tracks Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /post_userCollections__id__relationships_tracks>`_: Add tracks
@@ -2776,7 +2777,7 @@ class UsersAPI(TIDALResourceAPI):
            At most one of `collection_id` or `user_id` must be provided.
            If `user_id` is provided, the legacy
            :code:`POST /userCollections/{user_id}/relationships/tracks`
-           endpoint is used.      
+           endpoint is used.
 
         Parameters
         ----------
@@ -2833,7 +2834,7 @@ class UsersAPI(TIDALResourceAPI):
         /userCollectionTracks
         /delete_userCollectionTracks__id__relationships_items>`_: Remove
         tracks from a user collection․
-        `User Collections > Delete from Tracks Relationship 
+        `User Collections > Delete from Tracks Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /delete_userCollections__id__relationships_tracks>`_: Remove
@@ -2854,7 +2855,7 @@ class UsersAPI(TIDALResourceAPI):
            At most one of `collection_id` or `user_id` must be provided.
            If `user_id` is provided, the legacy
            :code:`DELETE /userCollections/{user_id}/relationships
-           /tracks` endpoint is used.      
+           /tracks` endpoint is used.
 
         Parameters
         ----------
@@ -3081,7 +3082,7 @@ class UsersAPI(TIDALResourceAPI):
         /userCollectionVideos
         /post_userCollectionVideos__id__relationships_items>`_: Add
         videos to a user collection․
-        `User Collections > Add to Videos Relationship 
+        `User Collections > Add to Videos Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /post_userCollections__id__relationships_videos>`_: Add videos
@@ -3102,7 +3103,7 @@ class UsersAPI(TIDALResourceAPI):
            At most one of `collection_id` or `user_id` must be provided.
            If `user_id` is provided, the legacy
            :code:`POST /userCollections/{user_id}/relationships/videos`
-           endpoint is used. 
+           endpoint is used.
 
         Parameters
         ----------
@@ -3158,7 +3159,7 @@ class UsersAPI(TIDALResourceAPI):
         /userCollectionVideos
         /delete_userCollectionVideos__id__relationships_items>`_: Remove
         videos from a user collection․
-        `User Collections > Delete from Videos Relationship 
+        `User Collections > Delete from Videos Relationship
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
         /delete_userCollections__id__relationships_videos>`_: Remove
@@ -3179,7 +3180,7 @@ class UsersAPI(TIDALResourceAPI):
            At most one of `collection_id` or `user_id` must be provided.
            If `user_id` is provided, the legacy
            :code:`DELETE /userCollections/{user_id}/relationships
-           /videos` endpoint is used.          
+           /videos` endpoint is used.
 
         Parameters
         ----------

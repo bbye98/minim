@@ -1,7 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    validate_number,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
@@ -954,11 +959,11 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                 if sort_by not in self._SORT_FIELDS:
                     raise ValueError(
                         f"Invalid sort field {sort_by!r}. Valid "
-                        f"values: {self._join_values(self._SORT_FIELDS)}."
+                        f"values: {join_values(self._SORT_FIELDS)}."
                     )
                 params["order"] = sort_by
             if descending is not None:
-                self._validate_type("descending", descending, bool)
+                validate_type("descending", descending, bool)
                 params["orderDirection"] = "desc"
             return self._client._request(
                 "GET", "artist/page", params=params
@@ -1182,15 +1187,15 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid "
-                    f"values: {self._join_values(self._SORT_FIELDS)}."
+                    f"values: {join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["orderDirection"] = "desc" if descending else "asc"
         if include_tracks:
             if track_limit is not None:
-                self._validate_number("track_size", track_limit, int, 1, 30)
+                validate_number("track_size", track_limit, int, 1, 30)
                 params["track_size"] = track_limit
             return self._get_paginated_resources(
                 "artist/getReleasesList",

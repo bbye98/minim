@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ...._utility import validate_country_code
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
@@ -38,7 +39,7 @@ class MarketsAPI(SpotifyResourceAPI):
         market : str; positional-only
             ISO 3166-1 alpha-2 country code.
         """
-        self._validate_country_code(market)
+        validate_country_code(market)
         if (
             (cache := self._client._cache)
             and "markets" in cache._store

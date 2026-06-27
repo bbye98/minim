@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ...._utility import copy_docstring
+from ...._utility import copy_docstring, prepare_string
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
@@ -142,9 +142,9 @@ class ArtistsAPI(TIDALResourceAPI):
 
         .. important::
 
-           Exactly one of `artist_ids`, `handles`, or `owner_ids` must 
-           be provided. When `handles` or `owner_ids` is specified, the 
-           request will always be sent to the endpoint for multiple 
+           Exactly one of `artist_ids`, `handles`, or `owner_ids` must
+           be provided. When `handles` or `owner_ids` is specified, the
+           request will always be sent to the endpoint for multiple
            artists.
 
         Parameters
@@ -1008,7 +1008,7 @@ class ArtistsAPI(TIDALResourceAPI):
         if handles is not None:
             if isinstance(handles, COLLECTION_TYPES):
                 handles = [
-                    self._prepare_string(f"handles[{idx}]", handle)
+                    prepare_string(f"handles[{idx}]", handle)
                     for idx, handle in enumerate(handles)
                 ]
             elif not isinstance(handles, str):

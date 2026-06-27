@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ...._utility import copy_docstring
+from ...._utility import copy_docstring, prepare_barcode
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
@@ -126,7 +126,7 @@ class AlbumsAPI(TIDALResourceAPI):
             :code:`["artists", "items"]`.
 
         cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results when retrieving 
+            Cursor for fetching the next page of results when retrieving
             multiple albums.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1058,11 +1058,9 @@ class AlbumsAPI(TIDALResourceAPI):
         params = {}
         if barcodes is not None:
             if isinstance(barcodes, int | str):
-                barcodes = self._prepare_barcode(barcodes)
+                barcodes = prepare_barcode(barcodes)
             elif isinstance(barcodes, COLLECTION_TYPES):
-                barcodes = [
-                    self._prepare_barcode(barcode) for barcode in barcodes
-                ]
+                barcodes = [prepare_barcode(barcode) for barcode in barcodes]
             else:
                 raise ValueError(
                     "`barcodes` must be an integer, a string, or a "

@@ -1,6 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import (
+    join_values,
+    prepare_string,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
 
@@ -270,26 +277,24 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication("users.update_user_profile")
         payload = {}
         if name is not None:
-            payload["name"] = self._prepare_string(
-                "name", name, allow_blank=True
-            )
+            payload["name"] = prepare_string("name", name, allow_blank=True)
         if website is not None:
-            payload["home_page"] = self._prepare_string(
+            payload["home_page"] = prepare_string(
                 "website", website, allow_blank=True
             )
         if location is not None:
-            payload["location"] = self._prepare_string(
+            payload["location"] = prepare_string(
                 "location", location, allow_blank=True
             )
         if bio is not None:
-            self._validate_type("bio", bio, str)
+            validate_type("bio", bio, str)
             payload["profile"] = bio
         if currency is not None:
-            currency = self._prepare_string("currency", currency).upper()
+            currency = prepare_string("currency", currency).upper()
             if currency not in self._CURRENCIES:
                 raise ValueError(
                     f"Invalid currency {currency!r}. "
-                    f"Valid values: {self._join_values(self._CURRENCIES)}."
+                    f"Valid values: {join_values(self._CURRENCIES)}."
                 )
             payload["curr_abbr"] = currency
         if not payload:
@@ -639,14 +644,14 @@ class UsersAPI(DiscogsResourceAPI):
         """
         params = {}
         if sort_by is not None:
-            sort_by = self._prepare_string("sort_by", sort_by).lower()
+            sort_by = prepare_string("sort_by", sort_by).lower()
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: {self._join_values(self._SORT_FIELDS)}."
+                    f"Valid values: {join_values(self._SORT_FIELDS)}."
                 )
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["sort_order"] = "desc" if descending else "asc"
         return self._get_paginated_resources(
             f"users/{self._resolve_username(username)}/contributions",
@@ -765,7 +770,7 @@ class UsersAPI(DiscogsResourceAPI):
         return self._client._request(
             "POST",
             f"users/{self._resolve_username(username)}/collection/folder",
-            params={"name": self._prepare_string("folder_name", folder_name)},
+            params={"name": prepare_string("folder_name", folder_name)},
         ).json()
 
     @TTLCache.cached_method(ttl="user")
@@ -820,7 +825,7 @@ class UsersAPI(DiscogsResourceAPI):
                     "resource_url": <str>
                   }
         """
-        self._validate_numeric("folder_id", folder_id, int, 0)
+        validate_numeric("folder_id", folder_id, int, 0)
         if int(folder_id) == 0:
             self._client._require_authentication(
                 "users.get_user_collection_folder"
@@ -894,11 +899,11 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "users.rename_user_collection_folder"
         )
-        self._validate_numeric("folder_id", folder_id, int, 2)
+        validate_numeric("folder_id", folder_id, int, 2)
         return self._client._request(
             "POST",
             f"users/{self._resolve_username(username)}/collection/folders/{folder_id}",
-            json={"name": self._prepare_string("folder_name", folder_name)},
+            json={"name": prepare_string("folder_name", folder_name)},
         ).json()
 
     def delete_user_collection_folder(
@@ -938,7 +943,7 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "users.delete_user_collection_folder"
         )
-        self._validate_numeric("folder_id", folder_id, int, 2)
+        validate_numeric("folder_id", folder_id, int, 2)
         self._client._request(
             "DELETE",
             f"users/{self._resolve_username(username)}"
@@ -1059,7 +1064,7 @@ class UsersAPI(DiscogsResourceAPI):
                     ]
                   }
         """
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "GET",
             f"users/{self._resolve_username(username)}"
@@ -1202,7 +1207,7 @@ class UsersAPI(DiscogsResourceAPI):
                     ]
                   }
         """
-        self._validate_numeric("folder_id", folder_id, int, 0)
+        validate_numeric("folder_id", folder_id, int, 0)
         if int(folder_id) == 0:
             self._client._require_authentication(
                 "users.get_user_collection_folder_releases"
@@ -1275,8 +1280,8 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "users.add_user_collection_release"
         )
-        self._validate_numeric("folder_id", folder_id, int, 0)
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("folder_id", folder_id, int, 0)
+        validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "POST",
             f"users/{self._resolve_username(username)}"
@@ -1354,15 +1359,15 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "users.update_user_collection_release_instance"
         )
-        self._validate_numeric("from_folder_id", from_folder_id, int, 0)
-        self._validate_numeric("release_id", release_id, int, 1)
-        self._validate_numeric("instance_id", instance_id, int, 1)
+        validate_numeric("from_folder_id", from_folder_id, int, 0)
+        validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("instance_id", instance_id, int, 1)
         payload = {}
         if to_folder_id is not None:
-            self._validate_numeric("to_folder_id", to_folder_id, int, 0)
+            validate_numeric("to_folder_id", to_folder_id, int, 0)
             payload["folder_id"] = to_folder_id
         if rating is not None:
-            self._validate_number("rating", rating, int, 0, 5)
+            validate_number("rating", rating, int, 0, 5)
             payload["rating"] = rating
         if not payload:
             raise RuntimeError("At least one change must be specified.")
@@ -1424,9 +1429,9 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "users.remove_user_collection_release_instance"
         )
-        self._validate_numeric("folder_id", folder_id, int, 0)
-        self._validate_numeric("release_id", release_id, int, 1)
-        self._validate_numeric("instance_id", instance_id, int, 1)
+        validate_numeric("folder_id", folder_id, int, 0)
+        validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("instance_id", instance_id, int, 1)
         return self._client._request(
             "DELETE",
             f"users/{self._resolve_username(username)}"
@@ -1549,11 +1554,11 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "users.update_user_collection_release_field"
         )
-        self._validate_numeric("folder_id", folder_id, int, 0)
-        self._validate_numeric("release_id", release_id, int, 1)
-        self._validate_numeric("instance_id", instance_id, int, 1)
-        self._validate_numeric("field_id", field_id, int, 1)
-        self._validate_type("value", value, str)
+        validate_numeric("folder_id", folder_id, int, 0)
+        validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("instance_id", instance_id, int, 1)
+        validate_numeric("field_id", field_id, int, 1)
+        validate_type("value", value, str)
         self._client._request(
             "POST",
             f"users/{self._resolve_username(username)}/collection"
@@ -1827,7 +1832,7 @@ class UsersAPI(DiscogsResourceAPI):
                   }
         """
         self._client._require_authentication("users.add_user_wantlist_release")
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "PUT",
             f"users/{self._resolve_username(username)}/wants/{release_id}",
@@ -1940,14 +1945,12 @@ class UsersAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "users.update_user_wantlist_release"
         )
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         payload = {}
         if notes is not None:
-            payload["notes"] = self._prepare_string(
-                "notes", notes, allow_blank=True
-            )
+            payload["notes"] = prepare_string("notes", notes, allow_blank=True)
         if rating is not None:
-            self._validate_number("rating", rating, int, 0, 5)
+            validate_number("rating", rating, int, 0, 5)
             payload["rating"] = rating
         return self._client._request(
             "POST",
@@ -2166,5 +2169,5 @@ class UsersAPI(DiscogsResourceAPI):
                     }
                   }
         """
-        self._validate_numeric("list_id", list_id, int, 1)
+        validate_numeric("list_id", list_id, int, 1)
         return self._client._request("GET", f"lists/{list_id}").json()

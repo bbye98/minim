@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._utility import copy_docstring, validate_country_code
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
@@ -132,7 +132,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
         if country_code is None:
             country_code = self._client._my_country_code
         else:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
         return self._client._request(
             "GET",
             f"v1/mixes/{mix_id}/items",

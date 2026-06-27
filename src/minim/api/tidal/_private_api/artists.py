@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._utility import copy_docstring, join_values
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
@@ -206,7 +206,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             if album_type not in self._ALBUM_TYPES:
                 raise ValueError(
                     f"Invalid album type {album_type!r}. Valid values: "
-                    f"{self._join_values(self._ALBUM_TYPES)}."
+                    f"{join_values(self._ALBUM_TYPES)}."
                 )
             params["filter"] = album_type
         return self._get_resource_relationship(

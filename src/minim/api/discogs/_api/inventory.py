@@ -6,6 +6,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ...._types import PathLike
+from ...._utility import (
+    join_values,
+    prepare_string,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
 
@@ -69,13 +76,11 @@ class InventoryAPI(DiscogsResourceAPI):
         content_type : str
             Content type (:code:`"text/csv"`).
         """
-        self._validate_type("inventory_csv", inventory_csv, bytes | PathLike)
+        validate_type("inventory_csv", inventory_csv, bytes | PathLike)
         if (is_str := isinstance(inventory_csv, str)) or isinstance(
             inventory_csv, bytes
         ):
-            inventory_csv = self._prepare_string(
-                "inventory_csv", inventory_csv
-            )
+            inventory_csv = prepare_string("inventory_csv", inventory_csv)
             if is_str:
                 try:
                     inventory_csv = (
@@ -102,7 +107,7 @@ class InventoryAPI(DiscogsResourceAPI):
             if missing_fields := required_fields - csv_headers:
                 raise ValueError(
                     "`inventory_csv` is missing the following required "
-                    f"field(s): {self._join_values(missing_fields)}."
+                    f"field(s): {join_values(missing_fields)}."
                 )
             additional_fields = csv_headers - required_fields
             if update and not additional_fields:
@@ -113,7 +118,7 @@ class InventoryAPI(DiscogsResourceAPI):
             if extra_fields := additional_fields - optional_fields:
                 raise ValueError(
                     "`inventory_csv` has the following extra or unsupported "
-                    f"field(s): {self._join_values(extra_fields)}."
+                    f"field(s): {join_values(extra_fields)}."
                 )
 
             all_conditions = (
@@ -124,27 +129,27 @@ class InventoryAPI(DiscogsResourceAPI):
                     if value is not None or key in required_fields:
                         match key:
                             case "release_id" | "weight" | "format_quantity":
-                                self._validate_numeric(key, value, int, 0)
+                                validate_numeric(key, value, int, 0)
                             case "price":
-                                self._validate_numeric(key, value, float, 0)
+                                validate_numeric(key, value, float, 0)
                             case "media_condition":
-                                self._validate_type(key, value, str)
+                                validate_type(key, value, str)
                                 if value not in self._CONDITIONS:
                                     raise ValueError(
                                         f"Invalid media condition {value!r}. "
-                                        f"Valid values: {self._join_values(self._CONDITIONS)}."
+                                        f"Valid values: {join_values(self._CONDITIONS)}."
                                     )
                             case "sleeve_condition":
-                                self._validate_type(key, value, str)
+                                validate_type(key, value, str)
                                 if value not in all_conditions:
                                     raise ValueError(
                                         f"Invalid media condition {value!r}. "
-                                        f"Valid values: {self._join_values(all_conditions)}."
+                                        f"Valid values: {join_values(all_conditions)}."
                                     )
                             case "comments" | "external_id" | "location":
-                                self._validate_type(key, value, str)
+                                validate_type(key, value, str)
                             case "accept_offer":
-                                self._validate_type(key, value, str)
+                                validate_type(key, value, str)
                                 if value not in {"N", "Y"}:
                                     raise ValueError(
                                         "Invalid `accept_offer` value "
@@ -320,7 +325,7 @@ class InventoryAPI(DiscogsResourceAPI):
                   }
         """
         self._client._require_authentication("inventory.get_inventory_export")
-        self._validate_number("export_id", export_id, int, 1)
+        validate_number("export_id", export_id, int, 1)
         return self._client._request(
             "GET", f"inventory/export/{export_id}"
         ).json()
@@ -367,7 +372,7 @@ class InventoryAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "inventory.download_inventory_export"
         )
-        self._validate_number("export_id", export_id, int, 1)
+        validate_number("export_id", export_id, int, 1)
         resp = self._client._request(
             "GET", f"inventory/export/{export_id}/download"
         )
@@ -718,7 +723,7 @@ class InventoryAPI(DiscogsResourceAPI):
                   }
         """
         self._client._require_authentication("inventory.get_inventory_upload")
-        self._validate_number("upload_id", upload_id, int, 1)
+        validate_number("upload_id", upload_id, int, 1)
         return self._client._request(
             "GET", f"inventory/upload/{upload_id}"
         ).json()

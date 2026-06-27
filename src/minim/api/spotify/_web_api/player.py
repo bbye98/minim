@@ -2,6 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from ...._utility import join_values, validate_number, validate_type
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
@@ -138,7 +139,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Returns
         -------
         state : dict[str, Any]
-            Playback state and Spotify metadata for the currently 
+            Playback state and Spotify metadata for the currently
             playing item.
 
             .. admonition:: Sample response
@@ -336,7 +337,7 @@ class PlayerAPI(SpotifyResourceAPI):
         self._validate_spotify_id(device_id)
         payload = {"device_id": device_id}
         if play is not None:
-            self._validate_type("play", play, bool)
+            validate_type("play", play, bool)
             payload["play"] = play
         self._client._request("PUT", "me/player", json=payload)
 
@@ -708,7 +709,7 @@ class PlayerAPI(SpotifyResourceAPI):
             )
         if multiple and offset is not None:
             if isinstance(offset, int):
-                self._validate_number("offset", offset, int, 0)
+                validate_number("offset", offset, int, 0)
                 payload["offset"] = {"position": offset}
             elif isinstance(offset, str):
                 self._validate_spotify_uri(offset, resource_types={"track"})
@@ -719,7 +720,7 @@ class PlayerAPI(SpotifyResourceAPI):
                     "(int) or a Spotify track URI (str)."
                 )
         if position_ms is not None:
-            self._validate_number("position_ms", position_ms, int, 0)
+            validate_number("position_ms", position_ms, int, 0)
             payload["position_ms"] = position_ms
         self._control_playback("play", device_id=device_id, payload=payload)
 
@@ -910,7 +911,7 @@ class PlayerAPI(SpotifyResourceAPI):
         self._client._require_scopes(
             "player.seek_to_position", "user-modify-playback-state"
         )
-        self._validate_number("position_ms", position_ms, int, 0)
+        validate_number("position_ms", position_ms, int, 0)
         self._control_playback(
             "seek", device_id=device_id, params={"position_ms": position_ms}
         )
@@ -972,7 +973,7 @@ class PlayerAPI(SpotifyResourceAPI):
         if repeat_mode not in self._REPEAT_MODES:
             raise ValueError(
                 f"Invalid repeat mode {repeat_mode!r}. Valid "
-                f"values: {self._join_values(self._REPEAT_MODES)}."
+                f"values: {join_values(self._REPEAT_MODES)}."
             )
         self._control_playback(
             "repeat", device_id=device_id, params={"state": repeat_mode}
@@ -1027,7 +1028,7 @@ class PlayerAPI(SpotifyResourceAPI):
         self._client._require_scopes(
             "player.set_volume", "user-modify-playback-state"
         )
-        self._validate_number("volume_percent", volume_percent, int, 0, 100)
+        validate_number("volume_percent", volume_percent, int, 0, 100)
         self._control_playback(
             "volume",
             device_id=device_id,
@@ -1081,7 +1082,7 @@ class PlayerAPI(SpotifyResourceAPI):
         self._client._require_scopes(
             "player.set_shuffle", "user-modify-playback-state"
         )
-        self._validate_type("shuffle", shuffle, bool)
+        validate_type("shuffle", shuffle, bool)
         self._control_playback(
             "shuffle", device_id=device_id, params={"state": shuffle}
         )
@@ -1277,16 +1278,16 @@ class PlayerAPI(SpotifyResourceAPI):
             if isinstance(played_after, datetime):
                 params["after"] = int(1_000 * played_after.timestamp())
             else:
-                self._validate_number("played_after", played_after, int, 0)
+                validate_number("played_after", played_after, int, 0)
                 params["after"] = played_after
         elif played_before is not None:
             if isinstance(played_before, datetime):
                 params["before"] = int(1_000 * played_before.timestamp())
             else:
-                self._validate_number("played_before", played_before, int, 0)
+                validate_number("played_before", played_before, int, 0)
                 params["before"] = played_before
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         return self._client._request(
             "GET", "me/player/recently-played", params=params

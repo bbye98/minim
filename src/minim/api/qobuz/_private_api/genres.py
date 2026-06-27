@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import join_values
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 
@@ -78,7 +79,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
             if genre_id not in self.available_genres:
                 raise ValueError(
                     f"Invalid genre ID {genre_id!r}. Valid values: "
-                    f"{self._join_values(self.available_genres.keys())}."
+                    f"{join_values(self.available_genres.keys())}."
                 )
 
     @TTLCache.cached_method(ttl="static")

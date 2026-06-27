@@ -2,6 +2,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
+from ...._utility import (
+    join_values,
+    prepare_string,
+    validate_country_code,
+    validate_locale,
+    validate_type,
+    validate_uuids,
+)
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
@@ -56,12 +64,12 @@ class TIDALResourceAPI(ResourceAPI):
 
                This `dict` is mutated in-place.
         """
-        ResourceAPI._validate_type("sort_by", sort_by, str)
+        validate_type("sort_by", sort_by, str)
         sort_by = sort_by.removeprefix(prefix)
         if sort_by not in sort_fields:
             raise ValueError(
                 f"Cannot sort by '{prefix}{sort_by}'. Valid values: "
-                f"{ResourceAPI._join_values([f'{prefix}{sort_field}' for sort_field in sort_fields])}."
+                f"{join_values([f'{prefix}{sort_field}' for sort_field in sort_fields])}."
             )
         params["sort"] = f"{'-' if descending else ''}{prefix}{sort_by}"
 
@@ -137,7 +145,7 @@ class TIDALResourceAPI(ResourceAPI):
             if resource not in relationships:
                 raise ValueError(
                     f"Invalid related resource {resource!r}. Valid "
-                    f"values: {ResourceAPI._join_values(relationships)}."
+                    f"values: {join_values(relationships)}."
                 )
         return (
             expand
@@ -188,7 +196,7 @@ class TIDALResourceAPI(ResourceAPI):
             Related resources to include metadata for in the response.
 
         cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results when retrieving 
+            Cursor for fetching the next page of results when retrieving
             multiple albums.
 
         share_code : str; keyword-only; optional
@@ -221,13 +229,13 @@ class TIDALResourceAPI(ResourceAPI):
         if params is None:
             params = {}
         if country_code is not None:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["countryCode"] = country_code
         if locale is not None:
-            self._validate_locale(locale)
+            validate_locale(locale)
             params["locale"] = locale
         if include_explicit is not None:
-            self._validate_type("include_explicit", include_explicit, bool)
+            validate_type("include_explicit", include_explicit, bool)
             params["explicitFilter"] = (
                 "INCLUDE" if include_explicit else "EXCLUDE"
             )
@@ -240,17 +248,17 @@ class TIDALResourceAPI(ResourceAPI):
                 case "id":
                     self._validate_tidal_ids(resource_identifiers)
                 case "uuid":
-                    self._validate_uuids(resource_identifiers)
+                    validate_uuids(resource_identifiers)
                 case _:
                     if resource_identifier_type[-1] == "s":
                         for resource_identifier in resource_identifiers:
-                            self._validate_type(
+                            validate_type(
                                 resource_identifier_type[:-1],
                                 resource_identifier,
                                 str,
                             )
                     else:
-                        self._validate_type(
+                        validate_type(
                             resource_identifier_type, resource_identifiers, str
                         )
             if isinstance(resource_identifiers, int | str):
@@ -266,11 +274,9 @@ class TIDALResourceAPI(ResourceAPI):
                 else sorted(resource_identifiers)
             )
         if cursor is not None:
-            params["page[cursor]"] = self._prepare_string("cursor", cursor)
+            params["page[cursor]"] = prepare_string("cursor", cursor)
         if share_code is not None:
-            params["shareCode"] = self._prepare_string(
-                "share_code", share_code
-            )
+            params["shareCode"] = prepare_string("share_code", share_code)
         return self._client._request(
             "GET", resource_type, params=params
         ).json()
@@ -321,7 +327,7 @@ class TIDALResourceAPI(ResourceAPI):
             resource.
 
         cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results when retrieving 
+            Cursor for fetching the next page of results when retrieving
             multiple albums.
 
         share_code : str; keyword-only; optional
@@ -350,32 +356,30 @@ class TIDALResourceAPI(ResourceAPI):
         if resource_identifier_type == "id":
             self._validate_tidal_ids(resource_identifier, recursive=False)
         elif resource_identifier_type == "uuid":
-            self._validate_uuids(resource_identifier)
+            validate_uuids(resource_identifier)
         else:
-            self._validate_type("query", resource_identifier, str)
+            validate_type("query", resource_identifier, str)
         if params is None:
             params = {}
         if country_code is not None:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["countryCode"] = country_code
         if locale is not None:
-            self._validate_locale(locale)
+            validate_locale(locale)
             params["locale"] = locale
         if include_explicit is not None:
-            self._validate_type("include_explicit", include_explicit, bool)
+            validate_type("include_explicit", include_explicit, bool)
             params["explicitFilter"] = (
                 "INCLUDE" if include_explicit else "EXCLUDE"
             )
         if include_metadata is not None:
-            self._validate_type("include_metadata", include_metadata, bool)
+            validate_type("include_metadata", include_metadata, bool)
             if include_metadata:
                 params["include"] = relationship
         if cursor is not None:
-            params["page[cursor]"] = self._prepare_string("cursor", cursor)
+            params["page[cursor]"] = prepare_string("cursor", cursor)
         if share_code is not None:
-            params["shareCode"] = self._prepare_string(
-                "share_code", share_code
-            )
+            params["shareCode"] = prepare_string("share_code", share_code)
         return self._client._request(
             "GET",
             f"{resource_type}/{resource_identifier}/relationships/{relationship}",

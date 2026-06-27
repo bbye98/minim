@@ -12,6 +12,7 @@ from urllib.parse import urlencode
 import httpx
 
 from ... import FOUND
+from ..._utility import join_values
 from .._shared import OAuthAPIClient, TokenDatabase
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
@@ -888,7 +889,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         if auth_flow not in self._AUTH_FLOWS:
             raise ValueError(
                 f"Invalid authorization flow {auth_flow!r}. "
-                f"Valid values: {self._join_values(self._AUTH_FLOWS)}."
+                f"Valid values: {join_values(self._AUTH_FLOWS)}."
             )
 
         self._client.headers["x-app-id"] = self._app_id = app_id

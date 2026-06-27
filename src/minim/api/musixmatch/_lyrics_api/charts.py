@@ -1,6 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import (
+    join_values,
+    prepare_string,
+    validate_country_code,
+    validate_number,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 
@@ -176,24 +183,24 @@ class ChartsAPI(MusixmatchResourceAPI):
         """
         params = {}
         if chart_name is not None:
-            chart_name = self._prepare_string("chart_name", chart_name).lower()
+            chart_name = prepare_string("chart_name", chart_name).lower()
             if chart_name not in self._CHART_NAMES:
                 raise ValueError(
                     f"Invalid chart {chart_name}. "
-                    f"Valid values: {self._join_values(self._CHART_NAMES)}."
+                    f"Valid values: {join_values(self._CHART_NAMES)}."
                 )
             params["chart_name"] = chart_name
         if country_code is not None:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["country"] = country_code
         if has_lyrics is not None:
-            self._validate_type("has_lyrics", has_lyrics, bool)
+            validate_type("has_lyrics", has_lyrics, bool)
             params["f_has_lyrics"] = int(has_lyrics)
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["page_size"] = limit
         if page is not None:
-            self._validate_number("page", page, int, 1)
+            validate_number("page", page, int, 1)
             params["page"] = page
         return self._client._request(
             "GET", "chart.tracks.get", params=params
@@ -302,13 +309,13 @@ class ChartsAPI(MusixmatchResourceAPI):
         """
         params = {}
         if country_code is not None:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["country"] = country_code
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["page_size"] = limit
         if page is not None:
-            self._validate_number("page", page, int, 1)
+            validate_number("page", page, int, 1)
             params["page"] = page
         return self._client._request(
             "GET", "chart.artists.get", params=params

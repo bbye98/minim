@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._utility import copy_docstring, validate_number
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
@@ -563,10 +563,10 @@ class AlbumsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "browse/new-releases", params=params

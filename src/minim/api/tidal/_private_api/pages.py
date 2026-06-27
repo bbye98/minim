@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import join_values, validate_locale
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 
@@ -77,14 +78,14 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         if device_type not in (device_types := self._client._DEVICE_TYPES):
             raise ValueError(
                 f"Invalid device type {device_type!r}. "
-                f"Valid values: {self._join_values(device_types)}."
+                f"Valid values: {join_values(device_types)}."
             )
         params = {"deviceType": device_type}
         self._client._resolve_country_code(country_code, params=params)
         if resource_id is not None:
             params[f"{resource_type}Id"] = str(resource_id)
         if locale is not None:
-            self._validate_locale(locale)
+            validate_locale(locale)
             params["locale"] = locale
         if resource_type == "video":
             resource_type = "videos"

@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import prepare_string, validate_number
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
@@ -489,7 +490,7 @@ class SearchAPI(SpotifyResourceAPI):
                   }
         """
         params = {
-            "q": self._prepare_string("query", query),
+            "q": prepare_string("query", query),
             "type": self._prepare_types(
                 item_types,
                 allowed_types=self._RESOURCE_TYPES,
@@ -508,9 +509,9 @@ class SearchAPI(SpotifyResourceAPI):
             params["market"] = country_code
         if limit is not None:
             # Leave upper bound at 50 for Extended Quota Mode apps
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0, 1_000)
+            validate_number("offset", offset, int, 0, 1_000)
             params["offset"] = offset
         return self._client._request("GET", "search", params=params).json()

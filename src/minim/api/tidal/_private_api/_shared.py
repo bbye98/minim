@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES
+from ...._utility import validate_country_code, validate_number, validate_uuids
 from ..._shared import ResourceAPI
 from .._api._shared import TIDALResourceAPI
 
@@ -120,7 +121,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
                         uuid = uuid[13:]
                     else:
                         resource_uuids[idx] = f"trn:{resource_type}:{uuid}"
-                ResourceAPI._validate_uuids(uuid)
+                validate_uuids(uuid)
         else:
             raise TypeError(
                 f"`{resource_type}_uuids` must be a comma-separated "
@@ -160,7 +161,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         if country_code is None:
             country_code = self._client._my_country_code
         else:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
         return self._client._request(
             "GET",
             f"v1/{resource_type}/{resource_id}",
@@ -230,10 +231,10 @@ class PrivateTIDALResourceAPI(ResourceAPI):
             params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET",

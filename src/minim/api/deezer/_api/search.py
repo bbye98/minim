@@ -1,6 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import (
+    join_values,
+    prepare_string,
+    validate_number,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 
@@ -96,20 +102,20 @@ class SearchAPI(DeezerResourceAPI):
         if resource_type is not None:
             endpoint += f"/{resource_type}"
         if query is not None:
-            params = {"q": self._prepare_string("query", query)}
+            params = {"q": prepare_string("query", query)}
         elif resource_type == "history":
             params = {}
         else:
             raise ValueError("`query` cannot be blank.")
         if strict is not None:
-            self._validate_type("strict", strict, bool)
+            validate_type("strict", strict, bool)
             if strict:
                 params["strict"] = "on"
         if limit is not None:
-            self._validate_number("limit", limit, int, 1)
+            validate_number("limit", limit, int, 1)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["index"] = offset
         if sort_by is not None:
             sort_by = sort_by.strip().upper()
@@ -119,9 +125,9 @@ class SearchAPI(DeezerResourceAPI):
                 if sort_by not in self._SORT_FIELDS:
                     raise ValueError(
                         f"Invalid sort field {sort_by!r}. Valid "
-                        f"values: {self._join_values(self._SORT_FIELDS)}."
+                        f"values: {join_values(self._SORT_FIELDS)}."
                     )
-                self._validate_type("descending", descending, bool)
+                validate_type("descending", descending, bool)
                 params["order"] = (
                     f"{sort_by}_{'DESC' if descending else 'ASC'}"
                 )

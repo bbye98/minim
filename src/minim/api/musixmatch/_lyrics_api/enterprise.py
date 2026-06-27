@@ -2,7 +2,18 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_datetime,
+    prepare_isrc,
+    prepare_iswc,
+    prepare_string,
+    validate_country_code,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 from .tracks import TracksAPI
@@ -61,28 +72,24 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             **Valid values**: :code:`"publisher"`, :code:`"writer"`.
         """
         attr_prefix = f"work_data['owners'][{rightsholder_type!r}]"
-        MusixmatchResourceAPI._validate_type(attr_prefix, rightsholders, list)
+        validate_type(attr_prefix, rightsholders, list)
         for idx, rightsholder in enumerate(rightsholders):
             item_name = f"{attr_prefix}[{idx}]"
-            MusixmatchResourceAPI._validate_type(item_name, rightsholder, dict)
+            validate_type(item_name, rightsholder, dict)
             required_keys = {"name", "controlled"}
             for attr_key, attr_val in rightsholder.items():
                 attr_name = f"{item_name}[{attr_key!r}]"
                 match attr_key:
                     # data.owners.(publisher|writer).name
                     case "name":
-                        rightsholder[attr_key] = (
-                            MusixmatchResourceAPI._prepare_string(
-                                attr_name, attr_val
-                            )
+                        rightsholder[attr_key] = prepare_string(
+                            attr_name, attr_val
                         )
                         required_keys.remove(attr_key)
 
                     # data.owners.(publisher|writer).controlled
                     case "controlled":
-                        attr_val = MusixmatchResourceAPI._prepare_string(
-                            attr_name, attr_val
-                        ).upper()
+                        attr_val = prepare_string(attr_name, attr_val).upper()
                         if attr_val not in "NY":
                             raise ValueError(
                                 f"`{attr_name}` must be either 'Y' or 'N'."
@@ -92,37 +99,29 @@ class EnterpriseAPI(MusixmatchResourceAPI):
 
                     # data.owners.(publisher|writer).identifier
                     case "identifier":
-                        rightsholder[attr_key] = (
-                            MusixmatchResourceAPI._prepare_string(
-                                attr_name, attr_val
-                            )
+                        rightsholder[attr_key] = prepare_string(
+                            attr_name, attr_val
                         )
 
                     # data.owners.(publisher|writer).ipi
                     case "ipi":
                         attr_val = rightsholder[attr_key] = (
-                            MusixmatchResourceAPI._prepare_string(
-                                attr_name, attr_val
-                            )
+                            prepare_string(attr_name, attr_val)
                             if isinstance(attr_val, str)
                             else str(attr_val)
                         )
-                        MusixmatchResourceAPI._validate_numeric(
-                            attr_name, attr_val, int
-                        )
+                        validate_numeric(attr_name, attr_val, int)
 
                     # data.owners.(publisher|writer).role
                     case "role":
-                        attr_val = rightsholder[attr_key] = (
-                            MusixmatchResourceAPI._prepare_string(
-                                attr_name, attr_val
-                            ).upper()
-                        )
+                        attr_val = rightsholder[attr_key] = prepare_string(
+                            attr_name, attr_val
+                        ).upper()
                         if attr_val not in EnterpriseAPI._RIGHTSHOLDER_ROLES:
                             raise ValueError(
                                 f"Invalid role {attr_val!r} for "
                                 f"`{item_name}`. Valid values: "
-                                f"{MusixmatchResourceAPI._join_values(EnterpriseAPI._RIGHTSHOLDER_ROLES)}."
+                                f"{join_values(EnterpriseAPI._RIGHTSHOLDER_ROLES)}."
                             )
 
                     # data.owners.(publisher|writer).(mech|perf|sync)_ownership_share
@@ -131,9 +130,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
                         | "perf_ownership_share"
                         | "sync_ownership_share"
                     ):
-                        MusixmatchResourceAPI._validate_number(
-                            attr_key, attr_val, int, 0, 10_000
-                        )
+                        validate_number(attr_key, attr_val, int, 0, 10_000)
 
                     case _:
                         raise ValueError(
@@ -144,7 +141,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             if required_keys:
                 raise ValueError(
                     f"`{attr_name}` is missing the following required key(s): "
-                    f"{MusixmatchResourceAPI._join_values(required_keys)}."
+                    f"{join_values(required_keys)}."
                 )
 
     @staticmethod
@@ -160,9 +157,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         if owners is None:
             return
 
-        MusixmatchResourceAPI._validate_type(
-            "work_data['owners']", owners, dict
-        )
+        validate_type("work_data['owners']", owners, dict)
         required_keys = {"publisher", "writer"}
         for attr_key, attr_val in owners.items():
             match attr_key:
@@ -183,7 +178,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             raise ValueError(
                 "`work_data['owners']` is missing the following "
                 "required key(s): "
-                f"{MusixmatchResourceAPI._join_values(required_keys)}."
+                f"{join_values(required_keys)}."
             )
 
     @staticmethod
@@ -199,23 +194,21 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             Musical work royalty collection territories.
         """
         attr_prefix = "work_data['owners']['territories']"
-        MusixmatchResourceAPI._validate_type(attr_prefix, territories, list)
+        validate_type(attr_prefix, territories, list)
         for idx, territory in enumerate(territories):
             item_name = f"{attr_prefix}[{idx}]"
-            MusixmatchResourceAPI._validate_type(item_name, territory, dict)
+            validate_type(item_name, territory, dict)
             required_keys = {"code"}
             optional_keys = {"mech_share", "perf_share", "sync_share"}
             for attr_key, attr_val in territory.items():
                 attr_name = f"{item_name}[{attr_key!r}]"
                 match attr_key:
                     case "code":
-                        MusixmatchResourceAPI._validate_country_code(attr_val)
+                        validate_country_code(attr_val)
                         required_keys.remove(attr_key)
 
                     case "mech_share" | "perf_share" | "sync_share":
-                        MusixmatchResourceAPI._validate_number(
-                            attr_name, attr_val, int, 0, 10_000
-                        )
+                        validate_number(attr_name, attr_val, int, 0, 10_000)
                         optional_keys.discard(attr_key)
 
                     case _:
@@ -227,14 +220,14 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             if required_keys:
                 raise ValueError(
                     f"`{attr_name}` is missing the following required key(s): "
-                    f"{MusixmatchResourceAPI._join_values(required_keys)}."
+                    f"{join_values(required_keys)}."
                 )
 
             if len(optional_keys) == 3:
                 raise ValueError(
                     f"`{attr_name}` requires at least one of the "
                     "following key(s): "
-                    f"{MusixmatchResourceAPI._join_values(optional_keys)}."
+                    f"{join_values(optional_keys)}."
                 )
 
     @staticmethod
@@ -250,9 +243,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         if collection is None:
             return
 
-        MusixmatchResourceAPI._validate_type(
-            "work_data['collection']", collection, dict
-        )
+        validate_type("work_data['collection']", collection, dict)
         required_keys = {"territories"}
         for attr_key, attr_val in collection.items():
             match attr_key:
@@ -263,10 +254,8 @@ class EnterpriseAPI(MusixmatchResourceAPI):
 
                 # data.collection.validity_(begin|end)
                 case "validity_begin" | "validity_end":
-                    collection[attr_key] = (
-                        MusixmatchResourceAPI._prepare_datetime(
-                            attr_val, "%Y-%m-%d"
-                        )
+                    collection[attr_key] = prepare_datetime(
+                        attr_val, "%Y-%m-%d"
                     )
 
                 case _:
@@ -279,7 +268,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             raise ValueError(
                 "`work_data['collection']` is missing the following "
                 "required key(s): "
-                f"{MusixmatchResourceAPI._join_values(required_keys)}."
+                f"{join_values(required_keys)}."
             )
 
     @staticmethod
@@ -297,7 +286,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         work_data : dict[str, Any]
             Normalized musical work data.
         """
-        MusixmatchResourceAPI._validate_type("work_data", work_data, dict)
+        validate_type("work_data", work_data, dict)
         work_data = copy.deepcopy(work_data)
         required_keys = {"identifier", "title"}
         for attr_key, attr_val in work_data.items():
@@ -305,10 +294,8 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             match attr_key:
                 # data.identifier
                 case "identifier":
-                    attr_val = work_data[attr_key] = (
-                        MusixmatchResourceAPI._prepare_string(
-                            attr_name, attr_val
-                        )
+                    attr_val = work_data[attr_key] = prepare_string(
+                        attr_name, attr_val
                     )
                     if len(attr_val) > 40:
                         raise ValueError(
@@ -319,59 +306,41 @@ class EnterpriseAPI(MusixmatchResourceAPI):
 
                 # data.title
                 case "title":
-                    work_data[attr_key] = (
-                        MusixmatchResourceAPI._prepare_string(
-                            attr_name, attr_val
-                        )
-                    )
+                    work_data[attr_key] = prepare_string(attr_name, attr_val)
                     required_keys.remove(attr_key)
 
                 # data.alternate_titles
                 case "alternative_titles":
-                    MusixmatchResourceAPI._validate_type(
-                        attr_name, attr_val, list
-                    )
+                    validate_type(attr_name, attr_val, list)
                     work_data[attr_key] = [
-                        MusixmatchResourceAPI._prepare_string(
-                            f"{attr_name}[{idx}]", title
-                        )
+                        prepare_string(f"{attr_name}[{idx}]", title)
                         for idx, title in enumerate(attr_val)
                     ]
 
                 # data.iswc
                 case "iswc":
-                    work_data[attr_key] = MusixmatchResourceAPI._prepare_iswc(
-                        attr_val
-                    )
+                    work_data[attr_key] = prepare_iswc(attr_val)
 
                 # data.isrc
                 case "isrc":
-                    work_data[attr_key] = MusixmatchResourceAPI._prepare_isrc(
-                        attr_val
-                    )
+                    work_data[attr_key] = prepare_isrc(attr_val)
 
                 # data.performers
                 case "performers":
-                    MusixmatchResourceAPI._validate_type(
-                        attr_name, attr_val, dict
-                    )
+                    validate_type(attr_name, attr_val, dict)
                     required_subkeys = {"name"}
                     for subattr_key, subattr_val in attr_val.items():
                         subattr_name = f"{attr_name}[{subattr_key!r}]"
                         match subattr_key:
                             case "name":
-                                attr_val[subattr_key] = (
-                                    MusixmatchResourceAPI._prepare_string(
-                                        subattr_name, subattr_val
-                                    )
+                                attr_val[subattr_key] = prepare_string(
+                                    subattr_name, subattr_val
                                 )
                                 required_subkeys.remove(subattr_key)
 
                             case "identifier":
-                                attr_val[subattr_key] = (
-                                    MusixmatchResourceAPI._prepare_string(
-                                        subattr_name, subattr_val
-                                    )
+                                attr_val[subattr_key] = prepare_string(
+                                    subattr_name, subattr_val
                                 )
 
                             case _:
@@ -384,7 +353,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
                         raise ValueError(
                             f"`{attr_name}` is missing the following "
                             "required key(s): "
-                            f"{MusixmatchResourceAPI._join_values(required_subkeys)}."
+                            f"{join_values(required_subkeys)}."
                         )
 
                 # data.owners
@@ -397,22 +366,18 @@ class EnterpriseAPI(MusixmatchResourceAPI):
 
                 # data.lyrics
                 case "lyrics":
-                    MusixmatchResourceAPI._validate_type(
-                        attr_name, attr_val, dict
-                    )
+                    validate_type(attr_name, attr_val, dict)
                     required_subkeys = {"lyrics"}
                     for subattr_key, subattr_val in attr_val.items():
                         subattr_name = f"{attr_name}[{subattr_key!r}]"
                         match subattr_key:
                             # data.lyrics.(lyrics|lrc)
                             case "lyrics" | "lrc":
-                                MusixmatchResourceAPI._validate_type(
-                                    subattr_name, subattr_val, str
-                                )
+                                validate_type(subattr_name, subattr_val, str)
 
                             # data.lyrics.duration
                             case "duration":
-                                MusixmatchResourceAPI._validate_number(
+                                validate_number(
                                     subattr_name, subattr_val, int, 0
                                 )
 
@@ -426,7 +391,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
                         raise ValueError(
                             f"`{attr_name}` is missing the following "
                             "required key(s): "
-                            f"{MusixmatchResourceAPI._join_values(required_subkeys)}."
+                            f"{join_values(required_subkeys)}."
                         )
 
                 case _:
@@ -438,7 +403,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         if required_keys:
             raise ValueError(
                 "`work_data` is missing the following required key(s): "
-                f"{MusixmatchResourceAPI._join_values(required_keys)}."
+                f"{join_values(required_keys)}."
             )
 
         return work_data
@@ -657,10 +622,8 @@ class EnterpriseAPI(MusixmatchResourceAPI):
                   }
         """
         self._client._require_api_key("enterprise.set_work_validity")
-        self._validate_type("work_identifier", work_identifier, str)
-        work_identifier = self._prepare_string(
-            "work_identifier", work_identifier
-        )
+        validate_type("work_identifier", work_identifier, str)
+        work_identifier = prepare_string("work_identifier", work_identifier)
         if not len(work_identifier) <= 40:
             raise ValueError(
                 "`work_identifier` must be between 1 and 40 characters long."
@@ -672,9 +635,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
             json={
                 "data": {
                     "identifier": work_identifier,
-                    "validity_end": self._prepare_datetime(
-                        valid_until, "%Y-%m-%d"
-                    ),
+                    "validity_end": prepare_datetime(valid_until, "%Y-%m-%d"),
                 }
             },
         ).json()
@@ -793,12 +754,10 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         self._client._require_api_key("enterprise.screen_track_lyrics")
         params = {}
         if max_candidates is not None:
-            self._validate_number("max_candidates", max_candidates, int, 1, 20)
+            validate_number("max_candidates", max_candidates, int, 1, 20)
             params["size"] = max_candidates
         if limit is not None:
-            self._validate_number(
-                "limit", limit, int, 1, params.get("size", 20)
-            )
+            validate_number("limit", limit, int, 1, params.get("size", 20))
             params["limit"] = limit
         return self._client._request(
             "POST",
@@ -889,9 +848,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         """
         self._client._require_api_key("enterprise.get_track_catalog_record")
         return self._client._request(
-            "GET",
-            "track.dump.get",
-            params={"track_isrc": self._prepare_isrc(isrc)},
+            "GET", "track.dump.get", params={"track_isrc": prepare_isrc(isrc)}
         ).json()
 
     @TTLCache.cached_method(ttl="daily")
@@ -1010,7 +967,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
         self._client._require_api_key("enterprise.get_languages")
         params = {}
         if include_romanization is not None:
-            self._validate_type(include_romanization, bool)
+            validate_type(include_romanization, bool)
             if include_romanization:
                 params["has_romanization"] = "1"
         return self._client._request(

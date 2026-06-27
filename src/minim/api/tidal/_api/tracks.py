@@ -2,7 +2,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_isrc,
+    prepare_string,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
@@ -70,11 +76,11 @@ class TracksAPI(TIDALResourceAPI):
             List of audio formats.
         """
         if isinstance(formats, str):
-            formats = cls._prepare_string("formats", formats)
+            formats = prepare_string("formats", formats)
             if formats not in cls._FORMATS:
                 raise ValueError(
                     f"Invalid audio format {formats!r}. Valid values: "
-                    f"{cls._join_values(cls._FORMATS)}."
+                    f"{join_values(cls._FORMATS)}."
                 )
             return formats
 
@@ -133,7 +139,7 @@ class TracksAPI(TIDALResourceAPI):
 
         formats : str or Collection[str]; keyword-only; \
         default: :code:`None`
-            Requested audio formats. If a collection, the highest 
+            Requested audio formats. If a collection, the highest
             quality format available will be returned. If not specified,
             all audio formats are requested.
 
@@ -199,13 +205,11 @@ class TracksAPI(TIDALResourceAPI):
                   }
         """
         params = {}
-        manifest_type = self._prepare_string(
-            "manifest_type", manifest_type
-        ).upper()
+        manifest_type = prepare_string("manifest_type", manifest_type).upper()
         if manifest_type not in self._MANIFEST_TYPES:
             raise ValueError(
                 f"Invalid manifest type {manifest_type!r}. Valid "
-                f"values: {self._join_values(self._MANIFEST_TYPES)}."
+                f"values: {join_values(self._MANIFEST_TYPES)}."
             )
         params["manifestType"] = manifest_type
         params["formats"] = (
@@ -213,21 +217,21 @@ class TracksAPI(TIDALResourceAPI):
             if formats is None
             else self._prepare_formats(formats)
         )
-        uri_scheme = self._prepare_string("uri_scheme", uri_scheme).upper()
+        uri_scheme = prepare_string("uri_scheme", uri_scheme).upper()
         if uri_scheme not in self._URI_SCHEMES:
             raise ValueError(
                 f"Invalid URI scheme {uri_scheme!r}. Valid values: "
-                f"{self._join_values(self._URI_SCHEMES)}."
+                f"{join_values(self._URI_SCHEMES)}."
             )
         params["uriScheme"] = uri_scheme
-        intent = self._prepare_string("intent", intent).upper()
+        intent = prepare_string("intent", intent).upper()
         if intent not in self._USAGES:
             raise ValueError(
                 f"Invalid intent {intent!r}. Valid values: "
-                f"{self._join_values(self._USAGES)}."
+                f"{join_values(self._USAGES)}."
             )
         params["usage"] = intent
-        self._validate_type("adaptive", adaptive, bool)
+        validate_type("adaptive", adaptive, bool)
         params["adaptive"] = adaptive
         return self._get_resources(
             "trackManifests", track_id, share_code=share_code, params=params
@@ -304,11 +308,11 @@ class TracksAPI(TIDALResourceAPI):
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"credits"`, :code:`"download"`, :code:`"genres"`, 
-            :code:`"lyrics"`, :code:`"metadataStatus"`, 
-            :code:`"owners"`, :code:`"priceConfig"`, 
+            :code:`"credits"`, :code:`"download"`, :code:`"genres"`,
+            :code:`"lyrics"`, :code:`"metadataStatus"`,
+            :code:`"owners"`, :code:`"priceConfig"`,
             :code:`"providers"`, :code:`"radio"`, :code:`"replacement"`,
-            :code:`"shares"`, :code:`"similarTracks"`, 
+            :code:`"shares"`, :code:`"similarTracks"`,
             :code:`"sourceFile"`, :code:`"suggestedTracks"`,
             :code:`"trackStatistics"`, :code:`"usageRules"`.
 
@@ -1203,9 +1207,9 @@ class TracksAPI(TIDALResourceAPI):
         params = {}
         if isrcs is not None:
             if isinstance(isrcs, str):
-                isrcs = self._prepare_isrc(isrcs)
+                isrcs = prepare_isrc(isrcs)
             elif isinstance(isrcs, COLLECTION_TYPES):
-                isrcs = [self._prepare_isrc(isrc) for isrc in isrcs]
+                isrcs = [prepare_isrc(isrc) for isrc in isrcs]
             else:
                 raise ValueError(
                     "`isrcs` must be a string or a collection of strings."

@@ -1,7 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    prepare_string,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 from .charts import ChartsAPI
@@ -129,7 +135,7 @@ class ArtistsAPI(MusixmatchResourceAPI):
                     }
                   }
         """
-        self._validate_numeric("artist_id", artist_id, int)
+        validate_numeric("artist_id", artist_id, int)
         return self._client._request(
             "GET", "artist.get", params={"artist_id": artist_id}
         ).json()
@@ -224,12 +230,10 @@ class ArtistsAPI(MusixmatchResourceAPI):
                     }
                   }
         """
-        self._validate_numeric("artist_id", artist_id, int)
+        validate_numeric("artist_id", artist_id, int)
         params = {"artist_id": artist_id}
         if group_by_album_name is not None:
-            self._validate_type(
-                "group_by_album_name", group_by_album_name, bool
-            )
+            validate_type("group_by_album_name", group_by_album_name, bool)
             if group_by_album_name:
                 params["g_album_name"] = 1
         if release_date_sort_order is not None:
@@ -238,10 +242,10 @@ class ArtistsAPI(MusixmatchResourceAPI):
             )
             params["s_release_date"] = release_date_sort_order
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["page_size"] = limit
         if page is not None:
-            self._validate_number("page", page, int, 1)
+            validate_number("page", page, int, 1)
             params["page"] = page
         return self._client._request(
             "GET", "artist.albums.get", params=params
@@ -385,17 +389,15 @@ class ArtistsAPI(MusixmatchResourceAPI):
         """
         params = {}
         if artist_query is not None:
-            params["q_artist"] = self._prepare_string(
-                "artist_query", artist_query
-            )
+            params["q_artist"] = prepare_string("artist_query", artist_query)
         if artist_id is not None:
-            self._validate_numeric("artist_id", artist_id, int)
+            validate_numeric("artist_id", artist_id, int)
             params["f_artist_id"] = artist_id
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["page_size"] = limit
         if page is not None:
-            self._validate_number("page", page, int, 1)
+            validate_number("page", page, int, 1)
             params["page"] = page
         return self._client._request(
             "GET", "artist.search", params=params

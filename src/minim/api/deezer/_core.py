@@ -10,6 +10,7 @@ import warnings
 
 import httpx
 
+from ..._utility import join_values
 from .._shared import TokenDatabase, TTLCache, APIClient, OAuth2APIClient
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
@@ -849,7 +850,7 @@ class DeezerAPIClient(OAuth2APIClient):
         if auth_flow not in self._ALLOWED_AUTH_FLOWS:
             raise ValueError(
                 f"Invalid authorization flow {auth_flow!r}. "
-                f"Valid values: {self._join_values(self._ALLOWED_AUTH_FLOWS)}."
+                f"Valid values: {join_values(self._ALLOWED_AUTH_FLOWS)}."
             )
         self._auth_flow = auth_flow
 
@@ -912,7 +913,7 @@ class DeezerAPIClient(OAuth2APIClient):
             self._redirect_uri = redirect_uri
             if redirect_handler is not None:
                 if redirect_handler not in self._REDIRECT_HANDLERS:
-                    handlers_str = self._join_values(self._REDIRECT_HANDLERS)
+                    handlers_str = join_values(self._REDIRECT_HANDLERS)
                     if handlers_str:
                         handlers_str = f", '{handlers_str}'"
                     raise ValueError(

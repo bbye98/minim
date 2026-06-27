@@ -3,6 +3,7 @@ from datetime import datetime
 import re
 import types
 from typing import TYPE_CHECKING, Callable
+import uuid
 
 from ._types import COLLECTION_TYPES
 
@@ -102,6 +103,33 @@ def join_values(
     return f",{' ' if whitespace else ''}".join(sorted(map(fmt, values)))
 
 
+def prepare_barcode(barcode: int | str, /) -> str:
+    """
+    Validate and normalize a Universal Product Code (UPC) or European
+    Article Number (EAN) barcode.
+
+    Parameters
+    ----------
+    barcode : int or str; positional-only
+        UPC or EAN barcode.
+
+    Returns
+    -------
+    barcode : str
+        Trimmed UPC or EAN barcode without hyphens or spaces.
+    """
+    barcode = (
+        str(barcode)
+        if isinstance(barcode, int)
+        else prepare_string(barcode, remove_whitespace=True).translate(
+            TRANSLATION_TABLES["remove_separators"]
+        )
+    )
+    if not barcode.isdecimal() or len(barcode) not in {12, 13}:
+        raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
+    return barcode
+
+
 def prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
     """
     Validate, normalize, and stringify a datetime.
@@ -152,14 +180,47 @@ def prepare_isrc(isrc: str, /) -> str:
     return isrc
 
 
+def prepare_iswc(iswc: str, /) -> str:
+    """
+    Validate and normalize an International Standard Musical Work Code
+    (ISWC).
+
+    Parameters
+    ----------
+    iswc : str; positional-only
+        ISWC.
+
+    Returns
+    -------
+    iswc : str
+        Trimmed ISWC string without hyphens or spaces.
+    """
+    iswc = prepare_string("iswc", iswc, remove_whitespace=True).translate(
+        TRANSLATION_TABLES["remove_separators"]
+    )
+    if (
+        len(iswc) != 11
+        or (
+            1
+            + sum(
+                (index + 1) * int(digit)
+                for index, digit in enumerate(iswc[1:-1])
+            )
+        )
+        % 10
+    ) != int(iswc[-1]):
+        raise ValueError(f"{iswc!r} is not a valid ISWC.")
+    return iswc
+
+
 def prepare_string(
     name: str,
-    string: bytes | str,
+    string: str,
     /,
     *,
     allow_blank: bool = False,
     remove_whitespace: bool = False,
-) -> bytes | str:
+) -> str:
     """
     Validate and strip a string.
 
@@ -168,7 +229,7 @@ def prepare_string(
     name : str; positional-only.
         Parameter name for the string.
 
-    string : bytes or str; positional-only
+    string : str; positional-only
         String.
 
     allow_blank : bool; keyword-only; default: :code:`False`
@@ -179,14 +240,34 @@ def prepare_string(
 
     Returns
     -------
-    string : bytes or str
+    string : str
         Stripped string.
     """
-    validate_type(name, string, bytes | str)
+    validate_type(name, string, str)
     string = "".join(string.split()) if remove_whitespace else string.strip()
     if not allow_blank and not len(string):
         raise ValueError(f"`{name}` cannot be blank.")
     return string
+
+
+def validate_country_code(country_code: str, /) -> None:
+    """
+    Validate an International Organization for Standardization (ISO)
+    3166-1 alpha-2 country code.
+
+    Parameters
+    ----------
+    country_code : str; positional-only
+        ISO 3166-1 alpha-2 country code.
+    """
+    if (
+        not isinstance(country_code, str)
+        or len(country_code) != 2
+        or not country_code.isalpha()
+    ):
+        raise ValueError(
+            f"{country_code!r} is not a valid ISO 3166-1 alpha-2 country code."
+        )
 
 
 def validate_iso_8859_1_string(name: str, string: bytes | str, /) -> None:
@@ -203,6 +284,51 @@ def validate_iso_8859_1_string(name: str, string: bytes | str, /) -> None:
     """
     if string and ord(max(string)) > 255:
         raise ValueError(f"`{name}` can only contain ISO-8859-1 characters.")
+
+
+def validate_language_code(language_code: str, /) -> None:
+    """
+    Validate an International Organization for Standardization (ISO)
+    639-1 language code.
+
+    Parameters
+    ----------
+    language_code : str; positional-only
+        ISO 639-1 language code.
+    """
+    if (
+        not isinstance(language_code, str)
+        or len(language_code) != 2
+        or not language_code.isalpha()
+    ):
+        raise ValueError(
+            f"{language_code!r} is not a valid ISO 639-1 language code."
+        )
+
+
+def validate_locale(locale: str, /) -> None:
+    """
+    Validate an Internet Engineering Task Force (IETF) Best Current
+    Practice (BCP) 47 language tag, as defined in Request for Comments
+    (RFC) 1766.
+
+    Parameters
+    ----------
+    locale : str; positional-only
+        IETF BCP 47 language tag.
+    """
+    if (
+        not isinstance(locale, str)
+        or len(locale) != 5
+        or not locale[:2].isalpha()
+        or locale[2] != "_"
+        or not locale[3:].isalpha()
+    ):
+        raise ValueError(
+            f"{locale!r} is not a valid IETF BCP 47 language tag "
+            "consisting of an ISO 639-1 language code and an ISO "
+            "3166-1 alpha-2 country code joined by an underscore."
+        )
 
 
 def validate_number(
@@ -361,4 +487,30 @@ def validate_type(
         raise ValueError(
             f"`{name}` must be a(n) {data_type_str}, not a(n) "
             f"{type(value).__name__}."
+        )
+
+
+def validate_uuids(
+    uuids: str | Collection[str], /, *, recursive: bool = True
+) -> None:
+    """
+    Validate universally unique identifiers (UUIDs).
+
+    Parameters
+    ----------
+    uuids : str or Collection[str]; positional-only
+        UUIDs.
+    """
+    if isinstance(uuids, str):
+        try:
+            uuid.UUID(uuids)
+        except (TypeError, ValueError) as e:
+            raise ValueError(f"{uuids!r} is not a valid UUID.") from e
+
+    elif recursive and isinstance(uuids, COLLECTION_TYPES):
+        for uuid_ in uuids:
+            validate_uuids(uuid_, recursive=False)
+    else:
+        raise ValueError(
+            "UUIDs must be provided as a string or a collection of strings."
         )

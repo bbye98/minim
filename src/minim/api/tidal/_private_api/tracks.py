@@ -7,7 +7,12 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import httpx
 import json
 
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_string,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
@@ -52,7 +57,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         stream : bytes
             Audio stream data.
         """
-        self._validate_type("manifest", manifest, bytes | str)
+        validate_type("manifest", manifest, bytes | str)
         if isinstance(manifest, str):
             manifest = base64.b64decode(manifest)
 
@@ -656,21 +661,21 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._validate_tidal_ids(track_id, recursive=False)
-        quality = self._prepare_string("quality", quality).upper()
+        quality = prepare_string("quality", quality).upper()
         if quality not in self._AUDIO_QUALITIES:
             raise ValueError(
                 f"Invalid audio quality {quality!r}. Valid values: "
-                f"{self._join_values(self._AUDIO_QUALITIES)}."
+                f"{join_values(self._AUDIO_QUALITIES)}."
             )
 
-        intent = self._prepare_string("intent", intent).upper()
+        intent = prepare_string("intent", intent).upper()
         if intent not in self._PLAYBACK_MODES:
             raise ValueError(
                 f"Invalid playback mode {intent!r}. Valid values: "
-                f"{self._join_values(self._PLAYBACK_MODES)}."
+                f"{join_values(self._PLAYBACK_MODES)}."
             )
 
-        self._validate_type("preview", preview, bool)
+        validate_type("preview", preview, bool)
         return self._client._request(
             "GET",
             f"v1/tracks/{track_id}/playbackinfo",

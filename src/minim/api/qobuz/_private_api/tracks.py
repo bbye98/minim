@@ -3,7 +3,15 @@ from datetime import datetime
 import time
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._types import COLLECTION_TYPES
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_string,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
@@ -118,9 +126,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         self._validate_qobuz_ids(format_id, recursive=False)
         if isinstance(started_at, datetime):
             started_at = int(started_at.timestamp())
-        self._validate_number("started_at", started_at, int, 0, time.time())
-        self._validate_type("online", online, bool)
-        self._validate_type("local", local, bool)
+        validate_number("started_at", started_at, int, 0, time.time())
+        validate_type("online", online, bool)
+        validate_type("local", local, bool)
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
         else:
@@ -141,18 +149,18 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             self._validate_qobuz_ids(device_id, recursive=False)
             event["device_id"] = device_id
         if intent is not None:
-            intent = self._prepare_string("intent", intent).lower()
+            intent = prepare_string("intent", intent).lower()
             if intent not in self._INTENTS:
                 raise ValueError(
                     f"Invalid intent {intent!r}. "
-                    f"Valid values: {self._join_values(self._INTENTS)}."
+                    f"Valid values: {join_values(self._INTENTS)}."
                 )
             event["intent"] = intent
         if purchased is not None:
-            self._validate_type("purchased", purchased, bool)
+            validate_type("purchased", purchased, bool)
             event["purchased"] = purchased
         if preview is not None:
-            self._validate_type("preview", preview, bool)
+            validate_type("preview", preview, bool)
             event["sample"] = preview
         return self._client._request(
             "POST",
@@ -507,7 +515,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                           "total": <int>
                         }
         """
-        self._validate_type("track_ids", track_ids, int | str | tuple | list)
+        validate_type("track_ids", track_ids, int | str | COLLECTION_TYPES)
         track_ids = self._prepare_qobuz_ids(track_ids, data_type=list)
         if len(track_ids) > 1:
             return self._client._request(
@@ -608,23 +616,23 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         self._validate_qobuz_ids(track_id, recursive=False)
         params = {"track_id": track_id}
         if format_id is not None:
-            self._validate_numeric("format_id", format_id, int)
+            validate_numeric("format_id", format_id, int)
             if int(format_id) not in self._TRACK_FORMAT_IDS:
                 raise ValueError(
                     f"Invalid format ID {format_id!r}. Valid values: "
-                    f"{self._join_values(self._TRACK_FORMAT_IDS)}."
+                    f"{join_values(self._TRACK_FORMAT_IDS)}."
                 )
             params["format_id"] = format_id
         if intent is not None:
-            intent = self._prepare_string("intent", intent).lower()
+            intent = prepare_string("intent", intent).lower()
             if intent not in self._INTENTS:
                 raise ValueError(
                     f"Invalid intent {intent!r}. "
-                    f"Valid values: {self._join_values(self._INTENTS)}."
+                    f"Valid values: {join_values(self._INTENTS)}."
                 )
             params["intent"] = intent
         if preview is not None:
-            self._validate_type("preview", preview, bool)
+            validate_type("preview", preview, bool)
             params["sample"] = preview
         return self._client._request(
             "GET",

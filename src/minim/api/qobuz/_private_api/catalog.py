@@ -1,7 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._types import COLLECTION_TYPES
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_string,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
@@ -64,7 +70,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         return self._client._request(
             "GET",
             "catalog/count",
-            params={"query": self._prepare_string("query", query)},
+            params={"query": prepare_string("query", query)},
         ).json()
 
     @TTLCache.cached_method(ttl="daily")
@@ -275,17 +281,15 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         """
         params = {}
         if item_type is not None:
-            item_type = self._prepare_string("item_type", item_type).lower()
+            item_type = prepare_string("item_type", item_type).lower()
             if item_type not in self._FEATURED_TYPES:
                 raise ValueError(
                     f"Invalid item type {item_type!r}. Valid values: "
-                    f"{self._join_values(self._FEATURED_TYPES)}."
+                    f"{join_values(self._FEATURED_TYPES)}."
                 )
             params["type"] = item_type
         if genre_ids is not None:
-            self._validate_type(
-                "genre_ids", genre_ids, int | str | tuple | list | set
-            )
+            validate_type("genre_ids", genre_ids, int | str | COLLECTION_TYPES)
             if not isinstance(genre_ids, int):
                 if isinstance(genre_ids, str):
                     genre_ids = genre_ids.strip().split(",")

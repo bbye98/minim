@@ -6,7 +6,12 @@ from typing import TYPE_CHECKING
 
 import httpx
 
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_string,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
@@ -56,7 +61,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         stream : bytes
             Video stream data.
         """
-        self._validate_type("manifest", manifest, bytes | str)
+        validate_type("manifest", manifest, bytes | str)
         if isinstance(manifest, str):
             manifest = base64.b64decode(manifest)
 
@@ -325,19 +330,19 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         """
         self._client._require_subscription("videos.get_video_media_info")
         self._validate_tidal_ids(video_id, recursive=False)
-        quality = self._prepare_string("quality", quality).upper()
+        quality = prepare_string("quality", quality).upper()
         if quality not in self._VIDEO_QUALITIES:
             raise ValueError(
                 f"Invalid video quality {quality!r}. Valid values: "
-                f"{self._join_values(self._VIDEO_QUALITIES)}."
+                f"{join_values(self._VIDEO_QUALITIES)}."
             )
         intent = intent.strip().upper()
         if intent not in self._PLAYBACK_MODES:
             raise ValueError(
                 f"Invalid playback mode {intent!r}. Valid values: "
-                f"{self._join_values(self._PLAYBACK_MODES)}."
+                f"{join_values(self._PLAYBACK_MODES)}."
             )
-        self._validate_type("preview", preview, bool)
+        validate_type("preview", preview, bool)
         return self._client._request(
             "GET",
             f"v1/videos/{video_id}/playbackinfo",

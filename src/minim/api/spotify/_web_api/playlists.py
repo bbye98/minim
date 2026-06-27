@@ -3,7 +3,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ...._types import PathLike
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    prepare_string,
+    validate_locale,
+    validate_number,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
@@ -426,16 +432,16 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._validate_spotify_id(playlist_id)
         payload = {}
         if name is not None:
-            payload["name"] = self._prepare_string("name", name)
+            payload["name"] = prepare_string("name", name)
         if description is not None:
-            payload["description"] = self._prepare_string(
+            payload["description"] = prepare_string(
                 "description", description, allow_blank=True
             )
         if public is not None:
-            self._validate_type("public", public, bool)
+            validate_type("public", public, bool)
             payload["public"] = public
         if collaborative is not None:
-            self._validate_type("collaborative", collaborative, bool)
+            validate_type("collaborative", collaborative, bool)
             if collaborative:
                 if public is None:
                     payload["public"] = False
@@ -860,7 +866,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._validate_spotify_id(playlist_id)
         params = {}
         if to_index is not None:
-            self._validate_number("to_index", to_index, int, 0)
+            validate_number("to_index", to_index, int, 0)
             params["position"] = to_index
         return self._client._request(
             "POST",
@@ -956,16 +962,14 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "playlists.reorder_playlist_items"
         )
         self._validate_spotify_id(playlist_id)
-        self._validate_number("from_index", from_index, int, 0)
-        self._validate_number("to_index", to_index, int, 0)
+        validate_number("from_index", from_index, int, 0)
+        validate_number("to_index", to_index, int, 0)
         payload = {"insert_before": to_index, "range_start": from_index}
         if from_count is not None:
-            self._validate_number("from_count", from_count, int, 1)
+            validate_number("from_count", from_count, int, 1)
             payload["range_length"] = from_count
         if snapshot_id is not None:
-            payload["snapshot_id"] = self._prepare_string(
-                "snapshot_id", snapshot_id
-            )
+            payload["snapshot_id"] = prepare_string("snapshot_id", snapshot_id)
         return self._client._request(
             "PUT", f"playlists/{playlist_id}/items", json=payload
         ).json()
@@ -1128,9 +1132,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             )
         }
         if snapshot_id is not None:
-            payload["snapshot_id"] = self._prepare_string(
-                "snapshot_id", snapshot_id
-            )
+            payload["snapshot_id"] = prepare_string("snapshot_id", snapshot_id)
         return self._client._request(
             "DELETE", f"playlists/{playlist_id}/items", json=payload
         ).json()
@@ -1267,20 +1269,20 @@ class PlaylistsAPI(SpotifyResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        payload = {"name": self._prepare_string("name", name)}
+        payload = {"name": prepare_string("name", name)}
         if description is not None:
-            payload["description"] = self._prepare_string(
+            payload["description"] = prepare_string(
                 "description", description, allow_blank=True
             )
         if public is not None:
-            self._validate_type("public", public, bool)
+            validate_type("public", public, bool)
             self._client._require_scopes(
                 "playlists.create_playlist",
                 f"playlist-modify-{'public' if public else 'private'}",
             )
             payload["public"] = public
         if collaborative is not None:
-            self._validate_type("collaborative", collaborative, bool)
+            validate_type("collaborative", collaborative, bool)
             if collaborative:
                 if public is None:
                     payload["public"] = False
@@ -1413,13 +1415,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if locale:
-            self._validate_locale(locale)
+            validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", "browse/featured-playlists", params=params
@@ -1541,10 +1543,10 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"browse/categories/{category_id}/playlists", params=params

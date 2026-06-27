@@ -16,7 +16,6 @@ import threading
 import time
 from typing import TYPE_CHECKING
 from urllib.parse import parse_qsl, quote, urlencode, urlparse
-import uuid
 import warnings
 import webbrowser
 
@@ -29,16 +28,7 @@ import httpx
 
 from .. import FOUND, MINIM_DIR
 from .._types import COLLECTION_TYPES
-from .._utility import (
-    TRANSLATION_TABLES,
-    join_values,
-    prepare_datetime,
-    prepare_isrc,
-    prepare_string,
-    validate_number,
-    validate_numeric,
-    validate_type,
-)
+from .._utility import join_values, prepare_datetime, prepare_string
 from . import db_connection, db_cursor
 
 if FOUND["playwright"]:
@@ -736,8 +726,6 @@ class APIClient(ABC):
     _rate_limit_per_second = float("inf")
 
     __slots__ = "_cache", "_client", "_rate_limiter"
-
-    _join_values = staticmethod(join_values)
 
     def __init__(
         self,
@@ -2958,14 +2946,6 @@ class ResourceAPI:
 
     __slots__ = ("_client",)
 
-    _join_values = staticmethod(join_values)
-    _prepare_datetime = staticmethod(prepare_datetime)
-    _prepare_isrc = staticmethod(prepare_isrc)
-    _prepare_string = staticmethod(prepare_string)
-    _validate_number = staticmethod(validate_number)
-    _validate_numeric = staticmethod(validate_numeric)
-    _validate_type = staticmethod(validate_type)
-
     def __init__(self, client: APIClient, /) -> None:
         """
         Parameters
@@ -2974,156 +2954,3 @@ class ResourceAPI:
             API client instance used to make HTTP requests.
         """
         self._client = client
-
-    @staticmethod
-    def _prepare_barcode(barcode: int | str, /) -> str:
-        """
-        Validate and normalize a Universal Product Code (UPC) or
-        European Article Number (EAN) barcode.
-
-        Parameters
-        ----------
-        barcode : int or str; positional-only
-            UPC or EAN barcode.
-
-        Returns
-        -------
-        barcode : str
-            Trimmed UPC or EAN barcode without hyphens or spaces.
-        """
-        barcode = (
-            str(barcode)
-            if isinstance(barcode, int)
-            else prepare_string(barcode, remove_whitespace=True).translate(
-                TRANSLATION_TABLES["remove_separators"]
-            )
-        )
-        if not barcode.isdecimal() or len(barcode) not in {12, 13}:
-            raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
-        return barcode
-
-    @staticmethod
-    def _prepare_iswc(iswc: str, /) -> str:
-        """
-        Validate and normalize an International Standard Musical Work
-        Code (ISWC).
-
-        Parameters
-        ----------
-        iswc : str; positional-only
-            ISWC.
-
-        Returns
-        -------
-        iswc : str
-            Trimmed ISWC string without hyphens or spaces.
-        """
-        iswc = prepare_string("iswc", iswc, remove_whitespace=True).translate(
-            TRANSLATION_TABLES["remove_separators"]
-        )
-        if (
-            len(iswc) != 11
-            or (
-                1
-                + sum(
-                    (index + 1) * int(digit)
-                    for index, digit in enumerate(iswc[1:-1])
-                )
-            )
-            % 10
-        ) != int(iswc[-1]):
-            raise ValueError(f"{iswc!r} is not a valid ISWC.")
-        return iswc
-
-    @staticmethod
-    def _validate_country_code(country_code: str, /) -> None:
-        """
-        Validate an International Organization for Standardization
-        (ISO) 3166-1 alpha-2 country code.
-
-        Parameters
-        ----------
-        country_code : str; positional-only
-            ISO 3166-1 alpha-2 country code.
-        """
-        if (
-            not isinstance(country_code, str)
-            or len(country_code) != 2
-            or not country_code.isalpha()
-        ):
-            raise ValueError(
-                f"{country_code!r} is not a valid ISO 3166-1 alpha-2 "
-                "country code."
-            )
-
-    @staticmethod
-    def _validate_language_code(language_code: str, /) -> None:
-        """
-        Validate an International Organization for Standardization
-        (ISO) 639-1 language code.
-
-        Parameters
-        ----------
-        language_code : str; positional-only
-            ISO 639-1 language code.
-        """
-        if (
-            not isinstance(language_code, str)
-            or len(language_code) != 2
-            or not language_code.isalpha()
-        ):
-            raise ValueError(
-                f"{language_code!r} is not a valid ISO 639-1 language code."
-            )
-
-    @staticmethod
-    def _validate_locale(locale: str, /) -> None:
-        """
-        Validate an Internet Engineering Task Force (IETF) Best Current
-        Practice (BCP) 47 language tag, as defined in Request for
-        Comments (RFC) 1766.
-
-        Parameters
-        ----------
-        locale : str; positional-only
-            IETF BCP 47 language tag.
-        """
-        if (
-            not isinstance(locale, str)
-            or len(locale) != 5
-            or not locale[:2].isalpha()
-            or locale[2] != "_"
-            or not locale[3:].isalpha()
-        ):
-            raise ValueError(
-                f"{locale!r} is not a valid IETF BCP 47 language tag "
-                "consisting of an ISO 639-1 language code and an ISO "
-                "3166-1 alpha-2 country code joined by an underscore."
-            )
-
-    @staticmethod
-    def _validate_uuids(
-        uuids: str | Collection[str], /, *, recursive: bool = True
-    ) -> None:
-        """
-        Validate universally unique identifiers (UUIDs).
-
-        Parameters
-        ----------
-        uuids : str or Collection[str]; positional-only
-            UUIDs.
-        """
-        if isinstance(uuids, str):
-            try:
-                uuid.UUID(uuids)
-            except (TypeError, ValueError) as e:
-                raise ValueError(f"{uuids!r} is not a valid UUID.") from e
-
-        elif recursive and isinstance(uuids, COLLECTION_TYPES):
-            for uuid_ in uuids:
-                ResourceAPI._validate_uuids(uuid_, recursive=False)
-        else:
-            raise ValueError(
-                "UUIDs must be provided as a string or a collection of "
-                "strings."
-            )

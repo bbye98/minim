@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import prepare_string
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 
@@ -73,7 +74,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
             f"{resource_type}/search",
             limit=limit,
             offset=offset,
-            params={"query": self._prepare_string("query", query)},
+            params={"query": prepare_string("query", query)},
         )
 
     @TTLCache.cached_method(ttl="search")
@@ -1059,7 +1060,7 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
         return self._get_paginated_resources(
             "most-popular/get",
             offset=offset,
-            params={"query": self._prepare_string("query", query)},
+            params={"query": prepare_string("query", query)},
         )
 
     @TTLCache.cached_method(ttl="search")

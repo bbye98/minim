@@ -1,7 +1,17 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_datetime,
+    prepare_isrc,
+    prepare_string,
+    validate_language_code,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 from .charts import ChartsAPI
@@ -69,13 +79,13 @@ class TracksAPI(MusixmatchResourceAPI):
         """
         _params = {}
         if track_id is not None:
-            self._validate_numeric("track_id", track_id, int)
+            validate_numeric("track_id", track_id, int)
             _params["track_id"] = track_id
         if common_track_id is not None:
-            self._validate_numeric("common_track_id", common_track_id, int)
+            validate_numeric("common_track_id", common_track_id, int)
             _params["commontrack_id"] = common_track_id
         if isrc is not None:
-            _params["track_isrc"] = self._prepare_isrc(isrc)
+            _params["track_isrc"] = prepare_isrc(isrc)
         if not _params:
             raise ValueError(
                 "At least one of `track_id'`, `common_track_id`, or `isrc` "
@@ -498,18 +508,18 @@ class TracksAPI(MusixmatchResourceAPI):
         self._client._require_api_key("tracks.get_track_subtitles")
         params = {}
         if format is not None:
-            format = self._prepare_string("format", format).lower()
+            format = prepare_string("format", format).lower()
             if format not in self._SUBTITLE_FORMATS:
                 raise ValueError(
                     f"Invalid subtitle format {format!r}. Valid "
-                    f"values: {self._join_values(self._SUBTITLE_FORMATS)}."
+                    f"values: {join_values(self._SUBTITLE_FORMATS)}."
                 )
             params["subtitle_format"] = format
         if duration is not None:
-            self._validate_numeric("duration", duration, int, 0)
+            validate_numeric("duration", duration, int, 0)
             params["f_subtitle_length"] = duration
             if max_duration_deviation is not None:
-                self._validate_numeric(
+                validate_numeric(
                     "max_duration_deviation", max_duration_deviation, int, 0
                 )
                 params["f_subtitle_length_max_deviation"] = (
@@ -622,10 +632,10 @@ class TracksAPI(MusixmatchResourceAPI):
         self._client._require_api_key("tracks.get_track_rich_sync_lyrics")
         params = {}
         if duration is not None:
-            self._validate_numeric("duration", duration, int, 0)
+            validate_numeric("duration", duration, int, 0)
             params["f_richsync_length"] = duration
         if max_duration_deviation is not None:
-            self._validate_numeric(
+            validate_numeric(
                 "max_duration_deviation", max_duration_deviation, int, 0
             )
             params["f_richsync_length_max_deviation"] = max_duration_deviation
@@ -835,10 +845,10 @@ class TracksAPI(MusixmatchResourceAPI):
         self._client._require_api_key("tracks.get_track_lyrics_translation")
         params = {}
         if language is not None:
-            self._validate_language_code(language)
+            validate_language_code(language)
             params["selected_language"] = language
         if min_translation_ratio is not None:
-            self._validate_numeric(
+            validate_numeric(
                 "min_translation_ratio", min_translation_ratio, float, 0.0, 1.0
             )
             params["min_completed"] = min_translation_ratio
@@ -970,18 +980,18 @@ class TracksAPI(MusixmatchResourceAPI):
         self._client._require_api_key("tracks.get_track_subtitles_translation")
         params = {}
         if language is not None:
-            self._validate_language_code(language)
+            validate_language_code(language)
             params["selected_language"] = language
         if min_translation_ratio is not None:
-            self._validate_numeric(
+            validate_numeric(
                 "min_translation_ratio", min_translation_ratio, float, 0.0, 1.0
             )
             params["min_completed"] = min_translation_ratio
         if duration is not None:
-            self._validate_numeric("duration", duration, int, 0)
+            validate_numeric("duration", duration, int, 0)
             params["f_subtitle_length"] = duration
             if max_duration_deviation is not None:
-                self._validate_numeric(
+                validate_numeric(
                     "max_duration_deviation", max_duration_deviation, int, 0
                 )
                 params["f_subtitle_length_max_deviation"] = (
@@ -1179,45 +1189,37 @@ class TracksAPI(MusixmatchResourceAPI):
         """
         params = {}
         if query is not None:
-            params["q"] = self._prepare_string("query", query)
+            params["q"] = prepare_string("query", query)
         if artist_query is not None:
-            params["q_artist"] = self._prepare_string(
-                "artist_query", artist_query
-            )
+            params["q_artist"] = prepare_string("artist_query", artist_query)
         if lyrics_query is not None:
-            params["q_lyrics"] = self._prepare_string(
-                "lyrics_query", lyrics_query
-            )
+            params["q_lyrics"] = prepare_string("lyrics_query", lyrics_query)
         if track_query is not None:
-            params["q_track"] = self._prepare_string(
-                "track_query", track_query
-            )
+            params["q_track"] = prepare_string("track_query", track_query)
         if track_artist_query is not None:
-            params["q_track_artist"] = self._prepare_string(
+            params["q_track_artist"] = prepare_string(
                 "track_artist_query", track_artist_query
             )
         if writer_query is not None:
-            params["q_writer"] = self._prepare_string(
-                "writer_query", writer_query
-            )
+            params["q_writer"] = prepare_string("writer_query", writer_query)
         if artist_id is not None:
-            self._validate_numeric("artist_id", artist_id, int)
+            validate_numeric("artist_id", artist_id, int)
             params["f_artist_id"] = artist_id
         if genre_id is not None:
-            self._validate_numeric("genre_id", genre_id, int)
+            validate_numeric("genre_id", genre_id, int)
             params["f_music_genre_id"] = genre_id
         if language is not None:
-            self._validate_language_code(language)
+            validate_language_code(language)
             params["f_lyrics_language"] = language
         if has_lyrics is not None:
-            self._validate_type("has_lyrics", has_lyrics, bool)
+            validate_type("has_lyrics", has_lyrics, bool)
             params["f_has_lyrics"] = int(has_lyrics)
         if released_after is not None:
-            params["f_first_release_date_min"] = self._prepare_datetime(
+            params["f_first_release_date_min"] = prepare_datetime(
                 released_after, "%Y%m%d"
             )
         if released_before is not None:
-            params["f_first_release_date_max"] = self._prepare_datetime(
+            params["f_first_release_date_max"] = prepare_datetime(
                 released_before, "%Y%m%d"
             )
         if artist_popularity_sort_order is not None:
@@ -1231,10 +1233,10 @@ class TracksAPI(MusixmatchResourceAPI):
             )
             params["s_track_rating"] = track_popularity_sort_order
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["page_size"] = limit
         if page is not None:
-            self._validate_number("page", page, int, 1)
+            validate_number("page", page, int, 1)
             params["page"] = page
         return self._client._request(
             "GET", "track.search", params=params

@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._types import ORDERED_COLLECTION_TYPES
+from ...._utility import copy_docstring, prepare_isrc
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
@@ -96,9 +97,9 @@ class VideosAPI(TIDALResourceAPI):
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"credits"`, :code:`"providers"`, 
-            :code:`"replacement"`, :code:`"similarVideos"`, 
-            :code:`"suggestedVideos"`, :code:`"thumbnailArt"`, 
+            :code:`"credits"`, :code:`"providers"`,
+            :code:`"replacement"`, :code:`"similarVideos"`,
+            :code:`"suggestedVideos"`, :code:`"thumbnailArt"`,
             :code:`"usageRules"`.
 
             **Examples**: :code:`"thumbnailArt"`,
@@ -649,9 +650,9 @@ class VideosAPI(TIDALResourceAPI):
         params = {}
         if isrcs is not None:
             if isinstance(isrcs, str):
-                isrcs = self._prepare_isrc(isrcs)
-            elif isinstance(isrcs, list | tuple):
-                isrcs = [self._prepare_isrc(isrc) for isrc in isrcs]
+                isrcs = prepare_isrc(isrcs)
+            elif isinstance(isrcs, ORDERED_COLLECTION_TYPES):
+                isrcs = [prepare_isrc(isrc) for isrc in isrcs]
             else:
                 raise ValueError(
                     "`isrcs` must be a string or a list of strings."

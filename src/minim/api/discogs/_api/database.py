@@ -1,6 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import (
+    join_values,
+    prepare_barcode,
+    prepare_string,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
 
@@ -215,14 +223,14 @@ class DatabaseAPI(DiscogsResourceAPI):
                     "year": <int>
                   }
         """
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         params = {}
         if currency is not None:
-            currency = self._prepare_string("currency", currency).upper()
+            currency = prepare_string("currency", currency).upper()
             if currency not in self._CURRENCIES:
                 raise ValueError(
                     f"Invalid currency {currency!r}. "
-                    f"Valid values: {self._join_values(self._CURRENCIES)}."
+                    f"Valid values: {join_values(self._CURRENCIES)}."
                 )
             params["curr_abbr"] = currency
         return self._client._request(
@@ -268,7 +276,7 @@ class DatabaseAPI(DiscogsResourceAPI):
                     "username": <str>
                   }
         """
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "GET",
             f"releases/{release_id}/rating/{self._resolve_username(username)}",
@@ -334,8 +342,8 @@ class DatabaseAPI(DiscogsResourceAPI):
                     "username": <str>
                   }
         """
-        self._validate_numeric("release_id", release_id, int, 1)
-        self._validate_number("rating", rating, int, 0, 5)
+        validate_numeric("release_id", release_id, int, 1)
+        validate_number("rating", rating, int, 0, 5)
         if rating:
             return self._client._request(
                 "PUT",
@@ -376,7 +384,7 @@ class DatabaseAPI(DiscogsResourceAPI):
 
             **Example**: :code:`"memory"`.
         """
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         self._client._request(
             "DELETE",
             f"releases/{release_id}/rating/{self._resolve_username(username)}",
@@ -417,7 +425,7 @@ class DatabaseAPI(DiscogsResourceAPI):
                     "release_id": <int>
                   }
         """
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "GET", f"releases/{release_id}/rating"
         ).json()
@@ -446,7 +454,7 @@ class DatabaseAPI(DiscogsResourceAPI):
             **Sample response**:
             :code:`{"num_have": <int>, "num_want": <int>}`.
         """
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "GET", f"releases/{release_id}/stats"
         ).json()
@@ -532,7 +540,7 @@ class DatabaseAPI(DiscogsResourceAPI):
                     "year": <int>
                   }
         """
-        self._validate_numeric("master_id", master_id, int, 1)
+        validate_numeric("master_id", master_id, int, 1)
         return self._client._request("GET", f"masters/{master_id}").json()
 
     @TTLCache.cached_method(ttl="popularity")
@@ -681,31 +689,29 @@ class DatabaseAPI(DiscogsResourceAPI):
                     ]
                   }
         """
-        self._validate_numeric("master_id", master_id, int, 1)
+        validate_numeric("master_id", master_id, int, 1)
         params = {}
         if label is not None:
-            params["label"] = self._prepare_string("label", label)
+            params["label"] = prepare_string("label", label)
         if release_country is not None:
-            params["country"] = self._prepare_string(
+            params["country"] = prepare_string(
                 "release_country", release_country
             )
         if release_format is not None:
-            params["format"] = self._prepare_string(
-                "release_format", release_format
-            )
+            params["format"] = prepare_string("release_format", release_format)
         if release_year is not None:
-            self._validate_numeric("release_year", release_year, int, 0)
+            validate_numeric("release_year", release_year, int, 0)
             params["year"] = str(release_year)
         if sort_by is not None:
-            sort_by = self._prepare_string("sort_by", sort_by).lower()
+            sort_by = prepare_string("sort_by", sort_by).lower()
             if sort_by not in self._RELEASE_SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid values: "
-                    f"{self._join_values(self._RELEASE_SORT_FIELDS)}."
+                    f"{join_values(self._RELEASE_SORT_FIELDS)}."
                 )
             params["sort"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["sort_order"] = "desc" if descending else "asc"
         return self._get_paginated_resources(
             f"masters/{master_id}/versions",
@@ -768,7 +774,7 @@ class DatabaseAPI(DiscogsResourceAPI):
                     "urls": <list[str]>
                   }
         """
-        self._validate_numeric("artist_id", artist_id, int, 1)
+        validate_numeric("artist_id", artist_id, int, 1)
         return self._client._request("GET", f"artists/{artist_id}").json()
 
     @TTLCache.cached_method(ttl="daily")
@@ -866,18 +872,18 @@ class DatabaseAPI(DiscogsResourceAPI):
                     ]
                   }
         """
-        self._validate_numeric("artist_id", artist_id, int, 1)
+        validate_numeric("artist_id", artist_id, int, 1)
         params = {}
         if sort_by is not None:
-            sort_by = self._prepare_string("sort_by", sort_by).lower()
+            sort_by = prepare_string("sort_by", sort_by).lower()
             if sort_by not in self._ARTIST_SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid values: "
-                    f"{self._join_values(self._ARTIST_SORT_FIELDS)}."
+                    f"{join_values(self._ARTIST_SORT_FIELDS)}."
                 )
             params["sort"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["sort_order"] = "desc" if descending else "asc"
         return self._get_paginated_resources(
             f"artists/{artist_id}/releases",
@@ -944,7 +950,7 @@ class DatabaseAPI(DiscogsResourceAPI):
                     "urls": <list[str]>
                   }
         """
-        self._validate_number("label_id", label_id, int, 1)
+        validate_number("label_id", label_id, int, 1)
         return self._client._request("GET", f"labels/{label_id}").json()
 
     @TTLCache.cached_method(ttl="popularity")
@@ -1231,60 +1237,54 @@ class DatabaseAPI(DiscogsResourceAPI):
         self._client._require_authentication("database.search")
         params = {}
         if query is not None:
-            params["query"] = self._prepare_string("query", query)
+            params["query"] = prepare_string("query", query)
         if resource_type is not None:
-            resource_type = self._prepare_string(
+            resource_type = prepare_string(
                 "resource_type", resource_type
             ).lower()
             if resource_type not in self._SEARCH_RESOURCE_TYPES:
                 raise ValueError(
                     f"Invalid resource type {resource_type!r}. Valid values: "
-                    f"{self._join_values(self._SEARCH_RESOURCE_TYPES)}."
+                    f"{join_values(self._SEARCH_RESOURCE_TYPES)}."
                 )
             params["type"] = resource_type
         if title is not None:
-            params["title"] = self._prepare_string("title", title)
+            params["title"] = prepare_string("title", title)
         if release is not None:
-            params["release_title"] = self._prepare_string("release", release)
+            params["release_title"] = prepare_string("release", release)
         if artist is not None:
-            params["artist"] = self._prepare_string("artist", artist)
+            params["artist"] = prepare_string("artist", artist)
         if artist_variation is not None:
-            params["artist_variation"] = self._prepare_string(
+            params["artist_variation"] = prepare_string(
                 "artist_variation", artist_variation
             )
         if track is not None:
-            params["track"] = self._prepare_string("track", track)
+            params["track"] = prepare_string("track", track)
         if credit is not None:
-            params["credit"] = self._prepare_string("credit", credit)
+            params["credit"] = prepare_string("credit", credit)
         if label is not None:
-            params["label"] = self._prepare_string("label", label)
+            params["label"] = prepare_string("label", label)
         if genre is not None:
-            params["genre"] = self._prepare_string("genre", genre)
+            params["genre"] = prepare_string("genre", genre)
         if style is not None:
-            params["style"] = self._prepare_string("style", style)
+            params["style"] = prepare_string("style", style)
         if release_country is not None:
-            params["country"] = self._prepare_string(
+            params["country"] = prepare_string(
                 "release_country", release_country
             )
         if release_format is not None:
-            params["format"] = self._prepare_string(
-                "release_format", release_format
-            )
+            params["format"] = prepare_string("release_format", release_format)
         if release_year is not None:
-            self._validate_numeric("release_year", release_year, int, 0)
+            validate_numeric("release_year", release_year, int, 0)
             params["year"] = str(release_year)
         if catalog_number is not None:
-            params["catno"] = self._prepare_string(
-                "catalog_number", catalog_number
-            )
+            params["catno"] = prepare_string("catalog_number", catalog_number)
         if barcode is not None:
-            params["barcode"] = self._prepare_barcode("barcode", barcode)
+            params["barcode"] = prepare_barcode("barcode", barcode)
         if submitter is not None:
-            params["submitter"] = self._prepare_string("submitter", submitter)
+            params["submitter"] = prepare_string("submitter", submitter)
         if contributor is not None:
-            params["contributor"] = self._prepare_string(
-                "contributor", contributor
-            )
+            params["contributor"] = prepare_string("contributor", contributor)
         return self._get_paginated_resources(
             "database/search", limit=limit, page=page, params=params
         )

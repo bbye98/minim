@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES
+from ...._utility import join_values, validate_number
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
@@ -83,7 +84,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             if value not in allowed_values:
                 raise ValueError(
                     f"Invalid {parameter} {value!r}. Valid values: "
-                    f"{ResourceAPI._join_values(allowed_values)}."
+                    f"{join_values(allowed_values)}."
                 )
         return ",".join(values)
 
@@ -236,7 +237,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             if resource not in relationships:
                 raise ValueError(
                     f"Invalid related resource {resource!r}. Valid "
-                    f"values: {ResourceAPI._join_values(relationships)}."
+                    f"values: {join_values(relationships)}."
                 )
 
         return ",".join(expand)
@@ -290,9 +291,9 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         if params is None:
             params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
+            validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request("GET", endpoint, params=params).json()

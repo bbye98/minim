@@ -1,7 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    prepare_string,
+    validate_number,
+    validate_type,
+    validate_uuids,
+)
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .favorites import PrivateFavoritesAPI
@@ -310,24 +316,24 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                     "user_auth_token": <str>
                   }
         """
-        self._validate_type("password", password, str)
+        validate_type("password", password, str)
         params = {
-            "username": self._prepare_string("username", username),
+            "username": prepare_string("username", username),
             "password": password,
         }
         if device_uuid is not None:
-            self._validate_uuids(device_uuid)
+            validate_uuids(device_uuid)
             params["device_manufacturer_id"] = device_uuid
         if device_model is not None:
-            params["device_model"] = self._prepare_string(
+            params["device_model"] = prepare_string(
                 "device_model", device_model
             )
         if device_os is not None:
-            params["device_os_version"] = self._prepare_string(
+            params["device_os_version"] = prepare_string(
                 "device_os", device_os
             )
         if device_platform is not None:
-            params["device_platform"] = self._prepare_string(
+            params["device_platform"] = prepare_string(
                 "device_platform", device_platform
             )
         return self._client._request(
@@ -990,9 +996,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             "dynamic-tracks/get",
             limit=limit,
             offset=offset,
-            params={
-                "type": self._prepare_string("playlist_type", playlist_type)
-            },
+            params={"type": prepare_string("playlist_type", playlist_type)},
         )
 
     @TTLCache.cached_method(ttl="popularity")
@@ -1168,7 +1172,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             ),
         }
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 500)
+            validate_number("limit", limit, int, 1, 500)
             payload["limit"] = limit
         return self._client._request(
             "POST", "dynamic/suggest", json=payload

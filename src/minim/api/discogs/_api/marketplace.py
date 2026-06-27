@@ -1,6 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+from ...._utility import (
+    join_values,
+    prepare_datetime,
+    prepare_string,
+    validate_number,
+    validate_numeric,
+    validate_type,
+)
 from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
 
@@ -165,44 +173,44 @@ class MarketplaceAPI(DiscogsResourceAPI):
         if payload is None:
             payload = {}
         if allow_offers is not None:
-            self._validate_type("allow_offers", allow_offers, bool)
+            validate_type("allow_offers", allow_offers, bool)
             payload["allow_offers"] = allow_offers
         if media_condition is not None:
-            media_condition = self._prepare_string(
+            media_condition = prepare_string(
                 "media_condition", media_condition
             )
             if media_condition not in self._CONDITIONS:
                 raise ValueError(
                     f"Invalid media condition {media_condition!r}. "
-                    f"Valid values: {self._join_values(self._CONDITIONS)}."
+                    f"Valid values: {join_values(self._CONDITIONS)}."
                 )
             payload["condition"] = media_condition
         if price is not None:
-            self._validate_number("price", price, int | float, 0.01)
+            validate_number("price", price, int | float, 0.01)
             payload["price"] = round(price, 2)
         if private_notes is not None:
-            self._validate_type("private_notes", private_notes, str)
+            validate_type("private_notes", private_notes, str)
             payload["external_id"] = private_notes
         if public_notes is not None:
-            self._validate_type("public_notes", public_notes, str)
+            validate_type("public_notes", public_notes, str)
             payload["comments"] = public_notes
         if status is not None:
-            status = self._prepare_string("status", status).capitalize()
+            status = prepare_string("status", status).capitalize()
             if status not in self._USER_LISTING_STATUSES:
                 raise ValueError(
                     f"Invalid listing status {status!r}. Valid values: "
-                    f"{self._join_values(self._USER_LISTING_STATUSES)}."
+                    f"{join_values(self._USER_LISTING_STATUSES)}."
                 )
             payload["status"] = status
         if shipping_count is not None:
             if shipping_count != "auto":
-                self._validate_number("shipping_count", shipping_count, int, 0)
+                validate_number("shipping_count", shipping_count, int, 0)
             payload["format_quantity"] = shipping_count
         if storage_location is not None:
-            self._validate_type("storage_location", storage_location, str)
+            validate_type("storage_location", storage_location, str)
             payload["location"] = storage_location
         if sleeve_condition is not None:
-            sleeve_condition = self._prepare_string(
+            sleeve_condition = prepare_string(
                 "sleeve_condition", sleeve_condition
             )
             if sleeve_condition not in (
@@ -211,12 +219,12 @@ class MarketplaceAPI(DiscogsResourceAPI):
             ):
                 raise ValueError(
                     f"Invalid sleeve condition {sleeve_condition!r}. "
-                    f"Valid values: {self._join_values(conditions)}."
+                    f"Valid values: {join_values(conditions)}."
                 )
             payload["sleeve_condition"] = sleeve_condition
         if weight is not None:
             if weight != "auto":
-                self._validate_number("weight", weight, int, 0)
+                validate_number("weight", weight, int, 0)
             payload["weight"] = weight
         resp = self._client._request(
             "POST", f"marketplace/listings{endpoint_suffix}", json=payload
@@ -358,21 +366,21 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         params = {}
         if status is not None:
-            status = self._prepare_string("status", status).capitalize()
+            status = prepare_string("status", status).capitalize()
             if status not in (
                 statuses := self._FILTER_LISTING_STATUSES
                 | self._USER_LISTING_STATUSES
             ):
                 raise ValueError(
                     f"Invalid listing status {status!r}. "
-                    f"Valid values: {self._join_values(statuses)}."
+                    f"Valid values: {join_values(statuses)}."
                 )
         if sort_by is not None:
-            sort_by = self._prepare_string("sort_by", sort_by).lower()
+            sort_by = prepare_string("sort_by", sort_by).lower()
             if sort_by not in self._LISTING_SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid values: "
-                    f"{self._join_values(self._LISTING_SORT_FIELDS)}."
+                    f"{join_values(self._LISTING_SORT_FIELDS)}."
                 )
 
             if sort_by in {"status", "location"}:
@@ -381,7 +389,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
                 )
             params["sort"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["sort_order"] = "desc" if descending else "asc"
         return self._get_paginated_resources(
             f"users/{self._resolve_username(username)}/inventory",
@@ -497,14 +505,14 @@ class MarketplaceAPI(DiscogsResourceAPI):
                     "uri": <str>
                   }
         """
-        self._validate_numeric("listing_id", listing_id, int, 1)
+        validate_numeric("listing_id", listing_id, int, 1)
         params = {}
         if currency is not None:
-            currency = self._prepare_string("currency", currency).upper()
+            currency = prepare_string("currency", currency).upper()
             if currency not in self._CURRENCIES:
                 raise ValueError(
                     f"Invalid currency {currency!r}. "
-                    f"Valid values: {self._join_values(self._CURRENCIES)}."
+                    f"Valid values: {join_values(self._CURRENCIES)}."
                 )
             params["curr_abbr"] = currency
         return self._client._request(
@@ -625,7 +633,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
                   }
         """
         self._client._require_authentication("marketplace.create_listing")
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         return self._upsert_listing(
             allow_offers=allow_offers,
             media_condition=media_condition,
@@ -734,7 +742,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             estimate the value.
         """
         self._client._require_authentication("marketplace.update_listing")
-        self._validate_numeric("listing_id", listing_id, int, 1)
+        validate_numeric("listing_id", listing_id, int, 1)
         return self._upsert_listing(
             f"/{listing_id}",
             allow_offers=allow_offers,
@@ -774,7 +782,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             **Examples**: :code:`172723812`, :code:`"2983532888"`.
         """
         self._client._require_authentication("marketplace.delete_listing")
-        self._validate_numeric("listing_id", listing_id, int, 1)
+        validate_numeric("listing_id", listing_id, int, 1)
         self._client._request("DELETE", f"marketplace/listings/{listing_id}")
 
     @TTLCache.cached_method(ttl="user")
@@ -866,7 +874,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         self._client._require_authentication("marketplace.get_order")
         return self._client._request(
             "GET",
-            f"marketplace/orders/{self._prepare_string('order_id', order_id)}",
+            f"marketplace/orders/{prepare_string('order_id', order_id)}",
         ).json()
 
     def update_order(
@@ -998,15 +1006,15 @@ class MarketplaceAPI(DiscogsResourceAPI):
         self._client._require_authentication("marketplace.update_order")
         payload = {}
         if status is not None:
-            status = self._prepare_string("status", status).capitalize()
+            status = prepare_string("status", status).capitalize()
             if status not in self._USER_ORDER_STATUSES:
                 raise ValueError(
                     f"Invalid order status {status!r}. Valid values: "
-                    f"{self._join_values(self._USER_ORDER_STATUSES)}."
+                    f"{join_values(self._USER_ORDER_STATUSES)}."
                 )
             payload["status"] = status
         if shipping_fee is not None:
-            self._validate_number("shipping_fee", shipping_fee, int | float, 0)
+            validate_number("shipping_fee", shipping_fee, int | float, 0)
             payload["shipping"] = shipping_fee
         if len(payload) != 1:
             raise ValueError(
@@ -1014,7 +1022,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             )
         return self._client._request(
             "POST",
-            f"marketplace/orders/{self._prepare_string('order_id', order_id)}",
+            f"marketplace/orders/{prepare_string('order_id', order_id)}",
             json=payload,
         ).json()
 
@@ -1180,37 +1188,37 @@ class MarketplaceAPI(DiscogsResourceAPI):
         self._client._require_authentication("marketplace.get_my_orders")
         params = {}
         if status is not None:
-            status = self._prepare_string("status", status).capitalize()
+            status = prepare_string("status", status).capitalize()
             if status not in (
                 order_statuses := self._USER_ORDER_STATUSES
                 | self._FILTER_ORDER_STATUSES
             ):
                 raise ValueError(
                     f"Invalid order status {status!r}. Valid values: "
-                    f"{self._join_values(order_statuses)}."
+                    f"{join_values(order_statuses)}."
                 )
             params["status"] = status
         if created_after is not None:
-            params["created_after"] = self._prepare_datetime(
+            params["created_after"] = prepare_datetime(
                 created_after, "%Y-%m-%dT%H:%M:%SZ"
             )
         if created_before is not None:
-            params["created_before"] = self._prepare_datetime(
+            params["created_before"] = prepare_datetime(
                 created_before, "%Y-%m-%dT%H:%M:%SZ"
             )
         if archived is not None:
-            self._validate_type("archived", archived, bool)
+            validate_type("archived", archived, bool)
             params["archived"] = archived
         if sort_by is not None:
-            sort_by = self._prepare_string("sort_by", sort_by).lower()
+            sort_by = prepare_string("sort_by", sort_by).lower()
             if sort_by not in self._ORDER_SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid values: "
-                    f"{self._join_values(self._ORDER_SORT_FIELDS)}."
+                    f"{join_values(self._ORDER_SORT_FIELDS)}."
                 )
             params["sort"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["sort_order"] = "desc" if descending else "asc"
         return self._get_paginated_resources(
             "marketplace/orders", limit=limit, page=page, params=params
@@ -1290,7 +1298,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         self._client._require_authentication("marketplace.get_order_messages")
         return self._get_paginated_resources(
             "marketplace/orders"
-            f"/{self._prepare_string('order_id', order_id)}/messages",
+            f"/{prepare_string('order_id', order_id)}/messages",
             limit=limit,
             page=page,
         )
@@ -1380,14 +1388,14 @@ class MarketplaceAPI(DiscogsResourceAPI):
         self._client._require_authentication("marketplace.post_order_message")
         payload = {}
         if message is not None:
-            self._validate_type("message", message, str)
+            validate_type("message", message, str)
             payload["message"] = message
         if status is not None:
-            status = self._prepare_string("status", status).capitalize()
+            status = prepare_string("status", status).capitalize()
             if status not in self._USER_ORDER_STATUSES:
                 raise ValueError(
                     f"Invalid order status {status!r}. Valid values: "
-                    f"{self._join_values(self._USER_ORDER_STATUSES)}."
+                    f"{join_values(self._USER_ORDER_STATUSES)}."
                 )
             payload["status"] = status
         if not payload:
@@ -1396,7 +1404,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
             )
         return self._client._request(
             "POST",
-            f"marketplace/order/{self._prepare_string('order_id', order_id)}/messages",
+            f"marketplace/order/{prepare_string('order_id', order_id)}/messages",
             json=payload,
         ).json()
 
@@ -1434,14 +1442,14 @@ class MarketplaceAPI(DiscogsResourceAPI):
             **Sample response**:
             :code:`{"currency": <str>, "value": <float>}`.
         """
-        self._validate_number("price", price, int | float, 0)
+        validate_number("price", price, int | float, 0)
         if currency is None:
             return self._client._request(f"marketplace/fee/{price}").json()
-        currency = self._prepare_string("currency", currency).upper()
+        currency = prepare_string("currency", currency).upper()
         if currency not in self._CURRENCIES:
             raise ValueError(
                 f"Invalid currency {currency!r}. "
-                f"Valid values: {self._join_values(self._CURRENCIES)}."
+                f"Valid values: {join_values(self._CURRENCIES)}."
             )
         return self._client._request(
             f"marketplace/fee/{price}/{currency}"
@@ -1522,7 +1530,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         self._client._require_authentication(
             "marketplace.get_release_price_suggestions"
         )
-        self._validate_numeric("release_id", release_id, int, 1)
+        validate_numeric("release_id", release_id, int, 1)
         return self._client._request(
             "GET", f"marketplace/price_suggestions/{release_id}"
         ).json()
@@ -1573,11 +1581,11 @@ class MarketplaceAPI(DiscogsResourceAPI):
         """
         params = {}
         if currency is not None:
-            currency = self._prepare_string("currency", currency).upper()
+            currency = prepare_string("currency", currency).upper()
             if currency not in self._CURRENCIES:
                 raise ValueError(
                     f"Invalid currency {currency!r}. "
-                    f"Valid values: {self._join_values(self._CURRENCIES)}."
+                    f"Valid values: {join_values(self._CURRENCIES)}."
                 )
             params["curr_abbr"] = currency
         return self._client._request(

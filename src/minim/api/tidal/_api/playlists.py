@@ -2,7 +2,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...._types import ORDERED_COLLECTION_TYPES
-from ...._utility import copy_docstring
+from ...._utility import (
+    copy_docstring,
+    prepare_string,
+    validate_country_code,
+    validate_type,
+    validate_uuids,
+)
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
@@ -167,11 +173,11 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         owner_ids : int, str, or Collection[int | str]; keyword-only; \
         optional
-            TIDAL IDs of the playlist resources' owners. If 
+            TIDAL IDs of the playlist resources' owners. If
             authenticated, :code:`"me"` can be used in lieu of a TIDAL
             ID for the current user.
 
-            **Examples**: :code:`"me"`, :code:`123456`, 
+            **Examples**: :code:`"me"`, :code:`123456`,
             :code:`"654321"`, :code:`[123456, "654321"]`.
 
         country_code : str; keyword-only; optional
@@ -182,11 +188,11 @@ class PlaylistsAPI(TIDALResourceAPI):
         expand : str or Collection[str]; keyword-only; optional
             Related resources to include metadata for in the response.
 
-            **Valid values**: :code:`"collaboratorProfiles"`, 
-            :code:`"collaborators"`, :code:`"coverArt"`, 
+            **Valid values**: :code:`"collaboratorProfiles"`,
+            :code:`"collaborators"`, :code:`"coverArt"`,
             :code:`"items"`, :code:`"ownerProfiles"`, :code:`"owners"`.
 
-            **Examples**: :code:`"coverArt"`, 
+            **Examples**: :code:`"coverArt"`,
             :code:`["items", "owners"]`.
 
         cursor : str; keyword-only; optional
@@ -826,21 +832,21 @@ class PlaylistsAPI(TIDALResourceAPI):
         )
         params = {}
         if country_code is not None:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["countryCode"] = country_code
         payload = {
             "data": {
-                "attributes": {"name": self._prepare_string("name", name)},
+                "attributes": {"name": prepare_string("name", name)},
                 "type": "playlists",
             }
         }
         attrs = payload["data"]["attributes"]
         if description is not None:
-            attrs["description"] = self._prepare_string(
+            attrs["description"] = prepare_string(
                 "description", description, allow_blank=True
             )
         if public is not None:
-            self._validate_type("public", public, bool)
+            validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
         return self._client._request(
             "POST", "playlists", params=params, json=payload
@@ -902,9 +908,9 @@ class PlaylistsAPI(TIDALResourceAPI):
         )
         params = {}
         if country_code is not None:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["countryCode"] = country_code
-        self._validate_uuids(playlist_uuid)
+        validate_uuids(playlist_uuid)
         payload = {
             "data": {
                 "attributes": {},
@@ -914,13 +920,13 @@ class PlaylistsAPI(TIDALResourceAPI):
         }
         attrs = payload["data"]["attributes"]
         if name is not None:
-            attrs["name"] = self._prepare_string("name", name)
+            attrs["name"] = prepare_string("name", name)
         if description is not None:
-            attrs["description"] = self._prepare_string(
+            attrs["description"] = prepare_string(
                 "description", description, allow_blank=True
             )
         if public is not None:
-            self._validate_type("public", public, bool)
+            validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
         if not attrs:
             raise ValueError("At least one change must be specified.")
@@ -954,7 +960,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.delete_playlist", "playlists.write"
         )
-        self._validate_uuids(playlist_uuid)
+        validate_uuids(playlist_uuid)
         self._client._request("DELETE", f"playlist/{playlist_uuid}")
 
     @TTLCache.cached_method(ttl="user")
@@ -1340,10 +1346,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.add_playlist_items", "playlists.write"
         )
-        self._validate_uuids(playlist_uuid)
+        validate_uuids(playlist_uuid)
         params = {}
         if country_code is not None:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["countryCode"] = country_code
         payload = {"data": self._process_playlist_items(items, meta=False)}
         if insert_before is not None:
@@ -1442,7 +1448,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.reorder_playlist_items", "playlists.write"
         )
-        self._validate_uuids(playlist_uuid)
+        validate_uuids(playlist_uuid)
         payload = {"data": self._process_playlist_items(items)}
         if insert_before is not None:
             payload["meta"] = {"positionBefore": insert_before}
@@ -1532,7 +1538,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.remove_playlist_items", "playlists.write"
         )
-        self._validate_uuids(playlist_uuid)
+        validate_uuids(playlist_uuid)
         self._client._request(
             "DELETE",
             f"playlists/{playlist_uuid}/relationships/items",
