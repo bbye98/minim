@@ -2486,17 +2486,25 @@ class OAuth2APIClient(OAuthAPIClient):
                         data=data,
                         headers={"authorization": f"Basic {client_b64}"},
                     ).json()
-                    if error := resp_json.get("error"):
-                        warnings.warn(
-                            f"Encountered {error!r} error – "
-                            f"{resp_json['error_description']}. "
-                            "Reauthorizing via the "
-                            f"{self._AUTH_FLOWS[self._auth_flow]}.",
-                        )
-                        return self._obtain_access_token(self._auth_flow)
                 else:
                     data["client_id"] = self._client_id
                     resp_json = httpx.post(self.TOKEN_URL, data=data).json()
+                if error := resp_json.get("error"):
+                    error_description = (
+                        f" – {error_description!r}"
+                        if (
+                            error_description := resp_json.get(
+                                "error_description"
+                            )
+                        )
+                        else ""
+                    )
+                    warnings.warn(
+                        f"Encountered {error!r} error"
+                        f"{error_description}. Reauthorizing via the "
+                        f"{self._AUTH_FLOWS[self._auth_flow]}.",
+                    )
+                    return self._obtain_access_token(self._auth_flow)
 
             case "client_credentials":
                 b64_client_credentials = base64.urlsafe_b64encode(
