@@ -1270,14 +1270,17 @@ class OAuthAPIClient(APIClient):
 
             return dict(
                 parse_qsl(
-                    urlparse(
-                        input(
-                            "After authorizing Minim to access "
-                            f"{self._PROVIDER} on your behalf, copy "
-                            "and paste the URI beginning with "
-                            f"{self._redirect_uri!r} below.\n\nURI: "
-                        )
-                    ).query
+                    getattr(
+                        urlparse(
+                            input(
+                                "After authorizing Minim to access "
+                                f"{self._PROVIDER} on your behalf, copy "
+                                "and paste the URI beginning with "
+                                f"{self._redirect_uri!r} below.\n\nURI: "
+                            )
+                        ),
+                        url_component,
+                    )
                 )
             )
 
