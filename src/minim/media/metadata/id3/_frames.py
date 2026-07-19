@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, NamedTuple
 from ...._types import ORDERED_COLLECTION_TYPES
 from ...._utility import (
     ASCII_CHARS_REGEX,
-    decode_32_bit_synchsafe_int,
+    as_buffer,
     join_values,
     prepare_isrc,
     set_obj_attr,
@@ -17,7 +17,7 @@ from ...._utility import (
     validate_range,
     validate_type,
 )
-from ..._shared import as_buffer
+from ...mpeg import _decode_32_bit_synchsafe_int
 from . import TAG_VERSIONS
 
 if TYPE_CHECKING:
@@ -972,7 +972,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         text_info_frame : minim.media.metadata.ID3v2TextInfoFrame
             Text information frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -1095,7 +1095,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
             Datetime frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -1347,7 +1347,7 @@ class ID3v2APICFrame(ID3v2Frame):
             b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
         )
         mime_type, stream = (
-            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])]
+            stream[11 : 10 + _decode_32_bit_synchsafe_int(*stream[4:8])]
             .tobytes()
             .split(null_char, maxsplit=1)
         )
@@ -1535,7 +1535,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         comment_frame : minim.media.metadata.ID3v2COMMFrame
             :code:`COMM` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -1728,7 +1728,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         lyrics_frame : minim.media.metadata.ID3v2USLTFrame
             :code:`USLT` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -1924,7 +1924,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         bpm_frame : minim.media.metadata.ID3v2TBPMFrame
             :code:`TBPM` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         bpms = (
             stream[11 : 10 + frame_length]
@@ -2074,7 +2074,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         compilation_flag_frame : minim.media.metadata.ID3v2TCMPFrame
             :code:`TCMP` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         compilation_flags = (
             stream[11 : 10 + frame_length]
@@ -2592,7 +2592,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         disc_frame : minim.media.metadata.ID3v2TPOSFrame
             :code:`TPOS` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -2816,7 +2816,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         track_frame : minim.media.metadata.ID3v2TRCKFrame
             :code:`TRCK` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -3016,7 +3016,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         isrc_frame : minim.media.metadata.ID3v2TSRCFrame
             :code:`TSRC` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -3196,7 +3196,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         text_info_frame : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXXX` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        frame_length = _decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -3339,7 +3339,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._frame_id = stream[:4].tobytes()
         obj._frame_data = stream[
-            10 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])
+            10 : 10 + _decode_32_bit_synchsafe_int(*stream[4:8])
         ].tobytes()
         return obj
 

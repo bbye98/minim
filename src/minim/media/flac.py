@@ -19,7 +19,8 @@ from .._utility import (
     validate_type,
 )
 from .._types import BytesLike, COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ._shared import as_buffer, Audio
+from .._utility import as_buffer
+from ._shared import Audio
 from .metadata._shared import AudioStreamInfo
 from .metadata._vorbis import VorbisComment
 from .metadata.id3._frames import (

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
+import mmap
 import re
 import types
 from typing import TYPE_CHECKING, Callable
@@ -10,12 +11,36 @@ from ._types import COLLECTION_TYPES
 if TYPE_CHECKING:
     from typing import Any
 
-    from ._types import Collection
+    from ._types import BytesLike, Collection
 
 ASCII_CHARS_REGEX = re.compile("[\x20-\x7e]*$")
 TRANSLATION_TABLES = {"remove_separators": str.maketrans("", "", "‐‒–—―−")}
 
 set_obj_attr = object.__setattr__
+
+
+def as_buffer(stream: BytesLike) -> memoryview:
+    """
+    Return a C-level buffer interface to a bytes-like object.
+
+    Parameters
+    ----------
+    bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+    positional-only; optional
+        Bytes-like object.
+
+    Returns
+    -------
+    view : memoryview
+        Buffer interface to the bytes-like object.
+    """
+    if isinstance(stream, memoryview):
+        return stream
+
+    if isinstance(stream, bytes | bytearray | mmap.mmap):
+        return memoryview(stream)
+
+    raise TypeError("`stream` must be a bytes-like object.")
 
 
 def copy_docstring(

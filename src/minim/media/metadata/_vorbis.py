@@ -5,8 +5,12 @@ from typing import TYPE_CHECKING
 
 from ... import __version__
 from ..._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ..._utility import prepare_isrc, validate_numeric, validate_type
-from .._shared import as_buffer
+from ..._utility import (
+    as_buffer,
+    prepare_isrc,
+    validate_numeric,
+    validate_type,
+)
 from ._shared import AudioTags
 
 if TYPE_CHECKING:

@@ -1,17 +1,40 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 
-from .._utility import (
-    decode_32_bit_synchsafe_int,
-    join_values,
-    set_obj_attr,
-    validate_type,
-)
+from .._utility import join_values, set_obj_attr, validate_type
 from ._shared import Audio
 from .metadata._shared import AudioStreamInfo
 from .metadata.id3._core import ID3v1, ID3v2
 
 __all__ = ["MPEGAudio", "MPEGStreamInfo"]
+
+
+def _decode_32_bit_synchsafe_int(
+    byte_1: int, byte_2: int, byte_3: int, byte_4: int, /
+) -> int:
+    """
+    Decode a 32-bit synchsafe integer.
+
+    Parameters
+    ----------
+    byte_1 : int; positional-only
+        First byte in synchsafe integer.
+
+    byte_2 : int; positional-only
+        Second byte in synchsafe integer.
+
+    byte_3 : int; positional-only
+        Third byte in synchsafe integer.
+
+    byte_4 : int; positional-only
+        Fourth byte in synchsafe integer.
+
+    Returns
+    -------
+    value : int
+        Decoded synchsafe integer value.
+    """
+    return (byte_1 << 21) | (byte_2 << 14) | (byte_3 << 7) | byte_4
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
@@ -841,7 +864,7 @@ class MPEGAudio(Audio):
 
         # Process ID3v2 tags, if any
         if view[:3] == b"ID3":
-            offset = 10 + decode_32_bit_synchsafe_int(*view[6:10])
+            offset = 10 + _decode_32_bit_synchsafe_int(*view[6:10])
             tags = ID3v2.from_stream(view[:offset], strict=strict)
             self._format_metadata.append(tags)
             self._tags = tags

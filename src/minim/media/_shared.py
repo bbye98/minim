@@ -7,34 +7,10 @@ from typing import TYPE_CHECKING
 from .._utility import validate_type
 
 if TYPE_CHECKING:
-    from .._types import BytesLike, PathLike
+    from .._types import PathLike
     from .metadata._shared import AudioStreamInfo, AudioTags
 
     from typing import Any
-
-
-def as_buffer(stream: BytesLike) -> memoryview:
-    """
-    Return a C-level buffer interface to a bytes-like object.
-
-    Parameters
-    ----------
-    bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
-    positional-only; optional
-        Bytes-like object.
-
-    Returns
-    -------
-    view : memoryview
-        Buffer interface to the bytes-like object.
-    """
-    if isinstance(stream, memoryview):
-        return stream
-
-    if isinstance(stream, bytes | bytearray | mmap.mmap):
-        return memoryview(stream)
-
-    raise TypeError("`stream` must be a bytes-like object.")
 
 
 class Audio(ABC):
