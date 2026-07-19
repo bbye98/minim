@@ -330,6 +330,26 @@ class FLACPadding(FLACMetadataBlock):
         """
         self.block_length = block_length
 
+    def __add__(self, other: FLACPadding) -> Self:
+        if not isinstance(other, FLACPadding):
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                f"'FLACPadding' and {type(other).__name__!r}."
+            )
+        return FLACPadding(self._length + other._length)
+
+    def __iadd__(self, other: FLACPadding) -> Self:
+        if not isinstance(other, FLACPadding):
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                f"'FLACPadding' and {type(other).__name__!r}."
+            )
+        self._length += other._length
+        return self
+
+    def __len__(self) -> int:
+        return self._length
+
     @property
     def _block_length(self) -> int:
         """
