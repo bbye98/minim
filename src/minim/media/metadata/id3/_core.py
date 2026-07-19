@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING
 
 from ...._utility import (
     as_buffer,
+    decode_32_bit_synchsafe_int,
     join_values,
     validate_iso_8859_1_string,
     validate_number,
     validate_numeric,
     validate_type,
 )
-from ...mpeg import _decode_32_bit_synchsafe_int
 from .._shared import AudioTags
 from ._frames import (
     ID3v2Frame,
@@ -278,6 +278,27 @@ class ID3v1:
             validate_numeric("year", value, int, 0, 9_999)
             value = str(value)
         self._year = value
+
+    def serialize(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> bytes:
+        """
+        Serialize metadata to a bytestream.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
+
+        Returns
+        -------
+        bytestream : bytes
+            Bytestream containing the serialized metadata.
+        """
+        ...
 
 
 class ID3v2Flags:
@@ -687,7 +708,7 @@ class ID3v2(AudioTags):
             raise ValueError("`stream` does not contain an ID3v2 tag.")
 
         offset = 10
-        tag_end = offset + _decode_32_bit_synchsafe_int(*tag_length)
+        tag_end = offset + decode_32_bit_synchsafe_int(*tag_length)
         obj = cls.__new__(cls)
         obj._frames = frames = []
         obj._class_index = class_index = defaultdict(list)
@@ -720,7 +741,7 @@ class ID3v2(AudioTags):
                         flags._tag_restrictions = stream[
                             offset + 7 + is_update + 6 * has_crc
                         ]
-                    offset += _decode_32_bit_synchsafe_int(
+                    offset += decode_32_bit_synchsafe_int(
                         *stream[offset : offset + 4]
                     )
 
@@ -741,7 +762,7 @@ class ID3v2(AudioTags):
                     end_offset = (
                         offset
                         + 10
-                        + _decode_32_bit_synchsafe_int(*frame_length)
+                        + decode_32_bit_synchsafe_int(*frame_length)
                     )
                     frame_cls = ID3v2Frame._get_class(frame_id)
                     frame = frame_cls._from_stream_2_4(
@@ -1263,7 +1284,7 @@ class ID3v2(AudioTags):
         self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> bytes:
         """
-        Serialize metadata to a bytestream.
+        Serialize ID3v2 tag to a bytestream.
 
         Parameters
         ----------
@@ -1276,6 +1297,6 @@ class ID3v2(AudioTags):
         Returns
         -------
         bytestream : bytes
-            Bytestream containing the serialized metadata.
+            Bytestream containing the serialized ID3v2 tag.
         """
         ...
