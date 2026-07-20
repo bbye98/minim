@@ -42,7 +42,8 @@ class ID3v1:
        `What is ID3 (v1)? <https://id3.org/ID3v1>`_
     """
 
-    _STRUCT = struct.Struct(">30s30s30s4s28sBBB")
+    _STRUCT_1_0 = struct.Struct("3s30s30s30s4s30sB")
+    _STRUCT_1_1 = struct.Struct("3s30s30s30s4s28sBBB")
 
     def __init__(
         self,
@@ -122,11 +123,8 @@ class ID3v1:
         tag : minim.media.metadata.ID3v1
             ID3v1 tag.
         """
-        stream = as_buffer(stream)
-        if stream[:3] != b"TAG":
-            raise ValueError("`stream` does not contain an ID3v1 tag.")
-
         (
+            header,
             title,
             artist,
             album,
@@ -135,7 +133,10 @@ class ID3v1:
             marker,
             track_number,
             genre,
-        ) = cls._STRUCT.unpack_from(stream, 3)
+        ) = cls._STRUCT_1_1.unpack_from(as_buffer(stream))
+        if header != b"TAG":
+            raise ValueError("`stream` does not contain an ID3v1 tag.")
+
         obj = cls.__new__(cls)
         obj._title = (
             title.rstrip(b"\x00").decode(encoding="iso-8859-1") or None
@@ -157,8 +158,39 @@ class ID3v1:
             obj._comment = (comment + marker + track_number).rstrip(
                 b"\x00"
             ).decode(encoding="iso-8859-1") or None
-        obj._genre = None if genre == 255 else str(genre)
+        obj._genre = int(genre)
         return obj
+
+    @staticmethod
+    def _normalize_tag_version(
+        tag_version: str | tuple[int, int], /
+    ) -> tuple[int, int]:
+        """
+        Normalize ID3v1 tag version.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int]; default: :code:`(1, 1)`
+            ID3v1 tag version.
+
+            **Valid values**: :code:`"1.0"` or :code:`(1, 0)`,
+            :code:`"1.1"` or :code:`(1, 1)`.
+
+        Returns
+        -------
+        tag_version : tuple[int, int]
+            ID3v1 tag version.
+        """
+        match tag_version:
+            case tuple() | list():
+                return tag_version
+            case str():
+                return tuple(int(v) for v in tag_version.split("."))
+            case _:
+                raise TypeError(
+                    "`tag_version` must be a string or a tuple of two "
+                    "integers."
+                )
 
     @property
     def album(self) -> str | None:
@@ -217,7 +249,7 @@ class ID3v1:
         self._comment = value
 
     @property
-    def genre(self) -> str | None:
+    def genre(self) -> int | None:
         """
         Musical genre.
         """
@@ -227,7 +259,7 @@ class ID3v1:
     def genre(self, value: int | str | None, /) -> None:
         if value is not None:
             validate_numeric("genre", value, int, 0, 255)
-            value = str(value)
+            value = int(value)
         self._genre = value
 
     @property
@@ -256,13 +288,13 @@ class ID3v1:
     @track_number.setter
     def track_number(self, value: int | None, /) -> None:
         if value is not None:
-            validate_numeric("track_number", value, int, 1, 255)
-            value = str(value)
             if self._comment is not None and len(self._comment) > 28:
                 raise ValueError(
                     "`track_number` cannot be set when `comment` "
                     "exceeds 28 characters."
                 )
+            validate_numeric("track_number", value, int, 1, 255)
+            value = int(value)
         self._track_number = value
 
     @property
@@ -279,26 +311,51 @@ class ID3v1:
             value = str(value)
         self._year = value
 
-    def serialize(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> bytes:
+    def serialize(self, tag_version: str | tuple[int, int]) -> bytes:
         """
-        Serialize metadata to a bytestream.
+        Serialize the ID3v1 tag to a bytestream.
 
         Parameters
         ----------
-        *args : tuple[Any, ...]
-            Positional arguments to accept in implementations.
+        tag_version : str or tuple[int, int]
+            ID3v1 tag version.
 
-        **kwargs : dict[str, Any]
-            Keyword arguments to accept in implementations.
+            **Valid values**: :code:`"1.0"` or :code:`(1, 0)`,
+            :code:`"1.1"` or :code:`(1, 1)`.
 
         Returns
         -------
         bytestream : bytes
-            Bytestream containing the serialized metadata.
+            Bytestream containing the serialized ID3v1 tag.
         """
-        ...
+        match self._normalize_tag_version(tag_version):
+            case (1, 0):
+                return self._STRUCT_1_1.pack(
+                    b"TAG",
+                    (self._title or "").encode(encoding="iso-8859-1"),
+                    (self._artist or "").encode(encoding="iso-8859-1"),
+                    (self._album or "").encode(encoding="iso-8859-1"),
+                    (self._year or "").encode(encoding="iso-8859-1"),
+                    (self._comment or "").encode(encoding="iso-8859-1"),
+                    self._genre or 255,
+                )
+            case (1, 1):
+                if self._comment is not None and len(self._comment) > 28:
+                    raise RuntimeError(
+                        "`comment` cannot exceed 28 characters when "
+                        "serializing to ID3v1.1."
+                    )
+                return self._STRUCT_1_1.pack(
+                    b"TAG",
+                    (self._title or "").encode(encoding="iso-8859-1"),
+                    (self._artist or "").encode(encoding="iso-8859-1"),
+                    (self._album or "").encode(encoding="iso-8859-1"),
+                    (self._year or "").encode(encoding="iso-8859-1"),
+                    (self._comment or "").encode(encoding="iso-8859-1"),
+                    0,
+                    self._track_number or 0,
+                    self._genre or 255,
+                )
 
 
 class ID3v2Flags:
@@ -617,6 +674,12 @@ class ID3v2Flags:
         if value is not None:
             validate_number("tag_restrictions", value, int, 0, 255)
         self._tag_restrictions = value
+
+    def serialize(
+        self, tag_version: str | tuple[int, int, int] = (2, 4, 0)
+    ) -> bytes:
+        """ """
+        ...  # TODO
 
 
 class ID3v2(AudioTags):
@@ -1280,19 +1343,18 @@ class ID3v2(AudioTags):
         """
         ...
 
-    def serialize(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> bytes:
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Serialize ID3v2 tag to a bytestream.
+        Serialize the ID3v2 tag to a bytestream.
 
         Parameters
         ----------
-        *args : tuple[Any, ...]
-            Positional arguments to accept in implementations.
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
 
-        **kwargs : dict[str, Any]
-            Keyword arguments to accept in implementations.
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
         Returns
         -------
