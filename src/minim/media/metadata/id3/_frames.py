@@ -19,6 +19,7 @@ from ...._utility import (
     validate_type,
 )
 from . import TAG_VERSIONS
+from ._core import normalize_id3v2_tag_version
 
 if TYPE_CHECKING:
     from typing import Any
@@ -538,7 +539,7 @@ class ID3v2FrameFlags:
         """
         validate_number("status_flags", status_flags, int, 0)
         validate_number("format_flags", format_flags, int, 0)
-        match ID3v2Frame._normalize_tag_version(tag_version):
+        match normalize_id3v2_tag_version(tag_version):
             case (2, 4, _):
                 return cls._from_bytes_2_4(
                     status_flags, format_flags, strict=strict
@@ -707,7 +708,7 @@ class ID3v2Frame(ABC):
         frame : minim.media.metadata.ID3v2Frame
             ID3v2 frame.
         """
-        tag_version = cls._normalize_tag_version(tag_version)
+        tag_version = normalize_id3v2_tag_version(tag_version)
         expected_frame_id = cls.get_frame_id(tag_version)
         if stream[: len(expected_frame_id)] != expected_frame_id:
             raise ValueError(
@@ -749,7 +750,7 @@ class ID3v2Frame(ABC):
             ID3v2 frame IDs. If no native frame is available for the
             specified ID3v2 tag version, :code:`None` is returned.
         """
-        match cls._normalize_tag_version(tag_version):
+        match normalize_id3v2_tag_version(tag_version):
             case (2, 4, _):
                 return cls._frame_ids.get(4)
             case (2, 3, _):
@@ -760,38 +761,6 @@ class ID3v2Frame(ABC):
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
-                )
-
-    @staticmethod
-    def _normalize_tag_version(
-        tag_version: str | tuple[int, int, int], /
-    ) -> tuple[int, int, int]:
-        """
-        Normalize ID3v2 tag version.
-
-        Parameters
-        ----------
-        tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
-
-            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
-            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
-            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
-
-        Returns
-        -------
-        tag_version : tuple[int, int, int]
-            ID3v2 tag version.
-        """
-        match tag_version:
-            case tuple() | list():
-                return tag_version
-            case str():
-                return tuple(int(v) for v in tag_version.split("."))
-            case _:
-                raise TypeError(
-                    "`tag_version` must be a string or a tuple of "
-                    "three integers."
                 )
 
     @property
@@ -3383,7 +3352,7 @@ class UnknownID3v2Frame(ID3v2Frame):
             ID3v2 frame ID.
         """
         frame_id = self._frame_id
-        if self._normalize_tag_version(tag_version) == (2, 2, 0):
+        if normalize_id3v2_tag_version(tag_version) == (2, 2, 0):
             if len(frame_id) != 3:
                 raise ValueError(
                     f"Frame ID {frame_id!r} is incompatible with "

@@ -33,6 +33,67 @@ if TYPE_CHECKING:
     )
 
 
+def normalize_id3v1_tag_version(
+    tag_version: str | tuple[int, int], /
+) -> tuple[int, int]:
+    """
+    Normalize ID3v1 tag version.
+
+    Parameters
+    ----------
+    tag_version : str or tuple[int, int]; default: :code:`(1, 1)`
+        ID3v1 tag version.
+
+        **Valid values**: :code:`"1.0"` or :code:`(1, 0)`,
+        :code:`"1.1"` or :code:`(1, 1)`.
+
+    Returns
+    -------
+    tag_version : tuple[int, int]
+        ID3v1 tag version.
+    """
+    match tag_version:
+        case tuple() | list():
+            return tag_version
+        case str():
+            return tuple(int(v) for v in tag_version.split("."))
+        case _:
+            raise TypeError(
+                "`tag_version` must be a string or a tuple of two integers."
+            )
+
+
+def normalize_id3v2_tag_version(
+    tag_version: str | tuple[int, int, int], /
+) -> tuple[int, int, int]:
+    """
+    Normalize ID3v2 tag version.
+
+    Parameters
+    ----------
+    tag_version : str or tuple[int, int, int]
+        ID3v2 tag version.
+
+        **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+        :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+        :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+    Returns
+    -------
+    tag_version : tuple[int, int, int]
+        ID3v2 tag version.
+    """
+    match tag_version:
+        case tuple() | list():
+            return tag_version
+        case str():
+            return tuple(int(v) for v in tag_version.split("."))
+        case _:
+            raise TypeError(
+                "`tag_version` must be a string or a tuple of three integers."
+            )
+
+
 class ID3v1:
     """
     ID3v1 metadata container.
@@ -160,37 +221,6 @@ class ID3v1:
             ).decode(encoding="iso-8859-1") or None
         obj._genre = int(genre)
         return obj
-
-    @staticmethod
-    def _normalize_tag_version(
-        tag_version: str | tuple[int, int], /
-    ) -> tuple[int, int]:
-        """
-        Normalize ID3v1 tag version.
-
-        Parameters
-        ----------
-        tag_version : str or tuple[int, int]; default: :code:`(1, 1)`
-            ID3v1 tag version.
-
-            **Valid values**: :code:`"1.0"` or :code:`(1, 0)`,
-            :code:`"1.1"` or :code:`(1, 1)`.
-
-        Returns
-        -------
-        tag_version : tuple[int, int]
-            ID3v1 tag version.
-        """
-        match tag_version:
-            case tuple() | list():
-                return tag_version
-            case str():
-                return tuple(int(v) for v in tag_version.split("."))
-            case _:
-                raise TypeError(
-                    "`tag_version` must be a string or a tuple of two "
-                    "integers."
-                )
 
     @property
     def album(self) -> str | None:
@@ -328,7 +358,7 @@ class ID3v1:
         bytestream : bytes
             Bytestream containing the serialized ID3v1 tag.
         """
-        match self._normalize_tag_version(tag_version):
+        match normalize_id3v1_tag_version(tag_version):
             case (1, 0):
                 return self._STRUCT_1_1.pack(
                     b"TAG",
@@ -559,7 +589,7 @@ class ID3v2Flags:
             Flags for ID3v2 tags.
         """
         validate_number("byte_", byte_, int, 0)
-        match ID3v2Frame._normalize_tag_version(tag_version):
+        match normalize_id3v2_tag_version(tag_version):
             case (2, 4, _):
                 return cls._from_byte_2_4(byte_, strict=strict)
             case (2, 3, _):
@@ -675,10 +705,24 @@ class ID3v2Flags:
             validate_number("tag_restrictions", value, int, 0, 255)
         self._tag_restrictions = value
 
-    def serialize(
-        self, tag_version: str | tuple[int, int, int] = (2, 4, 0)
-    ) -> bytes:
-        """ """
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the ID3v2 flags to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the ID3v2 flags.
+        """
         ...  # TODO
 
 
