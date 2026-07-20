@@ -18,8 +18,7 @@ from ...._utility import (
     validate_range,
     validate_type,
 )
-from . import TAG_VERSIONS
-from ._core import normalize_id3v2_tag_version
+from ._shared import TAG_VERSIONS, normalize_id3v2_tag_version
 
 if TYPE_CHECKING:
     from typing import Any
@@ -557,6 +556,60 @@ class ID3v2FrameFlags:
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
+
+    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Serialize the ID3v2 frame flags to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the ID3v2 frame flags.
+        """
+        match normalize_id3v2_tag_version(tag_version):
+            case (2, 4, _):
+                return bytes(
+                    (
+                        (
+                            (0x40 if self.discard_on_tag_alter else 0)
+                            | (0x20 if self.discard_on_file_alter else 0)
+                            | (0x10 if self.is_read_only else 0)
+                        ),
+                        (
+                            (0x40 if self.has_grouping else 0)
+                            | (0x08 if self.is_compressed else 0)
+                            | (0x04 if self.is_encrypted else 0)
+                            | (0x02 if self.is_unsynchronized else 0)
+                            | (0x01 if self.has_data_length_indicator else 0)
+                        ),
+                    )
+                )
+            case (2, 3, _):
+                return bytes(
+                    (
+                        (
+                            (0x80 if self.discard_on_tag_alter else 0)
+                            | (0x40 if self.discard_on_file_alter else 0)
+                            | (0x20 if self.is_read_only else 0)
+                        ),
+                        (
+                            (0x80 if self.is_compressed else 0)
+                            | (0x40 if self.is_encrypted else 0)
+                            | (0x20 if self.has_grouping else 0)
+                        ),
+                    )
+                )
+            case (2, 2, _):
+                return b"\x00\x00"
 
 
 class ID3v2Frame(ABC):

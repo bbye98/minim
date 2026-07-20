@@ -1,7 +1,5 @@
-TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
-
-from ._core import ID3v2Flags  # noqa: E402
-from ._frames import (  # noqa: E402
+from ._core import ID3v2Flags
+from ._frames import (
     ID3v2FrameFlags,
     ID3v2APICFrame,
     ID3v2COMMFrame,
