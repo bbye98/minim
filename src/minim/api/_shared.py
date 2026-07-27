@@ -1489,7 +1489,7 @@ class OAuth1APIClient(OAuthAPIClient):
                 and consumer_key is not None
                 and (
                     account := TokenDatabase._get_token(
-                        self.__class__.__name__,
+                        type(self).__name__,
                         auth_flow=auth_flow,
                         client_id=consumer_key,
                         user_identifier=user_identifier,
@@ -1665,7 +1665,7 @@ class OAuth1APIClient(OAuthAPIClient):
 
         if self._store_tokens:
             TokenDatabase.add_token(
-                self.__class__.__name__,
+                type(self).__name__,
                 auth_flow=self._auth_flow,
                 client_id=self._consumer_key,
                 client_secret=self._consumer_secret,
@@ -2279,7 +2279,7 @@ class OAuth2APIClient(OAuthAPIClient):
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
-                    self.__class__.__name__,
+                    type(self).__name__,
                     auth_flow=auth_flow,
                     client_id=client_id,
                     user_identifier=user_identifier,
@@ -2637,7 +2637,7 @@ class OAuth2APIClient(OAuthAPIClient):
 
         if self._store_tokens:
             TokenDatabase.add_token(
-                self.__class__.__name__,
+                type(self).__name__,
                 auth_flow=self._auth_flow,
                 client_id=self._client_id,
                 client_secret=self._client_secret,

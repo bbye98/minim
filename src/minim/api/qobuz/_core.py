@@ -290,7 +290,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
-                    self.__class__.__name__,
+                    type(self).__name__,
                     auth_flow=auth_flow,
                     client_id=app_id,
                     user_identifier=user_identifier,
@@ -617,7 +617,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
 
         if self._store_tokens:
             TokenDatabase.add_token(
-                self.__class__.__name__,
+                type(self).__name__,
                 auth_flow=self._auth_flow,
                 client_id=self._app_id,
                 client_secret=self._app_secret,

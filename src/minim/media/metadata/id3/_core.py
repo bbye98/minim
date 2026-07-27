@@ -741,7 +741,7 @@ class ID3v2(AudioTags):
         for frame_idx, frame in enumerate(frames):
             validate_type(f"frames[{frame_idx}]", frame, ID3v2Frame)
             _frames.append(frame)
-            frame_cls = frame.__class__
+            frame_cls = type(frame)
             class_index[frame_cls].append(frame)
             if frame._ALLOW_MULTIPLE:
                 key_index[frame_cls][frame._key] = frame

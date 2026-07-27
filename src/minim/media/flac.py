@@ -337,12 +337,12 @@ class FLACPadding(FLACMetadataBlock):
                 "Unsupported operand type(s) for +: "
                 f"'FLACPadding' and {type(other).__name__!r}."
             )
-        return FLACPadding(self._length + other._length)
+        return type(self)(self._length + other._length)
 
     def __iadd__(self, other: FLACPadding) -> Self:
         if not isinstance(other, FLACPadding):
             raise TypeError(
-                "Unsupported operand type(s) for +: "
+                "Unsupported operand type(s) for +=: "
                 f"'FLACPadding' and {type(other).__name__!r}."
             )
         self._length += other._length

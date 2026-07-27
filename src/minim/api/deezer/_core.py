@@ -254,7 +254,7 @@ class DeezerAPIClient(OAuth2APIClient):
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
-                    self.__class__.__name__,
+                    type(self).__name__,
                     auth_flow=auth_flow,
                     client_id=app_id,
                     user_identifier=user_identifier,
@@ -487,7 +487,7 @@ class DeezerAPIClient(OAuth2APIClient):
             self._user_identifier = self._resolve_user_identifier()
         if self._store_tokens:
             TokenDatabase.add_token(
-                self.__class__.__name__,
+                type(self).__name__,
                 auth_flow=self._auth_flow,
                 client_id=self._app_id,
                 client_secret=self._app_secret,
