@@ -70,7 +70,7 @@ class DateTime(NamedTuple):
             extra.strip() or None,
         )
         if strict:
-            cls._validate_datetime(dt)
+            dt._validate()
         return dt
 
     @classmethod
@@ -107,7 +107,7 @@ class DateTime(NamedTuple):
             *(None if dt_comp is None else int(dt_comp) for dt_comp in dt)
         )
         if strict:
-            cls._validate_datetime(dt)
+            dt._validate()
         return dt
 
     @staticmethod
@@ -138,37 +138,31 @@ class DateTime(NamedTuple):
             else:
                 return 28
 
-    @staticmethod
-    def _validate_datetime(dt: DateTime, /) -> None:
+    def _validate(self, /) -> None:
         """
         Validate datetime components.
-
-        Parameters
-        ----------
-        dt : minim.metadata.id3.DateTime; positional-only
-            Datetime.
         """
-        year = dt.year
+        year = self.year
         if year is not None:
             validate_range("year", year, MINYEAR, MAXYEAR)
-        month = dt.month
+        month = self.month
         if month is not None:
             validate_range("month", month, 1, 12)
-        if dt.day is not None:
+        if self.day is not None:
             validate_range(
                 "day",
-                dt.day,
+                self.day,
                 1,
-                DateTime._get_num_days_in_month(month, year=year)
+                self._get_num_days_in_month(month, year=year)
                 if year and month
                 else 31,
             )
-        if dt.hour is not None:
-            validate_range("hour", dt.hour, 0, 23)
-        if dt.minute is not None:
-            validate_range("minute", dt.minute, 0, 59)
-        if dt.second is not None:
-            validate_range("second", dt.second, 0, 59)
+        if self.hour is not None:
+            validate_range("hour", self.hour, 0, 23)
+        if self.minute is not None:
+            validate_range("minute", self.minute, 0, 59)
+        if self.second is not None:
+            validate_range("second", self.second, 0, 59)
 
     def to_string(self) -> str:
         """
@@ -1308,7 +1302,8 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        datetimes : DateTime or list[DateTime]
+        datetimes : minim.media.metadata.id3.DateTime or \
+        list[minim.media.metadata.id3.DateTime]
             Parsed datetimes.
         """
         match datetimes:
@@ -2611,7 +2606,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                                 day=int(date[:2]), month=int(date[2:])
                             )
                             if strict:
-                                DateTime._validate_datetime(dt)
+                                dt._validate()
                             datetimes.append(dt)
                     except ValueError:
                         datetimes.append(
@@ -2632,7 +2627,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                                 hour=int(time[:2]), minute=int(time[2:])
                             )
                             if strict:
-                                DateTime._validate_datetime(dt)
+                                dt._validate()
                             datetimes.append(dt)
                     except ValueError:
                         datetimes.append(
@@ -3011,7 +3006,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         /,
         *,
         strict: bool = True,
-    ) -> tuple[int, int | None] | list[tuple[int, int | None]]:
+    ) -> Position | list[Position]:
         """
         Parse disc numbers.
 
@@ -3028,7 +3023,8 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        discs : tuple[int, int or None] | list[tuple[int, int or None]]
+        discs : minim.media.metadata.id3.Position or \
+        list[minim.media.metadata.id3.Position]
             Parsed disc numbers.
         """
         match discs:

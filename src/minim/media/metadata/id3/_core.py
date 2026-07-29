@@ -759,6 +759,15 @@ class ID3v2(AudioTags):
         """
         Instantiate an :class:`ID3v2` object from a bytestream.
 
+        .. note::
+
+           For ID3v2.2/2.3 tags with :code:`TYE`/:code:`TYER`, 
+           :code:`TDA`/:code:`TDAT`, and/or :code:`TIM`/:code:`TIME` 
+           frames containing differing numbers of values, values are 
+           associated by ordinal position. Missing components are 
+           represented as :code:`None` when :code:`strict=False`; 
+           otherwise, an exception is raised.
+
         Parameters
         ----------
         stream : bytes, bytearray, memoryview, or mmap.mmap; \
