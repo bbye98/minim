@@ -1371,7 +1371,7 @@ class FLACCueSheetTrackIndex(
         return self._STRUCT.pack(*self, 3 * b"\x00")
 
 
-@dataclass(kw_only=True, repr=False, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
     """
     FLAC :code:`PICTURE` metadata block data.

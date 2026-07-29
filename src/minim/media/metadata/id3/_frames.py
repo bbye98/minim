@@ -26,22 +26,94 @@ if TYPE_CHECKING:
     from ...._types import BytesLike, OrderedCollection
 
 
-class DateTime(NamedTuple):
+class DateTime:
     """
     Datetime with optional components and free-form extras.
     """
 
-    year: int | None = None
-    month: int | None = None
-    day: int | None = None
-    hour: int | None = None
-    minute: int | None = None
-    second: int | None = None
-    extra: Any | None = None
-
     _DATETIME_RE = re.compile(
         r"^(\d{4})?(?:-(\d{2})(?:-(\d{2})(?:T(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?)?)?(.*)$"
     )
+
+    __slots__ = (
+        "_year",
+        "_month",
+        "_day",
+        "_hour",
+        "_minute",
+        "_second",
+        "_extra",
+    )
+
+    def __init__(
+        self,
+        year: int | None = None,
+        month: int | None = None,
+        day: int | None = None,
+        hour: int | None = None,
+        minute: int | None = None,
+        second: int | None = None,
+        extra: str | None = None,
+        *,
+        strict: bool = True,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        year : int; optional
+            Year.
+
+        month : int; optional
+            Month.
+
+        day : int; optional
+            Day.
+
+        hour : int; optional
+            Hour.
+
+        minute : int; optional
+            Minute.
+
+        second : int; optional
+            Second.
+
+        extra : str; optional
+            Extra information, such as timezone or fractional seconds.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the audio
+            format specifications.
+        """
+        self._year = year
+        self._month = month
+        self._day = day
+        self._hour = hour
+        self._minute = minute
+        self._second = second
+        self._extra = extra
+        if strict:
+            if year is not None:
+                validate_range("year", year, MINYEAR, MAXYEAR)
+            if month is not None:
+                validate_range("month", month, 1, 12)
+            if day is not None:
+                validate_range(
+                    "day",
+                    day,
+                    1,
+                    self._get_num_days_in_month(month, year=year)
+                    if year and month
+                    else 31,
+                )
+            if hour is not None:
+                validate_range("hour", hour, 0, 23)
+            if minute is not None:
+                validate_range("minute", minute, 0, 59)
+            if second is not None:
+                validate_range("second", second, 0, 59)
+            if extra is not None:
+                validate_type("extra", extra, str)
 
     @classmethod
     def from_string(cls, dt: str, /, *, strict: bool = True) -> DateTime:
@@ -65,17 +137,18 @@ class DateTime(NamedTuple):
         """
         match = cls._DATETIME_RE.match(dt.upper())
         *datetime_components, extra = match.groups()
-        dt = DateTime(
-            *(int(dt_comp) for dt_comp in datetime_components),
+        return cls(
+            *(
+                None if dt_comp is None else int(dt_comp)
+                for dt_comp in datetime_components
+            ),
             extra.strip() or None,
+            strict=strict,
         )
-        if strict:
-            dt._validate()
-        return dt
 
     @classmethod
     def from_tuple(
-        cls, dt: tuple[int, ...], /, *, strict: bool = True
+        cls, dt: tuple[int | str | None, ...], /, *, strict: bool = True
     ) -> DateTime:
         """
         Instantiate a :cls:`DateTime` object from a tuple of datetime
@@ -83,7 +156,7 @@ class DateTime(NamedTuple):
 
         Parameters
         ----------
-        dt : tuple[int, ...]; positional-only
+        dt : tuple[int | str | None, ...]; positional-only
             Datetime components, in order of year, month, day, hour,
             minute, second, and extras. Optional components may be
             represented as :code:`None` or omitted only if there are no
@@ -103,12 +176,11 @@ class DateTime(NamedTuple):
                 f"Datetime component tuple {dt!r} must have between "
                 f"one and seven components."
             )
-        dt = DateTime(
-            *(None if dt_comp is None else int(dt_comp) for dt_comp in dt)
+
+        return cls(
+            *(None if dt_comp is None else int(dt_comp) for dt_comp in dt),
+            strict=strict,
         )
-        if strict:
-            dt._validate()
-        return dt
 
     @staticmethod
     def _get_num_days_in_month(month: int, /, year: int) -> int:
@@ -128,41 +200,127 @@ class DateTime(NamedTuple):
         num_days : int
             Number of days in the month for the given year.
         """
-        if month in {1, 3, 5, 7, 8, 10, 12}:
-            return 31
-        elif month in {4, 6, 9, 11}:
+        if month == 2:
+            return (
+                29
+                if (year % 4 == 0 and year % 100 != 0) or year % 400 == 0
+                else 28
+            )
+        if month in {4, 6, 9, 11}:
             return 30
-        elif month == 2:
-            if (year % 4 == 0 and year % 100 != 0) or year % 400 == 0:
-                return 29
-            else:
-                return 28
+        return 31
 
-    def _validate(self, /) -> None:
+    @property
+    def year(self) -> int | None:
         """
-        Validate datetime components.
+        Year.
         """
-        year = self.year
-        if year is not None:
-            validate_range("year", year, MINYEAR, MAXYEAR)
-        month = self.month
-        if month is not None:
-            validate_range("month", month, 1, 12)
-        if self.day is not None:
+        return self._year
+
+    @year.setter
+    def year(self, value: int | None) -> None:
+        if value is not None:
+            validate_range("year", value, MINYEAR, MAXYEAR)
+            if self._month:
+                validate_range(
+                    "day",
+                    self._day,
+                    1,
+                    self._get_num_days_in_month(self._month, year=value),
+                )
+        self._year = value
+
+    @property
+    def month(self) -> int | None:
+        """
+        Month.
+        """
+        return self._month
+
+    @month.setter
+    def month(self, value: int | None) -> None:
+        if value is not None:
+            validate_range("month", value, 1, 12)
+            if self._year:
+                validate_range(
+                    "day",
+                    self._day,
+                    1,
+                    self._get_num_days_in_month(value, year=self._year),
+                )
+        self._month = value
+
+    @property
+    def day(self) -> int | None:
+        """
+        Day.
+        """
+        return self._day
+
+    @day.setter
+    def day(self, value: int | None) -> None:
+        if value is not None:
             validate_range(
                 "day",
-                self.day,
+                value,
                 1,
-                self._get_num_days_in_month(month, year=year)
-                if year and month
+                self._get_num_days_in_month(self._month, year=self._year)
+                if self._year and self._month
                 else 31,
             )
-        if self.hour is not None:
-            validate_range("hour", self.hour, 0, 23)
-        if self.minute is not None:
-            validate_range("minute", self.minute, 0, 59)
-        if self.second is not None:
-            validate_range("second", self.second, 0, 59)
+        self._day = value
+
+    @property
+    def hour(self) -> int | None:
+        """
+        Hour.
+        """
+        return self._hour
+
+    @hour.setter
+    def hour(self, value: int | None) -> None:
+        if value is not None:
+            validate_range("hour", value, 0, 23)
+        self._hour = value
+
+    @property
+    def minute(self) -> int | None:
+        """
+        Minute.
+        """
+        return self._minute
+
+    @minute.setter
+    def minute(self, value: int | None) -> None:
+        if value is not None:
+            validate_range("minute", value, 0, 59)
+        self._minute = value
+
+    @property
+    def second(self) -> int | None:
+        """
+        Second.
+        """
+        return self._second
+
+    @second.setter
+    def second(self, value: int | None) -> None:
+        if value is not None:
+            validate_range("second", value, 0, 59)
+        self._second = value
+
+    @property
+    def extra(self) -> str | None:
+        """
+        Extra information, such as timezone or fractional seconds.
+        """
+        return self._extra
+
+    @extra.setter
+    def extra(self, value: str | None) -> None:
+        if value is not None:
+            validate_type("extra", value, str)
+        self._extra = value
 
     def to_string(self) -> str:
         """
@@ -173,14 +331,14 @@ class DateTime(NamedTuple):
         dt : str
             Datetime, in ISO-8601 format.
         """
-        dt = "YYYY" if self.year is None else f"{self.year:04}"
-        dt += "-MM" if self.month is None else f"-{self.month:02}"
-        dt += "-DD" if self.day is None else f"-{self.day:02}"
-        dt += "Thh" if self.hour is None else f"T{self.hour:02}"
-        dt += ":mm" if self.minute is None else f":{self.minute:02}"
-        dt += ":ss" if self.second is None else f":{self.second:02}"
-        if self.extra is not None:
-            dt += str(self.extra)
+        dt = "YYYY" if self._year is None else f"{self._year:04}"
+        dt += "-MM" if self._month is None else f"-{self._month:02}"
+        dt += "-DD" if self._day is None else f"-{self._day:02}"
+        dt += "Thh" if self._hour is None else f"T{self._hour:02}"
+        dt += ":mm" if self._minute is None else f":{self._minute:02}"
+        dt += ":ss" if self._second is None else f":{self._second:02}"
+        if self._extra is not None:
+            dt += str(self._extra)
         return dt
 
 
@@ -1317,6 +1475,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                     datetimes.hour,
                     datetimes.minute,
                     datetimes.second,
+                    strict=False,
                 )
             case tuple():
                 return DateTime.from_tuple(datetimes, strict=strict)
@@ -2602,12 +2761,13 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                 ):
                     try:
                         if len(date) == 4:
-                            dt = DateTime(
-                                day=int(date[:2]), month=int(date[2:])
+                            datetimes.append(
+                                DateTime(
+                                    day=int(date[:2]),
+                                    month=int(date[2:]),
+                                    strict=strict,
+                                )
                             )
-                            if strict:
-                                dt._validate()
-                            datetimes.append(dt)
                     except ValueError:
                         datetimes.append(
                             cls._parse_datetimes(date, strict=strict)
@@ -2623,12 +2783,13 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                 ):
                     try:
                         if len(time) == 4:
-                            dt = DateTime(
-                                hour=int(time[:2]), minute=int(time[2:])
+                            datetimes.append(
+                                DateTime(
+                                    hour=int(time[:2]),
+                                    minute=int(time[2:]),
+                                    strict=strict,
+                                )
                             )
-                            if strict:
-                                dt._validate()
-                            datetimes.append(dt)
                     except ValueError:
                         datetimes.append(
                             cls._parse_datetimes(time, strict=strict)
