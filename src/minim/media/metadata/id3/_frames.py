@@ -1097,11 +1097,11 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     _frame_ids = {}
 
-    __slots__ = ("_datetime",)
+    __slots__ = ("_datetimes",)
 
     def __init__(
         self,
-        datetime_: str
+        datetimes: str
         | datetime
         | tuple[int | str, ...]
         | list[str | datetime | tuple[int | str, ...]],
@@ -1113,7 +1113,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         """
         Parameters
         ----------
-        datetime_ : str, datetime.datetime, tuple[int | str, ...], or \
+        datetimes : str, datetime.datetime, tuple[int | str, ...], or \
         list[str | datetime | tuple[int | str, ...]]; positional-only
             Datetime, in ISO-8601 format.
 
@@ -1137,10 +1137,33 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 f"values: {join_values(self._TEXT_ENCODINGS.values())}."
             )
         self._text_encoding = text_encoding
-        datetime_ = self._parse_datetimes(datetime_)
-        if not isinstance(datetime_, list):
-            datetime_ = [datetime_]
-        self._datetime = datetime_
+        datetimes = self._parse_datetimes(datetimes)
+        if not isinstance(datetimes, list):
+            datetimes = [datetimes]
+        self._datetimes = datetimes
+
+    def __add__(self, other: ID3v2DateTimeFrame) -> Self:
+        type_ = type(self)
+        if not isinstance(other, type_):
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                f"{type_.__name__!r} and {type(other).__name__!r}."
+            )
+        return type_(
+            self._datetimes + other._datetimes,
+            text_encoding=self._text_encoding,
+            flags=self._flags,
+        )
+
+    def __iadd__(self, other: ID3v2DateTimeFrame) -> Self:
+        type_ = type(self)
+        if not isinstance(other, type_):
+            raise TypeError(
+                "Unsupported operand type(s) for +=: "
+                f"'{type_.__name__}' and {type(other).__name__!r}."
+            )
+        self._datetimes.extend(other._datetimes)
+        return self
 
     @classmethod
     def _from_stream_2_2(
@@ -1164,7 +1187,22 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
             Datetime frame.
         """
-        raise NotImplementedError  # TODO
+        frame_length = int.from_bytes(stream[3:6], byteorder="big")
+        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
+
+        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
+            stream, strict=strict
+        )
+        obj._datetimes = cls._parse_datetimes(
+            stream[7 : 6 + frame_length]
+            .tobytes()
+            .decode(encoding=text_encoding)
+            .rstrip("\x00")
+            .split("\x00"),
+            strict=strict,
+        )
+        obj._text_encoding = text_encoding
+        return obj
 
     @classmethod
     def _from_stream_2_3(
@@ -1188,7 +1226,22 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
             Datetime frame.
         """
-        raise NotImplementedError  # TODO
+        frame_length = int.from_bytes(stream[4:8], byteorder="big")
+        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+
+        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
+            stream, strict=strict
+        )
+        obj._datetimes = cls._parse_datetimes(
+            stream[11 : 10 + frame_length]
+            .tobytes()
+            .decode(encoding=text_encoding)
+            .rstrip("\x00")
+            .split("\x00"),
+            strict=strict,
+        )
+        obj._text_encoding = text_encoding
+        return obj
 
     @classmethod
     def _from_stream_2_4(
@@ -1218,7 +1271,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._datetime = cls._parse_datetimes(
+        obj._datetimes = cls._parse_datetimes(
             stream[11 : 10 + frame_length]
             .tobytes()
             .decode(encoding=text_encoding)
@@ -1288,7 +1341,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         """
         Text information.
         """
-        return [dt.to_string() for dt in self._datetime]
+        return [dt.to_string() for dt in self._datetimes]
 
 
 class ID3v2APICFrame(ID3v2Frame):
@@ -2535,7 +2588,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
         )
         match stream[:4]:
             case b"TYER":
-                obj._datetime = cls._parse_datetimes(
+                obj._datetimes = cls._parse_datetimes(
                     stream[11 : 10 + frame_length]
                     .tobytes()
                     .decode(encoding=text_encoding)
@@ -2544,7 +2597,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                     strict=strict,
                 )
             case b"TDAT":
-                obj._datetime = datetimes = []
+                obj._datetimes = datetimes = []
                 for date in (
                     stream[11 : 10 + frame_length]
                     .tobytes()
@@ -2565,7 +2618,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                             cls._parse_datetimes(date, strict=strict)
                         )
             case b"TIME":
-                obj._datetime = datetimes = []
+                obj._datetimes = datetimes = []
                 for time in (
                     stream[11 : 10 + frame_length]
                     .tobytes()
