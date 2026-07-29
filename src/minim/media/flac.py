@@ -3,35 +3,36 @@ FLAC audio file handler and metadata blocks.
 """
 
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from dataclasses import FrozenInstanceError, dataclass
+
 import string
 import struct
-from typing import TYPE_CHECKING, Any, NamedTuple
 import warnings
+from abc import ABC, abstractmethod
+from dataclasses import FrozenInstanceError, dataclass
+from typing import TYPE_CHECKING, Any, NamedTuple
 
+from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES, BytesLike
 from .._utility import (
     ASCII_CHARS_REGEX,
-    set_obj_attr,
+    as_buffer,
     prepare_isrc,
+    set_obj_attr,
     validate_number,
     validate_range,
     validate_type,
 )
-from .._types import BytesLike, COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from .._utility import as_buffer
 from ._shared import Audio
 from .metadata._shared import AudioStreamInfo
 from .metadata._vorbis import VorbisComment
 from .metadata.id3._frames import (
-    ID3v2FrameFlags,
     ID3v2APICFrame,
+    ID3v2FrameFlags,
 )
 
 if TYPE_CHECKING:
-    from .._types import PathLike, Collection, OrderedCollection
-
     from typing import Self
+
+    from .._types import Collection, OrderedCollection, PathLike
 
 
 __all__ = [

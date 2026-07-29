@@ -1,11 +1,11 @@
 from __future__ import annotations
+
 import time
-from typing import TYPE_CHECKING
 import warnings
+from typing import TYPE_CHECKING
 
-from ... import __version__, REPOSITORY_URL
+from ... import REPOSITORY_URL, __version__
 from .._shared import OAuth1APIClient
-
 from ._api.database import DatabaseAPI
 from ._api.inventory import InventoryAPI
 from ._api.marketplace import MarketplaceAPI

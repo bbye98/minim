@@ -1,13 +1,14 @@
 from __future__ import annotations
+
+import time
+import warnings
 from abc import abstractmethod
 from datetime import datetime
-import time
 from typing import TYPE_CHECKING
-import warnings
 
 from ..._types import ORDERED_COLLECTION_TYPES
 from ..._utility import join_values, validate_country_code
-from .._shared import TTLCache, OAuth2APIClient
+from .._shared import OAuth2APIClient, TTLCache
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI

@@ -1,10 +1,11 @@
 from __future__ import annotations
+
+import time
+import warnings
 from datetime import datetime
 from json.decoder import JSONDecodeError
-import time
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
-import warnings
 
 from .._shared import OAuth2APIClient
 from ._web_api.albums import AlbumsAPI

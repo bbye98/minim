@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 import base64
-from datetime import datetime
 import getpass
 import hashlib
 import json
 import os
 import re
+from datetime import datetime
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
@@ -19,8 +20,8 @@ from ._private_api.artists import PrivateArtistsAPI
 from ._private_api.catalog import PrivateCatalogAPI
 from ._private_api.dynamic import PrivateDynamicAPI
 from ._private_api.favorites import PrivateFavoritesAPI
-from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.genres import PrivateGenresAPI
+from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
 from ._private_api.purchases import PrivatePurchasesAPI
 from ._private_api.search import PrivateSearchAPI

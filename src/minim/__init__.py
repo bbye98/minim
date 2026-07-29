@@ -3,9 +3,9 @@ A Python library for semi-automated music tagging, featuring API clients
 for major music services and integrated media file handlers.
 """
 
+import shutil
 from importlib.util import find_spec
 from pathlib import Path
-import shutil
 
 __all__ = ["api", "media"]
 __version__ = "2.0.0-alpha"

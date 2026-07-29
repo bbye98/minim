@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ...._utility import validate_number, validate_numeric, validate_type

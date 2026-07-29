@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
 import warnings
+from typing import TYPE_CHECKING
 
 from ...._utility import prepare_isrc, prepare_string, validate_numeric
 from ..._shared import TTLCache

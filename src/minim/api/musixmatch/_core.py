@@ -1,12 +1,15 @@
 from __future__ import annotations
+
 import base64
-from datetime import datetime, timezone
 import hashlib
 import hmac
 import json
 import re
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
+
+import httpx
 
 from .._shared import APIClient
 from ._lyrics_api.albums import AlbumsAPI
@@ -16,8 +19,6 @@ from ._lyrics_api.enterprise import EnterpriseAPI
 from ._lyrics_api.matcher import MatcherAPI
 from ._lyrics_api.search import SearchAPI
 from ._lyrics_api.tracks import TracksAPI
-
-import httpx
 
 if TYPE_CHECKING:
     from typing import Any

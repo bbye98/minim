@@ -1,10 +1,11 @@
 from __future__ import annotations
-from datetime import datetime
+
 import mmap
 import re
 import types
-from typing import TYPE_CHECKING, Callable
 import uuid
+from datetime import datetime
+from typing import TYPE_CHECKING, Callable
 
 from ._types import COLLECTION_TYPES
 

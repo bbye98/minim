@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ...._utility import copy_docstring
 from ._shared import MusixmatchResourceAPI
-from .matcher import MatcherAPI
 from .artists import ArtistsAPI
+from .matcher import MatcherAPI
 from .tracks import TracksAPI
 
 if TYPE_CHECKING:

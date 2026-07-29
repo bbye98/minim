@@ -1,8 +1,9 @@
 from __future__ import annotations
+
+import re
 from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass
-from datetime import MINYEAR, MAXYEAR, datetime
-import re
+from datetime import MAXYEAR, MINYEAR, datetime
 from typing import TYPE_CHECKING, NamedTuple
 
 from ...._types import ORDERED_COLLECTION_TYPES

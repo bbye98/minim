@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
 
 

@@ -1,12 +1,8 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+
 import base64
-from collections import OrderedDict
-from datetime import datetime, timedelta, timezone
-from functools import wraps
 import hashlib
 import hmac
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import ipaddress
 import json
 import os
@@ -14,17 +10,22 @@ import secrets
 import ssl
 import threading
 import time
-from typing import TYPE_CHECKING
-from urllib.parse import parse_qsl, quote, urlencode, urlparse
 import warnings
 import webbrowser
+from abc import ABC, abstractmethod
+from collections import OrderedDict
+from datetime import datetime, timedelta, timezone
+from functools import wraps
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import TYPE_CHECKING
+from urllib.parse import parse_qsl, quote, urlencode, urlparse
 
+import httpx
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
-import httpx
 
 from .. import FOUND, MINIM_DIR
 from .._types import COLLECTION_TYPES

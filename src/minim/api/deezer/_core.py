@@ -1,17 +1,18 @@
 from __future__ import annotations
-from datetime import datetime, timedelta
+
 import json
 import os
 import secrets
 import time
+import warnings
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 from urllib.parse import parse_qsl, urlencode, urlparse
-import warnings
 
 import httpx
 
 from ..._utility import join_values
-from .._shared import TokenDatabase, TTLCache, APIClient, OAuth2APIClient
+from .._shared import APIClient, OAuth2APIClient, TokenDatabase, TTLCache
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.charts import ChartsAPI

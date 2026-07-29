@@ -1,8 +1,9 @@
 from __future__ import annotations
-from json.decoder import JSONDecodeError
+
 import time
-from typing import TYPE_CHECKING
 import warnings
+from json.decoder import JSONDecodeError
+from typing import TYPE_CHECKING
 
 from ..._utility import (
     join_values,
@@ -12,7 +13,7 @@ from ..._utility import (
     validate_number,
     validate_type,
 )
-from .._shared import TTLCache, APIClient, ResourceAPI
+from .._shared import APIClient, ResourceAPI, TTLCache
 
 if TYPE_CHECKING:
     from typing import Any

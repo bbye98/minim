@@ -1,16 +1,17 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+
 import mmap
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .._utility import validate_type
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from .._types import PathLike
     from .metadata._shared import AudioStreamInfo, AudioTags
-
-    from typing import Any
 
 
 class Audio(ABC):

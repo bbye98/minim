@@ -1,9 +1,11 @@
 from __future__ import annotations
+
+import struct
 from collections import defaultdict
 from datetime import datetime
-import struct
 from typing import TYPE_CHECKING
 
+from ...._types import ORDERED_COLLECTION_TYPES
 from ...._utility import (
     as_buffer,
     decode_32_bit_synchsafe_int,
@@ -16,8 +18,8 @@ from ...._utility import (
 from .._shared import AudioTags
 from ._frames import (
     ID3v2Frame,
-    ID3v2TXXXFrame,
     ID3v2Padding,
+    ID3v2TXXXFrame,
     UnknownID3v2Frame,
 )
 from ._shared import (
@@ -29,12 +31,7 @@ from ._shared import (
 if TYPE_CHECKING:
     from typing import Any
 
-    from ...._types import (
-        BytesLike,
-        Collection,
-        OrderedCollection,
-        ORDERED_COLLECTION_TYPES,
-    )
+    from ...._types import BytesLike, Collection, OrderedCollection
 
 
 class ID3v1:

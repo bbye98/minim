@@ -1,8 +1,8 @@
 from __future__ import annotations
+
 import mmap
 from pathlib import Path
 from typing import TYPE_CHECKING, TypeVar
-
 
 T = TypeVar("T")
 

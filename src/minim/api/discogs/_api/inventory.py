@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import csv
-from email.message import Message
 import io
+from email.message import Message
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -17,7 +18,7 @@ from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any, IO
+    from typing import IO, Any
 
 
 class InventoryAPI(DiscogsResourceAPI):

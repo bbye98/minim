@@ -1,10 +1,9 @@
 from ._core import ID3v2Flags
 from ._frames import (
-    ID3v2FrameFlags,
     ID3v2APICFrame,
     ID3v2COMMFrame,
-    # ID3v2SYLTFrame,
-    ID3v2USLTFrame,
+    ID3v2FrameFlags,
+    ID3v2Padding,
     ID3v2TALBFrame,
     ID3v2TBPMFrame,
     ID3v2TCMPFrame,
@@ -25,8 +24,9 @@ from ._frames import (
     ID3v2TSRCFrame,
     ID3v2TSSEFrame,
     ID3v2TXXXFrame,
+    # ID3v2SYLTFrame,
+    ID3v2USLTFrame,
     UnknownID3v2Frame,
-    ID3v2Padding,
 )
 
 __all__ = [
