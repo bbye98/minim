@@ -1633,7 +1633,29 @@ class ID3v2APICFrame(ID3v2Frame):
         picture_frame : minim.media.metadata.ID3v2APICFrame
             :code:`PIC` frame.
         """
-        raise NotImplementedError  # TODO
+        obj = super()._from_stream_2_2(stream, strict=strict)
+        obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[stream[6]]
+
+        if (
+            image_format := stream[7:10]
+            .tobytes()
+            .decode(encoding="ascii")
+            .lower()
+        ) == "jpg":
+            obj._mime_type = "image/jpeg"
+        else:
+            obj._mime_type = f"image/{image_format.lower()}"
+        obj._picture_type = stream[10]
+        description, obj._picture_data = (
+            stream[11:]
+            .tobytes()
+            .split(
+                b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00",
+                maxsplit=1,
+            )
+        )
+        obj._description = description.decode(encoding=text_encoding)
+        return obj
 
     @classmethod
     def _from_stream_2_3(
