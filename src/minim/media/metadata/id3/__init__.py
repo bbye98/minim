@@ -29,7 +29,7 @@ from ._frames import (
     UnknownID3v2Frame,
 )
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "ID3v2Flags",
     "ID3v2FrameFlags",
     "ID3v2APICFrame",

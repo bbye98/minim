@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from numbers import Real
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from ..._utility import validate_number
 
@@ -34,9 +34,9 @@ class AudioStreamInfo:
         Total number of samples.
     """
 
-    _NUM_CHANNELS_RANGE = (1, 65_535)
-    _SAMPLE_RATE_RANGE = (1, 4_294_967_295)
-    _BIT_DEPTH_RANGE = (1, 32)
+    _NUM_CHANNELS_RANGE: ClassVar[tuple[int, int]] = (1, 65_535)
+    _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (1, 4_294_967_295)
+    _BIT_DEPTH_RANGE: ClassVar[tuple[int, int]] = (1, 32)
 
     #: Number of channels.
     num_channels: int
@@ -161,7 +161,7 @@ class AudioTags(ABC):
     @abstractmethod
     def bpm(
         self,
-        value: int | float | str | OrderedCollection[int | float | str],
+        value: float | str | OrderedCollection[int | float | str],
         /,
     ) -> None: ...
 

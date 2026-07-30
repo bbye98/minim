@@ -112,7 +112,7 @@ class Audio(ABC):
         Initialize a memory-mapped view of the audio file.
         """
         self.close()
-        self._file = open(self._file_path, "rb")
+        self._file = open(self._file_path, "rb")  # noqa: SIM115
         self._mmap = mmap.mmap(self._file.fileno(), 0, access=mmap.ACCESS_READ)
         self._view = memoryview(self._mmap)
 

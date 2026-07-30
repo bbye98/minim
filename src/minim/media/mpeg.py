@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import ClassVar
 
 from .._utility import (
     decode_32_bit_synchsafe_int,
@@ -52,8 +53,8 @@ class MPEGStreamInfo(AudioStreamInfo):
         Encoder.
     """
 
-    _NUM_CHANNELS_RANGE = (1, 2)
-    _SAMPLE_RATE_RANGE = (8_000, 48_000)
+    _NUM_CHANNELS_RANGE: ClassVar[tuple[int, int]] = (1, 2)
+    _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (8_000, 48_000)
 
     bit_depth: None = field(default=None, init=False)
 
@@ -116,7 +117,7 @@ class MPEGStreamInfo(AudioStreamInfo):
         sample_rate: int,
         num_samples: int,
         bitrate: int,
-        mpeg_version: int | float,
+        mpeg_version: int | float,  # noqa: PYI041
         layer: int,
         bitrate_mode: str,
         source: str | None = None,
@@ -180,7 +181,7 @@ class MPEGAudio(Audio):
     Moving Picture Experts Group (MPEG) audio file.
     """
 
-    _BITRATES = {
+    _BITRATES: ClassVar[dict[tuple[int, int], tuple[int, ...]]] = {
         (2, 1): (  # MPEG-2 Audio Layer III
             0,
             8,
@@ -272,7 +273,7 @@ class MPEGAudio(Audio):
     ]
     _BITRATES[(0, 3)] = _BITRATES[(2, 3)]
 
-    _SAMPLES_PER_FRAME = {
+    _SAMPLES_PER_FRAME: ClassVar[dict[tuple[int, int], int]] = {
         (2, 1): 576,  # MPEG-2 Audio Layer III
         (2, 2): 1_152,  # MPEG-2 Audio Layer II
         (2, 3): 384,  # MPEG-2 Audio Layer I
@@ -290,13 +291,13 @@ class MPEGAudio(Audio):
         (2, 3)
     ]  # MPEG-2.5 Audio Layer I
 
-    _SAMPLE_RATES = {
+    _SAMPLE_RATES: ClassVar[dict[int, tuple[int, ...]]] = {
         0: (11_025, 12_000, 8_000),  # MPEG-2.5
         2: (22_050, 24_000, 16_000),  # MPEG-2
         3: (44_100, 48_000, 32_000),  # MPEG-1
     }
 
-    _XING_OFFSETS = {
+    _XING_OFFSETS: ClassVar[dict[tuple[int, int], int]] = {
         (3, 1): 21,  # MPEG-1 Audio Layer III, mono
         (2, 1): 13,  # MPEG-2 Audio Layer III, mono
         (0, 1): 13,  # MPEG-2.5 Audio Layer III, mono
@@ -305,7 +306,7 @@ class MPEGAudio(Audio):
         (0, 2): 21,  # MPEG-2.5 Audio Layer III, stereo
     }
 
-    _LAME_BITRATE_MODES = {
+    _LAME_BITRATE_MODES: ClassVar[dict[int, str]] = {
         0: "CBR",
         1: "VBR",
         2: "VBR",
@@ -318,7 +319,7 @@ class MPEGAudio(Audio):
         9: "ABR",
     }
 
-    __slots__ = "_audio_offset", "_end_audio_offset"
+    __slots__ = ("_audio_offset", "_end_audio_offset")
 
     @staticmethod
     def _sync_audio_frames(

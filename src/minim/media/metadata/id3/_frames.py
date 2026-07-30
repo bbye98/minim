@@ -4,7 +4,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass
 from datetime import MAXYEAR, MINYEAR, datetime
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, ClassVar, NamedTuple
 
 from ...._types import ORDERED_COLLECTION_TYPES
 from ...._utility import (
@@ -32,18 +32,18 @@ class DateTime:
     Datetime with optional components and free-form extras.
     """
 
-    _DATETIME_RE = re.compile(
+    _DATETIME_RE: ClassVar[re.Pattern] = re.compile(
         r"^(\d{4})?(?:-(\d{2})(?:-(\d{2})(?:T(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?)?)?(.*)$"
     )
 
     __slots__ = (
-        "_year",
-        "_month",
         "_day",
+        "_extra",
         "_hour",
         "_minute",
+        "_month",
         "_second",
-        "_extra",
+        "_year",
     )
 
     def __init__(
@@ -725,10 +725,15 @@ class ID3v2Frame(ABC):
     ID3v2 frame.
     """
 
-    _TEXT_ENCODINGS = {0: "iso-8859-1", 1: "utf-16", 2: "utf-16be", 3: "utf-8"}
-    _REGISTRY = {}
+    _TEXT_ENCODINGS: ClassVar[dict[int, str]] = {
+        0: "iso-8859-1",
+        1: "utf-16",
+        2: "utf-16be",
+        3: "utf-8",
+    }
+    _REGISTRY: ClassVar[dict[bytes, type[ID3v2Frame]]] = {}
 
-    _ALLOW_MULTIPLE: bool
+    _allow_multiple: bool
 
     __slots__ = ("_flags",)
 
@@ -959,7 +964,7 @@ class ID3v2Frame(ABC):
         """
         Unique key.
         """
-        if not self._ALLOW_MULTIPLE:
+        if not self._allow_multiple:
             raise AttributeError(
                 f"{type(self).__name__} cannot appear more than "
                 "once in an ID3v2 tag, and thus does not have a unique "
@@ -1000,11 +1005,10 @@ class ID3v2TextInfoFrame(ID3v2Frame):
     Text information frame.
     """
 
-    _ALLOW_MULTIPLE = False
+    _allow_multiple: ClassVar[bool] = False
+    _frame_ids: ClassVar[dict[int, bytes]] = {}
 
-    _frame_ids = {}
-
-    __slots__ = "_text_info", "_text_encoding"
+    __slots__ = ("_text_encoding", "_text_info")
 
     def __init__(
         self,
@@ -1072,7 +1076,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
                 "Unsupported operand type(s) for +: "
                 f"{type_.__name__!r} and {type(other).__name__!r}."
             )
-        if self._ALLOW_MULTIPLE:
+        if self._allow_multiple:
             raise ValueError(
                 f"{type_.__name__} can appear multiple times in a "
                 "ID3v2 tag, so multiple values should be stored in "
@@ -1091,7 +1095,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
                 "Unsupported operand type(s) for +=: "
                 f"'{type_.__name__}' and {type(other).__name__!r}."
             )
-        if self._ALLOW_MULTIPLE:
+        if self._allow_multiple:
             raise ValueError(
                 f"{type_.__name__} can appear multiple times in a "
                 "ID3v2 tag, so multiple values should be stored in "
@@ -1248,7 +1252,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
     Datetime frame.
     """
 
-    _frame_ids = {}
+    _frame_ids: ClassVar[dict[int, bytes]] = {}
 
     __slots__ = ("_datetimes",)
 
@@ -1515,16 +1519,19 @@ class ID3v2APICFrame(ID3v2Frame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _ALLOW_MULTIPLE = True
-
-    _frame_ids = {2: b"PIC", 3: b"APIC", 4: b"APIC"}
+    _allow_multiple: ClassVar[bool] = True
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"PIC",
+        3: b"APIC",
+        4: b"APIC",
+    }
 
     __slots__ = (
-        "_picture_type",
+        "_description",
         "_mime_type",
         "_picture_data",
+        "_picture_type",
         "_text_encoding",
-        "_description",
     )
 
     def __init__(
@@ -1754,11 +1761,14 @@ class ID3v2COMMFrame(ID3v2Frame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _ALLOW_MULTIPLE = True
+    _allow_multiple: ClassVar[bool] = True
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"COM",
+        3: b"COMM",
+        4: b"COMM",
+    }
 
-    _frame_ids = {2: b"COM", 3: b"COMM", 4: b"COMM"}
-
-    __slots__ = "_description", "_comment", "_language", "_text_encoding"
+    __slots__ = ("_comment", "_description", "_language", "_text_encoding")
 
     def __init__(
         self,
@@ -1984,11 +1994,14 @@ class ID3v2USLTFrame(ID3v2Frame):
        transcription <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _ALLOW_MULTIPLE = True
+    _allow_multiple: ClassVar[bool] = True
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"ULT",
+        3: b"USLT",
+        4: b"USLT",
+    }
 
-    _frame_ids = {2: b"ULT", 3: b"USLT", 4: b"USLT"}
-
-    __slots__ = "_description", "_language", "_lyrics", "_text_encoding"
+    __slots__ = ("_description", "_language", "_lyrics", "_text_encoding")
 
     def __init__(
         self,
@@ -2211,7 +2224,11 @@ class ID3v2TALBFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TAL", 3: b"TALB", 4: b"TALB"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TAL",
+        3: b"TALB",
+        4: b"TALB",
+    }
 
     __slots__ = ()
 
@@ -2232,13 +2249,17 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
        properties frames <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TBP", 3: b"TBPM", 4: b"TBPM"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TBP",
+        3: b"TBPM",
+        4: b"TBPM",
+    }
 
     __slots__ = ()
 
     def __init__(
         self,
-        bpm: int | float | str | OrderedCollection[int | float | str],
+        bpm: float | str | OrderedCollection[int | float | str],
         /,
         *,
         text_encoding: str = "utf-16",
@@ -2416,7 +2437,11 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
        <https://id3.org/iTunes%20Compilation%20Flag>`_.
     """
 
-    _frame_ids = {2: b"TCP", 3: b"TCMP", 4: b"TCMP"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TCP",
+        3: b"TCMP",
+        4: b"TCMP",
+    }
 
     __slots__ = ()
 
@@ -2612,7 +2637,11 @@ class ID3v2TCOMFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TCM", 3: b"TCOM", 4: b"TCOM"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TCM",
+        3: b"TCOM",
+        4: b"TCOM",
+    }
 
     __slots__ = ()
 
@@ -2633,7 +2662,11 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
        properties frames <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TCO", 3: b"TCON", 4: b"TCON"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TCO",
+        3: b"TCON",
+        4: b"TCON",
+    }
 
     __slots__ = ()
 
@@ -2654,7 +2687,11 @@ class ID3v2TCOPFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TCR", 3: b"TCOP", 4: b"TCOP"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TCR",
+        3: b"TCOP",
+        4: b"TCOP",
+    }
 
     __slots__ = ()
 
@@ -2681,7 +2718,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {
+    _frame_ids: ClassVar[dict[int, bytes | list[bytes]]] = {
         2: [b"TYE", b"TDA", b"TIM"],
         3: [b"TYER", b"TDAT", b"TIME"],
         4: b"TDRC",
@@ -2864,7 +2901,11 @@ class ID3v2TIT1Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TT1", 3: b"TIT1", 4: b"TIT1"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TT1",
+        3: b"TIT1",
+        4: b"TIT1",
+    }
 
     __slots__ = ()
 
@@ -2885,7 +2926,11 @@ class ID3v2TIT2Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TT2", 3: b"TIT2", 4: b"TIT2"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TT2",
+        3: b"TIT2",
+        4: b"TIT2",
+    }
 
     __slots__ = ()
 
@@ -2906,7 +2951,11 @@ class ID3v2TIT3Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TT3", 3: b"TIT3", 4: b"TIT3"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TT3",
+        3: b"TIT3",
+        4: b"TIT3",
+    }
 
     __slots__ = ()
 
@@ -2927,7 +2976,11 @@ class ID3v2TPE1Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TP1", 3: b"TPE1", 4: b"TPE1"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TP1",
+        3: b"TPE1",
+        4: b"TPE1",
+    }
 
     __slots__ = ()
 
@@ -2948,7 +3001,11 @@ class ID3v2TPE2Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TP2", 3: b"TPE2", 4: b"TPE2"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TP2",
+        3: b"TPE2",
+        4: b"TPE2",
+    }
 
     __slots__ = ()
 
@@ -2969,7 +3026,11 @@ class ID3v2TPE3Frame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TP3", 3: b"TPE3", 4: b"TPE3"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TP3",
+        3: b"TPE3",
+        4: b"TPE3",
+    }
 
     __slots__ = ()
 
@@ -2990,7 +3051,11 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TPA", 3: b"TPOS", 4: b"TPOS"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TPA",
+        3: b"TPOS",
+        4: b"TPOS",
+    }
 
     __slots__ = ("_disc",)
 
@@ -3233,7 +3298,11 @@ class ID3v2TPUBFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TPB", 3: b"TPUB", 4: b"TPUB"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TPB",
+        3: b"TPUB",
+        4: b"TPUB",
+    }
 
     __slots__ = ()
 
@@ -3254,7 +3323,11 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TRK", 3: b"TRCK", 4: b"TRCK"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TRK",
+        3: b"TRCK",
+        4: b"TRCK",
+    }
 
     __slots__ = ("_track",)
 
@@ -3500,7 +3573,11 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TRC", 3: b"TSRC", 4: b"TSRC"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TRC",
+        3: b"TSRC",
+        4: b"TSRC",
+    }
 
     __slots__ = ()
 
@@ -3683,7 +3760,11 @@ class ID3v2TSSEFrame(ID3v2TextInfoFrame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _frame_ids = {2: b"TSS", 3: b"TSSE", 4: b"TSSE"}
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TSS",
+        3: b"TSSE",
+        4: b"TSSE",
+    }
 
     __slots__ = ()
 
@@ -3705,8 +3786,12 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
        frame <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _ALLOW_MULTIPLE = True
-    _frame_ids = {2: b"TXX", 3: b"TXXX", 4: b"TXXX"}
+    _allow_multiple: ClassVar[bool] = True
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TXX",
+        3: b"TXXX",
+        4: b"TXXX",
+    }
 
     __slots__ = ("_description",)
 
@@ -3922,10 +4007,10 @@ class UnknownID3v2Frame(ID3v2Frame):
     Unknown ID3v2 frame.
     """
 
-    _ALLOW_MULTIPLE = True
-    _frame_ids = {}
+    _allow_multiple: ClassVar[bool] = True
+    _frame_ids: ClassVar[dict[int, bytes]] = {}
 
-    __slots__ = "_frame_id", "_frame_data"
+    __slots__ = ("_frame_data", "_frame_id")
 
     def __init__(
         self, frame_id: bytes | bytearray, frame_data: bytes | bytearray

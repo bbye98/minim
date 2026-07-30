@@ -9,7 +9,7 @@ import struct
 import warnings
 from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
 
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES, BytesLike
 from .._utility import (
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from .._types import Collection, OrderedCollection, PathLike
 
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "FLACAudio",
     "FLACStreamInfo",
     "FLACPadding",
@@ -156,16 +156,16 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         MD5 hash of the unencoded audio data.
     """
 
-    _HEX_DIGITS = set(string.hexdigits)
-    _STRUCT_HH = struct.Struct(">HH")
-    _STRUCT_Q = struct.Struct(">Q")
+    _HEX_DIGITS: ClassVar[set[str]] = set(string.hexdigits)
+    _STRUCT_HH: ClassVar[struct.Struct] = struct.Struct(">HH")
+    _STRUCT_Q: ClassVar[struct.Struct] = struct.Struct(">Q")
 
-    _NUM_CHANNELS_RANGE = (1, 8)
-    _SAMPLE_RATE_RANGE = (1, 655_350)
-    _BIT_DEPTH_RANGE = (1, 32)
+    _NUM_CHANNELS_RANGE: ClassVar[tuple[int, int]] = (1, 8)
+    _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (1, 655_350)
+    _BIT_DEPTH_RANGE: ClassVar[tuple[int, int]] = (1, 32)
 
-    _block_length = 34
-    _block_type = 0
+    _block_length: ClassVar[int] = 34
+    _block_type: ClassVar[int] = 0
 
     #: Minimum block size in samples.
     min_block_size: int
@@ -319,7 +319,7 @@ class FLACPadding(FLACMetadataBlock):
     FLAC :code:`PADDING` metadata block data.
     """
 
-    _block_type = 1
+    _block_type: ClassVar[int] = 1
 
     __slots__ = ("_length",)
 
@@ -461,7 +461,7 @@ class FLACApplication(FLACMetadataBlock):
         Application data.
     """
 
-    _block_type = 2
+    _block_type: ClassVar[int] = 2
 
     #: Application ID.
     app_id: bytes | bytearray | str
@@ -539,7 +539,7 @@ class FLACSeekTable(FLACMetadataBlock):
         Seek points.
     """
 
-    _block_type = 3
+    _block_type: ClassVar[int] = 3
 
     #: Seek points.
     seek_points: tuple[FLACSeekPoint, ...]
@@ -548,7 +548,7 @@ class FLACSeekTable(FLACMetadataBlock):
         seek_points = self.seek_points
         if not isinstance(seek_points, tuple):
             if not isinstance(seek_points, list):
-                raise ValueError(
+                raise TypeError(
                     f"`seek_points` must be a(n) tuple | list, not "
                     f"a(n) {type(seek_points).__name__}."
                 )
@@ -702,7 +702,7 @@ class FLACSeekPoint(
         Number of samples in the target frame.
     """
 
-    _STRUCT = struct.Struct(">QQH")
+    _STRUCT: ClassVar[struct.Struct] = struct.Struct(">QQH")
 
     __slots__ = ()
 
@@ -793,9 +793,9 @@ class FLACCueSheet(FLACMetadataBlock):
         Tracks.
     """
 
-    _STRUCT = struct.Struct(">128sQB258sB")
+    _STRUCT: ClassVar[struct.Struct] = struct.Struct(">128sQB258sB")
 
-    _block_type = 5
+    _block_type: ClassVar[int] = 5
 
     #: Media catalog number.
     media_catalog_number: str
@@ -832,7 +832,7 @@ class FLACCueSheet(FLACMetadataBlock):
         tracks = self.tracks
         if not isinstance(tracks, tuple):
             if not isinstance(tracks, list):
-                raise ValueError(
+                raise TypeError(
                     f"`tracks` must be a(n) tuple | list, not "
                     f"a(n) {type(tracks).__name__}."
                 )
@@ -1086,7 +1086,7 @@ class FLACCueSheetTrack:
         Track indices.
     """
 
-    _STRUCT = struct.Struct(">QB12sB13sB")
+    _STRUCT: ClassVar[struct.Struct] = struct.Struct(">QB12sB13sB")
 
     #: Sample offset of the track relative to the beginning of the FLAC
     #: audio stream.
@@ -1113,7 +1113,7 @@ class FLACCueSheetTrack:
         indices = self.indices
         if not isinstance(indices, tuple):
             if not isinstance(indices, list):
-                raise ValueError(
+                raise TypeError(
                     f"`indices` must be a(n) tuple | list, not a(n) "
                     f"{type(indices).__name__}."
                 )
@@ -1282,7 +1282,7 @@ class FLACCueSheetTrackIndex(
         Track index number.
     """
 
-    _STRUCT = struct.Struct(">QB3s")
+    _STRUCT: ClassVar[struct.Struct] = struct.Struct(">QB3s")
 
     __slots__ = ()
 
@@ -1415,10 +1415,10 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         applicable.
     """
 
-    _STRUCT_II = struct.Struct(">II")
-    _STRUCT_IIIII = struct.Struct(">5I")
-    _frame_ids = {}
-    _block_type = 6
+    _STRUCT_II: ClassVar[struct.Struct] = struct.Struct(">II")
+    _STRUCT_IIIII: ClassVar[struct.Struct] = struct.Struct(">5I")
+    _frame_ids: ClassVar[dict[int, bytes]] = {}
+    _block_type: ClassVar[int] = 6
 
     #: Image width in pixels.
     width: int = 0
@@ -1537,7 +1537,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
     Unknown FLAC metadata block data.
     """
 
-    __slots__ = "_block_data", "_block_type"
+    __slots__ = ("_block_data", "_block_type")
 
     def __init__(self, block_type: int, block_data: bytes | bytearray) -> None:
         """
@@ -1644,7 +1644,7 @@ class FLACAudio(Audio):
     FLAC audio file.
     """
 
-    __slots__ = "_audio_offset", "_keep_empty_tags"
+    __slots__ = ("_audio_offset", "_keep_empty_tags")
 
     def __init__(
         self,

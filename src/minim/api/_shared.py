@@ -724,7 +724,7 @@ class APIClient(ABC):
 
     _rate_limit_per_second = float("inf")
 
-    __slots__ = "_cache", "_client", "_rate_limiter"
+    __slots__ = ("_cache", "_client", "_rate_limiter")
 
     def __init__(
         self,

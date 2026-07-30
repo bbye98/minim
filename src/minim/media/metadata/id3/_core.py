@@ -3,7 +3,7 @@ from __future__ import annotations
 import struct
 from collections import defaultdict
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from ...._types import ORDERED_COLLECTION_TYPES
 from ...._utility import (
@@ -43,8 +43,8 @@ class ID3v1:
        `What is ID3 (v1)? <https://id3.org/ID3v1>`_
     """
 
-    _STRUCT_1_0 = struct.Struct("3s30s30s30s4s30sB")
-    _STRUCT_1_1 = struct.Struct("3s30s30s30s4s28sBBB")
+    _STRUCT_1_0: ClassVar[struct.Struct] = struct.Struct("3s30s30s30s4s30sB")
+    _STRUCT_1_1: ClassVar[struct.Struct] = struct.Struct("3s30s30s30s4s28sBBB")
 
     def __init__(
         self,
@@ -334,13 +334,13 @@ class ID3v2Flags:
     """
 
     __slots__ = (
-        "_is_unsynchronized",
+        "_has_crc",
         "_has_extended_header",
-        "_is_experimental",
         "_has_footer",
         "_is_compressed",
+        "_is_experimental",
+        "_is_unsynchronized",
         "_is_update",
-        "_has_crc",
         "_tag_restrictions",
     )
 
@@ -699,14 +699,18 @@ class ID3v2(AudioTags):
        `What is ID3v2? <https://id3.org/ID3v2Easy>`_
     """
 
-    _STRUCT_ID3_HEADER = struct.Struct(">3s7B")
-    _STRUCT_PARTIAL_FRAME_HEADER_2_3 = struct.Struct(">4sI")
-    _STRUCT_PARTIAL_FRAME_HEADER_2_4 = struct.Struct(">4s4B")
+    _STRUCT_ID3_HEADER: ClassVar[struct.Struct] = struct.Struct(">3s7B")
+    _STRUCT_PARTIAL_FRAME_HEADER_2_3: ClassVar[struct.Struct] = struct.Struct(
+        ">4sI"
+    )
+    _STRUCT_PARTIAL_FRAME_HEADER_2_4: ClassVar[struct.Struct] = struct.Struct(
+        ">4s4B"
+    )
 
     __slots__ = (
+        "_class_index",
         "_flags",
         "_frames",
-        "_class_index",
         "_key_index",
         "_unknown_index",
     )
@@ -1021,7 +1025,7 @@ class ID3v2(AudioTags):
     @bpm.setter
     def bpm(
         self,
-        value: int | float | str | OrderedCollection[int | float | str],
+        value: float | str | OrderedCollection[int | float | str],
         /,
     ) -> None: ...
 
@@ -1347,7 +1351,7 @@ class ID3v2(AudioTags):
             dictionary mapping field names to their corresponding values
             is returned.
         """
-        ...
+        # TODO
 
     def set(self, **kwargs: dict[str, Any]) -> None:
         """
@@ -1358,7 +1362,7 @@ class ID3v2(AudioTags):
         **kwargs : dict[str, Any]
             Key–value pairs of track attributes.
         """
-        ...
+        # TODO
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
@@ -1378,4 +1382,4 @@ class ID3v2(AudioTags):
         bytestream : bytes
             Bytestream containing the serialized ID3v2 tag.
         """
-        ...
+        # TODO

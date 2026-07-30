@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from ... import __version__
 from ..._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
@@ -15,6 +15,7 @@ from ..._utility import (
 from ._shared import AudioTags
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from typing import Any
 
     from ..._types import BytesLike, Collection, OrderedCollection
@@ -31,10 +32,12 @@ class VorbisComment(AudioTags):
         <https://www.xiph.org/vorbis/doc/v-comment.html>`_.
     """
 
-    _INVALID_KEY_CHARS_REGEX = re.compile("[^\x20-\x3c\x3e-\x7e]")
+    _INVALID_KEY_CHARS_REGEX: ClassVar[re.Pattern[str]] = re.compile(
+        "[^\x20-\x3c\x3e-\x7e]"
+    )
 
-    _block_type = 4  # FLAC
-    _validators = {
+    _block_type: ClassVar[int] = 4  # FLAC
+    _validators: ClassVar[dict[str, Callable]] = {
         "BPM": lambda value: validate_numeric("BPM", value, int | float, 0),
         "COMPILATION": lambda value: validate_numeric(
             "COMPILATION", value, bool | int, 0, 1
@@ -53,7 +56,7 @@ class VorbisComment(AudioTags):
         ),
     }
 
-    __slots__ = "_fields", "_keep_empty_values", "_num_fields", "_vendor"
+    __slots__ = ("_fields", "_keep_empty_values", "_num_fields", "_vendor")
 
     def __init__(
         self,
@@ -222,7 +225,7 @@ class VorbisComment(AudioTags):
                 ).encode(encoding="utf-8")
             )
             + sum(
-                4 + len(f"{key}={value}".encode("utf-8"))
+                4 + len(f"{key}={value}".encode())
                 for key, values in self._fields.items()
                 for value in values
             )
@@ -275,7 +278,7 @@ class VorbisComment(AudioTags):
     @bpm.setter
     def bpm(
         self,
-        value: int | float | str | OrderedCollection[int | float | str],
+        value: float | str | OrderedCollection[int | float | str],
         /,
     ) -> None:
         self.set(BPM=value)
@@ -801,9 +804,9 @@ class VorbisComment(AudioTags):
             for value in values:
                 vectors.extend(
                     (
-                        len(
-                            field := f"{key}={value}".encode(encoding="utf-8")
-                        ).to_bytes(4, byteorder="little"),
+                        len(field := f"{key}={value}".encode()).to_bytes(
+                            4, byteorder="little"
+                        ),
                         field,
                     )
                 )
