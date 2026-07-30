@@ -26,7 +26,8 @@ class TIDALResourceAPI(ResourceAPI):
     """
 
     _RELATIONSHIPS: set[str]
-    _client: "TIDALAPIClient"
+
+    _client: TIDALAPIClient
 
     __slots__ = ()
 
@@ -139,7 +140,7 @@ class TIDALResourceAPI(ResourceAPI):
         if isinstance(expand, str):
             expand = [expand]
         elif not isinstance(expand, COLLECTION_TYPES):
-            raise ValueError(
+            raise TypeError(
                 "`expand` must be a string or a collection of strings."
             )
         for resource in expand:

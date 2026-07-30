@@ -44,7 +44,7 @@ class TracksAPI(SpotifyResourceAPI):
     def _parse_attribute(
         self,
         attribute: str,
-        value: int | float | tuple[int | float | None, ...],
+        value: float | tuple[int | float | None, ...],
         data_type: type,
         range_: tuple[int | float | None, int | float | None],
         params: dict[str, Any],
@@ -133,7 +133,7 @@ class TracksAPI(SpotifyResourceAPI):
                         params[f"target_{attribute}"],
                     ) = value
         else:
-            raise ValueError(
+            raise TypeError(
                 f"The value provided for track attribute {attribute!r} "
                 f"must be a {(dtype := data_type.__name__)} or a "
                 f"tuple of {dtype}s, not a {type(value).__name__}."

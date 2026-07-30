@@ -13,7 +13,7 @@ from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -29,8 +29,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _CONTENT_FILTERS = {"hires", "explicit"}
-    _RELEASE_TYPES = {
+    _CONTENT_FILTERS: ClassVar[set[str]] = {"hires", "explicit"}
+    _RELEASE_TYPES: ClassVar[set[str]] = {
         "all",
         "album",
         "live",
@@ -40,13 +40,13 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         "download",
         "composer",
     }
-    _RELATIONSHIPS = {
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "albums_with_last_release",
         "playlists",
         "tracks_appears_on",
     }
-    _SORT_FIELDS = {"relevant", "release_date"}
+    _SORT_FIELDS: ClassVar[set[str]] = {"relevant", "release_date"}
 
     __slots__ = ()
 

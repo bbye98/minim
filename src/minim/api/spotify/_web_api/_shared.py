@@ -6,7 +6,7 @@ from ...._utility import join_values, validate_number
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
     from .. import SpotifyWebAPIClient
@@ -17,8 +17,9 @@ class SpotifyResourceAPI(ResourceAPI):
     Base class for Spotify Web API resource endpoint groups.
     """
 
-    _AUDIO_TYPES = {"episode", "track"}
-    _client: "SpotifyWebAPIClient"
+    _AUDIO_TYPES: ClassVar[set[str]] = {"episode", "track"}
+
+    _client: SpotifyWebAPIClient
 
     __slots__ = ()
 

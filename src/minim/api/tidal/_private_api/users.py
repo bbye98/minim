@@ -14,7 +14,7 @@ from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -30,7 +30,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _SORT_FIELDS = {"DATE", "NAME"}
+    _SORT_FIELDS: ClassVar[set[str]] = {"DATE", "NAME"}
 
     __slots__ = ()
 

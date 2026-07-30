@@ -7,7 +7,7 @@ from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -23,7 +23,7 @@ class SearchAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RELATIONSHIPS = {
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "artists",
         "playlists",

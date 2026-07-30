@@ -14,7 +14,7 @@ from ..._shared import TTLCache
 from ._shared import DiscogsResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
 
 class DatabaseAPI(DiscogsResourceAPI):
@@ -28,8 +28,8 @@ class DatabaseAPI(DiscogsResourceAPI):
        instantiated directly.
     """
 
-    _ARTIST_SORT_FIELDS = {"year", "title", "format"}
-    _RELEASE_SORT_FIELDS = {
+    _ARTIST_SORT_FIELDS: ClassVar[set[str]] = {"year", "title", "format"}
+    _RELEASE_SORT_FIELDS: ClassVar[set[str]] = {
         "released",
         "title",
         "format",
@@ -37,7 +37,12 @@ class DatabaseAPI(DiscogsResourceAPI):
         "catno",
         "country",
     }
-    _SEARCH_RESOURCE_TYPES = {"release", "master", "artist", "label"}
+    _SEARCH_RESOURCE_TYPES: ClassVar[set[str]] = {
+        "release",
+        "master",
+        "artist",
+        "label",
+    }
 
     __slots__ = ()
 

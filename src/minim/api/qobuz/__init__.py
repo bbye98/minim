@@ -16,7 +16,7 @@ from ._private_api.search import PrivateSearchAPI
 from ._private_api.tracks import PrivateTracksAPI
 from ._private_api.users import PrivateUsersAPI
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "PrivateQobuzAPIClient",
     "PrivateAlbumsAPI",
     "PrivateArtistsAPI",

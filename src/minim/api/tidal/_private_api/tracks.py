@@ -19,7 +19,7 @@ from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -35,7 +35,13 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES", "HI_RES_LOSSLESS"}
+    _AUDIO_QUALITIES: ClassVar[set[str]] = {
+        "LOW",
+        "HIGH",
+        "LOSSLESS",
+        "HI_RES",
+        "HI_RES_LOSSLESS",
+    }
 
     __slots__ = ()
 

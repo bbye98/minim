@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from ...._utility import join_values, prepare_string, validate_number
@@ -8,7 +8,7 @@ from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -24,8 +24,8 @@ class UsersAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
-    _PEOPLE_TYPES = {"artists", "users"}
-    _RESOURCE_TYPES = {
+    _PEOPLE_TYPES: ClassVar[set[str]] = {"artists", "users"}
+    _RESOURCE_TYPES: ClassVar[set[str]] = {
         "track",
         "album",
         "episode",
@@ -34,7 +34,11 @@ class UsersAPI(SpotifyResourceAPI):
         "user",
         "playlist",
     }
-    _TIME_RANGES = {"long_term", "medium_term", "short_term"}
+    _TIME_RANGES: ClassVar[set[str]] = {
+        "long_term",
+        "medium_term",
+        "short_term",
+    }
 
     __slots__ = ()
 
@@ -2795,7 +2799,9 @@ class UsersAPI(SpotifyResourceAPI):
             track_ids = [
                 {
                     "id": track_ids,
-                    "added_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "added_at": datetime.now(UTC).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ"
+                    ),
                 }
             ]
         elif isinstance(track_ids, dict):
@@ -2822,7 +2828,7 @@ class UsersAPI(SpotifyResourceAPI):
                 if isinstance(track, str):
                     track_ids[idx] = {
                         "id": track,
-                        "added_at": datetime.now().strftime(
+                        "added_at": datetime.now(UTC).strftime(
                             "%Y-%m-%dT%H:%M:%SZ"
                         ),
                     }

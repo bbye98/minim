@@ -8,7 +8,7 @@ from ..._shared import ResourceAPI
 from .._api._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
     from .. import PrivateTIDALAPIClient
@@ -19,8 +19,9 @@ class PrivateTIDALResourceAPI(ResourceAPI):
     Base class for private TIDAL API resource endpoint groups.
     """
 
-    _PLAYBACK_MODES = {"STREAM", "OFFLINE"}
-    _client: "PrivateTIDALAPIClient"
+    _PLAYBACK_MODES: ClassVar[set[str]] = {"STREAM", "OFFLINE"}
+
+    _client: PrivateTIDALAPIClient
 
     __slots__ = ()
 
@@ -72,7 +73,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
                 if not id_.isdecimal():
                     raise ValueError(f"Invalid TIDAL ID {id_!r}.")
             else:
-                raise ValueError(f"Invalid TIDAL ID {id_!r}.")
+                raise TypeError(f"Invalid TIDAL ID {id_!r}.")
 
         return ",".join(tidal_ids)
 

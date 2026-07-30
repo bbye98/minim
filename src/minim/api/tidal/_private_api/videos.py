@@ -19,7 +19,7 @@ from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -35,11 +35,16 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _M3U_RE = re.compile(
+    _M3U_RE: ClassVar[re.Pattern] = re.compile(
         r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
         r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
     )
-    _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
+    _VIDEO_QUALITIES: ClassVar[set[str]] = {
+        "AUDIO_ONLY",
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+    }
 
     __slots__ = ()
 

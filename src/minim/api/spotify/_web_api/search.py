@@ -7,7 +7,7 @@ from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -23,7 +23,7 @@ class SearchAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
-    _RESOURCE_TYPES = {
+    _RESOURCE_TYPES: ClassVar[set[str]] = {
         "album",
         "artist",
         "audiobook",

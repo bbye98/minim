@@ -14,7 +14,7 @@ import warnings
 import webbrowser
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from functools import wraps
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import TYPE_CHECKING
@@ -37,7 +37,8 @@ if FOUND["playwright"]:
 
 if TYPE_CHECKING:
     import types
-    from typing import Any, Callable
+    from collections.abc import Callable
+    from typing import Any, ClassVar, Self
 
     from .._types import Collection, PathLike
 
@@ -59,9 +60,7 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
             self.end_headers()
             status = "denied" if "error" in self.server.response else "granted"
             self.wfile.write(
-                f"Access {status}. You may close this page.".encode(
-                    encoding="utf-8"
-                )
+                f"Access {status}. You may close this page.".encode()
             )
             threading.Thread(target=self.server.shutdown).start()
         else:
@@ -83,7 +82,7 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
                     </script>
                 </body>
                 </html>
-                """.encode(encoding="utf-8")
+                """
             )
 
     def log_message(
@@ -102,7 +101,6 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
             Keyword arguments to pass to
             :meth:`http.server.BaseHTTPRequestHandler.log_message`.
         """
-        pass
 
 
 class TokenDatabase:
@@ -360,7 +358,7 @@ class TokenDatabase:
                 refresh_token,
                 json.dumps(extras) if isinstance(extras, dict) else None,
                 prepare_datetime(
-                    added_at or datetime.now(), "%Y-%m-%dT%H:%M:%SZ"
+                    added_at or datetime.now(UTC), "%Y-%m-%dT%H:%M:%SZ"
                 ),
             ),
         )
@@ -488,7 +486,7 @@ class TTLCache:
     policy.
     """
 
-    _PREDEFINED_TTLS = {
+    _PREDEFINED_TTLS: ClassVar[dict[str, int | float]] = {
         "static": float("inf"),
         "weekly": 604_800,
         "daily": 86_400,
@@ -500,7 +498,7 @@ class TTLCache:
         "user": 60,
     }
 
-    __slots__ = "_store", "_max_size"
+    __slots__ = ("_max_size", "_store")
 
     def __init__(self, *, max_size: int = 1_024) -> None:
         """
@@ -539,7 +537,7 @@ class TTLCache:
 
     @staticmethod
     def cached_method(
-        *, ttl: int | float | str
+        *, ttl: float | str
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         """
         Return a decorator that marks a function for caching.
@@ -643,7 +641,7 @@ class TTLCache:
                 del self._store[key]
 
     def wrapper(
-        self, *, ttl: int | float | str
+        self, *, ttl: float | str
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         """
         Create a decorator that applies TTL- and LRU-based caching using
@@ -762,7 +760,7 @@ class APIClient(ABC):
                 "user_agent", user_agent, allow_blank=True
             )
 
-    def __enter__(self) -> "APIClient":
+    def __enter__(self) -> Self:
         """
         Enter the runtime context and ensure the client is open.
 
@@ -883,13 +881,17 @@ class OAuthAPIClient(APIClient):
     """
 
     #: Authorization endpoint.
-    AUTH_URL: str
+    AUTH_URL: ClassVar[str]
 
-    _AUTH_FLOWS: dict[str | None, str]
-    _REDIRECT_FLOWS: set[str]
+    _AUTH_FLOWS: ClassVar[dict[str | None, str]]
+    _REDIRECT_FLOWS: ClassVar[set[str]]
 
-    _OPTIONAL_AUTH: bool = False
-    _REDIRECT_HANDLERS = {None, "http.server", "playwright"}
+    _OPTIONAL_AUTH: ClassVar[bool] = False
+    _REDIRECT_HANDLERS: ClassVar[set[str | None]] = {
+        None,
+        "http.server",
+        "playwright",
+    }
 
     __slots__ = (
         "_auth_flow",
@@ -1118,7 +1120,7 @@ class OAuthAPIClient(APIClient):
             .public_key(key.public_key())
             .serial_number(x509.random_serial_number())
             .not_valid_before(
-                (now := datetime.now(timezone.utc)) - timedelta(minutes=5)
+                (now := datetime.now(UTC)) - timedelta(minutes=5)
             )
             .not_valid_after(now + timedelta(days=365))
             .add_extension(
@@ -1176,10 +1178,10 @@ class OAuthAPIClient(APIClient):
                 )
             return (
                 certificate.not_valid_before_utc
-                <= datetime.now(timezone.utc)
+                <= datetime.now(UTC)
                 <= certificate.not_valid_after_utc
             )
-        except Exception:
+        except Exception:  # noqa: BLE001
             return False
 
     def _handle_redirect(
@@ -1292,17 +1294,21 @@ class OAuth1APIClient(OAuthAPIClient):
     """
 
     #: Request token endpoint.
-    REQUEST_TOKEN_URL: str
+    REQUEST_TOKEN_URL: ClassVar[str]
     #: Access token endpoint.
-    ACCESS_TOKEN_URL: str
+    ACCESS_TOKEN_URL: ClassVar[str]
 
-    _AUTH_FLOWS = {
+    _AUTH_FLOWS: ClassVar[dict[str | None, str]] = {
         None: "unauthenticated client",
         "three_legged": "Three-Legged Flow",
         "two_legged": "Two-Legged Flow",
     }
-    _REDIRECT_FLOWS = {"three_legged"}
-    _SIGNATURE_METHODS = {"HMAC-SHA1", "RSA-SHA1", "PLAINTEXT"}
+    _REDIRECT_FLOWS: ClassVar[set[str]] = {"three_legged"}
+    _SIGNATURE_METHODS: ClassVar[set[str]] = {
+        "HMAC-SHA1",
+        "RSA-SHA1",
+        "PLAINTEXT",
+    }
 
     __slots__ = (
         "_consumer_key",
@@ -2076,14 +2082,12 @@ class OAuth2APIClient(OAuthAPIClient):
     """
 
     #: Device authorization endpoint.
-    DEVICE_AUTH_URL: str | None = None
+    DEVICE_AUTH_URL: ClassVar[str | None] = None
     #: Token endpoint.
-    TOKEN_URL: str
+    TOKEN_URL: ClassVar[str]
 
-    _ALLOWED_SCOPES: Any
-
-    _IS_TRUSTED_DEVICE: bool = False
-    _AUTH_FLOWS = {
+    _ALLOWED_SCOPES: ClassVar[Any]
+    _AUTH_FLOWS: ClassVar[dict[str | None, str]] = {
         None: "unauthenticated client",
         "auth_code": "Authorization Code Flow",
         "pkce": "Authorization Code Flow with Proof Key for Code Exchange (PKCE)",
@@ -2092,7 +2096,8 @@ class OAuth2APIClient(OAuthAPIClient):
         "implicit": "Implicit Grant Flow",
         # "password": "Resource Owner Password Credentials Flow"
     }
-    _REDIRECT_FLOWS = {"auth_code", "pkce", "implicit"}
+    _IS_TRUSTED_DEVICE: ClassVar[bool] = False
+    _REDIRECT_FLOWS: ClassVar[set[str]] = {"auth_code", "pkce", "implicit"}
 
     __slots__ = (
         "_client_id",
@@ -2469,9 +2474,7 @@ class OAuth2APIClient(OAuthAPIClient):
                 }
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
-                        f"{self._client_id}:{self._client_secret}".encode(
-                            encoding="utf-8"
-                        )
+                        f"{self._client_id}:{self._client_secret}".encode()
                     ).decode(encoding="utf-8")
                     resp_json = httpx.post(
                         self.TOKEN_URL,
@@ -2500,9 +2503,7 @@ class OAuth2APIClient(OAuthAPIClient):
 
             case "client_credentials":
                 b64_client_credentials = base64.urlsafe_b64encode(
-                    f"{self._client_id}:{self._client_secret}".encode(
-                        encoding="utf-8"
-                    )
+                    f"{self._client_id}:{self._client_secret}".encode()
                 ).decode(encoding="utf-8")
                 resp_json = httpx.post(
                     self.TOKEN_URL,
@@ -2604,9 +2605,7 @@ class OAuth2APIClient(OAuthAPIClient):
 
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
-                        f"{self._client_id}:{self._client_secret}".encode(
-                            encoding="utf-8"
-                        )
+                        f"{self._client_id}:{self._client_secret}".encode()
                     ).decode(encoding="utf-8")
                     resp_json = httpx.post(
                         self.TOKEN_URL,
@@ -2626,7 +2625,7 @@ class OAuth2APIClient(OAuthAPIClient):
             refresh_token=resp_json.pop(
                 "refresh_token", getattr(self, "_refresh_token", None)
             ),
-            expires_at=datetime.now()
+            expires_at=datetime.now(UTC)
             + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )
         self._token_extras = resp_json
@@ -2769,7 +2768,9 @@ class OAuth2APIClient(OAuthAPIClient):
 
         self._refresh_token = refresh_token
         self._expires_at = (
-            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ")
+            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ").replace(
+                tzinfo=UTC
+            )
             if expires_at and isinstance(expires_at, str)
             else expires_at
         )

@@ -8,7 +8,7 @@ from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -24,8 +24,8 @@ class PlayerAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
-    _CONTEXT_TYPES = {"album", "artist", "playlist"}
-    _REPEAT_MODES = {"track", "context", "off"}
+    _CONTEXT_TYPES: ClassVar[set[str]] = {"album", "artist", "playlist"}
+    _REPEAT_MODES: ClassVar[set[str]] = {"track", "context", "off"}
 
     __slots__ = ()
 

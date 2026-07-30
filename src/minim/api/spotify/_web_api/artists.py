@@ -8,7 +8,7 @@ from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -24,7 +24,12 @@ class ArtistsAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
-    _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
+    _ALBUM_TYPES: ClassVar[set[str]] = {
+        "album",
+        "single",
+        "appears_on",
+        "compilation",
+    }
 
     __slots__ = ()
 

@@ -16,7 +16,7 @@ from .search import SearchAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -31,9 +31,15 @@ class TracksAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _FORMATS = {"HEAACV1", "AACLC", "FLAC", "FLAC_HIRES", "EAC3_JOC"}
-    _MANIFEST_TYPES = {"HLS", "MPEG_DASH"}
-    _RELATIONSHIPS = {
+    _FORMATS: ClassVar[set[str]] = {
+        "HEAACV1",
+        "AACLC",
+        "FLAC",
+        "FLAC_HIRES",
+        "EAC3_JOC",
+    }
+    _MANIFEST_TYPES: ClassVar[set[str]] = {"HLS", "MPEG_DASH"}
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "artists",
         "credits",
@@ -52,9 +58,9 @@ class TracksAPI(TIDALResourceAPI):
         "trackStatistics",
         "usageRules",
     }
-    _SORT_FIELDS = {"createdAt", "title"}
-    _URI_SCHEMES = {"DATA", "HTTPS"}
-    _USAGES = {"DOWNLOAD", "PLAYBACK"}
+    _SORT_FIELDS: ClassVar[set[str]] = {"createdAt", "title"}
+    _URI_SCHEMES: ClassVar[set[str]] = {"DATA", "HTTPS"}
+    _USAGES: ClassVar[set[str]] = {"DOWNLOAD", "PLAYBACK"}
 
     __slots__ = ()
 

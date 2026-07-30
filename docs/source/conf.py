@@ -1,7 +1,8 @@
 from __future__ import annotations
-from datetime import datetime
-from pathlib import Path
+
 import sys
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -12,10 +13,9 @@ if TYPE_CHECKING:
 sys.path.insert(0, f"{Path(__file__).resolve().parents[2]}/src")
 from minim import __version__
 
-
 project = "Minim"
 author = "Benjamin Ye"
-copyright = f"2023–{datetime.now().year} Benjamin Ye"
+copyright = f"2023–{datetime.now(UTC).year} Benjamin Ye"
 version = release = __version__
 
 extensions = [

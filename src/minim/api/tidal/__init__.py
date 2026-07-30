@@ -24,7 +24,7 @@ from ._private_api.tracks import PrivateTracksAPI
 from ._private_api.users import PrivateUsersAPI
 from ._private_api.videos import PrivateVideosAPI
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "TIDALAPIClient",
     "PrivateTIDALAPIClient",
     "AlbumsAPI",

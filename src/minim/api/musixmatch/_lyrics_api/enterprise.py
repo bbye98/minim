@@ -21,7 +21,7 @@ from .tracks import TracksAPI
 
 if TYPE_CHECKING:
     from datetime import datetime
-    from typing import Any
+    from typing import Any, ClassVar
 
 
 class EnterpriseAPI(MusixmatchResourceAPI):
@@ -35,7 +35,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
        should not be instantiated directly.
     """
 
-    _RIGHTSHOLDER_ROLES = {
+    _RIGHTSHOLDER_ROLES: ClassVar[set[str]] = {
         "A",
         "AD",
         "AM",

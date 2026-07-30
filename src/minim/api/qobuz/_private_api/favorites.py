@@ -7,7 +7,7 @@ from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -23,7 +23,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _FAVORITE_TYPES = {
+    _FAVORITE_TYPES: ClassVar[set[str]] = {
         "albums",
         "artists",
         "articles",

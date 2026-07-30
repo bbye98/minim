@@ -8,7 +8,7 @@ from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -24,7 +24,7 @@ class UsersAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _COLLECTION_RELATIONSHIPS = {
+    _COLLECTION_RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "artists",
         "owners",
@@ -32,8 +32,11 @@ class UsersAPI(TIDALResourceAPI):
         "tracks",
         "videos",
     }
-    _COLLECTION_RESOURCE_RELATIONSHIPS = {"items", "owners"}
-    _RECOMMENDATION_RELATIONSHIPS = {
+    _COLLECTION_RESOURCE_RELATIONSHIPS: ClassVar[set[str]] = {
+        "items",
+        "owners",
+    }
+    _RECOMMENDATION_RELATIONSHIPS: ClassVar[set[str]] = {
         "discoveryMixes",
         "myMixes",
         "newArrivalMixes",

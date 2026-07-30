@@ -14,7 +14,7 @@ from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -30,7 +30,12 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _FEATURED_TYPES = {"albums", "articles", "artists", "playlists"}
+    _FEATURED_TYPES: ClassVar[set[str]] = {
+        "albums",
+        "articles",
+        "artists",
+        "playlists",
+    }
 
     __slots__ = ()
 

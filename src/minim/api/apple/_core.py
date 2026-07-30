@@ -16,7 +16,7 @@ from ..._utility import (
 from .._shared import APIClient, ResourceAPI, TTLCache
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     import httpx
 
@@ -28,10 +28,8 @@ class iTunesSearchAPIClient(APIClient):
     iTunes Search API client.
     """
 
-    BASE_URL = "https://itunes.apple.com"
-
-    _LOCALES = {"en_us", "ja_jp"}
-    _MEDIA_TYPES = {
+    _LOCALES: ClassVar[set[str]] = {"en_us", "ja_jp"}
+    _MEDIA_TYPES: ClassVar[dict[str, dict[str, set[str]]]] = {
         "all": {
             "entities": {
                 "album",
@@ -169,10 +167,12 @@ class iTunesSearchAPIClient(APIClient):
             },
         },
     }
-    _PROVIDER = "Apple"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _PROVIDER: ClassVar[str] = "Apple"
+    _QUAL_NAME: ClassVar[str] = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
 
-    _rate_limit_per_second = 1 / 3
+    BASE_URL: ClassVar[str] = "https://itunes.apple.com"
+
+    _rate_limit_per_second: ClassVar[float] = 1 / 3
 
     __slots__ = ()
 
@@ -211,7 +211,7 @@ class iTunesSearchAPIClient(APIClient):
         /,
         retry: bool = True,
         **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+    ) -> httpx.Response:
         """
         Make an HTTP request to an iTunes Search API endpoint.
 

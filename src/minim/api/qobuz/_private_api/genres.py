@@ -75,13 +75,14 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
             )
 
         if (
-            cache := self._client._cache
-        ) and "available_genres" in cache._store:
-            if genre_id not in self.available_genres:
-                raise ValueError(
-                    f"Invalid genre ID {genre_id!r}. Valid values: "
-                    f"{join_values(self.available_genres.keys())}."
-                )
+            (cache := self._client._cache)
+            and "available_genres" in cache._store
+            and genre_id not in self.available_genres
+        ):
+            raise ValueError(
+                f"Invalid genre ID {genre_id!r}. Valid values: "
+                f"{join_values(self.available_genres.keys())}."
+            )
 
     @TTLCache.cached_method(ttl="static")
     def get_genre(self, genre_id: int | str, /) -> dict[str, Any]:

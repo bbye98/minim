@@ -4,8 +4,9 @@ import mmap
 import re
 import types
 import uuid
-from datetime import datetime
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from ._types import COLLECTION_TYPES
 
@@ -175,7 +176,7 @@ def prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
     """
     if isinstance(dt, str):
         dt = dt.strip()
-        datetime.strptime(dt.strip(), fmt)
+        datetime.strptime(dt.strip(), fmt).replace(tzinfo=UTC)
         return dt
 
     return dt.strftime(fmt)
@@ -359,11 +360,11 @@ def validate_locale(locale: str, /) -> None:
 
 def validate_number(
     name: str,
-    value: int | float,
+    value: float,
     data_type: type | types.UnionType,
     /,
-    lower_bound: int | float | None = None,
-    upper_bound: int | float | None = None,
+    lower_bound: float | None = None,
+    upper_bound: float | None = None,
 ) -> None:
     """
     Validate the value of a variable containing a number.
@@ -403,11 +404,11 @@ def validate_number(
 
 def validate_numeric(
     name: str,
-    value: int | float | bytes | str,
+    value: float | bytes | str,
     data_type: type,
     /,
-    lower_bound: int | float | None = None,
-    upper_bound: int | float | None = None,
+    lower_bound: float | None = None,
+    upper_bound: float | None = None,
 ) -> None:
     """
     Validate the value of a variable containing a numeric-like value.
@@ -447,10 +448,10 @@ def validate_numeric(
 
 def validate_range(
     name: str,
-    value: int | float,
+    value: float,
     /,
-    lower_bound: int | float | None = None,
-    upper_bound: int | float | None = None,
+    lower_bound: float | None = None,
+    upper_bound: float | None = None,
 ) -> None:
     """
     Validate the value of a numeric variable.
@@ -510,7 +511,7 @@ def validate_type(
             if isinstance(data_type, type)
             else str(data_type)
         )
-        raise ValueError(
+        raise TypeError(
             f"`{name}` must be a(n) {data_type_str}, not a(n) "
             f"{type(value).__name__}."
         )

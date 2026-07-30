@@ -16,7 +16,7 @@ from .search import SearchAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -31,8 +31,8 @@ class PlaylistsAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _ITEM_TYPES = {"tracks", "videos"}
-    _RELATIONSHIPS = {
+    _ITEM_TYPES: ClassVar[set[str]] = {"tracks", "videos"}
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "collaboratorProfiles",
         "collaborators",
         "coverArt",
@@ -40,7 +40,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         "ownerProfiles",
         "owners",
     }
-    _SORT_FIELDS = {"createdAt", "lastModifiedAt", "name"}
+    _SORT_FIELDS: ClassVar[set[str]] = {"createdAt", "lastModifiedAt", "name"}
 
     __slots__ = ()
 

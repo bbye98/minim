@@ -13,7 +13,7 @@ from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
 
 class ChartsAPI(MusixmatchResourceAPI):
@@ -27,7 +27,12 @@ class ChartsAPI(MusixmatchResourceAPI):
        should not be instantiated directly.
     """
 
-    _CHART_NAMES = {"top", "hot", "mxmweekly", "mxmweekly_new"}
+    _CHART_NAMES: ClassVar[set[str]] = {
+        "top",
+        "hot",
+        "mxmweekly",
+        "mxmweekly_new",
+    }
 
     __slots__ = ()
 

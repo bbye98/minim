@@ -12,7 +12,7 @@ from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
 
 class SearchAPI(DeezerResourceAPI):
@@ -26,7 +26,7 @@ class SearchAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    _SORT_FIELDS = {
+    _SORT_FIELDS: ClassVar[set[str]] = {
         "RANKING",
         "TRACK",
         "ARTIST",

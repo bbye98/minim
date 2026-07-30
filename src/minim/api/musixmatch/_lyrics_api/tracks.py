@@ -20,7 +20,7 @@ from .matcher import MatcherAPI
 
 if TYPE_CHECKING:
     from datetime import datetime
-    from typing import Any
+    from typing import Any, ClassVar
 
 
 class TracksAPI(MusixmatchResourceAPI):
@@ -34,7 +34,7 @@ class TracksAPI(MusixmatchResourceAPI):
        should not be instantiated directly.
     """
 
-    _SUBTITLE_FORMATS = {"lrc", "dfxp", "mxm"}
+    _SUBTITLE_FORMATS: ClassVar[set[str]] = {"lrc", "dfxp", "mxm"}
 
     __slots__ = ()
 

@@ -19,7 +19,7 @@ from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -35,8 +35,8 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _INTENTS = {"download", "import", "stream"}
-    _TRACK_FORMAT_IDS = {5, 6, 7, 27}
+    _INTENTS: ClassVar[set[str]] = {"download", "import", "stream"}
+    _TRACK_FORMAT_IDS: ClassVar[set[int]] = {5, 6, 7, 27}
 
     __slots__ = ()
 

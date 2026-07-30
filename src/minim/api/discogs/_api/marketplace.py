@@ -15,7 +15,7 @@ from ._shared import DiscogsResourceAPI
 
 if TYPE_CHECKING:
     from datetime import datetime
-    from typing import Any
+    from typing import Any, ClassVar
 
 
 class MarketplaceAPI(DiscogsResourceAPI):
@@ -29,7 +29,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
        instantiated directly.
     """
 
-    _LISTING_SORT_FIELDS = {
+    _LISTING_SORT_FIELDS: ClassVar[set[str]] = {
         "artist",
         "audio",
         "catno",
@@ -40,8 +40,8 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "price",
         "status",
     }
-    _USER_LISTING_STATUSES = {"Draft", "For Sale"}
-    _FILTER_LISTING_STATUSES = {
+    _USER_LISTING_STATUSES: ClassVar[set[str]] = {"Draft", "For Sale"}
+    _FILTER_LISTING_STATUSES: ClassVar[set[str]] = {
         "All",
         "Deleted",
         "Expired",
@@ -49,8 +49,14 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Suspended",
         "Violation",
     }
-    _ORDER_SORT_FIELDS = {"id", "buyer", "created", "status", "last_activity"}
-    _USER_ORDER_STATUSES = {
+    _ORDER_SORT_FIELDS: ClassVar[set[str]] = {
+        "id",
+        "buyer",
+        "created",
+        "status",
+        "last_activity",
+    }
+    _USER_ORDER_STATUSES: ClassVar[set[str]] = {
         "New Order",
         "Buyer Contacted",
         "Invoice Sent",
@@ -63,7 +69,7 @@ class MarketplaceAPI(DiscogsResourceAPI):
         "Cancelled (Item Unavailable)",
         "Cancelled (Per Buyer's Request)",
     }
-    _FILTER_ORDER_STATUSES = {
+    _FILTER_ORDER_STATUSES: ClassVar[set[str]] = {
         "All",
         "Merged",
         "Order Changed",

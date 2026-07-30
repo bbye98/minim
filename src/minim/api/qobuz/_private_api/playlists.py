@@ -16,7 +16,7 @@ from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -32,9 +32,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _PLAYLIST_TYPES = {"owner", "subscriber"}
-    _RELATIONSHIPS = {"tracks", "getSimilarPlaylists", "focus", "focusAll"}
-    _SORT_FIELDS = {"updated_at", "position"}
+    _PLAYLIST_TYPES: ClassVar[set[str]] = {"owner", "subscriber"}
+    _RELATIONSHIPS: ClassVar[set[str]] = {
+        "tracks",
+        "getSimilarPlaylists",
+        "focus",
+        "focusAll",
+    }
+    _SORT_FIELDS: ClassVar[set[str]] = {"updated_at", "position"}
 
     __slots__ = ()
 
@@ -62,17 +67,18 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Playlist tag slug.
         """
         if not isinstance(playlist_tag_slug, str):
-            raise ValueError("Qobuz playlist tag slugs must be strings.")
+            raise TypeError("Qobuz playlist tag slugs must be strings.")
 
         if (
-            cache := self._client._cache
-        ) and "available_playlist_tags" in cache._store:
-            if playlist_tag_slug not in self.available_playlist_tags:
-                raise ValueError(
-                    f"Invalid playlist tag slug {playlist_tag_slug!r}. "
-                    "Valid values: "
-                    f"{join_values(self.available_playlist_tags)}."
-                )
+            (cache := self._client._cache)
+            and "available_playlist_tags" in cache._store
+            and playlist_tag_slug not in self.available_playlist_tags
+        ):
+            raise ValueError(
+                f"Invalid playlist tag slug {playlist_tag_slug!r}. "
+                "Valid values: "
+                f"{join_values(self.available_playlist_tags)}."
+            )
 
     def add_playlist_tracks(
         self,

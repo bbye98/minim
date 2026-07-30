@@ -9,7 +9,7 @@ from ._api.search import SearchAPI
 from ._api.users import UsersAPI
 from ._core import DiscogsAPIClient
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "DiscogsAPIClient",
     "DatabaseAPI",
     "InventoryAPI",

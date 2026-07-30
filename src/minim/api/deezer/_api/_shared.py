@@ -18,7 +18,7 @@ class DeezerResourceAPI(ResourceAPI):
     Base class for Deezer API resource endpoint groups.
     """
 
-    _client: "DeezerAPIClient"
+    _client: DeezerAPIClient
 
     __slot__ = ()
 

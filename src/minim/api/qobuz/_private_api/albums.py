@@ -9,7 +9,7 @@ from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -25,7 +25,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _FEATURED_TYPES = {
+    _FEATURED_TYPES: ClassVar[set[str]] = {
         "most-streamed",
         "best-sellers",
         "new-releases",
@@ -44,7 +44,11 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         "album-of-the-week",
         "re-release-of-the-week",
     }
-    _RELATIONSHIPS = {"albumsFromSameArtist", "focus", "focusAll"}
+    _RELATIONSHIPS: ClassVar[set[str]] = {
+        "albumsFromSameArtist",
+        "focus",
+        "focusAll",
+    }
 
     __slots__ = ()
 

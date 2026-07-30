@@ -14,7 +14,7 @@ class MusixmatchResourceAPI(ResourceAPI):
     Base class for Musixmatch Lyrics API resource endpoint groups.
     """
 
-    _client: "MusixmatchLyricsAPIClient"
+    _client: MusixmatchLyricsAPIClient
 
     __slots__ = ()
 

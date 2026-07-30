@@ -6,7 +6,7 @@ from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -22,7 +22,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _RELATIONSHIPS = {"albums", "focus", "focusAll"}
+    _RELATIONSHIPS: ClassVar[set[str]] = {"albums", "focus", "focusAll"}
 
     __slots__ = ()
 

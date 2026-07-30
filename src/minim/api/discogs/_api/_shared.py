@@ -6,7 +6,7 @@ from ...._utility import prepare_string, validate_number
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from .. import DiscogsAPIClient
 
@@ -16,10 +16,7 @@ class DiscogsResourceAPI(ResourceAPI):
     Base class for Discogs API resource endpoint groups.
     """
 
-    _RELATIONSHIPS: set[str]
-    _client: "DiscogsAPIClient"
-
-    _CONDITIONS = {
+    _CONDITIONS: ClassVar[set[str]] = {
         "Mint (M)",
         "Near Mint (NM or M-)",
         "Very Good Plus (VG+)",
@@ -29,8 +26,12 @@ class DiscogsResourceAPI(ResourceAPI):
         "Fair (F)",
         "Poor (P)",
     }
-    _ADDITIONAL_SLEEVE_CONDITIONS = {"Generic", "Not Graded", "No Cover"}
-    _CURRENCIES = {
+    _ADDITIONAL_SLEEVE_CONDITIONS: ClassVar[set[str]] = {
+        "Generic",
+        "Not Graded",
+        "No Cover",
+    }
+    _CURRENCIES: ClassVar[set[str]] = {
         "USD",
         "GBP",
         "EUR",
@@ -44,6 +45,8 @@ class DiscogsResourceAPI(ResourceAPI):
         "SEK",
         "ZAR",
     }
+
+    _client: DiscogsAPIClient
 
     __slots__ = ()
 

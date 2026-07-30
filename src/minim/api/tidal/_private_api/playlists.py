@@ -17,7 +17,7 @@ from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection, OrderedCollection
 
@@ -33,13 +33,13 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _PLAYLIST_TYPES = {
+    _PLAYLIST_TYPES: ClassVar[set[str]] = {
         "FOLDER",
         "PLAYLIST",
         "FAVORITE_PLAYLIST",
         "USER_PLAYLIST",
     }
-    _SORT_FIELDS = {"DATE", "NAME"}
+    _SORT_FIELDS: ClassVar[set[str]] = {"DATE", "NAME"}
 
     __slots__ = ()
 

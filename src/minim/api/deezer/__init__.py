@@ -16,7 +16,7 @@ from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 from ._core import DeezerAPIClient
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "DeezerAPIClient",
     "AlbumsAPI",
     "ArtistsAPI",

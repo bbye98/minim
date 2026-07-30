@@ -19,7 +19,8 @@ class PrivateQobuzResourceAPI(ResourceAPI):
     """
 
     _RELATIONSHIPS: set[str]
-    _client: "PrivateQobuzAPIClient"
+
+    _client: PrivateQobuzAPIClient
 
     __slots__ = ()
 
@@ -230,7 +231,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             return cls._prepare_expand(expand.strip().split(","))
 
         if not isinstance(expand, str | COLLECTION_TYPES):
-            raise ValueError(
+            raise TypeError(
                 "`expand` must be a string or a collection of strings."
             )
 

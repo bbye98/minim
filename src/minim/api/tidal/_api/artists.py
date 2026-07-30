@@ -10,7 +10,7 @@ from .search import SearchAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -25,7 +25,7 @@ class ArtistsAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RELATIONSHIPS = {
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "biography",
         "followers",

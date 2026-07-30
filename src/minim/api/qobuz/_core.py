@@ -6,7 +6,7 @@ import hashlib
 import json
 import os
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
@@ -32,7 +32,7 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ..._types import Collection
 
@@ -50,32 +50,33 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
        <https://static.qobuz.com/apps/api/QobuzAPI-TermsofUse.pdf>`_.
     """
 
-    _APP_RE = re.compile(r"/resources/.*/bundle.js")
-    _ID_KEY_RE = re.compile(
+    _APP_RE: ClassVar[re.Pattern[str]] = re.compile(r"/resources/.*/bundle.js")
+    _ID_KEY_RE: ClassVar[re.Pattern[str]] = re.compile(
         r'production:\{api:\{appId:"([^"]+)",appSecret.*?privateKey:\s*"([^"]+)"'
     )
-    _SEED_RE = re.compile(
+    _SEED_RE: ClassVar[re.Pattern[str]] = re.compile(
         r'[a-z]\.initialSeed\("([^"]+)",window\.utimezone\.([^)]+)\)'
     )
 
-    _ALLOWED_AUTH_FLOWS = _AUTH_FLOWS = {
+    _ALLOWED_AUTH_FLOWS: ClassVar[dict[str, str]] = {
         None: "unauthenticated client",
         "ext_auth_code": "Qobuz authorization code flow",
         "password": "Qobuz Web Player login flow",
     }
-    _ENV_VAR_PREFIX = "PRIVATE_QOBUZ_API"
-    _OPTIONAL_AUTH = True
-    _PROVIDER = "Qobuz"
-    _REDIRECT_FLOWS = {"ext_auth_code"}
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    _VERSION = "1.17"
+    _AUTH_FLOWS: ClassVar[dict[str, str]] = _ALLOWED_AUTH_FLOWS
+    _ENV_VAR_PREFIX: ClassVar[str] = "PRIVATE_QOBUZ_API"
+    _OPTIONAL_AUTH: ClassVar[bool] = True
+    _PROVIDER: ClassVar[str] = "Qobuz"
+    _REDIRECT_FLOWS: ClassVar[set[str]] = {"ext_auth_code"}
+    _QUAL_NAME: ClassVar[str] = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _VERSION: ClassVar[str] = "1.17"
 
-    AUTH_URL = "https://www.qobuz.com/signin/oauth"
-    BASE_URL = "https://www.qobuz.com/api.json/0.2"
+    AUTH_URL: ClassVar[str] = "https://www.qobuz.com/signin/oauth"
+    BASE_URL: ClassVar[str] = "https://www.qobuz.com/api.json/0.2"
     #: Token endpoint.
-    TOKEN_URL = f"{BASE_URL}/oauth/callback"
+    TOKEN_URL: ClassVar[str] = f"{BASE_URL}/oauth/callback"
     #: Web Player URL.
-    WEB_PLAYER_URL = "https://play.qobuz.com"
+    WEB_PLAYER_URL: ClassVar[str] = "https://play.qobuz.com"
 
     __slots__ = (
         "_app_id",
@@ -88,8 +89,8 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         "catalog",
         "dynamic",
         "favorites",
-        "labels",
         "genres",
+        "labels",
         "playlists",
         "purchases",
         "search",
@@ -640,7 +641,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         signed: bool = False,
         sig_params: dict[str, Any] | None = None,
         **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+    ) -> httpx.Response:
         """
         Make an HTTP request to a private Qobuz API endpoint.
 
@@ -667,7 +668,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
             HTTP response.
         """
         if signed:
-            timestamp = datetime.now().timestamp()
+            timestamp = datetime.now(UTC).timestamp()
             signature = "".join(
                 f"{k}{str(v).lower() if isinstance(v, bool) else v}"
                 for k, v in sorted(sig_params.items())
@@ -680,7 +681,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
                     (
                         f"{endpoint.replace('/', '')}{signature}"
                         f"{timestamp}{self._app_secret}"
-                    ).encode(encoding="utf-8")
+                    ).encode()
                 ).hexdigest(),
             }
         resp = self._client.request(method, endpoint, **kwargs)

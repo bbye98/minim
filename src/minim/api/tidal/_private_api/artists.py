@@ -9,7 +9,7 @@ from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -25,7 +25,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _ALBUM_TYPES = {"COMPILATIONS", "EPSANDSINGLES"}
+    _ALBUM_TYPES: ClassVar[set[str]] = {"COMPILATIONS", "EPSANDSINGLES"}
 
     __slots__ = ()
 
