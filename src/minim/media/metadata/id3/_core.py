@@ -744,7 +744,7 @@ class ID3v2(AudioTags):
             _frames.append(frame)
             frame_cls = type(frame)
             class_index[frame_cls].append(frame)
-            if frame._ALLOW_MULTIPLE:
+            if frame._allow_multiple:
                 key_index[frame_cls][frame._key] = frame
 
         if flags is None:
@@ -856,7 +856,7 @@ class ID3v2(AudioTags):
                         frames.append(frame)
                         class_index[frame_cls].append(frame)
                         unknown_index[frame._frame_id].append(frame)
-                    elif frame_cls._ALLOW_MULTIPLE:
+                    elif frame_cls._allow_multiple:
                         if (
                             strict
                             and (_frames := key_index.get(frame_cls))
@@ -928,7 +928,7 @@ class ID3v2(AudioTags):
                         frames.append(frame)
                         class_index[frame_cls].append(frame)
                         unknown_index[frame._frame_id].append(frame)
-                    elif frame_cls._ALLOW_MULTIPLE:
+                    elif frame_cls._allow_multiple:
                         if (
                             strict
                             and (_frames := key_index.get(frame_cls))
