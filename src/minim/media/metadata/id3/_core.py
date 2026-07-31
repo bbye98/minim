@@ -736,22 +736,248 @@ class ID3v2(AudioTags):
         if not isinstance(frames, ORDERED_COLLECTION_TYPES):
             frames = [frames]
 
-        self._frames = _frames = []
-        self._class_index = class_index = defaultdict(list)
-        self._key_index = key_index = defaultdict(dict)
+        self._frames = []
+        self._class_index = defaultdict(list)
+        self._key_index = defaultdict(dict)
         for frame_idx, frame in enumerate(frames):
             validate_type(f"frames[{frame_idx}]", frame, ID3v2Frame)
-            _frames.append(frame)
-            frame_cls = type(frame)
-            class_index[frame_cls].append(frame)
-            if frame._allow_multiple:
-                key_index[frame_cls][frame._key] = frame
+            self._add_frame(frame)
 
         if flags is None:
             self._flags = ID3v2Flags()
         else:
             validate_type("flags", flags, ID3v2Flags)
             self._flags = flags
+
+    @classmethod
+    def _from_stream_2_2(
+        cls, stream: BytesLike, /, flags: bytes, *, strict: bool = True
+    ) -> ID3v2:
+        """
+        Instantiate an :class:`ID3v2` object from an ID3v2.2 tag
+        bytestream.
+
+        .. note::
+
+           If :code:`TYE`, :code:`TDA`, and/or :code:`TIM` are present 
+           and contain differing numbers of values, values are 
+           associated by ordinal position. Missing components are 
+           represented as :code:`None` when :code:`strict=False`; 
+           otherwise, an exception is raised.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing an ID3v2.2 tag.
+
+        flags : bytes
+            ID3v2.2 tag flags byte.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        tag : minim.media.metadata.ID3v2
+            ID3v2 tag.
+        """
+        obj = cls.__new__(cls)
+        obj._frames = frames = []
+        obj._class_index = defaultdict(list)
+        obj._key_index = defaultdict(dict)
+        obj._unknown_index = defaultdict(list)
+        obj._flags = flags = ID3v2Flags._from_byte_2_2(flags, strict=strict)
+
+        if flags.is_compressed:
+            raise NotImplementedError(
+                "Compressed ID3v2.2 tags are not supported."
+            )
+
+        if flags.is_unsynchronized:
+            stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
+        offset = 0
+        tag_end = len(stream)
+
+        while offset < tag_end:
+            if not stream[offset]:
+                frames.append(
+                    ID3v2Padding.from_stream(stream[offset:], strict=strict)
+                )
+                break
+
+            end_offset = offset + 3
+            frame_id = stream[offset:end_offset]
+            end_offset += 3 + int.from_bytes(
+                stream[end_offset : end_offset + 3], byteorder="big"
+            )
+            obj._add_frame(
+                ID3v2Frame._get_class(frame_id)._from_stream_2_2(
+                    stream[offset:end_offset], strict=strict
+                ),
+                strict=strict,
+            )
+            offset = end_offset
+
+        return obj
+
+    @classmethod
+    def _from_stream_2_3(
+        cls, stream: BytesLike, /, flags: bytes, *, strict: bool = True
+    ) -> ID3v2:
+        """
+        Instantiate an :class:`ID3v2` object from an ID3v2.3 tag
+        bytestream.
+
+        .. note::
+
+           If :code:`TYER`, :code:`TDAT`, and/or :code:`TIME` are 
+           present and contain differing numbers of values, values are
+           associated by ordinal position. Missing components are 
+           represented as :code:`None` when :code:`strict=False`; 
+           otherwise, an exception is raised.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing an ID3v2.3 tag.
+
+        flags : bytes
+            ID3v2.3 tag flags byte.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        tag : minim.media.metadata.ID3v2
+            ID3v2 tag.
+        """
+        obj = cls.__new__(cls)
+        obj._frames = frames = []
+        obj._class_index = defaultdict(list)
+        obj._key_index = defaultdict(dict)
+        obj._unknown_index = defaultdict(list)
+        obj._flags = flags = ID3v2Flags._from_byte_2_3(flags, strict=strict)
+
+        if flags.is_unsynchronized:
+            stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
+        offset = 0
+        tag_end = len(stream)
+
+        if flags.has_extended_header:
+            flag_byte = stream[offset + 4]
+            if strict and (flag_byte & 0x80 or stream[offset + 5]):
+                raise ValueError(
+                    "Non-zero bits found in reserved section "
+                    "of ID3 extended header flags byte."
+                )
+            flags._has_crc = bool(flag_byte >> 8)
+            offset += int.from_bytes(stream[offset : offset + 4]) + 4
+
+        while offset < tag_end:
+            if not stream[offset]:
+                frames.append(
+                    ID3v2Padding.from_stream(stream[offset:], strict=strict)
+                )
+                break
+
+            frame_id, frame_length = (
+                cls._STRUCT_PARTIAL_FRAME_HEADER_2_3.unpack_from(
+                    stream, offset
+                )
+            )
+            end_offset = offset + 10 + frame_length
+            obj._add_frame(
+                ID3v2Frame._get_class(frame_id)._from_stream_2_3(
+                    stream[offset:end_offset], strict=strict
+                ),
+                strict=strict,
+            )
+            offset = end_offset
+
+        return obj
+
+    @classmethod
+    def _from_stream_2_4(
+        cls, stream: BytesLike, /, flags: bytes, *, strict: bool = True
+    ) -> ID3v2:
+        """
+        Instantiate an :class:`ID3v2` object from an ID3v2.4 tag
+        bytestream.
+
+        Parameters
+        ----------
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
+        positional-only; optional
+            Bytes-like object containing an ID3v2.4 tag.
+
+        flags : bytes
+            ID3v2.4 tag flags byte.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        tag : minim.media.metadata.ID3v2
+            ID3v2 tag.
+        """
+        obj = cls.__new__(cls)
+        obj._frames = frames = []
+        obj._class_index = defaultdict(list)
+        obj._key_index = defaultdict(dict)
+        obj._unknown_index = defaultdict(list)
+        obj._flags = flags = ID3v2Flags._from_byte_2_4(flags, strict=strict)
+
+        if flags.is_unsynchronized:
+            stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
+        offset = 0
+        tag_end = len(stream)
+
+        if flags.has_extended_header:
+            flag_byte = stream[offset + 5]
+            if strict and flag_byte & 0x8F:
+                raise ValueError(
+                    "Non-zero bits found in reserved section "
+                    "of ID3 extended header flags byte."
+                )
+            flags._is_update = is_update = bool((flag_byte >> 7) & 1)
+            flags._has_crc = has_crc = bool((flag_byte >> 6) & 1)
+            if bool((flag_byte >> 5) & 1):
+                flags._tag_restrictions = stream[
+                    offset + 7 + is_update + 6 * has_crc
+                ]
+            offset += decode_32_bit_synchsafe_int(*stream[offset : offset + 4])
+
+        while offset < tag_end:
+            if not stream[offset]:
+                frames.append(
+                    ID3v2Padding.from_stream(stream[offset:], strict=strict)
+                )
+                break
+
+            frame_id, *frame_length = (
+                cls._STRUCT_PARTIAL_FRAME_HEADER_2_4.unpack_from(
+                    stream, offset
+                )
+            )
+            end_offset = (
+                offset + 10 + decode_32_bit_synchsafe_int(*frame_length)
+            )
+            obj._add_frame(
+                ID3v2Frame._get_class(frame_id)._from_stream_2_4(
+                    stream[offset:end_offset], strict=strict
+                ),
+                strict=strict,
+            )
+            offset = end_offset + 10 * flags.has_footer
+
+        return obj
 
     @classmethod
     def from_stream(
@@ -791,191 +1017,19 @@ class ID3v2(AudioTags):
         if frame_id != b"ID3":
             raise ValueError("`stream` does not contain an ID3v2 tag.")
 
-        offset = 10
-        tag_end = offset + decode_32_bit_synchsafe_int(*tag_length)
-        obj = cls.__new__(cls)
-        obj._frames = frames = []
-        obj._class_index = class_index = defaultdict(list)
-        obj._key_index = key_index = defaultdict(dict)
-        obj._unknown_index = unknown_index = defaultdict(list)
+        stream = stream[10 : 10 + decode_32_bit_synchsafe_int(*tag_length)]
         match tag_version := (2, minor, patch):
             case (2, 4, _):
-                obj._flags = flags = ID3v2Flags._from_byte_2_4(
-                    flags, strict=strict
-                )
-                if flags.is_unsynchronized:
-                    stream = (
-                        stream[offset:tag_end]
-                        .tobytes()
-                        .replace(b"\xff\x00", b"\xff")
-                    )
-                    offset = 0
-                    tag_end = len(stream)
-
-                if flags.has_extended_header:
-                    flag_byte = stream[offset + 5]
-                    if strict and flag_byte & 0x8F:
-                        raise ValueError(
-                            "Non-zero bits found in reserved section "
-                            "of ID3 extended header flags byte."
-                        )
-                    flags._is_update = is_update = bool((flag_byte >> 7) & 1)
-                    flags._has_crc = has_crc = bool((flag_byte >> 6) & 1)
-                    if bool((flag_byte >> 5) & 1):
-                        flags._tag_restrictions = stream[
-                            offset + 7 + is_update + 6 * has_crc
-                        ]
-                    offset += decode_32_bit_synchsafe_int(
-                        *stream[offset : offset + 4]
-                    )
-
-                while offset < tag_end:
-                    if not stream[offset]:
-                        frames.append(
-                            ID3v2Padding.from_stream(
-                                stream[offset:], strict=strict
-                            )
-                        )
-                        break
-
-                    frame_id, *frame_length = (
-                        cls._STRUCT_PARTIAL_FRAME_HEADER_2_4.unpack_from(
-                            stream, offset
-                        )
-                    )
-                    end_offset = (
-                        offset
-                        + 10
-                        + decode_32_bit_synchsafe_int(*frame_length)
-                    )
-                    frame_cls = ID3v2Frame._get_class(frame_id)
-                    frame = frame_cls._from_stream_2_4(
-                        stream[offset:end_offset], strict=strict
-                    )
-                    if frame_cls is UnknownID3v2Frame:
-                        frames.append(frame)
-                        class_index[frame_cls].append(frame)
-                        unknown_index[frame._frame_id].append(frame)
-                    elif frame_cls._allow_multiple:
-                        if (
-                            strict
-                            and (_frames := key_index.get(frame_cls))
-                            and frame._key in _frames
-                        ):
-                            frame_id = frame_id.decode(encoding="ascii")
-                            raise ValueError(
-                                f"Duplicate {frame_id} frame found."
-                            )
-                        frames.append(frame)
-                        class_index[frame_cls].append(frame)
-                        if frame._key:
-                            key_index[frame_cls][frame._key] = frame
-                    else:
-                        if existing_frame := class_index.get(frame_cls):
-                            if strict:
-                                frame_id = frame_id.decode(encoding="ascii")
-                                raise ValueError(
-                                    f"Duplicate {frame_id} frame found."
-                                )
-                            raise NotImplementedError  # TODO: Merge
-                        else:
-                            frames.append(frame)
-                            class_index[frame_cls].append(frame)
-                    offset = end_offset + 10 * flags.has_footer
+                return cls._from_stream_2_4(stream, flags=flags, strict=strict)
             case (2, 3, _):
-                obj._flags = flags = ID3v2Flags._from_byte_2_3(
-                    flags, strict=strict
-                )
-                if flags.is_unsynchronized:
-                    stream = (
-                        stream[offset:tag_end]
-                        .tobytes()
-                        .replace(b"\xff\x00", b"\xff")
-                    )
-                    offset = 0
-                    tag_end = len(stream)
-
-                if flags.has_extended_header:
-                    flag_byte = stream[offset + 4]
-                    if strict and (flag_byte & 0x80 or stream[offset + 5]):
-                        raise ValueError(
-                            "Non-zero bits found in reserved section "
-                            "of ID3 extended header flags byte."
-                        )
-                    flags._has_crc = bool(flag_byte >> 8)
-                    offset += int.from_bytes(stream[offset : offset + 4]) + 4
-
-                while offset < tag_end:
-                    if not stream[offset]:
-                        frames.append(
-                            ID3v2Padding.from_stream(
-                                stream[offset:], strict=strict
-                            )
-                        )
-                        break
-
-                    frame_id, frame_length = (
-                        cls._STRUCT_PARTIAL_FRAME_HEADER_2_3.unpack_from(
-                            stream, offset
-                        )
-                    )
-                    end_offset = offset + 10 + frame_length
-                    frame_cls = ID3v2Frame._get_class(frame_id)
-                    frame = frame_cls._from_stream_2_3(
-                        stream[offset:end_offset], strict=strict
-                    )
-                    if frame_cls is UnknownID3v2Frame:
-                        frames.append(frame)
-                        class_index[frame_cls].append(frame)
-                        unknown_index[frame._frame_id].append(frame)
-                    elif frame_cls._allow_multiple:
-                        if (
-                            strict
-                            and (_frames := key_index.get(frame_cls))
-                            and frame._key in _frames
-                        ):
-                            frame_id = frame_id.decode(encoding="ascii")
-                            raise ValueError(
-                                f"Duplicate {frame_id} frame found."
-                            )
-                        frames.append(frame)
-                        class_index[frame_cls].append(frame)
-                        if frame._key:
-                            key_index[frame_cls][frame._key] = frame
-                    else:
-                        if existing_frame := class_index.get(frame_cls):
-                            if strict:
-                                frame_id = frame_id.decode(encoding="ascii")
-                                raise ValueError(
-                                    f"Duplicate {frame_id} frame found."
-                                )
-                            raise NotImplementedError  # TODO: Merge
-                        else:
-                            frames.append(frame)
-                            class_index[frame_cls].append(frame)
-                    offset = end_offset
+                return cls._from_stream_2_3(stream, flags=flags, strict=strict)
             case (2, 2, _):
-                obj._flags = flags = ID3v2Flags._from_byte_2_2(
-                    flags, strict=strict
-                )
-                if flags.is_compressed:
-                    return obj
-                if flags.is_unsynchronized:
-                    stream = (
-                        stream[offset:tag_end]
-                        .tobytes()
-                        .replace(b"\xff\x00", b"\xff")
-                    )
-                    tag_end = offset + len(stream)
-
-                raise NotImplementedError  # TODO
+                return cls._from_stream_2_2(stream, flags=flags, strict=strict)
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
-
-        return obj
 
     @property
     def album(self) -> list[str] | None:
@@ -1328,6 +1382,55 @@ class ID3v2(AudioTags):
 
     @version.setter
     def version(self, value: str | OrderedCollection[str], /) -> None: ...
+
+    def _add_frame(
+        self,
+        frame: ID3v2Frame,
+        /,
+        *,
+        strict: bool = True,
+    ) -> None:
+        """
+        Add an ID3v2 frame to the data structures in a :class:`ID3v2`.
+
+        Parameters
+        ----------
+        frame : minim.media.metadata.id3.ID3v2Frame; positional-only
+            ID3v2 frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+        """
+        frame_cls = type(frame)
+        if frame_cls is UnknownID3v2Frame:
+            self._frames.append(frame)
+            self._class_index[frame_cls].append(frame)
+            self._unknown_index[frame._frame_id].append(frame)
+        elif frame_cls._allow_multiple:
+            if (
+                strict
+                and (existing_frame_keys := self._key_index.get(frame_cls))
+                and frame._key in existing_frame_keys
+            ):
+                raise ValueError(
+                    f"Duplicate {frame._frame_id.decode(encoding='ascii')} "
+                    "frame found."
+                )
+            self._frames.append(frame)
+            self._class_index[frame_cls].append(frame)
+            if frame._key:
+                self._key_index[frame_cls][frame._key] = frame
+        elif existing_frames := self._class_index.get(frame_cls):
+            if strict:
+                raise ValueError(
+                    f"Duplicate {frame._frame_id.decode(encoding='ascii')} "
+                    "frame found."
+                )
+            existing_frames[-1] += frame
+        else:
+            self._frames.append(frame)
+            self._class_index[frame_cls].append(frame)
 
     def get(
         self,

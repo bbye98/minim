@@ -789,7 +789,7 @@ class ID3v2Frame(ABC):
         Parameters
         ----------
         stream : bytes or memoryview; positional-only
-            Bytes-like object containing an ID3v2 frame.
+            Bytes-like object containing an ID3v2.2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -814,7 +814,7 @@ class ID3v2Frame(ABC):
         Parameters
         ----------
         stream : bytes or memoryview; positional-only
-            Bytes-like object containing an ID3v2 frame.
+            Bytes-like object containing an ID3v2.3 frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -843,7 +843,7 @@ class ID3v2Frame(ABC):
         Parameters
         ----------
         stream : bytes or memoryview; positional-only
-            Bytes-like object containing an ID3v2 frame.
+            Bytes-like object containing an ID3v2.4 frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
