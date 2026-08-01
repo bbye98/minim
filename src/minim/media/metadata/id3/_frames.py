@@ -780,7 +780,7 @@ class ID3v2Frame(ABC):
     @classmethod
     @abstractmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2Frame` object from an ID3v2.2 frame
@@ -788,7 +788,7 @@ class ID3v2Frame(ABC):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing an ID3v2.2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -805,7 +805,7 @@ class ID3v2Frame(ABC):
     @classmethod
     @abstractmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2Frame` object from an ID3v2.3 frame
@@ -813,7 +813,7 @@ class ID3v2Frame(ABC):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing an ID3v2.3 frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -834,7 +834,7 @@ class ID3v2Frame(ABC):
     @classmethod
     @abstractmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2Frame` object from an ID3v2.4 frame
@@ -842,7 +842,7 @@ class ID3v2Frame(ABC):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing an ID3v2.4 frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -895,6 +895,7 @@ class ID3v2Frame(ABC):
         frame : minim.media.metadata.ID3v2Frame
             ID3v2 frame.
         """
+        stream = as_buffer(stream)
         tag_version = normalize_id3v2_tag_version(tag_version)
         expected_frame_id = cls.get_frame_id(tag_version)
         if stream[: len(expected_frame_id)] != expected_frame_id:
@@ -948,6 +949,86 @@ class ID3v2Frame(ABC):
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
+
+    @staticmethod
+    def _split_bytestream(
+        stream: memoryview, /, encoding: str, *, max_splits: int | None = None
+    ) -> list[str]:
+        """
+        Split and decode a bytestream containing one or more encoded
+        strings separated by null bytes.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytes-like object containing one or more encoded strings.
+
+        encoding : str; positional-only
+            Text encoding.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        max_splits : int or None; keyword-only; default: :code:`None`
+            Maximum number of splits to perform. If :code:`None`, all
+            splits are performed.
+
+        Returns
+        -------
+        strings : list[str]
+            List of decoded strings.
+        """
+        match encoding:
+            case "utf-16" | "utf-16be":
+                strings = []
+                offset = splits = 0
+                length = len(stream)
+                length_minus_one = length - 1
+
+                while offset < length:
+                    end_offset = None
+                    for idx in range(offset, length_minus_one, 2):
+                        if stream[idx] == 0 and stream[idx + 1] == 0:
+                            end_offset = idx
+                            break
+
+                    if end_offset is None:
+                        strings.append(
+                            stream[offset:].tobytes().decode(encoding=encoding)
+                        )
+                        break
+
+                    strings.append(
+                        stream[offset:end_offset]
+                        .tobytes()
+                        .decode(encoding=encoding)
+                    )
+                    offset = end_offset + 2
+                    splits += 1
+
+                    if max_splits is not None and splits >= max_splits:
+                        strings.append(
+                            stream[offset:].tobytes().decode(encoding=encoding)
+                        )
+                        break
+
+                return strings
+
+            case "iso-8859-1" | "utf-8":
+                return [
+                    s.decode(encoding=encoding)
+                    for s in stream.tobytes()
+                    .rstrip(b"\x00")
+                    .split(
+                        b"\x00",
+                        maxsplit=-1 if max_splits is None else max_splits,
+                    )
+                ]
+
+            case _:
+                raise ValueError(
+                    f"Invalid or unsupported text encoding {encoding!r}."
                 )
 
     @property
@@ -1106,7 +1187,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TextInfoFrame:
         """
         Instantiate an ID3v2 text information frame object from an
@@ -1114,7 +1195,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1130,19 +1211,15 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         text_encoding = cls._TEXT_ENCODINGS[stream[6]]
 
         obj = super()._from_stream_2_2(stream, strict=strict)
-        obj._text_info = (
-            stream[7 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        obj._text_info = cls._split_bytestream(
+            stream[7 : 6 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TextInfoFrame:
         """
         Instantiate an ID3v2 text information frame object from an
@@ -1150,7 +1227,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1166,19 +1243,15 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super()._from_stream_2_3(stream, strict=strict)
-        obj._text_info = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        obj._text_info = cls._split_bytestream(
+            stream[11 : 10 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TextInfoFrame:
         """
         Instantiate an ID3v2 text information frame object from an
@@ -1186,7 +1259,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1202,12 +1275,8 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
 
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_info = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        obj._text_info = cls._split_bytestream(
+            stream[11 : 10 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
@@ -1324,7 +1393,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
         """
         Instantiate an ID3v2 datetime frame object from an ID3v2.2 frame
@@ -1332,7 +1401,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1351,11 +1420,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._datetimes = cls._parse_datetimes(
-            stream[7 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[7 : 6 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -1363,7 +1430,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
         """
         Instantiate an ID3v2 datetime frame object from an ID3v2.3 frame
@@ -1371,7 +1438,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1390,11 +1457,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._datetimes = cls._parse_datetimes(
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[11 : 10 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -1402,7 +1467,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
         """
         Instantiate an ID3v2 datetime frame object from an ID3v2.4 frame
@@ -1410,7 +1475,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1429,11 +1494,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._datetimes = cls._parse_datetimes(
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[11 : 10 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -1613,7 +1676,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2APICFrame` object from an ID3v2.2
@@ -1621,7 +1684,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`PIC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1659,7 +1722,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2APICFrame` object from an ID3v2.3
@@ -1667,7 +1730,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`APIC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1699,7 +1762,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2Frame:
         """
         Instantiate an :class:`ID3v2APICFrame` object from an ID3v2.4
@@ -1707,7 +1770,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`APIC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1859,7 +1922,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2COMMFrame:
         """
         Instantiate an :class:`ID3v2COMMFrame` object from an ID3v2.2
@@ -1867,7 +1930,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`COM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1884,19 +1947,15 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         obj = super()._from_stream_2_2(stream, strict=strict)
         obj._language = stream[7:10].tobytes().decode(encoding="ascii")
-        obj._description, obj._comment = (
-            stream[10 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00", maxsplit=1)
+        obj._description, obj._comment = cls._split_bytestream(
+            stream[10 : 6 + frame_length], encoding=text_encoding, max_splits=1
         )
         obj._text_encoding = text_encoding
         return obj
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2COMMFrame:
         """
         Instantiate an :class:`ID3v2COMMFrame` object from an ID3v2.3
@@ -1904,7 +1963,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`COMM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1921,19 +1980,17 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         obj = super()._from_stream_2_3(stream, strict=strict)
         obj._language = stream[11:14].tobytes().decode(encoding="ascii")
-        obj._description, obj._comment = (
-            stream[14 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00", maxsplit=1)
+        obj._description, obj._comment = cls._split_bytestream(
+            stream[14 : 10 + frame_length],
+            encoding=text_encoding,
+            max_splits=1,
         )
         obj._text_encoding = text_encoding
         return obj
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2COMMFrame:
         """
         Instantiate an :class:`ID3v2COMMFrame` object from an ID3v2.4
@@ -1941,7 +1998,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`COMM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1958,12 +2015,10 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._language = stream[11:14].tobytes().decode(encoding="ascii")
-        obj._description, obj._comment = (
-            stream[14 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00", maxsplit=1)
+        obj._description, obj._comment = cls._split_bytestream(
+            stream[14 : 10 + frame_length],
+            encoding=text_encoding,
+            max_splits=1,
         )
         obj._text_encoding = text_encoding
         return obj
@@ -2092,7 +2147,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2USLTFrame:
         """
         Instantiate an :class:`ID3v2USLTFrame` object from an ID3v2.2
@@ -2100,7 +2155,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`ULT` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2117,19 +2172,15 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         obj = super()._from_stream_2_3(stream, strict=strict)
         obj._language = stream[7:10].tobytes().decode(encoding="ascii")
-        obj._description, obj._lyrics = (
-            stream[10 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00", maxsplit=1)
+        obj._description, obj._lyrics = cls._split_bytestream(
+            stream[10 : 6 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2USLTFrame:
         """
         Instantiate an :class:`ID3v2USLTFrame` object from an ID3v2.3
@@ -2137,7 +2188,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`USLT` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2154,19 +2205,15 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         obj = super()._from_stream_2_3(stream, strict=strict)
         obj._language = stream[11:14].tobytes().decode(encoding="ascii")
-        obj._description, obj._lyrics = (
-            stream[14 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00", maxsplit=1)
+        obj._description, obj._lyrics = cls._split_bytestream(
+            stream[14 : 10 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2USLTFrame:
         """
         Instantiate an :class:`ID3v2USLTFrame` object from an ID3v2.4
@@ -2174,7 +2221,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`USLT` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2191,12 +2238,8 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._language = stream[11:14].tobytes().decode(encoding="ascii")
-        obj._description, obj._lyrics = (
-            stream[14 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00", maxsplit=1)
+        obj._description, obj._lyrics = cls._split_bytestream(
+            stream[14 : 10 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
@@ -2330,7 +2373,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict=True
+        cls, stream: memoryview, /, *, strict=True
     ) -> ID3v2TBPMFrame:
         """
         Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.2
@@ -2338,7 +2381,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TBP` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2352,12 +2395,8 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         """
         frame_length = int.from_bytes(stream[3:6], byteorder="big")
         text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-        bpms = (
-            stream[7 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        bpms = cls._split_bytestream(
+            stream[7 : 6 + frame_length], encoding=text_encoding
         )
         if strict:
             for idx, bpm in enumerate(bpms):
@@ -2370,7 +2409,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict=True
+        cls, stream: memoryview, /, *, strict=True
     ) -> ID3v2TBPMFrame:
         """
         Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.3
@@ -2378,7 +2417,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TBPM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2392,12 +2431,8 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         """
         frame_length = int.from_bytes(stream[4:8], byteorder="big")
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        bpms = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        bpms = cls._split_bytestream(
+            stream[11 : 10 + frame_length], encoding=text_encoding
         )
         if strict:
             for idx, bpm in enumerate(bpms):
@@ -2410,7 +2445,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict=True
+        cls, stream: memoryview, /, *, strict=True
     ) -> ID3v2TBPMFrame:
         """
         Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.4
@@ -2418,7 +2453,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TBPM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2432,12 +2467,8 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        bpms = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        bpms = cls._split_bytestream(
+            stream[11 : 10 + frame_length], encoding=text_encoding
         )
         if strict:
             for idx, bpm in enumerate(bpms):
@@ -2524,7 +2555,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict=True
+        cls, stream: memoryview, /, *, strict=True
     ) -> ID3v2TCMPFrame:
         """
         Instantiate an :class:`ID3v2TCMPFrame` object from an ID3v2.2
@@ -2532,7 +2563,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TCP` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2546,12 +2577,8 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         """
         frame_length = int.from_bytes(stream[3:6], byteorder="big")
         text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-        compilation_flags = (
-            stream[7 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        compilation_flags = cls._split_bytestream(
+            stream[7 : 6 + frame_length], encoding=text_encoding
         )
         if strict:
             for idx, flag in enumerate(compilation_flags):
@@ -2564,7 +2591,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict=True
+        cls, stream: memoryview, /, *, strict=True
     ) -> ID3v2TCMPFrame:
         """
         Instantiate an :class:`ID3v2TCMPFrame` object from an ID3v2.3
@@ -2572,7 +2599,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TCMP` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2586,12 +2613,8 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         """
         frame_length = int.from_bytes(stream[4:8], byteorder="big")
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        compilation_flags = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        compilation_flags = cls._split_bytestream(
+            stream[11 : 10 + frame_length], encoding=text_encoding
         )
         if strict:
             for idx, flag in enumerate(compilation_flags):
@@ -2604,7 +2627,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict=True
+        cls, stream: memoryview, /, *, strict=True
     ) -> ID3v2TCMPFrame:
         """
         Instantiate an :class:`ID3v2TCMPFrame` object from an ID3v2.4
@@ -2612,7 +2635,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TCMP` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2626,12 +2649,8 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         """
         frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
         text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        compilation_flags = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        compilation_flags = cls._split_bytestream(
+            stream[11 : 10 + frame_length], encoding=text_encoding
         )
         if strict:
             for idx, flag in enumerate(compilation_flags):
@@ -2750,7 +2769,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
         """
         Instantiate an ID3v2 datetime frame object from an ID3v2.2 frame
@@ -2758,7 +2777,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2774,7 +2793,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
         """
         Instantiate an ID3v2 datetime frame object from an ID3v2.3 frame
@@ -2782,7 +2801,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -2803,21 +2822,15 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
         match stream[:4]:
             case b"TYER":
                 obj._datetimes = cls._parse_datetimes(
-                    stream[11 : 10 + frame_length]
-                    .tobytes()
-                    .decode(encoding=text_encoding)
-                    .rstrip("\x00")
-                    .split("\x00"),
+                    cls._split_bytestream(
+                        stream[11 : 10 + frame_length], encoding=text_encoding
+                    ),
                     strict=strict,
                 )
             case b"TDAT":
                 obj._datetimes = datetimes = []
-                for date in (
-                    stream[11 : 10 + frame_length]
-                    .tobytes()
-                    .decode(encoding=text_encoding)
-                    .rstrip("\x00")
-                    .split("\x00")
+                for date in cls._split_bytestream(
+                    stream[11 : 10 + frame_length], encoding=text_encoding
                 ):
                     try:
                         if len(date) == 4:
@@ -2834,12 +2847,8 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                         )
             case b"TIME":
                 obj._datetimes = datetimes = []
-                for time in (
-                    stream[11 : 10 + frame_length]
-                    .tobytes()
-                    .decode(encoding=text_encoding)
-                    .rstrip("\x00")
-                    .split("\x00")
+                for time in cls._split_bytestream(
+                    stream[11 : 10 + frame_length], encoding=text_encoding
                 ):
                     try:
                         if len(time) == 4:
@@ -2859,7 +2868,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2DateTimeFrame:
         """
         Instantiate an ID3v2 datetime frame object from an ID3v2.4 frame
@@ -2867,7 +2876,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3131,7 +3140,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TPOSFrame:
         """
         Instantiate an :class:`ID3v2TPOSFrame` object from an ID3v2.2
@@ -3139,7 +3148,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TPA` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3158,11 +3167,9 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._disc = cls._parse_discs(
-            stream[7 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[7 : 6 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -3170,7 +3177,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TPOSFrame:
         """
         Instantiate an :class:`ID3v2TPOSFrame` object from an ID3v2.3
@@ -3178,7 +3185,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TPOS` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3197,11 +3204,9 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._disc = cls._parse_discs(
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[11 : 10 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -3209,7 +3214,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TPOSFrame:
         """
         Instantiate an :class:`ID3v2TPOSFrame` object from an ID3v2.4
@@ -3217,7 +3222,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TPOS` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3236,11 +3241,9 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._disc = cls._parse_discs(
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[11 : 10 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -3403,7 +3406,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TRCKFrame:
         """
         Instantiate an :class:`ID3v2TRCKFrame` object from an ID3v2.2
@@ -3411,7 +3414,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TRK` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3430,11 +3433,9 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._track = cls._parse_tracks(
-            stream[7 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[7 : 6 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -3442,7 +3443,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TRCKFrame:
         """
         Instantiate an :class:`ID3v2TRCKFrame` object from an ID3v2.3
@@ -3450,7 +3451,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TRCK` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3469,11 +3470,9 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._track = cls._parse_tracks(
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[11 : 10 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -3481,7 +3480,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TRCKFrame:
         """
         Instantiate an :class:`ID3v2TRCKFrame` object from an ID3v2.4
@@ -3489,7 +3488,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TRCK` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3508,11 +3507,9 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._track = cls._parse_tracks(
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00"),
+            cls._split_bytestream(
+                stream[11 : 10 + frame_length], encoding=text_encoding
+            ),
             strict=strict,
         )
         obj._text_encoding = text_encoding
@@ -3644,7 +3641,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TSRCFrame:
         """
         Instantiate an :class:`ID3v2TSRCFrame` object from an ID3v2.2
@@ -3652,7 +3649,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TRC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3672,12 +3669,8 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         )
         obj._text_info = [
             prepare_isrc(isrc)
-            for isrc in (
-                stream[7 : 6 + frame_length]
-                .tobytes()
-                .decode(encoding=text_encoding)
-                .rstrip("\x00")
-                .split("\x00")
+            for isrc in cls._split_bytestream(
+                stream[7 : 6 + frame_length], encoding=text_encoding
             )
         ]
         obj._text_encoding = text_encoding
@@ -3685,7 +3678,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TSRCFrame:
         """
         Instantiate an :class:`ID3v2TSRCFrame` object from an ID3v2.3
@@ -3693,7 +3686,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TSRC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3713,12 +3706,8 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         )
         obj._text_info = [
             prepare_isrc(isrc)
-            for isrc in (
-                stream[11 : 10 + frame_length]
-                .tobytes()
-                .decode(encoding=text_encoding)
-                .rstrip("\x00")
-                .split("\x00")
+            for isrc in cls._split_bytestream(
+                stream[11 : 10 + frame_length], encoding=text_encoding
             )
         ]
         obj._text_encoding = text_encoding
@@ -3726,7 +3715,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TSRCFrame:
         """
         Instantiate an :class:`ID3v2TSRCFrame` object from an ID3v2.4
@@ -3734,7 +3723,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TSRC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3753,13 +3742,9 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._text_info = [
-            prepare_isrc(isrc.decode(encoding=text_encoding))
-            for isrc in (
-                stream[11 : 10 + frame_length]
-                .tobytes()
-                .decode(encoding=text_encoding)
-                .rstrip("\x00")
-                .split("\x00")
+            prepare_isrc(isrc)
+            for isrc in cls._split_bytestream(
+                stream[11 : 10 + frame_length], encoding=text_encoding
             )
         ]
         obj._text_encoding = text_encoding
@@ -3876,7 +3861,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TXXXFrame:
         """
         Instantiate an :class:`ID3v2TXXXFrame` object from an ID3v2.2
@@ -3884,7 +3869,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TXX` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3902,19 +3887,15 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
             stream, strict=strict
         )
-        obj._description, *obj._text_info = (
-            stream[7 : 6 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        obj._description, *obj._text_info = cls._split_bytestream(
+            stream[7 : 6 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TXXXFrame:
         """
         Instantiate an :class:`ID3v2TXXXFrame` object from an ID3v2.3
@@ -3922,7 +3903,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TXXX` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3940,19 +3921,15 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
             stream, strict=strict
         )
-        obj._description, *obj._text_info = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        obj._description, *obj._text_info = cls._split_bytestream(
+            stream[11 : 10 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> ID3v2TXXXFrame:
         """
         Instantiate an :class:`ID3v2TXXXFrame` object from an ID3v2.4
@@ -3960,7 +3937,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the :code:`TXXX` frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -3978,12 +3955,8 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._description, *obj._text_info = (
-            stream[11 : 10 + frame_length]
-            .tobytes()
-            .decode(encoding=text_encoding)
-            .rstrip("\x00")
-            .split("\x00")
+        obj._description, *obj._text_info = cls._split_bytestream(
+            stream[11 : 10 + frame_length], encoding=text_encoding
         )
         obj._text_encoding = text_encoding
         return obj
@@ -4063,7 +4036,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> UnknownID3v2Frame:
         """
         Instantiate a :class:`UnknownID3v2Frame` object from an ID3v2.2
@@ -4071,7 +4044,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -4092,7 +4065,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> UnknownID3v2Frame:
         """
         Instantiate a :class:`UnknownID3v2Frame` object from an ID3v2.3
@@ -4100,7 +4073,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -4121,7 +4094,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: bytes | memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool = True
     ) -> UnknownID3v2Frame:
         """
         Instantiate a :class:`UnknownID3v2Frame` object from an ID3v2.4
@@ -4129,7 +4102,7 @@ class UnknownID3v2Frame(ID3v2Frame):
 
         Parameters
         ----------
-        stream : bytes or memoryview; positional-only
+        stream : memoryview; positional-only
             Bytes-like object containing the ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`

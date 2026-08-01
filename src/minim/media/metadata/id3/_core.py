@@ -751,7 +751,7 @@ class ID3v2(AudioTags):
 
     @classmethod
     def _from_stream_2_2(
-        cls, stream: BytesLike, /, flags: bytes, *, strict: bool = True
+        cls, stream: memoryview, /, flags: bytes, *, strict: bool = True
     ) -> ID3v2:
         """
         Instantiate an :class:`ID3v2` object from an ID3v2.2 tag
@@ -759,16 +759,15 @@ class ID3v2(AudioTags):
 
         .. note::
 
-           If :code:`TYE`, :code:`TDA`, and/or :code:`TIM` are present 
-           and contain differing numbers of values, values are 
-           associated by ordinal position. Missing components are 
-           represented as :code:`None` when :code:`strict=False`; 
+           If :code:`TYE`, :code:`TDA`, and/or :code:`TIM` are present
+           and contain differing numbers of values, values are
+           associated by ordinal position. Missing components are
+           represented as :code:`None` when :code:`strict=False`;
            otherwise, an exception is raised.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : memoryview; positional-only; optional
             Bytes-like object containing an ID3v2.2 tag.
 
         flags : bytes
@@ -824,7 +823,7 @@ class ID3v2(AudioTags):
 
     @classmethod
     def _from_stream_2_3(
-        cls, stream: BytesLike, /, flags: bytes, *, strict: bool = True
+        cls, stream: memoryview, /, flags: bytes, *, strict: bool = True
     ) -> ID3v2:
         """
         Instantiate an :class:`ID3v2` object from an ID3v2.3 tag
@@ -832,16 +831,15 @@ class ID3v2(AudioTags):
 
         .. note::
 
-           If :code:`TYER`, :code:`TDAT`, and/or :code:`TIME` are 
+           If :code:`TYER`, :code:`TDAT`, and/or :code:`TIME` are
            present and contain differing numbers of values, values are
-           associated by ordinal position. Missing components are 
-           represented as :code:`None` when :code:`strict=False`; 
+           associated by ordinal position. Missing components are
+           represented as :code:`None` when :code:`strict=False`;
            otherwise, an exception is raised.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : memoryview; positional-only; optional
             Bytes-like object containing an ID3v2.3 tag.
 
         flags : bytes
@@ -903,7 +901,7 @@ class ID3v2(AudioTags):
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: BytesLike, /, flags: bytes, *, strict: bool = True
+        cls, stream: memoryview, /, flags: bytes, *, strict: bool = True
     ) -> ID3v2:
         """
         Instantiate an :class:`ID3v2` object from an ID3v2.4 tag
@@ -911,8 +909,7 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : memoryview; positional-only; optional
             Bytes-like object containing an ID3v2.4 tag.
 
         flags : bytes
