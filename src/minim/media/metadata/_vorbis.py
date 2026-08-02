@@ -133,7 +133,7 @@ class VorbisComment(AudioTags):
 
         Parameters
         ----------
-        bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+        stream : bytes, bytearray, memoryview, or mmap.mmap; \
         positional-only; optional
             Bytes-like object containing a Vorbis comment metadata
             block.
@@ -788,7 +788,7 @@ class VorbisComment(AudioTags):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing the serialized Vorbis comment block.
         """
         vectors = [
@@ -796,16 +796,16 @@ class VorbisComment(AudioTags):
                 vendor := (self._vendor or f"Minim {__version__}").encode(
                     encoding="utf-8"
                 )
-            ).to_bytes(4, byteorder="little"),
+            ).to_bytes(length=4, byteorder="little"),
             vendor,
-            self._num_fields.to_bytes(4, byteorder="little"),
+            self._num_fields.to_bytes(length=4, byteorder="little"),
         ]
         for key, values in self._fields.items():
             for value in values:
                 vectors.extend(
                     (
                         len(field := f"{key}={value}".encode()).to_bytes(
-                            4, byteorder="little"
+                            length=4, byteorder="little"
                         ),
                         field,
                     )

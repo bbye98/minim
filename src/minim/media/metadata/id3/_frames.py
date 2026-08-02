@@ -12,6 +12,7 @@ from ...._utility import (
     ASCII_CHARS_REGEX,
     as_buffer,
     decode_32_bit_synchsafe_int,
+    encode_32_bit_synchsafe_int,
     join_values,
     prepare_isrc,
     set_obj_attr,
@@ -365,23 +366,57 @@ class DateTime:
             validate_type("extra", value, str)
         self._extra = value
 
-    def to_string(self) -> str:
+    def to_string(self, *, use_placeholders: bool = False) -> str:
         """
         Convert the datetime to a string in ISO-8601 format.
+
+        Parameters
+        ----------
+        use_placeholders: bool; keyword-only; default: :code:`False`
+            Whether to use placeholders in place of missing datetime
+            components.
 
         Returns
         -------
         dt : str
             Datetime, in ISO-8601 format.
         """
-        dt = "YYYY" if self._year is None else f"{self._year:04}"
-        dt += "-MM" if self._month is None else f"-{self._month:02}"
-        dt += "-DD" if self._day is None else f"-{self._day:02}"
-        dt += "Thh" if self._hour is None else f"T{self._hour:02}"
-        dt += ":mm" if self._minute is None else f":{self._minute:02}"
-        dt += ":ss" if self._second is None else f":{self._second:02}"
-        if self._extra is not None:
-            dt += str(self._extra)
+        if use_placeholders:
+            dt = "YYYY" if self._year is None else f"{self._year:04}"
+            dt += "-MM" if self._month is None else f"-{self._month:02}"
+            dt += "-DD" if self._day is None else f"-{self._day:02}"
+            dt += "Thh" if self._hour is None else f"T{self._hour:02}"
+            dt += ":mm" if self._minute is None else f":{self._minute:02}"
+            dt += ":ss" if self._second is None else f":{self._second:02}"
+            if self._extra is not None:
+                dt += str(self._extra)
+        else:
+            if self._year is None:
+                return ""
+
+            dt = f"{self._year:04}"
+            if self._month is None:
+                return dt
+
+            dt += f"-{self._month:02}"
+            if self._day is None:
+                return dt
+
+            dt += f"-{self._day:02}"
+            if self._hour is None:
+                return dt
+
+            dt += f"T{self._hour:02}"
+            if self._minute is None:
+                return dt
+
+            dt += f":{self._minute:02}"
+            if self._second is None:
+                return dt
+
+            dt += f":{self._second:02}"
+            if self._extra is not None:
+                dt += str(self._extra)
         return dt
 
 
@@ -720,7 +755,7 @@ class ID3v2FrameFlags:
         stream : bytes
             Bytestream containing the ID3v2 frame flags.
         """
-        match normalize_id3v2_tag_version(tag_version):
+        match tag_version := normalize_id3v2_tag_version(tag_version):
             case (2, 4, _):
                 return bytes(
                     (
@@ -843,6 +878,12 @@ class ID3v2Frame(ABC):
         frame : minim.media.metadata.ID3v2Frame
             ID3v2 frame.
         """
+        if strict and len(stream) < 7:
+            raise ValueError(
+                "ID3v2.2 frame must be at least 1 byte long, excluding "
+                "the header."
+            )
+
         obj = cls.__new__(cls)
         obj._flags = ID3v2FrameFlags()
         return obj
@@ -870,6 +911,12 @@ class ID3v2Frame(ABC):
         frame : minim.media.metadata.ID3v2Frame
             ID3v2 frame.
         """
+        if strict and len(stream) < 11:
+            raise ValueError(
+                "ID3v2.3 frame must be at least 1 byte long, excluding "
+                "the header."
+            )
+
         obj = cls.__new__(cls)
         obj._flags = ID3v2FrameFlags._from_bytes_2_3(
             stream[8], stream[9], strict=strict
@@ -899,6 +946,12 @@ class ID3v2Frame(ABC):
         frame : minim.media.metadata.ID3v2Frame
             ID3v2 frame.
         """
+        if strict and len(stream) < 11:
+            raise ValueError(
+                "ID3v2.4 frame must be at least 1 byte long, excluding "
+                "the header."
+            )
+
         obj = cls.__new__(cls)
         obj._flags = ID3v2FrameFlags._from_bytes_2_4(
             stream[8], stream[9], strict=strict
@@ -1105,7 +1158,12 @@ class ID3v2Frame(ABC):
         return self._flags
 
     @abstractmethod
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
 
@@ -1118,12 +1176,70 @@ class ID3v2Frame(ABC):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
         Returns
         -------
         stream : bytes
             Bytestream containing the ID3v2 frame.
         """
         ...
+
+    def _resolve_text_encoding(
+        self, text_encoding: str | None, tag_version: tuple[int, int, int], /
+    ) -> str:
+        """
+        Resolve the text encoding to use.
+
+        Parameters
+        ----------
+        text_encoding : str or None; positional-only
+            Text encoding. If :code:`None`, the default text encoding is
+            used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        tag_version : tuple[int, int, int]; positional-only
+            ID3v2 tag version.
+
+            **Valid values**: :code:`(2, 2, 0)`, :code:`(2, 3, 0)`,
+            :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        text_encoding : str
+            Resolved text encoding.
+        """
+        TEXT_ENCODINGS = self._TEXT_ENCODINGS
+        if text_encoding is None:
+            text_encoding = (
+                self._text_encoding
+                if tag_version[:2] == (2, 4)
+                else TEXT_ENCODINGS[
+                    min(TEXT_ENCODINGS[self._text_encoding], 1)
+                ]
+            )
+        else:
+            text_encoding_byte = TEXT_ENCODINGS.get(text_encoding)
+            if text_encoding_byte is None:
+                valid_text_encodings = join_values(
+                    (
+                        te for te in TEXT_ENCODINGS if isinstance(te, str)
+                    ).values()
+                )
+                raise ValueError(
+                    f"Invalid text encoding {text_encoding!r}. Valid "
+                    f"values: {valid_text_encodings}."
+                )
+            if tag_version[:2] != (2, 4):
+                text_encoding = TEXT_ENCODINGS[min(text_encoding_byte, 1)]
+        return text_encoding
 
 
 class ID3v2TextInfoFrame(ID3v2Frame):
@@ -1265,14 +1381,12 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         text_info_frame : minim.media.metadata.ID3v2TextInfoFrame
             Text information frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
         obj = super()._from_stream_2_2(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._text_info = cls._split_bytestream(
-            stream[7 : 6 + frame_length], encoding=text_encoding
+            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -1297,14 +1411,12 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         text_info_frame : minim.media.metadata.ID3v2TextInfoFrame
             Text information frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super()._from_stream_2_3(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._text_info = cls._split_bytestream(
-            stream[11 : 10 + frame_length], encoding=text_encoding
+            stream[11 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -1329,14 +1441,12 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         text_info_frame : minim.media.metadata.ID3v2TextInfoFrame
             Text information frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super()._from_stream_2_4(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._text_info = cls._split_bytestream(
-            stream[11 : 10 + frame_length], encoding=text_encoding
+            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @property
@@ -1353,7 +1463,12 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         """
         return self._text_encoding
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
 
@@ -1366,12 +1481,54 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
         Returns
         -------
         stream : bytes
             Bytestream containing the text information frame.
         """
-        raise NotImplementedError  # TODO
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
+        null_char = (
+            b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
+        )
+        frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
+            byteorder="big"
+        ) + null_char.join(
+            ti.encode(encoding=text_encoding) for ti in self._text_info
+        )
+        match tag_version:
+            case (2, 4, _):
+                return (
+                    self._frame_ids[4]
+                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 3, _):
+                return (
+                    self._frame_ids[3]
+                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 2, _):
+                return (
+                    self._frame_ids[2]
+                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
+                    + frame_bytes
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
@@ -1534,19 +1691,17 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
             Datetime frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._datetimes = cls._parse_datetimes(
             cls._split_bytestream(
-                stream[11 : 10 + frame_length], encoding=text_encoding
+                stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+                encoding=obj._text_encoding,
             ),
             strict=strict,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @staticmethod
@@ -1612,6 +1767,64 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         """
         return [dt.to_string() for dt in self._datetimes]
 
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
+        """
+        Serialize the :code:`TDRC` frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the :code:`TDRC` or
+            :code:`TYE`/:code:`TYER`, :code:`TDA`/:code:`TDAT`, and/or
+            :code:`TIM`/`TIME` frames.
+        """
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
+        match tag_version:
+            case (2, 4, _):
+                frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                    byteorder="big"
+                ) + (
+                    b"\x00\x00"
+                    if text_encoding.startswith("utf-16")
+                    else b"\x00"
+                ).join(
+                    dt.to_string().encode(encoding=text_encoding)
+                    for dt in self._datetimes
+                )
+                return (
+                    self._frame_ids[4]
+                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
+
 
 class ID3v2APICFrame(ID3v2Frame):
     """
@@ -1628,6 +1841,15 @@ class ID3v2APICFrame(ID3v2Frame):
        `ID3v2.4.0 Native Frames: 4.14. Attached picture
        <https://id3.org/id3v2.4.0-frames>`_.
     """
+
+    _MIME_TYPES: ClassVar[dict[int, str]] = {
+        "image/jpeg": "JPG",
+        "image/png": "PNG",
+        "image/gif": "GIF",
+        "image/bmp": "BMP",
+        "image/tiff": "TIF",
+    }
+    _MIME_TYPES |= {v: k for k, v in _MIME_TYPES.items()}
 
     _allow_multiple: ClassVar[bool] = True
     _frame_ids: ClassVar[dict[int, bytes]] = {
@@ -1745,16 +1967,13 @@ class ID3v2APICFrame(ID3v2Frame):
         """
         obj = super()._from_stream_2_2(stream, strict=strict)
         obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
-        if (
-            image_format := stream[7:10]
-            .tobytes()
-            .decode(encoding="ascii")
-            .lower()
-        ) == "jpg":
-            obj._mime_type = "image/jpeg"
-        else:
-            obj._mime_type = f"image/{image_format.lower()}"
+        image_type = stream[7:10].tobytes().decode(encoding="ascii").upper()
+        mime_type = cls._MIME_TYPES.get(image_type)
+        if mime_type is None:
+            if strict:
+                raise ValueError(f"Invalid image type {image_type!r}.")
+            mime_type = image_type
+        obj._mime_type = mime_type
         obj._picture_type = stream[10]
         description, obj._picture_data = (
             stream[11:]
@@ -1799,7 +2018,10 @@ class ID3v2APICFrame(ID3v2Frame):
             .tobytes()
             .split(null_char, maxsplit=1)
         )
-        obj._mime_type = mime_type.decode(encoding="ascii")
+        mime_type = mime_type.decode(encoding="ascii")
+        if not mime_type.startswith("image/") and not mime_type.isupper():
+            mime_type = f"image/{mime_type}"
+        obj._mime_type = mime_type
         obj._picture_type = stream[0]
         description, obj._picture_data = stream[1:].split(
             null_char, maxsplit=1
@@ -1839,7 +2061,10 @@ class ID3v2APICFrame(ID3v2Frame):
             .tobytes()
             .split(null_char, maxsplit=1)
         )
-        obj._mime_type = mime_type.decode(encoding="ascii")
+        mime_type = mime_type.decode(encoding="ascii")
+        if not mime_type.startswith("image/") and not mime_type.isupper():
+            mime_type = f"image/{mime_type}"
+        obj._mime_type = mime_type
         obj._picture_type = stream[0]
         description, obj._picture_data = stream[1:].split(
             null_char, maxsplit=1
@@ -1856,7 +2081,12 @@ class ID3v2APICFrame(ID3v2Frame):
             return str(self._picture_type)
         return self._description
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
 
@@ -1869,12 +2099,105 @@ class ID3v2APICFrame(ID3v2Frame):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        text_encoding : str; keyword-only; optional
+            Text encoding for the picture description. If :code:`None`,
+            the text encoding already associated with the frame is used.
+
         Returns
         -------
         stream : bytes
             Bytestream containing the "attached picture" frame.
         """
-        raise NotImplementedError  # TODO
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
+        null_char = (
+            b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
+        )
+        mime_type = self._mime_type
+        match tag_version:
+            case (2, 4, _):
+                if (
+                    not mime_type.startswith("image/")
+                    and not mime_type.isupper()
+                ):
+                    mime_type = f"image/{mime_type}"
+                frame_bytes = b"".join(
+                    (
+                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                            byteorder="big"
+                        ),
+                        mime_type.encode(encoding="ascii"),
+                        b"\x00",
+                        self._picture_type.to_bytes(byteorder="big"),
+                        self._description.encode(encoding=text_encoding),
+                        null_char,
+                        self._picture_data,
+                    )
+                )
+                return (
+                    self._frame_ids[4]
+                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 3, _):
+                if (
+                    not mime_type.startswith("image/")
+                    and not mime_type.isupper()
+                ):
+                    mime_type = f"image/{mime_type}"
+                frame_bytes = b"".join(
+                    (
+                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                            byteorder="big"
+                        ),
+                        mime_type.encode(encoding="ascii"),
+                        b"\x00",
+                        self._picture_type.to_bytes(byteorder="big"),
+                        self._description.encode(encoding=text_encoding),
+                        null_char,
+                        self._picture_data,
+                    )
+                )
+                return (
+                    self._frame_ids[3]
+                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 2, _):
+                if len(mime_type) == 3:
+                    mime_type = mime_type.upper()
+                else:
+                    mime_type_ = self._MIME_TYPES.get(mime_type)
+                    if mime_type_ is None:
+                        raise ValueError(
+                            "Unknown three-character image format for "
+                            f"MIME type {mime_type!r}."
+                        )
+                    mime_type = mime_type_
+                frame_bytes = b"".join(
+                    (
+                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                            byteorder="big"
+                        ),
+                        mime_type.encode(encoding="ascii"),
+                        self._picture_type.to_bytes(byteorder="big"),
+                        self._description.encode(encoding=text_encoding),
+                        null_char,
+                        self._picture_data,
+                    )
+                )
+                return (
+                    self._frame_ids[2]
+                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
+                    + frame_bytes
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 class ID3v2COMMFrame(ID3v2Frame):
@@ -1989,15 +2312,14 @@ class ID3v2COMMFrame(ID3v2Frame):
         comment_frame : minim.media.metadata.ID3v2COMMFrame
             :code:`COM` frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
         obj = super()._from_stream_2_2(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._language = stream[7:10].tobytes().decode(encoding="ascii")
         obj._description, obj._comment = cls._split_bytestream(
-            stream[10 : 6 + frame_length], encoding=text_encoding, max_splits=1
+            stream[10 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            encoding=obj._text_encoding,
+            max_splits=1,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2022,17 +2344,14 @@ class ID3v2COMMFrame(ID3v2Frame):
         comment_frame : minim.media.metadata.ID3v2COMMFrame
             :code:`COMM` frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super()._from_stream_2_3(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._language = stream[11:14].tobytes().decode(encoding="ascii")
         obj._description, obj._comment = cls._split_bytestream(
-            stream[14 : 10 + frame_length],
-            encoding=text_encoding,
+            stream[14 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+            encoding=obj._text_encoding,
             max_splits=1,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2057,17 +2376,14 @@ class ID3v2COMMFrame(ID3v2Frame):
         comment_frame : minim.media.metadata.ID3v2COMMFrame
             :code:`COMM` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super()._from_stream_2_4(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._language = stream[11:14].tobytes().decode(encoding="ascii")
         obj._description, obj._comment = cls._split_bytestream(
-            stream[14 : 10 + frame_length],
-            encoding=text_encoding,
+            stream[14 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            encoding=obj._text_encoding,
             max_splits=1,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @property
@@ -2077,7 +2393,12 @@ class ID3v2COMMFrame(ID3v2Frame):
         """
         return f"{self._language}{self._description}"
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
 
@@ -2090,12 +2411,52 @@ class ID3v2COMMFrame(ID3v2Frame):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
         Returns
         -------
         stream : bytes
             Bytestream containing the "comments" frame.
         """
-        raise NotImplementedError  # TODO
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
+        frame_bytes = b"".join(
+            (
+                self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
+                self._language.encode(encoding="ascii"),
+                self._description.encode(encoding=text_encoding),
+                b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00",
+                self._comment.encode(encoding=text_encoding),
+            )
+        )
+        match tag_version:
+            case (2, 4, _):
+                return (
+                    b"COMM"
+                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 3, _):
+                return (
+                    b"COMM"
+                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 2, _):
+                return (
+                    b"COM"
+                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
+                    + frame_bytes
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 # class ID3v2SYLTFrame(ID3v2Frame): ...  # TODO
@@ -2214,15 +2575,13 @@ class ID3v2USLTFrame(ID3v2Frame):
         lyrics_frame : minim.media.metadata.ID3v2USLTFrame
             :code:`ULT` frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
         obj = super()._from_stream_2_3(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._language = stream[7:10].tobytes().decode(encoding="ascii")
         obj._description, obj._lyrics = cls._split_bytestream(
-            stream[10 : 6 + frame_length], encoding=text_encoding
+            stream[10 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2247,15 +2606,13 @@ class ID3v2USLTFrame(ID3v2Frame):
         lyrics_frame : minim.media.metadata.ID3v2USLTFrame
             :code:`USLT` frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super()._from_stream_2_3(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._language = stream[11:14].tobytes().decode(encoding="ascii")
         obj._description, obj._lyrics = cls._split_bytestream(
-            stream[14 : 10 + frame_length], encoding=text_encoding
+            stream[14 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2280,15 +2637,13 @@ class ID3v2USLTFrame(ID3v2Frame):
         lyrics_frame : minim.media.metadata.ID3v2USLTFrame
             :code:`USLT` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super()._from_stream_2_4(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._language = stream[11:14].tobytes().decode(encoding="ascii")
         obj._description, obj._lyrics = cls._split_bytestream(
-            stream[14 : 10 + frame_length], encoding=text_encoding
+            stream[14 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @property
@@ -2298,7 +2653,12 @@ class ID3v2USLTFrame(ID3v2Frame):
         """
         return f"{self._language}{self._description}"
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
 
@@ -2311,13 +2671,60 @@ class ID3v2USLTFrame(ID3v2Frame):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
         Returns
         -------
         stream : bytes
             Bytestream containing the "unsynchronized lyric/text
             transcription" frame.
         """
-        raise NotImplementedError  # TODO
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
+        frame_bytes = b"".join(
+            (
+                self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
+                self._language.encode(encoding="ascii"),
+                self._description.encode(encoding=text_encoding),
+                (
+                    b"\x00\x00"
+                    if text_encoding.startswith("utf-16")
+                    else b"\x00"
+                ),
+                self._lyrics.encode(encoding=text_encoding),
+            )
+        )
+        match tag_version:
+            case (2, 4, _):
+                return (
+                    b"USLT"
+                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 3, _):
+                return (
+                    b"USLT"
+                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 2, _):
+                return (
+                    b"ULT"
+                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
+                    + frame_bytes
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 class ID3v2TALBFrame(ID3v2TextInfoFrame):
@@ -2440,18 +2847,16 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         bpm_frame : minim.media.metadata.ID3v2TBPMFrame
             :code:`TBP` frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
+        obj = super()._from_stream_2_2(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         bpms = cls._split_bytestream(
-            stream[7 : 6 + frame_length], encoding=text_encoding
+            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            encoding=obj._text_encoding,
         )
         if strict:
             for idx, bpm in enumerate(bpms):
                 validate_numeric(f"bpms[{idx}]", bpm, int, 0)
-
-        obj = super()._from_stream_2_2(stream, strict=strict)
         obj._text_info = bpms
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2476,18 +2881,16 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         bpm_frame : minim.media.metadata.ID3v2TBPMFrame
             :code:`TBPM` frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        obj = super()._from_stream_2_3(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         bpms = cls._split_bytestream(
-            stream[11 : 10 + frame_length], encoding=text_encoding
+            stream[11 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+            encoding=obj._text_encoding,
         )
         if strict:
             for idx, bpm in enumerate(bpms):
                 validate_numeric(f"bpms[{idx}]", bpm, int, 0)
-
-        obj = super()._from_stream_2_3(stream, strict=strict)
         obj._text_info = bpms
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2512,18 +2915,16 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         bpm_frame : minim.media.metadata.ID3v2TBPMFrame
             :code:`TBPM` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        obj = super()._from_stream_2_4(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         bpms = cls._split_bytestream(
-            stream[11 : 10 + frame_length], encoding=text_encoding
+            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            encoding=obj._text_encoding,
         )
         if strict:
             for idx, bpm in enumerate(bpms):
                 validate_numeric(f"bpms[{idx}]", bpm, int, 0)
-
-        obj = super()._from_stream_2_4(stream, strict=strict)
         obj._text_info = bpms
-        obj._text_encoding = text_encoding
         return obj
 
 
@@ -2622,18 +3023,16 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         compilation_flag_frame : minim.media.metadata.ID3v2TCMPFrame
             :code:`TCP` frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
+        obj = super()._from_stream_2_2(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         compilation_flags = cls._split_bytestream(
-            stream[7 : 6 + frame_length], encoding=text_encoding
+            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            encoding=obj._text_encoding,
         )
         if strict:
             for idx, flag in enumerate(compilation_flags):
                 validate_numeric(f"compilation_flags[{idx}]", flag, int, 0, 1)
-
-        obj = super()._from_stream_2_2(stream, strict=strict)
         obj._text_info = compilation_flags
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2658,18 +3057,17 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         compilation_flag_frame : minim.media.metadata.ID3v2TCMPFrame
             :code:`TCMP` frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        obj = super()._from_stream_2_3(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         compilation_flags = cls._split_bytestream(
-            stream[11 : 10 + frame_length], encoding=text_encoding
+            stream[11 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+            encoding=obj._text_encoding,
         )
         if strict:
             for idx, flag in enumerate(compilation_flags):
                 validate_numeric(f"compilation_flags[{idx}]", flag, int, 0, 1)
 
-        obj = super()._from_stream_2_3(stream, strict=strict)
         obj._text_info = compilation_flags
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2694,18 +3092,16 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         compilation_flag_frame : minim.media.metadata.ID3v2TCMPFrame
             :code:`TCMP` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        obj = super()._from_stream_2_4(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         compilation_flags = cls._split_bytestream(
-            stream[11 : 10 + frame_length], encoding=text_encoding
+            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            encoding=obj._text_encoding,
         )
         if strict:
             for idx, flag in enumerate(compilation_flags):
                 validate_numeric(f"compilation_flags[{idx}]", flag, int, 0, 1)
-
-        obj = super()._from_stream_2_4(stream, strict=strict)
         obj._text_info = compilation_flags
-        obj._text_encoding = text_encoding
         return obj
 
 
@@ -2836,12 +3232,11 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
         datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
             Datetime frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
             stream, strict=strict
         )
+        frame_length = int.from_bytes(stream[3:6], byteorder="big")
+        obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         match stream[:3]:
             case b"TYE":
                 obj._datetimes = cls._parse_datetimes(
@@ -2886,7 +3281,6 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                         datetimes.append(
                             cls._parse_datetimes(time, strict=strict)
                         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -2911,12 +3305,11 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
         datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
             Datetime frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
             stream, strict=strict
         )
+        frame_length = int.from_bytes(stream[4:8], byteorder="big")
+        obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         match stream[:4]:
             case b"TYER":
                 obj._datetimes = cls._parse_datetimes(
@@ -2961,10 +3354,14 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                         datetimes.append(
                             cls._parse_datetimes(time, strict=strict)
                         )
-        obj._text_encoding = text_encoding
         return obj
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
         """
         Serialize the :code:`TDRC` frame to a bytestream.
 
@@ -2977,6 +3374,13 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
         Returns
         -------
         stream : bytes
@@ -2984,7 +3388,112 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
             :code:`TYE`/:code:`TYER`, :code:`TDA`/:code:`TDAT`, and/or
             :code:`TIM`/`TIME` frames.
         """
-        raise NotImplementedError  # TODO
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
+        null_char = (
+            b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
+        )
+        match tag_version:
+            case (2, 4, _):
+                return super().serialize(
+                    tag_version=tag_version, text_encoding=text_encoding
+                )
+            case (2, 3, _):
+                years = []
+                dates = []
+                times = []
+                for dt in self._datetimes:
+                    years.append(
+                        b""
+                        if (year := dt._year) is None
+                        else f"{year:04}".encode(encoding=text_encoding)
+                    )
+                    dates.append(
+                        b""
+                        if (month := dt._month) is None
+                        or (day := dt._day) is None
+                        else f"{month:02}{day:02}".encode(
+                            encoding=text_encoding
+                        )
+                    )
+                    times.append(
+                        b""
+                        if (hour := dt._hour) is None
+                        or (minute := dt._minute) is None
+                        else f"{hour:02}{minute:02}".encode(
+                            encoding=text_encoding
+                        )
+                    )
+                return b"".join(
+                    (
+                        frame_id
+                        + len(
+                            frame_bytes := self._TEXT_ENCODINGS[
+                                text_encoding
+                            ].to_bytes(byteorder="big")
+                            + null_char.join(data)
+                        ).to_bytes(length=4, byteorder="big")
+                        + self._flags.serialize(tag_version)
+                        + frame_bytes
+                    )
+                    if any(data)
+                    else b""
+                    for frame_id, data in (
+                        (b"TYER", years),
+                        (b"TDAT", dates),
+                        (b"TIME", times),
+                    )
+                )
+            case (2, 2, _):
+                years = []
+                dates = []
+                times = []
+                for dt in self._datetimes:
+                    years.append(
+                        b""
+                        if (year := dt._year) is None
+                        else f"{year:04}".encode(encoding=text_encoding)
+                    )
+                    dates.append(
+                        b""
+                        if (month := dt._month) is None
+                        or (day := dt._day) is None
+                        else f"{month:02}{day:02}".encode(
+                            encoding=text_encoding
+                        )
+                    )
+                    times.append(
+                        b""
+                        if (hour := dt._hour) is None
+                        or (minute := dt._minute) is None
+                        else f"{hour:02}{minute:02}".encode(
+                            encoding=text_encoding
+                        )
+                    )
+                return b"".join(
+                    (
+                        frame_id
+                        + len(
+                            frame_bytes := self._TEXT_ENCODINGS[
+                                text_encoding
+                            ].to_bytes(byteorder="big")
+                            + null_char.join(data)
+                        ).to_bytes(length=3, byteorder="big")
+                        + frame_bytes
+                    )
+                    if any(data)
+                    else b""
+                    for frame_id, data in (
+                        (b"TYE", years),
+                        (b"TDA", dates),
+                        (b"TIM", times),
+                    )
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 # class ID3v2TDRLFrame(ID3v2DateTimeFrame): ...  # TODO
@@ -3234,19 +3743,17 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         disc_frame : minim.media.metadata.ID3v2TPOSFrame
             :code:`TPA` frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._disc = cls._parse_discs(
             cls._split_bytestream(
-                stream[7 : 6 + frame_length], encoding=text_encoding
+                stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+                encoding=obj._text_encoding,
             ),
             strict=strict,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -3271,19 +3778,17 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         disc_frame : minim.media.metadata.ID3v2TPOSFrame
             :code:`TPOS` frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._disc = cls._parse_discs(
             cls._split_bytestream(
-                stream[11 : 10 + frame_length], encoding=text_encoding
+                stream[11 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+                encoding=obj._text_encoding,
             ),
             strict=strict,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -3308,19 +3813,17 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         disc_frame : minim.media.metadata.ID3v2TPOSFrame
             :code:`TPOS` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._disc = cls._parse_discs(
             cls._split_bytestream(
-                stream[11 : 10 + frame_length], encoding=text_encoding
+                stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+                encoding=obj._text_encoding,
             ),
             strict=strict,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @staticmethod
@@ -3500,19 +4003,17 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         track_frame : minim.media.metadata.ID3v2TRCKFrame
             :code:`TRK` frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._track = cls._parse_tracks(
             cls._split_bytestream(
-                stream[7 : 6 + frame_length], encoding=text_encoding
+                stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+                encoding=obj._text_encoding,
             ),
             strict=strict,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -3537,19 +4038,17 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         track_frame : minim.media.metadata.ID3v2TRCKFrame
             :code:`TRCK` frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._track = cls._parse_tracks(
             cls._split_bytestream(
-                stream[11 : 10 + frame_length], encoding=text_encoding
+                stream[11 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+                encoding=obj._text_encoding,
             ),
             strict=strict,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -3574,19 +4073,17 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         track_frame : minim.media.metadata.ID3v2TRCKFrame
             :code:`TRCK` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._track = cls._parse_tracks(
             cls._split_bytestream(
-                stream[11 : 10 + frame_length], encoding=text_encoding
+                stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+                encoding=obj._text_encoding,
             ),
             strict=strict,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @staticmethod
@@ -3735,19 +4232,17 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         isrc_frame : minim.media.metadata.ID3v2TSRCFrame
             :code:`TRC` frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._text_info = [
             prepare_isrc(isrc)
             for isrc in cls._split_bytestream(
-                stream[7 : 6 + frame_length], encoding=text_encoding
+                stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+                encoding=obj._text_encoding,
             )
         ]
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -3772,19 +4267,17 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         isrc_frame : minim.media.metadata.ID3v2TSRCFrame
             :code:`TSRC` frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._text_info = [
             prepare_isrc(isrc)
             for isrc in cls._split_bytestream(
-                stream[11 : 10 + frame_length], encoding=text_encoding
+                stream[11 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+                encoding=obj._text_encoding,
             )
         ]
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -3809,19 +4302,17 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         isrc_frame : minim.media.metadata.ID3v2TSRCFrame
             :code:`TSRC` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._text_info = [
             prepare_isrc(isrc)
             for isrc in cls._split_bytestream(
-                stream[11 : 10 + frame_length], encoding=text_encoding
+                stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+                encoding=obj._text_encoding,
             )
         ]
-        obj._text_encoding = text_encoding
         return obj
 
 
@@ -3955,16 +4446,14 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         text_info_frame : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXX` frame.
         """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._description, *obj._text_info = cls._split_bytestream(
-            stream[7 : 6 + frame_length], encoding=text_encoding
+            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -3989,16 +4478,14 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         text_info_frame : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXXX` frame.
         """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._description, *obj._text_info = cls._split_bytestream(
-            stream[11 : 10 + frame_length], encoding=text_encoding
+            stream[11 : 10 + int.from_bytes(stream[4:8], byteorder="big")],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @classmethod
@@ -4023,16 +4510,14 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         text_info_frame : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXXX` frame.
         """
-        frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
         obj._description, *obj._text_info = cls._split_bytestream(
-            stream[11 : 10 + frame_length], encoding=text_encoding
+            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            encoding=obj._text_encoding,
         )
-        obj._text_encoding = text_encoding
         return obj
 
     @property
@@ -4049,7 +4534,12 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         """
         return self._description
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
 
@@ -4062,13 +4552,60 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
         Returns
         -------
         stream : bytes
             Bytestream containing the "user-defined text information"
             frame.
         """
-        raise NotImplementedError  # TODO
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
+        null_char = (
+            b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
+        )
+        frame_bytes = b"".join(
+            (
+                self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
+                self._description.encode(encoding=text_encoding),
+                null_char.join(
+                    ti.encode(encoding=text_encoding) for ti in self._text_info
+                ),
+                self._text_info.encode(encoding=text_encoding),
+            )
+        )
+        match tag_version:
+            case (2, 4, _):
+                return (
+                    self._frame_ids[4]
+                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 3, _):
+                return (
+                    self._frame_ids[3]
+                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 2, _):
+                return (
+                    self._frame_ids[2]
+                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
+                    + frame_bytes
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 class UnknownID3v2Frame(ID3v2Frame):
@@ -4079,7 +4616,7 @@ class UnknownID3v2Frame(ID3v2Frame):
     _allow_multiple: ClassVar[bool] = True
     _frame_ids: ClassVar[dict[int, bytes]] = {}
 
-    __slots__ = ("_frame_data", "_frame_id")
+    __slots__ = ("_frame_data", "_frame_id", "_frame_length")
 
     def __init__(
         self, frame_id: bytes | bytearray, frame_data: bytes | bytearray
@@ -4126,9 +4663,9 @@ class UnknownID3v2Frame(ID3v2Frame):
         """
         obj = super()._from_stream_2_2(stream, strict=strict)
         obj._frame_id = stream[:3].tobytes()
-        obj._frame_data = stream[
-            6 : 6 + int.from_bytes(stream[3:6], byteorder="big")
-        ].tobytes()
+        obj._frame_length = int.from_bytes(stream[3:6], byteorder="big")
+        obj._flags = ID3v2FrameFlags()
+        obj._frame_data = stream[6 : 6 + obj._frame_length].tobytes()
         return obj
 
     @classmethod
@@ -4155,9 +4692,11 @@ class UnknownID3v2Frame(ID3v2Frame):
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
         obj._frame_id = stream[:4].tobytes()
-        obj._frame_data = stream[
-            10 : 10 + int.from_bytes(stream[4:8], byteorder="big")
-        ].tobytes()
+        obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
+        obj._flags = ID3v2FrameFlags._from_bytes_2_3(
+            stream[8], stream[9], strict=strict
+        )
+        obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
         return obj
 
     @classmethod
@@ -4184,9 +4723,11 @@ class UnknownID3v2Frame(ID3v2Frame):
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
         obj._frame_id = stream[:4].tobytes()
-        obj._frame_data = stream[
-            10 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])
-        ].tobytes()
+        obj._frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+        obj._flags = ID3v2FrameFlags._from_bytes_2_4(
+            stream[8], stream[9], strict=strict
+        )
+        obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
         return obj
 
     @property
@@ -4209,6 +4750,13 @@ class UnknownID3v2Frame(ID3v2Frame):
         Raw frame data.
         """
         return self._frame_data
+
+    @property
+    def frame_length(self) -> int:
+        """
+        Frame length in bytes.
+        """
+        return len(self._frame_data)
 
     def get_frame_id(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
@@ -4244,7 +4792,12 @@ class UnknownID3v2Frame(ID3v2Frame):
             )
         return frame_id
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *args: tuple[Any, ...],
+        **kwargs: dict[str, Any],
+    ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
 
@@ -4257,12 +4810,70 @@ class UnknownID3v2Frame(ID3v2Frame):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        *args : tuple[Any, ...]
+            Additional (ignored) positional arguments.
+
+        **kwargs : dict[str, Any]
+            Additional (ignored) keyword arguments.
+
         Returns
         -------
         stream : bytes
             Bytestream containing the ID3v2 frame.
         """
-        raise NotImplementedError  # TODO
+        match tag_version := normalize_id3v2_tag_version(tag_version):
+            case (2, 4, _):
+                if len(self._frame_id) != 4:
+                    raise ValueError(
+                        "Frame ID "
+                        f"{self._frame_id.decode(encoding='ascii')!r} "
+                        "is incompatible with ID3v2 tag version "
+                        f"{tag_version!r}."
+                    )
+                return b"".join(
+                    (
+                        self._frame_id,
+                        bytes(encode_32_bit_synchsafe_int(self._frame_length)),
+                        self._flags.to_bytes_2_4(),
+                        self._frame_data,
+                    )
+                )
+            case (2, 3, _):
+                if len(self._frame_id) != 4:
+                    raise ValueError(
+                        "Frame ID "
+                        f"{self._frame_id.decode(encoding='ascii')!r} "
+                        "is incompatible with ID3v2 tag version "
+                        f"{tag_version!r}."
+                    )
+                return b"".join(
+                    (
+                        self._frame_id,
+                        self._frame_length.to_bytes(length=4, byteorder="big"),
+                        self._flags.to_bytes_2_3(),
+                        self._frame_data,
+                    )
+                )
+            case (2, 2, _):
+                if len(self._frame_id) != 3:
+                    raise ValueError(
+                        "Frame ID "
+                        f"{self._frame_id.decode(encoding='ascii')!r} "
+                        "is incompatible with ID3v2 tag version "
+                        f"{tag_version!r}."
+                    )
+                return b"".join(
+                    (
+                        self._frame_id,
+                        self._frame_length.to_bytes(length=3, byteorder="big"),
+                        self._frame_data,
+                    )
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 class ID3v2Padding:
@@ -4346,9 +4957,19 @@ class ID3v2Padding:
         obj._length = len(stream)
         return obj
 
-    def serialize(self) -> bytes:
+    def serialize(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> bytes:
         """
         Serialize the padding to a bytestream.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Additional (ignored) positional arguments.
+
+        **kwargs : dict[str, Any]
+            Additional (ignored) keyword arguments.
 
         Returns
         -------

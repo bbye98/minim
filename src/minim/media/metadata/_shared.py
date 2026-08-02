@@ -491,7 +491,7 @@ class AudioTags(ABC):
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing the serialized metadata.
         """
         ...

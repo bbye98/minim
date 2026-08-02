@@ -9,6 +9,7 @@ from ...._types import ORDERED_COLLECTION_TYPES
 from ...._utility import (
     as_buffer,
     decode_32_bit_synchsafe_int,
+    encode_32_bit_synchsafe_int,
     join_values,
     validate_iso_8859_1_string,
     validate_number,
@@ -296,7 +297,7 @@ class ID3v1:
 
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing the serialized ID3v1 tag.
         """
         match normalize_id3v1_tag_version(tag_version):
@@ -820,6 +821,9 @@ class ID3v2(AudioTags):
             )
             offset = end_offset
 
+        if strict and not frames:
+            raise ValueError("ID3v2 tag contains no frames.")
+
         return obj
 
     @classmethod
@@ -898,6 +902,9 @@ class ID3v2(AudioTags):
             )
             offset = end_offset
 
+        if strict and not frames:
+            raise ValueError("ID3v2 tag contains no frames.")
+
         return obj
 
     @classmethod
@@ -974,6 +981,9 @@ class ID3v2(AudioTags):
                 strict=strict,
             )
             offset = end_offset + 10 * flags._has_footer
+
+        if strict and not frames:
+            raise ValueError("ID3v2 tag contains no frames.")
 
         return obj
 
@@ -1468,7 +1478,12 @@ class ID3v2(AudioTags):
         """
         # TODO
 
-    def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
         """
         Serialize the ID3v2 tag to a bytestream.
 
@@ -1481,9 +1496,33 @@ class ID3v2(AudioTags):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
+        text_encoding : str; keyword-only; optional
+            Text encoding to use for all ID3v2 frames. If :code:`None`,
+            the text encodings already associated with the frames are
+            used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
         Returns
         -------
-        bytestream : bytes
+        stream : bytes
             Bytestream containing the serialized ID3v2 tag.
         """
-        # TODO
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        frames = b"".join(
+            frame.serialize(tag_version, text_encoding=text_encoding)
+            for frame in self._frames
+        )
+        return (
+            self._STRUCT_ID3_HEADER.pack(
+                b"ID3",
+                2,
+                tag_version[1],
+                int.from_bytes(
+                    self._flags.serialize(tag_version), byteorder="big"
+                ),
+                *encode_32_bit_synchsafe_int(len(frames)),
+            )
+            + frames
+        )

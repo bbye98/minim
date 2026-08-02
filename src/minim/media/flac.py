@@ -299,10 +299,10 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         """
         return b"".join(
             (
-                self.min_block_size.to_bytes(2, byteorder="big"),
-                self.max_block_size.to_bytes(2, byteorder="big"),
-                self.min_frame_size.to_bytes(3, byteorder="big"),
-                self.max_frame_size.to_bytes(3, byteorder="big"),
+                self.min_block_size.to_bytes(length=2, byteorder="big"),
+                self.max_block_size.to_bytes(length=2, byteorder="big"),
+                self.min_frame_size.to_bytes(length=3, byteorder="big"),
+                self.max_frame_size.to_bytes(length=3, byteorder="big"),
                 (
                     (self.sample_rate & 0xFFFFF) << 44
                     | ((self.num_channels - 1) & 0x7) << 41
@@ -1518,7 +1518,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
             (
                 self._STRUCT_II.pack(self._picture_type, len(mime_type)),
                 mime_type,
-                len(description).to_bytes(4, byteorder="big"),
+                len(description).to_bytes(length=4, byteorder="big"),
                 description,
                 self._STRUCT_IIIII.pack(
                     self._width,
@@ -2206,7 +2206,7 @@ class FLACAudio(Audio):
         file_path: PathLike | None = None,
         /,
         *,
-        remove_padding: bool = False,
+        include_padding: bool = True,
     ) -> None:
         """
         Write changes to disk.
@@ -2217,17 +2217,17 @@ class FLACAudio(Audio):
             Path to or name of the FLAC audio file. If not specified,
             changes are written back to the source file.
 
-        remove_padding : bool; keyword-only; default: :code:`False`
-            Whether to strip all :code:`PADDING` blocks.
+        include_padding : bool; keyword-only; default: :code:`True`
+            Whether to keep all :code:`PADDING` blocks.
         """
         metadata_blocks = (
-            [
+            self._format_metadata
+            if include_padding
+            else [
                 block
                 for block in self._format_metadata
                 if block._block_type != 1
             ]
-            if remove_padding
-            else self._format_metadata
         )
         metadata_length = 4 + sum(
             4 + block._block_length for block in metadata_blocks
@@ -2238,7 +2238,7 @@ class FLACAudio(Audio):
             (
                 ((block_index == last_block_index) << 7) | block._block_type
             ).to_bytes(1, byteorder="big")
-            + block._block_length.to_bytes(3, byteorder="big")
+            + block._block_length.to_bytes(length=3, byteorder="big")
             + block.serialize()
             for block_index, block in enumerate(metadata_blocks)
         )

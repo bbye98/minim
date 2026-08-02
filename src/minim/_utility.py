@@ -27,7 +27,7 @@ def as_buffer(stream: BytesLike) -> memoryview:
 
     Parameters
     ----------
-    bytestream : bytes, bytearray, memoryview, or mmap.mmap; \
+    stream : bytes, bytearray, memoryview, or mmap.mmap; \
     positional-only; optional
         Bytes-like object.
 
@@ -97,6 +97,37 @@ def decode_32_bit_synchsafe_int(
         Decoded synchsafe integer value.
     """
     return (byte_1 << 21) | (byte_2 << 14) | (byte_3 << 7) | byte_4
+
+
+def encode_32_bit_synchsafe_int(value: int, /) -> tuple[int, int, int, int]:
+    """
+    Encode a 32-bit synchsafe integer.
+
+    Parameters
+    ----------
+    value : int; positional-only
+        Integer value to encode.
+
+    Returns
+    -------
+    byte_1 : int; positional-only
+        First byte in synchsafe integer.
+
+    byte_2 : int; positional-only
+        Second byte in synchsafe integer.
+
+    byte_3 : int; positional-only
+        Third byte in synchsafe integer.
+
+    byte_4 : int; positional-only
+        Fourth byte in synchsafe integer.
+    """
+    return (
+        (value >> 21) & 0x7F,
+        (value >> 14) & 0x7F,
+        (value >> 7) & 0x7F,
+        value & 0x7F,
+    )
 
 
 def join_values(

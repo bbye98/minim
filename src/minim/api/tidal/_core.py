@@ -131,7 +131,7 @@ class BaseTIDALAPIClient(OAuth2APIClient):
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------
@@ -448,7 +448,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------
@@ -891,7 +891,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             :code:`401 Unauthorized`.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------

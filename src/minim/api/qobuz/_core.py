@@ -660,7 +660,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
             Query parameters to include in the signature.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------
