@@ -17,6 +17,7 @@ from ...._utility import (
 )
 from .._shared import AudioTags
 from ._frames import (
+    ID3v2DateTimeFrame,
     ID3v2Frame,
     ID3v2Padding,
     ID3v2TXXXFrame,
@@ -789,12 +790,12 @@ class ID3v2(AudioTags):
         obj._unknown_index = defaultdict(list)
         obj._flags = flags = ID3v2Flags._from_byte_2_2(flags, strict=strict)
 
-        if flags.is_compressed:
+        if flags._is_compressed:
             raise NotImplementedError(
                 "Compressed ID3v2.2 tags are not supported."
             )
 
-        if flags.is_unsynchronized:
+        if flags._is_unsynchronized:
             stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
         offset = 0
         tag_end = len(stream)
@@ -861,12 +862,12 @@ class ID3v2(AudioTags):
         obj._unknown_index = defaultdict(list)
         obj._flags = flags = ID3v2Flags._from_byte_2_3(flags, strict=strict)
 
-        if flags.is_unsynchronized:
+        if flags._is_unsynchronized:
             stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
         offset = 0
         tag_end = len(stream)
 
-        if flags.has_extended_header:
+        if flags._has_extended_header:
             flag_byte = stream[offset + 4]
             if strict and (flag_byte & 0x80 or stream[offset + 5]):
                 raise ValueError(
@@ -931,12 +932,12 @@ class ID3v2(AudioTags):
         obj._unknown_index = defaultdict(list)
         obj._flags = flags = ID3v2Flags._from_byte_2_4(flags, strict=strict)
 
-        if flags.is_unsynchronized:
+        if flags._is_unsynchronized:
             stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
         offset = 0
         tag_end = len(stream)
 
-        if flags.has_extended_header:
+        if flags._has_extended_header:
             flag_byte = stream[offset + 5]
             if strict and flag_byte & 0x8F:
                 raise ValueError(
@@ -972,7 +973,7 @@ class ID3v2(AudioTags):
                 ),
                 strict=strict,
             )
-            offset = end_offset + 10 * flags.has_footer
+            offset = end_offset + 10 * flags._has_footer
 
         return obj
 
@@ -1424,7 +1425,10 @@ class ID3v2(AudioTags):
                     f"Duplicate {frame._frame_id.decode(encoding='ascii')} "
                     "frame found."
                 )
-            existing_frames[-1] += frame
+            if issubclass(frame_cls, ID3v2DateTimeFrame):
+                existing_frames[-1] |= frame
+            else:
+                existing_frames[-1] += frame
         else:
             self._frames.append(frame)
             self._class_index[frame_cls].append(frame)

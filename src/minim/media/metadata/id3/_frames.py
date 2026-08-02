@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from dataclasses import FrozenInstanceError, dataclass
+from collections.abc import Iterable
+from dataclasses import dataclass
 from datetime import MAXYEAR, MINYEAR, datetime
 from typing import TYPE_CHECKING, ClassVar, NamedTuple
 
@@ -115,6 +116,47 @@ class DateTime:
                 validate_range("second", second, 0, 59)
             if extra is not None:
                 validate_type("extra", extra, str)
+
+    def __or__(self, other: Self) -> Self:
+        type_ = type(self)
+        if not isinstance(other, type_):
+            raise TypeError(
+                "Unsupported operand type(s) for |: "
+                f"{type_.__name__!r} and {type(other).__name__!r}."
+            )
+        return DateTime(
+            year=other.year or self.year,
+            month=other.month or self.month,
+            day=other.day or self.day,
+            hour=other.hour or self.hour,
+            minute=other.minute or self.minute,
+            second=other.second or self.second,
+            extra=other.extra or self.extra,
+            strict=False,
+        )
+
+    def __ior__(self, other: Self) -> Self:
+        type_ = type(self)
+        if not isinstance(other, type_):
+            raise TypeError(
+                "Unsupported operand type(s) for |=: "
+                f"{type_.__name__!r} and {type(other).__name__!r}."
+            )
+        if other.year is not None:
+            self.year = other.year
+        if other.month is not None:
+            self.month = other.month
+        if other.day is not None:
+            self.day = other.day
+        if other.hour is not None:
+            self.hour = other.hour
+        if other.minute is not None:
+            self.minute = other.minute
+        if other.second is not None:
+            self.second = other.second
+        if other.extra is not None:
+            self.extra = other.extra
+        return self
 
     @classmethod
     def from_string(cls, dt: str, /, *, strict: bool = True) -> DateTime:
@@ -731,6 +773,7 @@ class ID3v2Frame(ABC):
         2: "utf-16be",
         3: "utf-8",
     }
+    _TEXT_ENCODINGS |= {v: k for k, v in _TEXT_ENCODINGS.items()}
     _REGISTRY: ClassVar[dict[bytes, type[ID3v2Frame]]] = {}
 
     _allow_multiple: bool
@@ -800,7 +843,9 @@ class ID3v2Frame(ABC):
         frame : minim.media.metadata.ID3v2Frame
             ID3v2 frame.
         """
-        return cls()
+        obj = cls.__new__(cls)
+        obj._flags = ID3v2FrameFlags()
+        return obj
 
     @classmethod
     @abstractmethod
@@ -1163,9 +1208,15 @@ class ID3v2TextInfoFrame(ID3v2Frame):
                 "ID3v2 tag, so multiple values should be stored in "
                 "separate instances."
             )
+        TEXT_ENCODINGS = self._TEXT_ENCODINGS
         return type_(
             self._text_info + other._text_info,
-            text_encoding=self._text_encoding,
+            text_encoding=TEXT_ENCODINGS[
+                max(
+                    TEXT_ENCODINGS[self._text_encoding],
+                    TEXT_ENCODINGS[other._text_encoding],
+                )
+            ],
             flags=self._flags,
         )
 
@@ -1183,6 +1234,13 @@ class ID3v2TextInfoFrame(ID3v2Frame):
                 "separate instances."
             )
         self._text_info.extend(other._text_info)
+        TEXT_ENCODINGS = self._TEXT_ENCODINGS
+        self._text_encoding = TEXT_ENCODINGS[
+            max(
+                TEXT_ENCODINGS[self._text_encoding],
+                TEXT_ENCODINGS[other._text_encoding],
+            )
+        ]
         return self
 
     @classmethod
@@ -1375,9 +1433,15 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 "Unsupported operand type(s) for +: "
                 f"{type_.__name__!r} and {type(other).__name__!r}."
             )
+        TEXT_ENCODINGS = self._TEXT_ENCODINGS
         return type_(
             self._datetimes + other._datetimes,
-            text_encoding=self._text_encoding,
+            text_encoding=TEXT_ENCODINGS[
+                max(
+                    TEXT_ENCODINGS[self._text_encoding],
+                    TEXT_ENCODINGS[other._text_encoding],
+                )
+            ],
             flags=self._flags,
         )
 
@@ -1389,81 +1453,64 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 f"'{type_.__name__}' and {type(other).__name__!r}."
             )
         self._datetimes.extend(other._datetimes)
+        TEXT_ENCODINGS = self._TEXT_ENCODINGS
+        self._text_encoding = TEXT_ENCODINGS[
+            max(
+                TEXT_ENCODINGS[self._text_encoding],
+                TEXT_ENCODINGS[other._text_encoding],
+            )
+        ]
         return self
 
-    @classmethod
-    def _from_stream_2_2(
-        cls, stream: memoryview, /, *, strict: bool = True
-    ) -> ID3v2DateTimeFrame:
-        """
-        Instantiate an ID3v2 datetime frame object from an ID3v2.2 frame
-        bytestream.
-
-        Parameters
-        ----------
-        stream : memoryview; positional-only
-            Bytes-like object containing the datetime frame.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
-            Datetime frame.
-        """
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-
-        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
-            stream, strict=strict
-        )
-        obj._datetimes = cls._parse_datetimes(
-            cls._split_bytestream(
-                stream[7 : 6 + frame_length], encoding=text_encoding
+    def __or__(self, other: ID3v2DateTimeFrame) -> Self:
+        type_ = type(self)
+        if not isinstance(other, type_):
+            raise TypeError(
+                "Unsupported operand type(s) for |: "
+                f"{type_.__name__!r} and {type(other).__name__!r}."
+            )
+        if len(self._datetimes) != len(other._datetimes):
+            raise ValueError(
+                "Cannot combine ID3v2DateTimeFrame objects with "
+                "different numbers of datetimes."
+            )
+        TEXT_ENCODINGS = self._TEXT_ENCODINGS
+        return type_(
+            (
+                self_dt | other_dt
+                for self_dt, other_dt in zip(self._datetimes, other._datetimes)
             ),
-            strict=strict,
+            text_encoding=TEXT_ENCODINGS[
+                max(
+                    TEXT_ENCODINGS[self._text_encoding],
+                    TEXT_ENCODINGS[other._text_encoding],
+                )
+            ],
+            flags=other._flags,
         )
-        obj._text_encoding = text_encoding
-        return obj
 
-    @classmethod
-    def _from_stream_2_3(
-        cls, stream: memoryview, /, *, strict: bool = True
-    ) -> ID3v2DateTimeFrame:
-        """
-        Instantiate an ID3v2 datetime frame object from an ID3v2.3 frame
-        bytestream.
-
-        Parameters
-        ----------
-        stream : memoryview; positional-only
-            Bytes-like object containing the datetime frame.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
-            Datetime frame.
-        """
-        frame_length = int.from_bytes(stream[4:8], byteorder="big")
-        text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-
-        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
-            stream, strict=strict
-        )
-        obj._datetimes = cls._parse_datetimes(
-            cls._split_bytestream(
-                stream[11 : 10 + frame_length], encoding=text_encoding
-            ),
-            strict=strict,
-        )
-        obj._text_encoding = text_encoding
-        return obj
+    def __ior__(self, other: ID3v2DateTimeFrame) -> Self:
+        type_ = type(self)
+        if not isinstance(other, type_):
+            raise TypeError(
+                "Unsupported operand type(s) for |=: "
+                f"'{type_.__name__}' and {type(other).__name__!r}."
+            )
+        if len(self._datetimes) != len(other._datetimes):
+            raise ValueError(
+                "Cannot combine ID3v2DateTimeFrame objects with "
+                "different numbers of datetimes."
+            )
+        for self_dt, other_dt in zip(self._datetimes, other._datetimes):
+            self_dt |= other_dt
+        TEXT_ENCODINGS = self._TEXT_ENCODINGS
+        self._text_encoding = TEXT_ENCODINGS[
+            max(
+                TEXT_ENCODINGS[self._text_encoding],
+                TEXT_ENCODINGS[other._text_encoding],
+            )
+        ]
+        return self
 
     @classmethod
     def _from_stream_2_4(
@@ -1507,7 +1554,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         datetimes: str
         | datetime
         | tuple[int | str, ...]
-        | list[str | datetime | tuple[int | str, ...]],
+        | Iterable[str | datetime | tuple[int | str, ...]],
         /,
         *,
         strict: bool = True,
@@ -1518,7 +1565,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         datetimes : str, datetime.datetime, tuple[int | str, ...], or \
-        list[str | datetime | tuple[int | str, ...]]; \
+        Iterable[str | datetime | tuple[int | str, ...]]; \
         positional-only
             Datetimes, in ISO-8601 format.
 
@@ -1547,7 +1594,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 )
             case tuple():
                 return DateTime.from_tuple(datetimes, strict=strict)
-            case list():
+            case _ if isinstance(datetimes, Iterable):
                 return [
                     ID3v2DateTimeFrame._parse_datetimes(dt, strict=strict)
                     for dt in datetimes
@@ -2789,7 +2836,58 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
         datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
             Datetime frame.
         """
-        raise NotImplementedError  # TODO
+        frame_length = int.from_bytes(stream[3:6], byteorder="big")
+        text_encoding = cls._TEXT_ENCODINGS[stream[6]]
+
+        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
+            stream, strict=strict
+        )
+        match stream[:3]:
+            case b"TYE":
+                obj._datetimes = cls._parse_datetimes(
+                    cls._split_bytestream(
+                        stream[7 : 6 + frame_length], encoding=text_encoding
+                    ),
+                    strict=strict,
+                )
+            case b"TDA":
+                obj._datetimes = datetimes = []
+                for date in cls._split_bytestream(
+                    stream[7 : 6 + frame_length], encoding=text_encoding
+                ):
+                    try:
+                        if len(date) == 4:
+                            datetimes.append(
+                                DateTime(
+                                    day=int(date[:2]),
+                                    month=int(date[2:]),
+                                    strict=strict,
+                                )
+                            )
+                    except ValueError:
+                        datetimes.append(
+                            cls._parse_datetimes(date, strict=strict)
+                        )
+            case b"TIM":
+                obj._datetimes = datetimes = []
+                for time in cls._split_bytestream(
+                    stream[7 : 6 + frame_length], encoding=text_encoding
+                ):
+                    try:
+                        if len(time) == 4:
+                            datetimes.append(
+                                DateTime(
+                                    hour=int(time[:2]),
+                                    minute=int(time[2:]),
+                                    strict=strict,
+                                )
+                            )
+                    except ValueError:
+                        datetimes.append(
+                            cls._parse_datetimes(time, strict=strict)
+                        )
+        obj._text_encoding = text_encoding
+        return obj
 
     @classmethod
     def _from_stream_2_3(
@@ -2865,30 +2963,6 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                         )
         obj._text_encoding = text_encoding
         return obj
-
-    @classmethod
-    def _from_stream_2_4(
-        cls, stream: memoryview, /, *, strict: bool = True
-    ) -> ID3v2DateTimeFrame:
-        """
-        Instantiate an ID3v2 datetime frame object from an ID3v2.4 frame
-        bytestream.
-
-        Parameters
-        ----------
-        stream : memoryview; positional-only
-            Bytes-like object containing the datetime frame.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        datetime_frame : minim.media.metadata.ID3v2DateTimeFrame
-            Datetime frame.
-        """
-        raise NotImplementedError  # TODO
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
@@ -4027,12 +4101,6 @@ class UnknownID3v2Frame(ID3v2Frame):
         set_obj_attr(self, "_frame_id", bytes(frame_id))
         validate_type("frame_data", frame_data, bytes | bytearray)
         set_obj_attr(self, "_frame_data", bytes(frame_data))
-
-    def __setattr__(self, name: str, value: Any) -> None:
-        raise FrozenInstanceError(f"Cannot assign to field {name!r}.")
-
-    def __delattr__(self, name: str) -> None:
-        raise FrozenInstanceError(f"Cannot delete field {name!r}.")
 
     @classmethod
     def _from_stream_2_2(
