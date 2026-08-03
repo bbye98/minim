@@ -348,6 +348,7 @@ class ID3v2Flags:
 
     def __init__(
         self,
+        *,
         is_unsynchronized: bool = False,
         has_extended_header: bool = False,
         is_experimental: bool = False,
@@ -1445,29 +1446,32 @@ class ID3v2(AudioTags):
 
     def get(
         self,
-        frame_types: bytes | ID3v2Frame | Collection[bytes | ID3v2Frame],
+        frame_types: bytes
+        | str
+        | ID3v2Frame
+        | Collection[bytes | str | ID3v2Frame],
         /,
-        *args: tuple[Any, ...],
-        **kwargs: dict[str, Any],
     ) -> Any | dict[str, Any]:
         """
         Get track attributes.
 
         Parameters
         ----------
-        fields : str or Collection[str]; positional-only
-            Field names of the attributes.
+        frame_types : bytes, str, minim.media.metadata.id3.ID3v2Frame, \
+        or Collection[bytes | str | minim.media.metadata.id3.ID3v2Frame]; \
+        positional-only
+            Frame IDs or classes.
 
         Returns
         -------
         attributes : Any or dict[str, Any]
-            Track attributes. If `fields` is a collection of strings, a
-            dictionary mapping field names to their corresponding values
+            Track attributes. If `frame_types` is a collection, a
+            dictionary mapping frame IDs to their corresponding values
             is returned.
         """
-        # TODO
+        raise NotImplementedError  # TODO
 
-    def set(self, **kwargs: dict[str, Any]) -> None:
+    def set(self, **kwargs: dict[bytes | str, Any]) -> None:
         """
         Set track attributes.
 
@@ -1476,13 +1480,14 @@ class ID3v2(AudioTags):
         **kwargs : dict[str, Any]
             Key–value pairs of track attributes.
         """
-        # TODO
+        raise NotImplementedError  # TODO
 
     def serialize(
         self,
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
+        include_padding: bool = True,
     ) -> bytes:
         """
         Serialize the ID3v2 tag to a bytestream.
@@ -1504,15 +1509,23 @@ class ID3v2(AudioTags):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
+        include_padding : bool; keyword-only; default: :code:`True`
+            Whether to keep padding.
+
         Returns
         -------
         stream : bytes
             Bytestream containing the serialized ID3v2 tag.
         """
+        # TODO: Handle has_crc, has_extended_header, has_footer,
+        # is_unsynchonized, tag_restrictions
         tag_version = normalize_id3v2_tag_version(tag_version)
+        frames = self._frames
+        if not include_padding and isinstance(frames[-1], ID3v2Padding):
+            frames = frames[:-1]
         frames = b"".join(
             frame.serialize(tag_version, text_encoding=text_encoding)
-            for frame in self._frames
+            for frame in frames
         )
         return (
             self._STRUCT_ID3_HEADER.pack(

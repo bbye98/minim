@@ -522,71 +522,75 @@ class Position(NamedTuple):
         )
 
 
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class ID3v2FrameFlags:
     """
     Flags for the ID3v2 frame.
-
-    Parameters
-    ----------
-    discard_on_tag_alter : bool; keyword-only; default: :code:`False`
-        Whether to discard the current frame when the ID3 tag is edited.
-
-    discard_on_file_alter : bool; keyword-only; default: :code:`False`
-        Whether to discard the current frame when the audio data changes.
-
-    is_read_only : bool; keyword-only; default: :code:`False`
-        Whether the current frame is read-only.
-
-    has_grouping : bool; keyword-only; default: :code:`False`
-        Whether the current frame has a grouping identifier.
-
-    is_compressed : bool; keyword-only; default: :code:`False`
-        Whether the current frame is compressed.
-
-    is_encrypted : bool; keyword-only; default: :code:`False`
-        Whether the current frame is encrypted.
-
-    is_unsynchronized : bool; keyword-only; default: :code:`False`
-        Whether the current frame has frame-level unsynchronization.
-
-    has_data_length_indicator : bool; keyword-only; \
-    default: :code:`False`
-        Whether the current frame has an extra synchsafe integer
-        preceding the payload.
     """
 
-    #: Whether to discard the current frame when the ID3 tag is edited.
-    discard_on_tag_alter: bool = False
-    #: Whether to discard the current frame when the audio data changes.
-    discard_on_file_alter: bool = False
-    #: Whether the current frame is read-only.
-    is_read_only: bool = False
-    #: Whether the current frame has a grouping identifier.
-    has_grouping: bool = False
-    #: Whether the current frame is compressed.
-    is_compressed: bool = False
-    #: Whether the current frame is encrypted.
-    is_encrypted: bool = False
-    #: Whether the current frame has frame-level unsynchronization.
-    is_unsynchronized: bool = False
-    #: Whether the current frame has an extra synchsafe integer
-    #: preceding the payload.
-    has_data_length_indicator: bool = False
+    __slots__ = (
+        "_discard_on_file_alter",
+        "_discard_on_tag_alter",
+        "_has_data_length_indicator",
+        "_has_grouping",
+        "_is_compressed",
+        "_is_encrypted",
+        "_is_read_only",
+        "_is_unsynchronized",
+    )
 
-    def __post_init__(self) -> None:
-        validate_type("discard_on_tag_alter", self.discard_on_tag_alter, bool)
-        validate_type(
-            "discard_on_file_alter", self.discard_on_file_alter, bool
-        )
-        validate_type("is_read_only", self.is_read_only, bool)
-        validate_type("has_grouping", self.has_grouping, bool)
-        validate_type("is_compressed", self.is_compressed, bool)
-        validate_type("is_encrypted", self.is_encrypted, bool)
-        validate_type("is_unsynchronized", self.is_unsynchronized, bool)
-        validate_type(
-            "has_data_length_indicator", self.has_data_length_indicator, bool
-        )
+    def __init__(
+        self,
+        *,
+        discard_on_tag_alter: bool = False,
+        discard_on_file_alter: bool = False,
+        is_read_only: bool = False,
+        has_grouping: bool = False,
+        is_compressed: bool = False,
+        is_encrypted: bool = False,
+        is_unsynchronized: bool = False,
+        has_data_length_indicator: bool = False,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        discard_on_tag_alter : bool; keyword-only; default: \
+        :code:`False`
+            Whether to discard the current frame when the ID3 tag is 
+            edited.
+
+        discard_on_file_alter : bool; keyword-only; default: \
+        :code:`False`
+            Whether to discard the current frame when the audio data 
+            changes.
+
+        is_read_only : bool; keyword-only; default: :code:`False`
+            Whether the current frame is read-only.
+
+        has_grouping : bool; keyword-only; default: :code:`False`
+            Whether the current frame has a grouping identifier.
+
+        is_compressed : bool; keyword-only; default: :code:`False`
+            Whether the current frame is compressed.
+
+        is_encrypted : bool; keyword-only; default: :code:`False`
+            Whether the current frame is encrypted.
+
+        is_unsynchronized : bool; keyword-only; default: :code:`False`
+            Whether the current frame has frame-level unsynchronization.
+
+        has_data_length_indicator : bool; keyword-only; \
+        default: :code:`False`
+            Whether the current frame has an extra synchsafe integer
+            preceding the payload.
+        """
+        self.discard_on_tag_alter = discard_on_tag_alter
+        self.discard_on_file_alter = discard_on_file_alter
+        self.is_read_only = is_read_only
+        self.has_grouping = has_grouping
+        self.is_compressed = is_compressed
+        self.is_encrypted = is_encrypted
+        self.is_unsynchronized = is_unsynchronized
+        self.has_data_length_indicator = has_data_length_indicator
 
     @classmethod
     def _from_bytes_2_3(
@@ -624,14 +628,13 @@ class ID3v2FrameFlags:
                 )
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "discard_on_tag_alter", bool(status_flags & 0x80))
-        set_obj_attr(obj, "discard_on_file_alter", bool(status_flags & 0x40))
-        set_obj_attr(obj, "is_read_only", bool(status_flags))
-        set_obj_attr(obj, "is_compressed", bool(format_flags & 0x80))
-        set_obj_attr(obj, "is_encrypted", bool(format_flags & 0x40))
-        set_obj_attr(obj, "has_grouping", bool(format_flags & 0x20))
-        set_obj_attr(obj, "is_unsynchronized", False)
-        set_obj_attr(obj, "has_data_length_indicator", False)
+        obj._discard_on_tag_alter = bool(status_flags & 0x80)
+        obj._discard_on_file_alter = bool(status_flags & 0x40)
+        obj._is_read_only = bool(status_flags & 0x20)
+        obj._is_compressed = bool(format_flags & 0x80)
+        obj._is_encrypted = bool(format_flags & 0x40)
+        obj._has_grouping = bool(format_flags & 0x20)
+        obj._is_unsynchronized = obj._has_data_length_indicator = False
         return obj
 
     @classmethod
@@ -670,16 +673,14 @@ class ID3v2FrameFlags:
                 )
 
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "discard_on_tag_alter", bool(status_flags & 0x40))
-        set_obj_attr(obj, "discard_on_file_alter", bool(status_flags & 0x20))
-        set_obj_attr(obj, "is_read_only", bool(status_flags & 0x10))
-        set_obj_attr(obj, "has_grouping", bool(format_flags & 0x40))
-        set_obj_attr(obj, "is_compressed", bool(format_flags & 0x08))
-        set_obj_attr(obj, "is_encrypted", bool(format_flags & 0x04))
-        set_obj_attr(obj, "is_unsynchronized", bool(format_flags & 0x02))
-        set_obj_attr(
-            obj, "has_data_length_indicator", bool(format_flags & 0x01)
-        )
+        obj._discard_on_tag_alter = bool(status_flags & 0x40)
+        obj._discard_on_file_alter = bool(status_flags & 0x20)
+        obj._is_read_only = bool(status_flags & 0x10)
+        obj._has_grouping = bool(format_flags & 0x40)
+        obj._is_compressed = bool(format_flags & 0x08)
+        obj._is_encrypted = bool(format_flags & 0x04)
+        obj._is_unsynchronized = bool(format_flags & 0x02)
+        obj._has_data_length_indicator = bool(format_flags & 0x01)
         return obj
 
     @classmethod
@@ -738,6 +739,104 @@ class ID3v2FrameFlags:
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
 
+    @property
+    def discard_on_tag_alter(self) -> bool:
+        """
+        Whether to discard the current frame when the ID3 tag is edited.
+        """
+        return self._discard_on_tag_alter
+
+    @discard_on_tag_alter.setter
+    def discard_on_tag_alter(self, value: bool, /) -> None:
+        validate_type("discard_on_tag_alter", value, bool)
+        self._discard_on_tag_alter = value
+
+    @property
+    def discard_on_file_alter(self) -> bool:
+        """
+        Whether to discard the current frame when the audio data
+        changes.
+        """
+        return self._discard_on_file_alter
+
+    @discard_on_file_alter.setter
+    def discard_on_file_alter(self, value: bool, /) -> None:
+        validate_type("discard_on_file_alter", value, bool)
+        self._discard_on_file_alter = value
+
+    @property
+    def is_read_only(self) -> bool:
+        """
+        Whether the current frame is read-only.
+        """
+        return self._is_read_only
+
+    @is_read_only.setter
+    def is_read_only(self, value: bool, /) -> None:
+        validate_type("is_read_only", value, bool)
+        self._is_read_only = value
+
+    @property
+    def has_grouping(self) -> bool:
+        """
+        Whether the current frame has a grouping identifier.
+        """
+        return self._has_grouping
+
+    @has_grouping.setter
+    def has_grouping(self, value: bool, /) -> None:
+        validate_type("has_grouping", value, bool)
+        self._has_grouping = value
+
+    @property
+    def is_compressed(self) -> bool:
+        """
+        Whether the current frame is compressed.
+        """
+        return self._is_compressed
+
+    @is_compressed.setter
+    def is_compressed(self, value: bool, /) -> None:
+        validate_type("is_compressed", value, bool)
+        self._is_compressed = value
+
+    @property
+    def is_encrypted(self) -> bool:
+        """
+        Whether the current frame is encrypted.
+        """
+        return self._is_encrypted
+
+    @is_encrypted.setter
+    def is_encrypted(self, value: bool, /) -> None:
+        validate_type("is_encrypted", value, bool)
+        self._is_encrypted = value
+
+    @property
+    def is_unsynchronized(self) -> bool:
+        """
+        Whether the current frame is unsynchronized.
+        """
+        return self._is_unsynchronized
+
+    @is_unsynchronized.setter
+    def is_unsynchronized(self, value: bool, /) -> None:
+        validate_type("is_unsynchronized", value, bool)
+        self._is_unsynchronized = value
+
+    @property
+    def has_data_length_indicator(self) -> bool:
+        """
+        Whether the current frame has an extra synchsafe integer
+        preceding the payload.
+        """
+        return self._has_data_length_indicator
+
+    @has_data_length_indicator.setter
+    def has_data_length_indicator(self, value: bool, /) -> None:
+        validate_type("has_data_length_indicator", value, bool)
+        self._has_data_length_indicator = value
+
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
         Serialize the ID3v2 frame flags to a bytestream.
@@ -760,16 +859,16 @@ class ID3v2FrameFlags:
                 return bytes(
                     (
                         (
-                            (0x40 if self.discard_on_tag_alter else 0)
-                            | (0x20 if self.discard_on_file_alter else 0)
-                            | (0x10 if self.is_read_only else 0)
+                            (0x40 if self._discard_on_tag_alter else 0)
+                            | (0x20 if self._discard_on_file_alter else 0)
+                            | (0x10 if self._is_read_only else 0)
                         ),
                         (
-                            (0x40 if self.has_grouping else 0)
-                            | (0x08 if self.is_compressed else 0)
-                            | (0x04 if self.is_encrypted else 0)
-                            | (0x02 if self.is_unsynchronized else 0)
-                            | (0x01 if self.has_data_length_indicator else 0)
+                            (0x40 if self._has_grouping else 0)
+                            | (0x08 if self._is_compressed else 0)
+                            | (0x04 if self._is_encrypted else 0)
+                            | (0x02 if self._is_unsynchronized else 0)
+                            | (0x01 if self._has_data_length_indicator else 0)
                         ),
                     )
                 )
@@ -777,14 +876,14 @@ class ID3v2FrameFlags:
                 return bytes(
                     (
                         (
-                            (0x80 if self.discard_on_tag_alter else 0)
-                            | (0x40 if self.discard_on_file_alter else 0)
-                            | (0x20 if self.is_read_only else 0)
+                            (0x80 if self._discard_on_tag_alter else 0)
+                            | (0x40 if self._discard_on_file_alter else 0)
+                            | (0x20 if self._is_read_only else 0)
                         ),
                         (
-                            (0x80 if self.is_compressed else 0)
-                            | (0x40 if self.is_encrypted else 0)
-                            | (0x20 if self.has_grouping else 0)
+                            (0x80 if self._is_compressed else 0)
+                            | (0x40 if self._is_encrypted else 0)
+                            | (0x20 if self._has_grouping else 0)
                         ),
                     )
                 )
@@ -921,6 +1020,7 @@ class ID3v2Frame(ABC):
         obj._flags = ID3v2FrameFlags._from_bytes_2_3(
             stream[8], stream[9], strict=strict
         )
+        # TODO: Handle has_grouping, is_compressed, is_encrypted,
         return obj
 
     @classmethod
@@ -956,6 +1056,8 @@ class ID3v2Frame(ABC):
         obj._flags = ID3v2FrameFlags._from_bytes_2_4(
             stream[8], stream[9], strict=strict
         )
+        # TODO: Handle has_grouping, is_compressed, is_encrypted,
+        # is_unsynchronized, has_data_length_indicator
         return obj
 
     @classmethod
@@ -1188,6 +1290,8 @@ class ID3v2Frame(ABC):
         stream : bytes
             Bytestream containing the ID3v2 frame.
         """
+        # TODO: Handle is_read_only, has_grouping, is_unsynchronized,
+        # has_data_length_indicator for all serialize() methods
         ...
 
     def _resolve_text_encoding(

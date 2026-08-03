@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from .._utility import (
     decode_32_bit_synchsafe_int,
@@ -12,6 +12,10 @@ from .._utility import (
 from ._shared import Audio
 from .metadata._shared import AudioStreamInfo
 from .metadata.id3._core import ID3v1, ID3v2
+
+if TYPE_CHECKING:
+    from .._types import PathLike
+
 
 __all__ = ["MPEGAudio", "MPEGStreamInfo"]
 
@@ -838,14 +842,14 @@ class MPEGAudio(Audio):
         # file_path = self._file_path
         view = self._view
 
-        self._format_metadata = []
+        self._format_metadata = format_metadata = []
         strict = self._strict
 
         # Process ID3v2 tags, if any
         if view[:3] == b"ID3":
             offset = 10 + decode_32_bit_synchsafe_int(*view[6:10])
             tags = ID3v2.from_stream(view[:offset], strict=strict)
-            self._format_metadata.append(tags)
+            format_metadata.append(tags)
             self._tags = tags
             self._audio_offset = offset
         else:
@@ -855,7 +859,7 @@ class MPEGAudio(Audio):
         end_audio_offset = len(view)
         if view[-128:-125] == b"TAG":
             tags = ID3v1.from_stream(view[-128:])
-            self._format_metadata.append(tags)
+            format_metadata.append(tags)
             if not hasattr(self, "_tags"):
                 self._tags = tags
             end_audio_offset -= 128
@@ -872,12 +876,29 @@ class MPEGAudio(Audio):
 
     def add_metadata(self) -> None:
         """ """
-        ...  # TODO
+        raise NotImplementedError  # TODO
 
     def remove_metadata(self) -> None:
         """ """
-        ...  # TODO
+        raise NotImplementedError  # TODO
 
-    def save(self) -> None:
-        """ """
-        ...  # TODO
+    def save(
+        self,
+        file_path: PathLike | None = None,
+        /,
+        *,
+        include_padding: bool = True,
+    ) -> None:
+        """
+        Write changes to disk.
+
+        Parameters
+        ----------
+        file_path : str or pathlib.Path; positional-only
+            Path to or name of the MPEG audio file. If not specified,
+            changes are written back to the source file.
+
+        include_padding : bool; keyword-only; default: :code:`True`
+            Whether to keep padding.
+        """
+        raise NotImplementedError  # TODO
