@@ -672,15 +672,23 @@ class ID3v2FrameFlags:
                     "Reserved bits set in ID3v2 frame format flags byte."
                 )
 
+        is_compressed = bool(format_flags & 0x08)
+        has_data_length_indicator = bool(format_flags & 0x01)
+        if is_compressed and not has_data_length_indicator:
+            raise ValueError(
+                "A data length indicator must be present when an "
+                "ID3v2.4 frame is compressed."
+            )
+
         obj = cls.__new__(cls)
         obj._discard_on_tag_alter = bool(status_flags & 0x40)
         obj._discard_on_file_alter = bool(status_flags & 0x20)
         obj._is_read_only = bool(status_flags & 0x10)
         obj._has_grouping = bool(format_flags & 0x40)
-        obj._is_compressed = bool(format_flags & 0x08)
+        obj._is_compressed = is_compressed
         obj._is_encrypted = bool(format_flags & 0x04)
         obj._is_unsynchronized = bool(format_flags & 0x02)
-        obj._has_data_length_indicator = bool(format_flags & 0x01)
+        obj._has_data_length_indicator = has_data_length_indicator
         return obj
 
     @classmethod
@@ -1060,12 +1068,18 @@ class ID3v2Frame(ABC):
                 "the header."
             )
 
-        obj = cls.__new__(cls)
-        obj._flags = ID3v2FrameFlags._from_bytes_2_4(
+        flags = ID3v2FrameFlags._from_bytes_2_4(
             stream[8], stream[9], strict=strict
         )
-        # TODO: Handle has_grouping, is_compressed, is_encrypted,
-        # is_unsynchronized, has_data_length_indicator
+        if flags._is_encrypted:
+            obj = UnknownID3v2Frame.__new__(UnknownID3v2Frame)
+            obj._frame_id = stream[:4].tobytes()
+            obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
+            obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
+            return obj
+
+        obj = cls.__new__(cls)
+        obj._flags = flags
         return obj
 
     @classmethod
@@ -1303,8 +1317,8 @@ class ID3v2Frame(ABC):
         ...
 
     def _decode_2_3(
-        self, stream: memoryview, /, frame_length: int
-    ) -> tuple[bytes | memoryview, int, int]:
+        self, stream: memoryview, /, frame_length: int, *, strict: bool = True
+    ) -> tuple[memoryview, int, int]:
         """
         Decode an ID3v2.3 frame.
 
@@ -1314,36 +1328,105 @@ class ID3v2Frame(ABC):
             Bytes-like object containing an ID3v2.3 frame.
 
         frame_length : int
-            Encoded frame length, in bytes.
+            Length of encoded frame data, in bytes.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
 
         Returns
         -------
-        stream : bytes or memoryview
+        stream : memoryview
             Decoded frame data.
 
         offset : int
             Current byte offset.
 
         frame_length : int
-            Decoded frame length, in bytes.
+            Length of decoded frame data, in bytes.
         """
         offset = 10
         flags = self._flags
-        is_compressed = flags._is_compressed
-        if is_compressed:
+        if flags._is_compressed:
             end_offset = offset + 4
             decompressed_length = int.from_bytes(
                 stream[offset:end_offset], byteorder="big"
             )
             offset = end_offset
-        if flags.has_grouping:
+        if flags._has_grouping:
             self._group_id = stream[offset]
             offset += 1
-        if is_compressed:
+        if flags._is_compressed:
             stream = zlib.decompress(stream[offset:frame_length])
+            if strict and (data_length := len(stream)) != decompressed_length:
+                raise ValueError(
+                    f"Length of decoded frame data ({data_length}) "
+                    "does not match expected decompressed size "
+                    f"({decompressed_length})."
+                )
             offset = 0
             frame_length = decompressed_length
-        return stream, offset, frame_length
+        return as_buffer(stream), offset, frame_length
+
+    def _decode_2_4(
+        self, stream: memoryview, /, frame_length: int, *, strict: bool = True
+    ) -> tuple[memoryview, int, int]:
+        """
+        Decode an ID3v2.4 frame.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytes-like object containing an ID3v2.4 frame.
+
+        frame_length : int
+            Length of encoded frame data, in bytes.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        stream : memoryview
+            Decoded frame data.
+
+        offset : int
+            Current byte offset.
+
+        frame_length : int
+            Length of decoded frame data, in bytes.
+        """
+        offset = 10
+        flags = self._flags
+        if flags._has_grouping:
+            self._group_id = stream[offset]
+            offset += 1
+        if flags._has_data_length_indicator:
+            end_offset = offset + 4
+            data_length = decode_32_bit_synchsafe_int(
+                *stream[offset:end_offset]
+            )
+            offset = end_offset
+        if flags._is_unsynchronized:
+            stream = (
+                stream[offset:frame_length]
+                .tobytes()
+                .replace(b"\xff\x00", b"\xff")
+            )
+            offset = 0
+            frame_length = len(stream)
+        if flags._is_compressed:
+            stream = zlib.decompress(stream[offset:frame_length])
+            offset = 0
+        if flags._has_data_length_indicator:
+            if strict and (data_length_ := len(stream)) != data_length:
+                raise ValueError(
+                    f"Length of decoded frame data ({data_length_}) "
+                    f"does not match data length indicator ({data_length})."
+                )
+            frame_length = data_length
+        return (as_buffer(stream), offset, frame_length)
 
     def _resolve_text_encoding(
         self, text_encoding: str | None, tag_version: tuple[int, int, int], /
@@ -1573,6 +1656,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._text_info = cls._split_bytestream(
@@ -1604,9 +1688,17 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             Text information frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._text_info = cls._split_bytestream(
-            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            stream[offset + 1 : offset + frame_length],
             encoding=obj._text_encoding,
         )
         return obj
@@ -1856,10 +1948,18 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._datetimes = cls._parse_datetimes(
             cls._split_bytestream(
-                stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+                stream[offset + 1 : offset + frame_length],
                 encoding=obj._text_encoding,
             ),
             strict=strict,
@@ -2223,12 +2323,22 @@ class ID3v2APICFrame(ID3v2Frame):
             :code:`APIC` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[
+            stream[offset]
+        ]
         null_char = (
             b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
         )
         mime_type, stream = (
-            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])]
+            stream[offset + 1 : offset + frame_length]
             .tobytes()
             .split(null_char, maxsplit=1)
         )
@@ -2558,10 +2668,21 @@ class ID3v2COMMFrame(ID3v2Frame):
             :code:`COMM` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        obj._language = stream[11:14].tobytes().decode(encoding="ascii")
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
+        mid_offset = offset + 4
+        obj._language = (
+            stream[offset + 1 : mid_offset].tobytes().decode(encoding="ascii")
+        )
         obj._description, obj._comment = cls._split_bytestream(
-            stream[14 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            stream[mid_offset : offset + frame_length],
             encoding=obj._text_encoding,
             max_splits=1,
         )
@@ -2829,10 +2950,21 @@ class ID3v2USLTFrame(ID3v2Frame):
             :code:`USLT` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
-        obj._language = stream[11:14].tobytes().decode(encoding="ascii")
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
+        mid_offset = offset + 4
+        obj._language = (
+            stream[offset + 1 : mid_offset].tobytes().decode(encoding="ascii")
+        )
         obj._description, obj._lyrics = cls._split_bytestream(
-            stream[14 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            stream[mid_offset : offset + frame_length],
             encoding=obj._text_encoding,
         )
         return obj
@@ -3114,9 +3246,17 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
             :code:`TBPM` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         bpms = cls._split_bytestream(
-            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            stream[offset + 1 : offset + frame_length],
             encoding=obj._text_encoding,
         )
         if strict:
@@ -3298,9 +3438,17 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
             :code:`TCMP` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         compilation_flags = cls._split_bytestream(
-            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            stream[offset + 1 : offset + frame_length],
             encoding=obj._text_encoding,
         )
         if strict:
@@ -3358,6 +3506,8 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
     }
 
     __slots__ = ()
+
+    # TODO: Map to ID3v1 genres
 
 
 class ID3v2TCOPFrame(ID3v2TextInfoFrame):
@@ -4039,10 +4189,18 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._disc = cls._parse_discs(
             cls._split_bytestream(
-                stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+                stream[offset + 1 : offset + frame_length],
                 encoding=obj._text_encoding,
             ),
             strict=strict,
@@ -4306,10 +4464,18 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._track = cls._parse_tracks(
             cls._split_bytestream(
-                stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+                stream[offset + 1 : offset + frame_length],
                 encoding=obj._text_encoding,
             ),
             strict=strict,
@@ -4542,11 +4708,19 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._text_info = [
             prepare_isrc(isrc)
             for isrc in cls._split_bytestream(
-                stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+                stream[offset + 1 : offset + frame_length],
                 encoding=obj._text_encoding,
             )
         ]
@@ -4757,9 +4931,17 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
             stream, strict=strict
         )
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[10]]
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._description, *obj._text_info = cls._split_bytestream(
-            stream[11 : 10 + decode_32_bit_synchsafe_int(*stream[4:8])],
+            stream[offset + 1 : offset + frame_length],
             encoding=obj._text_encoding,
         )
         return obj
@@ -4964,12 +5146,10 @@ class UnknownID3v2Frame(ID3v2Frame):
             ID3v2 frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
-        obj._frame_id = stream[:4].tobytes()
-        obj._frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
-        obj._flags = ID3v2FrameFlags._from_bytes_2_4(
-            stream[8], stream[9], strict=strict
-        )
-        obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
+        if not hasattr(obj, "_frame_id"):
+            obj._frame_id = stream[:4].tobytes()
+            obj._frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+            obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
         return obj
 
     @property

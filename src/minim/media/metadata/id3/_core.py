@@ -795,10 +795,10 @@ class ID3v2(AudioTags):
         if flags._is_compressed:
             raise NotImplementedError(
                 "Compressed ID3v2.2 tags are not supported."
-            )
+            )  # TODO: Store raw data in immutable object
 
         if flags._is_unsynchronized:
-            stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
+            stream = memoryview(stream.tobytes().replace(b"\xff\x00", b"\xff"))
         offset = 0
         tag_end = len(stream)
 
@@ -868,7 +868,7 @@ class ID3v2(AudioTags):
         obj._flags = flags = ID3v2Flags._from_byte_2_3(flags, strict=strict)
 
         if flags._is_unsynchronized:
-            stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
+            stream = memoryview(stream.tobytes().replace(b"\xff\x00", b"\xff"))
         offset = 0
         tag_end = len(stream)
 
@@ -941,7 +941,7 @@ class ID3v2(AudioTags):
         obj._flags = flags = ID3v2Flags._from_byte_2_4(flags, strict=strict)
 
         if flags._is_unsynchronized:
-            stream = stream.tobytes().replace(b"\xff\x00", b"\xff")
+            stream = memoryview(stream.tobytes().replace(b"\xff\x00", b"\xff"))
         offset = 0
         tag_end = len(stream)
 
@@ -1320,11 +1320,11 @@ class ID3v2(AudioTags):
         transcription.
         """
         lyrics = []
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"SYLT")):
-            lyrics.extend(frame._lyrics for frame in frames)
+        # if frames := self._class_index.get(ID3v2Frame._get_class(b"SYLT")):
+        #     lyrics.extend(frame._lyrics for frame in frames)
         if frames := self._class_index.get(ID3v2Frame._get_class(b"USLT")):
             lyrics.extend(frame._lyrics for frame in frames)
-        return lyrics
+        return lyrics or None
 
     @lyrics.setter
     def lyrics(self, value: str | OrderedCollection[str], /) -> None: ...
