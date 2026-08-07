@@ -555,7 +555,7 @@ class ID3v2FrameFlags:
         ----------
         discard_on_tag_alter : bool; keyword-only; default: \
         :code:`False`
-            Whether to discard the current frame if it is unknown and 
+            Whether to discard the current frame if it is unknown and
             the ID3 tag it belongs to is edited.
 
         discard_on_file_alter : bool; keyword-only; default: \
@@ -910,7 +910,7 @@ class ID3v2Frame(ABC):
     ID3v2 frame.
     """
 
-    _TEXT_ENCODINGS: ClassVar[dict[int, str]] = {
+    _TEXT_ENCODINGS: ClassVar[dict[int | str, int | str]] = {
         0: "iso-8859-1",
         1: "utf-16",
         2: "utf-16be",
@@ -2104,7 +2104,7 @@ class ID3v2APICFrame(ID3v2Frame):
        <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _MIME_TYPES: ClassVar[dict[int, str]] = {
+    _MIME_TYPES: ClassVar[dict[str, str]] = {
         "image/jpeg": "JPG",
         "image/png": "PNG",
         "image/gif": "GIF",

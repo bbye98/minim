@@ -25,6 +25,7 @@ from ._frames import (
     UnknownID3v2Frame,
 )
 from ._shared import (
+    GENRES,
     TAG_VERSIONS,
     normalize_id3v1_tag_version,
     normalize_id3v2_tag_version,
@@ -62,27 +63,27 @@ class ID3v1:
         """
         Parameters
         ----------
-        title : str or None; keyword-only; optional
+        title : str; keyword-only; optional
             Title of the recording.
 
-        artist : str or None; keyword-only; optional
+        artist : str; keyword-only; optional
             Main artists of the recording (e.g., the performing band or
             singers in popular music, the composers for classical music,
             or the authors of the original text in audiobooks).
 
-        album : str or None; keyword-only; optional
+        album : str; keyword-only; optional
             Title of the album or collection.
 
-        year : int, str, or None; keyword-only; optional
+        year : int or str; keyword-only; optional
             Recording or release year.
 
-        comment : str or None; keyword-only; optional
+        comment : str; keyword-only; optional
             Free-form comment.
 
-        track_number : int or None; keyword-only; optional
+        track_number : int; keyword-only; optional
             Track number within the album or collection.
 
-        genre : int, str, or None; keyword-only; optional
+        genre : int or str; keyword-only; optional
             Musical genre.
         """
         self.title = title
@@ -221,17 +222,25 @@ class ID3v1:
         self._comment = value
 
     @property
-    def genre(self) -> int | None:
+    def genre(self) -> str | None:
         """
         Musical genre.
         """
-        return self._genre
+        return GENRES.get(self._genre, str(self._genre))
 
     @genre.setter
     def genre(self, value: int | str | None, /) -> None:
         if value is not None:
-            validate_numeric("genre", value, int, 0, 255)
-            value = int(value)
+            if isinstance(value, str) and not value.isdecimal():
+                value_ = GENRES.get(value.lower())
+                if value_ is None:
+                    raise ValueError(
+                        f"Invalid or unknown ID3v1 genre {value!r}."
+                    )
+                value = value_
+            else:
+                validate_numeric("genre", value, int, 0, 255)
+                value = int(value)
         self._genre = value
 
     @property
@@ -997,11 +1006,11 @@ class ID3v2(AudioTags):
 
         .. note::
 
-           For ID3v2.2/2.3 tags with :code:`TYE`/:code:`TYER`, 
-           :code:`TDA`/:code:`TDAT`, and/or :code:`TIM`/:code:`TIME` 
-           frames containing differing numbers of values, values are 
-           associated by ordinal position. Missing components are 
-           represented as :code:`None` when :code:`strict=False`; 
+           For ID3v2.2/2.3 tags with :code:`TYE`/:code:`TYER`,
+           :code:`TDA`/:code:`TDAT`, and/or :code:`TIM`/:code:`TIME`
+           frames containing differing numbers of values, values are
+           associated by ordinal position. Missing components are
+           represented as :code:`None` when :code:`strict=False`;
            otherwise, an exception is raised.
 
         Parameters
