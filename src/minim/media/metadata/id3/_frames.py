@@ -3612,10 +3612,15 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        obj._text_info = cls._split_bytestream(
-            stream[offset + 1 : offset + frame_length],
-            encoding=obj._text_encoding,
-        )  # TODO: Convert ints to genres, if possible.
+        obj._text_info = [
+            GENRES.get(int(content_type), content_type)
+            if content_type.isdecimal()
+            else content_type
+            for content_type in cls._split_bytestream(
+                stream[offset + 1 : offset + frame_length],
+                encoding=obj._text_encoding,
+            )
+        ]
         obj._refinements = len(obj._text_info) * [""]
         return obj
 
