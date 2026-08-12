@@ -21,7 +21,7 @@ from ...._utility import (
     validate_range,
     validate_type,
 )
-from ._shared import TAG_VERSIONS, normalize_id3v2_tag_version
+from ._shared import GENRES, TAG_VERSIONS, normalize_id3v2_tag_version
 
 if TYPE_CHECKING:
     from typing import Any, Self
@@ -34,7 +34,7 @@ class DateTime:
     Datetime with optional components and free-form extras.
     """
 
-    _DATETIME_RE: ClassVar[re.Pattern] = re.compile(
+    _DATETIME_RE: ClassVar[re.Pattern[str]] = re.compile(
         r"^(\d{4})?(?:-(\d{2})(?:-(\d{2})(?:T(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?)?)?(.*)$"
     )
 
@@ -2036,7 +2036,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         text_encoding: str | None = None,
     ) -> bytes:
         """
-        Serialize the :code:`TDRC` frame to a bytestream.
+        Serialize the datetime frame to a bytestream.
 
         Parameters
         ----------
@@ -2057,9 +2057,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         Returns
         -------
         stream : bytes
-            Bytestream containing the :code:`TDRC` or
-            :code:`TYE`/:code:`TYER`, :code:`TDA`/:code:`TDAT`, and/or
-            :code:`TIM`/`TIME` frames.
+            Bytestream containing the datetime frame.
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
@@ -2369,7 +2367,7 @@ class ID3v2APICFrame(ID3v2Frame):
         text_encoding: str | None = None,
     ) -> bytes:
         """
-        Serialize the ID3v2 frame to a bytestream.
+        Serialize the :code:`PIC`/:code:`APIC` frame to a bytestream.
 
         Parameters
         ----------
@@ -2387,7 +2385,7 @@ class ID3v2APICFrame(ID3v2Frame):
         Returns
         -------
         stream : bytes
-            Bytestream containing the "attached picture" frame.
+            Bytestream containing the :code:`PIC`/:code:`APIC` frame.
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
@@ -2702,7 +2700,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         text_encoding: str | None = None,
     ) -> bytes:
         """
-        Serialize the ID3v2 frame to a bytestream.
+        Serialize the :code:`COM`/:code:`COMM` frame to a bytestream.
 
         Parameters
         ----------
@@ -2720,7 +2718,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         Returns
         -------
         stream : bytes
-            Bytestream containing the "comments" frame.
+            Bytestream containing the :code:`COM`/:code:`COMM` frame.
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
@@ -2983,7 +2981,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         text_encoding: str | None = None,
     ) -> bytes:
         """
-        Serialize the ID3v2 frame to a bytestream.
+        Serialize the :code:`ULT`/:code:`USLT` frame to a bytestream.
 
         Parameters
         ----------
@@ -3004,8 +3002,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         Returns
         -------
         stream : bytes
-            Bytestream containing the "unsynchronized lyric/text
-            transcription" frame.
+            Bytestream containing the :code:`ULT`/:code:`USLT` frame.
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
@@ -3499,15 +3496,306 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
        properties frames <https://id3.org/id3v2.4.0-frames>`_.
     """
 
+    _GENRE_RE: ClassVar[re.Pattern[str]] = re.compile(r"(?<!\()\((\d+)\)")
+
     _frame_ids: ClassVar[dict[int, bytes]] = {
         2: b"TCO",
         3: b"TCON",
         4: b"TCON",
     }
 
-    __slots__ = ()
+    __slots__ = ("_refinements",)
 
-    # TODO: Map to ID3v1 genres
+    @classmethod
+    def _from_stream_2_2(
+        cls, stream: memoryview, /, *, strict: bool = True
+    ) -> ID3v2TCONFrame:
+        """
+        Instantiate an :class:`ID3v2TCONFrame` object from an ID3v2.2
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytes-like object containing the :code:`TCO` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        content_type_frame : minim.media.metadata.ID3v2TCONFrame
+            :code:`TCO` frame.
+        """
+        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
+            stream, strict=strict
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
+        obj._text_info, obj._refinements = cls._deserialize_content_types(
+            cls._split_bytestream(
+                stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+                encoding=obj._text_encoding,
+            )
+        )
+        return obj
+
+    @classmethod
+    def _from_stream_2_3(
+        cls, stream: memoryview, /, *, strict: bool = True
+    ) -> ID3v2TCONFrame:
+        """
+        Instantiate an :class:`ID3v2TCONFrame` object from an ID3v2.3
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytes-like object containing the :code:`TCON` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        content_type_frame : minim.media.metadata.ID3v2TCONFrame
+            :code:`TCON` frame.
+        """
+        obj = super()._from_stream_2_3(stream, strict=strict)
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_3(
+            stream,
+            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
+        obj._text_info, obj._refinements = cls._deserialize_content_types(
+            cls._split_bytestream(
+                stream[offset + 1 : offset + frame_length],
+                encoding=obj._text_encoding,
+            )
+        )
+        return obj
+
+    @classmethod
+    def _from_stream_2_4(
+        cls, stream: memoryview, /, *, strict: bool = True
+    ) -> ID3v2TextInfoFrame:
+        """
+        Instantiate an :class:`ID3v2TCONFrame` object from an ID3v2.4
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytes-like object containing the :code:`TCON` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        content_type_frame : minim.media.metadata.ID3v2TCONFrame
+            :code:`TCON` frame.
+        """
+        obj = super()._from_stream_2_4(stream, strict=strict)
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
+        obj._text_info = cls._split_bytestream(
+            stream[offset + 1 : offset + frame_length],
+            encoding=obj._text_encoding,
+        )  # TODO: Convert ints to genres, if possible.
+        obj._refinements = len(obj._text_info) * [""]
+        return obj
+
+    @classmethod
+    def _deserialize_content_types(
+        cls, content_types: list[str], /
+    ) -> tuple[list[str], list[str]]:
+        """
+        Deserialize content types by substituting in ID3v1 genres when
+        applicable.
+
+        Parameters
+        ----------
+        content_types : list[str]; positional-only
+            Content types or genres.
+
+        Returns
+        -------
+        content_types : list[str]
+            Deserialized content types or genres.
+
+        refinements : list[str]
+            Refinements corresponding to the content types or genres.
+        """
+        text_info = []
+        refinements = []
+        pending_refinement = False
+
+        for content_type in content_types:
+            index = 0
+            for genre in cls._GENRE_RE.finditer(content_type):
+                if extra := content_type[index : genre.start()]:
+                    extra = extra.removeprefix("(")
+                    if pending_refinement:
+                        refinements.append(extra)
+                        pending_refinement = False
+                    else:
+                        text_info.append(extra)
+                        refinements.append("")
+                elif pending_refinement:
+                    refinements.append("")
+                    pending_refinement = False
+
+                code = int(genre.group(1))
+                text_info.append(GENRES.get(code, genre.group(0)))
+                pending_refinement = True
+                index = genre.end()
+
+            if extra := content_type[index:]:
+                extra = extra.removeprefix("(")
+                if pending_refinement:
+                    refinements.append(extra)
+                    pending_refinement = False
+                else:
+                    text_info.append(extra)
+                    refinements.append("")
+            elif pending_refinement:
+                refinements.append("")
+                pending_refinement = False
+
+        return text_info, refinements
+
+    @classmethod
+    def _serialize_content_types(
+        cls, content_types: list[str], refinements: list[str], /
+    ) -> list[str]:
+        """
+        Serialize content types by substituting in ID3v1 genre IDs when
+        applicable.
+
+        Parameters
+        ----------
+        content_types : list[str]; positional-only
+            Content types or genres.
+
+        refinements : list[str]; positional-only
+            Refinements to the content types or genres.
+
+        Returns
+        -------
+        content_types : list[str]
+            Serialized content types or genres.
+        """
+        return [
+            (
+                (
+                    f"({content_type}"
+                    if content_type.startswith("(")
+                    else content_type
+                )
+                if (code := GENRES.get(content_type.lower())) is None
+                else f"({code})"
+            )
+            + refinement
+            for content_type, refinement in zip(content_types, refinements)
+        ]
+
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
+        """
+        Serialize the :code:`TCO`/:code:`TCON` frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the :code:`TCO`/:code:`TCON` frame.
+        """
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
+        null_char = (
+            b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
+        )
+        match tag_version:
+            case (2, 4, _):
+                frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                    byteorder="big"
+                ) + null_char.join(
+                    ti.encode(encoding=text_encoding) for ti in self._text_info
+                )
+                return (
+                    self._frame_ids[4]
+                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+                raise NotImplementedError
+            case (2, 3, _):
+                frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                    byteorder="big"
+                ) + null_char.join(
+                    ti.encode(encoding=text_encoding)
+                    for ti in self._serialize_content_types(
+                        self._text_info, self._refinements
+                    )
+                )
+                return (
+                    self._frame_ids[3]
+                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
+                    + self._flags.serialize(tag_version)
+                    + frame_bytes
+                )
+            case (2, 2, _):
+                frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                    byteorder="big"
+                ) + null_char.join(
+                    ti.encode(encoding=text_encoding)
+                    for ti in self._serialize_content_types(
+                        self._text_info, self._refinements
+                    )
+                )
+                return (
+                    self._frame_ids[2]
+                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
+                    + frame_bytes
+                )
+            case _:
+                raise ValueError(
+                    f"Invalid ID3v2 tag version {tag_version!r}. "
+                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                )
 
 
 class ID3v2TCOPFrame(ID3v2TextInfoFrame):
@@ -3729,7 +4017,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
         text_encoding: str | None = None,
     ) -> bytes:
         """
-        Serialize the :code:`TDRC` frame to a bytestream.
+        Serialize the "recording date" frame to a bytestream.
 
         Parameters
         ----------
@@ -4967,7 +5255,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         text_encoding: str | None = None,
     ) -> bytes:
         """
-        Serialize the ID3v2 frame to a bytestream.
+        Serialize the :code:`TXX`/:code:`TXXX` frame to a bytestream.
 
         Parameters
         ----------
@@ -4988,8 +5276,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         Returns
         -------
         stream : bytes
-            Bytestream containing the "user-defined text information"
-            frame.
+            Bytestream containing the :code:`TXX`/:code:`TXXX` frame.
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)

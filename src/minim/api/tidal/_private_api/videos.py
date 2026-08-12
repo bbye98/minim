@@ -35,7 +35,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _M3U_RE: ClassVar[re.Pattern] = re.compile(
+    _M3U_RE: ClassVar[re.Pattern[str]] = re.compile(
         r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
         r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
     )
