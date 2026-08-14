@@ -21,20 +21,24 @@ TRANSLATION_TABLES = {"remove_separators": str.maketrans("", "", "‐‒–—�
 set_obj_attr = object.__setattr__
 
 
-def as_buffer(stream: BytesLike) -> memoryview:
+def as_buffer(stream: BytesLike, /) -> memoryview:
     """
-    Return a C-level buffer interface to a bytes-like object.
+    Return a :cls:`memoryview` of a bytes-like object.
 
     Parameters
     ----------
-    stream : bytes, bytearray, memoryview, or mmap.mmap; \
-    positional-only; optional
+    stream : BytesLike; positional-only
         Bytes-like object.
 
     Returns
     -------
     view : memoryview
         Buffer interface to the bytes-like object.
+
+    Raises
+    ------
+    TypeError
+        If `stream` is not a bytes-like object.
     """
     if isinstance(stream, memoryview):
         return stream
@@ -55,7 +59,7 @@ def copy_docstring(
     Parameters
     ----------
     source : Callable[..., Any]
-        Function whose docstring should be copied.
+        Function whose docstring is to be copied.
 
     Returns
     -------
@@ -80,21 +84,21 @@ def decode_32_bit_synchsafe_int(
     Parameters
     ----------
     byte_1 : int; positional-only
-        First byte in synchsafe integer.
+        First byte of the synchsafe integer.
 
     byte_2 : int; positional-only
-        Second byte in synchsafe integer.
+        Second byte of the synchsafe integer.
 
     byte_3 : int; positional-only
-        Third byte in synchsafe integer.
+        Third byte of the synchsafe integer.
 
     byte_4 : int; positional-only
-        Fourth byte in synchsafe integer.
+        Fourth byte of the synchsafe integer.
 
     Returns
     -------
     value : int
-        Decoded synchsafe integer value.
+        Decoded integer value.
     """
     return (byte_1 << 21) | (byte_2 << 14) | (byte_3 << 7) | byte_4
 
@@ -110,16 +114,16 @@ def encode_32_bit_synchsafe_int(value: int, /) -> tuple[int, int, int, int]:
 
     Returns
     -------
-    byte_1 : int; positional-only
+    byte_1 : int
         First byte in synchsafe integer.
 
-    byte_2 : int; positional-only
+    byte_2 : int
         Second byte in synchsafe integer.
 
-    byte_3 : int; positional-only
+    byte_3 : int
         Third byte in synchsafe integer.
 
-    byte_4 : int; positional-only
+    byte_4 : int
         Fourth byte in synchsafe integer.
     """
     return (
@@ -131,30 +135,32 @@ def encode_32_bit_synchsafe_int(value: int, /) -> tuple[int, int, int, int]:
 
 
 def join_values(
-    values: Collection[Any],
+    values: Any,
     /,
     *,
     fmt: Callable = repr,
     whitespace: bool = True,
 ) -> str:
     """
-    Concatenate values into a formatted string.
+    Sort and concatenate values into a formatted, comma-delimited
+    string.
 
     Parameters
     ----------
-    values : Collection[str]; positional-only
-        Values.
+    values : Any; positional-only
+        Values to format and concatenate.
 
-    fmt : type; keyword-only, default: :code:`repr`
+    fmt : Callable; keyword-only, default: :code:`repr`
         Formatting function to apply to each value.
 
     whitespace : bool; keyword-only; default: :code:`True`
-        Whether to include a whitespace after commas.
+        Whether to include whitespace after commas.
 
     Returns
     -------
-    values : str
-        Comma-delimited string of the values.
+    joined_values : str
+        Comma-delimited string of the formatted values, sorted
+        lexicographically.
     """
     if not isinstance(values, COLLECTION_TYPES):
         values = [values]
@@ -174,17 +180,25 @@ def prepare_barcode(barcode: int | str, /) -> str:
     Returns
     -------
     barcode : str
-        Trimmed UPC or EAN barcode without hyphens or spaces.
+        Normalized UPC or EAN barcode without whitespace or separators.
+
+    Raises
+    ------
+    TypeError
+        If `barcode` is neither an integer nor a string.
+
+    ValueError
+        If `barcode` is an invalid UPC or EAN barcode.
     """
     barcode = (
         str(barcode)
         if isinstance(barcode, int)
-        else prepare_string(barcode, remove_whitespace=True).translate(
+        else prepare_string(barcode, remove_all_whitespace=True).translate(
             TRANSLATION_TABLES["remove_separators"]
         )
     )
     if not barcode.isdecimal() or len(barcode) not in {12, 13}:
-        raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
+        raise ValueError(f"{barcode!r} is not a valid UPC or EAN barcode.")
     return barcode
 
 
@@ -198,19 +212,32 @@ def prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
         Datetime.
 
     fmt : str; positional-only
-        Datetime format.
+        Format string used to parse or format the datetime.
 
     Returns
     -------
     dt : str
-        Trimmed datetime string.
+        Normalized datetime string.
+
+    Raises
+    ------
+    TypeError
+        If `dt` is neither a string nor a :cls:`datetime.datetime`
+        object.
+
+    ValueError
+        If `dt` is a string that does not match `fmt` or represents an
+        invalid date or time.
     """
     if isinstance(dt, str):
         dt = dt.strip()
-        datetime.strptime(dt.strip(), fmt).replace(tzinfo=UTC)
+        datetime.strptime(dt, fmt)  # noqa: DTZ007
         return dt
 
-    return dt.strftime(fmt)
+    if isinstance(dt, datetime):
+        return dt.strftime(fmt)
+
+    raise TypeError("`dt` must be a string or a datetime.datetime object.")
 
 
 def prepare_isrc(isrc: str, /) -> str:
@@ -226,9 +253,17 @@ def prepare_isrc(isrc: str, /) -> str:
     Returns
     -------
     isrc : str
-        Trimmed ISRC string without hyphens or spaces.
+        Normalized ISRC without whitespace or separators.
+
+    Raises
+    ------
+    TypeError
+        If `isrc` is not a string.
+
+    ValueError
+        If `isrc` is an invalid ISRC.
     """
-    isrc = prepare_string("isrc", isrc, remove_whitespace=True).translate(
+    isrc = prepare_string("isrc", isrc, remove_all_whitespace=True).translate(
         TRANSLATION_TABLES["remove_separators"]
     )
     if len(isrc) != 12 or not (
@@ -251,9 +286,17 @@ def prepare_iswc(iswc: str, /) -> str:
     Returns
     -------
     iswc : str
-        Trimmed ISWC string without hyphens or spaces.
+        Normalized ISWC without whitespace or separators.
+
+    Raises
+    ------
+    TypeError
+        If `iswc` is not a string.
+
+    ValueError
+        If `iswc` is an invalid ISWC.
     """
-    iswc = prepare_string("iswc", iswc, remove_whitespace=True).translate(
+    iswc = prepare_string("iswc", iswc, remove_all_whitespace=True).translate(
         TRANSLATION_TABLES["remove_separators"]
     )
     if (
@@ -277,14 +320,14 @@ def prepare_string(
     /,
     *,
     allow_blank: bool = False,
-    remove_whitespace: bool = False,
+    remove_all_whitespace: bool = False,
 ) -> str:
     """
-    Validate and strip a string.
+    Validate and normalize a string.
 
     Parameters
     ----------
-    name : str; positional-only.
+    name : str; positional-only
         Parameter name for the string.
 
     string : str; positional-only
@@ -293,16 +336,28 @@ def prepare_string(
     allow_blank : bool; keyword-only; default: :code:`False`
         Whether to allow empty strings.
 
-    remove_whitespace : bool; keyword-only; default: :code:`False`
-        Whether to remove whitespace throughout the string.
+    remove_all_whitespace : bool; keyword-only; default: :code:`False`
+        Whether to remove all whitespace throughout the string. If
+        :code:`False`, only leading and trailing whitespace is removed.
 
     Returns
     -------
     string : str
-        Stripped string.
+        Normalized string with leading and trailing (or all with
+        :code:`remove_all_whitespace=True`) whitespace removed.
+
+    Raises
+    ------
+    TypeError
+        If `string` is not a string.
+
+    ValueError
+        If `string` is an empty string and :code:`allow_blank=False`.
     """
     validate_type(name, string, str)
-    string = "".join(string.split()) if remove_whitespace else string.strip()
+    string = (
+        "".join(string.split()) if remove_all_whitespace else string.strip()
+    )
     if not allow_blank and not len(string):
         raise ValueError(f"`{name}` cannot be blank.")
     return string
@@ -310,13 +365,19 @@ def prepare_string(
 
 def validate_country_code(country_code: str, /) -> None:
     """
-    Validate an International Organization for Standardization (ISO)
-    3166-1 alpha-2 country code.
+    Validate the format of an International Organization for
+    Standardization (ISO) 3166-1 alpha-2 country code.
 
     Parameters
     ----------
     country_code : str; positional-only
         ISO 3166-1 alpha-2 country code.
+
+    Raises
+    ------
+    ValueError
+        If `country_code` is not a valid ISO 3166-1 alpha-2 country
+        code.
     """
     if (
         not isinstance(country_code, str)
@@ -328,31 +389,41 @@ def validate_country_code(country_code: str, /) -> None:
         )
 
 
-def validate_iso_8859_1_string(name: str, string: bytes | str, /) -> None:
+def validate_iso_8859_1_string(name: str, value: bytes | str, /) -> None:
     """
-    Validate that a string only contains ISO-8859-1 characters.
+    Validate that a string contains only ISO-8859-1 characters.
 
     Parameters
     ----------
     name : str; positional-only
         Parameter name for the string.
 
-    string : bytes or str; positional-only
+    value : bytes or str; positional-only
         String.
+
+    Raises
+    ------
+    ValueError
+        If `value` does not contain only ISO-8859-1 characters.
     """
-    if string and ord(max(string)) > 255:
-        raise ValueError(f"`{name}` can only contain ISO-8859-1 characters.")
+    if value and any(ord(char) > 255 for char in value):
+        raise ValueError(f"`{name}` can contain only ISO-8859-1 characters.")
 
 
 def validate_language_code(language_code: str, /) -> None:
     """
-    Validate an International Organization for Standardization (ISO)
-    639-1 language code.
+    Validate the format of an International Organization for
+    Standardization (ISO) 639-1 language code.
 
     Parameters
     ----------
     language_code : str; positional-only
         ISO 639-1 language code.
+
+    Raises
+    ------
+    ValueError
+        If `language_code` is not a valid ISO 639-1 language code.
     """
     if (
         not isinstance(language_code, str)
@@ -366,14 +437,18 @@ def validate_language_code(language_code: str, /) -> None:
 
 def validate_locale(locale: str, /) -> None:
     """
-    Validate an Internet Engineering Task Force (IETF) Best Current
-    Practice (BCP) 47 language tag, as defined in Request for Comments
-    (RFC) 1766.
+    Validate a locale identifier consisting of an ISO 639-1 language
+    code and an ISO 3166-1 alpha-2 country code joined by an underscore.
 
     Parameters
     ----------
     locale : str; positional-only
-        IETF BCP 47 language tag.
+        Locale identifier.
+
+    Raises
+    ------
+    ValueError
+        If `locale` is not a valid locale identifier.
     """
     if (
         not isinstance(locale, str)
@@ -383,9 +458,9 @@ def validate_locale(locale: str, /) -> None:
         or not locale[3:].isalpha()
     ):
         raise ValueError(
-            f"{locale!r} is not a valid IETF BCP 47 language tag "
-            "consisting of an ISO 639-1 language code and an ISO "
-            "3166-1 alpha-2 country code joined by an underscore."
+            f"{locale!r} is not a valid locale identifier consisting "
+            "of an ISO 639-1 language code and an ISO 3166-1 alpha-2 "
+            "country code joined by an underscore."
         )
 
 
@@ -398,7 +473,7 @@ def validate_number(
     upper_bound: float | None = None,
 ) -> None:
     """
-    Validate the value of a variable containing a number.
+    Validate a numeric value.
 
     Parameters
     ----------
@@ -416,6 +491,14 @@ def validate_number(
 
     upper_bound : int or float; optional
         Upper bound, inclusive.
+
+    Raises
+    ------
+    TypeError
+        If `value` is not an instance of `data_type`.
+
+    ValueError
+        If `value` is outside the specified range.
     """
     if not isinstance(value, data_type):
         data_type_str = (
@@ -460,21 +543,32 @@ def validate_numeric(
 
     upper_bound : int or float; optional
         Upper bound, inclusive.
+
+    Raises
+    ------
+    TypeError
+        If `value` is neither a numeric value nor the bytes or string
+        representation of one.
+
+    ValueError
+        If `value` cannot be converted to `data_type` or is outside the
+        specified range.
     """
-    try:
-        if isinstance(value, bytes | str):
+    if isinstance(value, bytes | str):
+        try:
             value = data_type(value)
-        validate_number(name, value, data_type, lower_bound, upper_bound)
-    except TypeError:
-        data_type_str = (
-            data_type.__name__
-            if isinstance(data_type, type)
-            else str(data_type)
-        )
-        raise TypeError(
-            f"`{name}` must be a(n) {data_type_str} or its numeric "
-            f"string representation, not a(n) {type(value).__name__}."
-        )
+        except (TypeError, ValueError):
+            data_type_str = (
+                data_type.__name__
+                if isinstance(data_type, type)
+                else str(data_type)
+            )
+            raise ValueError(
+                f"`{name}` must be a(n) {data_type_str} or its numeric "
+                f"string representation, not {value!r}."
+            ) from None
+
+    validate_number(name, value, data_type, lower_bound, upper_bound)
 
 
 def validate_range(
@@ -492,7 +586,7 @@ def validate_range(
     name : str; positional-only
         Variable name.
 
-    value : int, float, or str; positional-only
+    value : int or float; positional-only
         Variable value.
 
     lower_bound : int or float; optional
@@ -500,6 +594,11 @@ def validate_range(
 
     upper_bound : int or float; optional
         Upper bound, inclusive.
+
+    Raises
+    ------
+    ValueError
+        If `value` is outside the specified range.
     """
     has_lower_bound = lower_bound is not None
     has_upper_bound = upper_bound is not None
@@ -511,12 +610,12 @@ def validate_range(
     ):
         if has_lower_bound:
             if has_upper_bound:
-                emsg = f"between {lower_bound} and {upper_bound}"
+                emsg = f"between {lower_bound} and {upper_bound}, inclusive"
             else:
-                emsg = f"greater than {lower_bound}"
+                emsg = f"greater than or equal to {lower_bound}"
         else:
-            emsg = f"less than {upper_bound}"
-        raise ValueError(f"`{name}` must be {emsg}, inclusive.")
+            emsg = f"less than or equal to {upper_bound}"
+        raise ValueError(f"`{name}` must be {emsg}.")
 
 
 def validate_type(
@@ -533,8 +632,13 @@ def validate_type(
     value : Any; positional-only
         Variable value.
 
-    data_type : type or types.UnionTypes; positional-only
-        Allowed data type.
+    data_type : type or types.UnionType; positional-only
+        Allowed data types.
+
+    Raises
+    ------
+    TypeError
+        If `value` is not an instance of `data_type`.
     """
     if not isinstance(value, data_type):
         data_type_str = (
@@ -548,9 +652,7 @@ def validate_type(
         )
 
 
-def validate_uuids(
-    uuids: str | Collection[str], /, *, recursive: bool = True
-) -> None:
+def validate_uuids(uuids: str | Collection[str], /) -> None:
     """
     Validate universally unique identifiers (UUIDs).
 
@@ -558,17 +660,25 @@ def validate_uuids(
     ----------
     uuids : str or Collection[str]; positional-only
         UUIDs.
+
+    Raises
+    ------
+    TypeError
+        If `uuids` is neither a string nor a collection of strings.
+
+    ValueError
+        If `uuids` contains an invalid UUID.
     """
     if isinstance(uuids, str):
         try:
             uuid.UUID(uuids)
-        except (TypeError, ValueError) as e:
+        except ValueError as e:
             raise ValueError(f"{uuids!r} is not a valid UUID.") from e
 
-    elif recursive and isinstance(uuids, COLLECTION_TYPES):
+    elif isinstance(uuids, COLLECTION_TYPES):
         for uuid_ in uuids:
-            validate_uuids(uuid_, recursive=False)
+            validate_uuids(uuid_)
     else:
-        raise ValueError(
+        raise TypeError(
             "UUIDs must be provided as a string or a collection of strings."
         )
