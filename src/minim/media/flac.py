@@ -66,6 +66,16 @@ class FLACMetadataBlock(ABC):
         """
         Create an instance of a :class:`FLACMetadataBlock` subclass from
         a bytes-like object.
+
+        Parameters
+        ----------
+        stream : BytesLike; positional-only; optional
+            Bytes-like object containing a FLAC metadata block data.
+
+        Returns
+        -------
+        metadata_block : minim.media.flac.FLACMetadataBlock
+            FLAC metadata block.
         """
         ...
 
@@ -219,8 +229,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing the :code:`STREAMINFO` metadata
             block data.
 
@@ -404,8 +413,7 @@ class FLACPadding(FLACMetadataBlock):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing :code:`PADDING` metadata block
             data.
 
@@ -489,8 +497,7 @@ class FLACApplication(FLACMetadataBlock):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing :code:`APPLICATION` metadata
             block data.
 
@@ -565,8 +572,7 @@ class FLACSeekTable(FLACMetadataBlock):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing :code:`SEEKTABLE` metadata
             block data.
 
@@ -855,8 +861,7 @@ class FLACCueSheet(FLACMetadataBlock):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing :code:`CUESHEET` metadata block
             data.
 
@@ -1131,8 +1136,7 @@ class FLACCueSheetTrack:
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing :code:`CUESHEET_TRACK` data.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -1337,8 +1341,7 @@ class FLACCueSheetTrackIndex(
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing :code:`CUESHEET_TRACK_INDEX`
             data.
 
@@ -1443,8 +1446,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing :code:`PICTURE` metadata block
             data.
 
@@ -1572,8 +1574,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing the metadata block data.
 
         block_type : int
@@ -1657,7 +1658,7 @@ class FLACAudio(Audio):
         """
         Parameters
         ----------
-        file_path : str or pathlib.Path; positional-only
+        file_path : PathLike; positional-only
             Path to or name of the FLAC audio file.
 
         keep_empty_tags : bool; keyword-only; default: :code:`False`
@@ -2213,7 +2214,7 @@ class FLACAudio(Audio):
 
         Parameters
         ----------
-        file_path : str or pathlib.Path; positional-only
+        file_path : PathLike; positional-only
             Path to or name of the FLAC audio file. If not specified,
             changes are written back to the source file.
 

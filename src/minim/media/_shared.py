@@ -34,7 +34,7 @@ class Audio(ABC):
         """
         Parameters
         ----------
-        file_path : str or pathlib.Path; positional-only
+        file_path : PathLike; positional-only
             Path to or name of the audio file.
 
         strict : bool; keyword-only; default: :code:`True`

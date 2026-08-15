@@ -133,8 +133,7 @@ class VorbisComment(AudioTags):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing a Vorbis comment metadata
             block.
 

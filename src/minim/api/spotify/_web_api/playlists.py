@@ -1631,7 +1631,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        image : bytes, str, or pathlib.Path
+        image : bytes or PathLike
             Base64-encoded JPEG image data, provided as a bytes object
             or a file path.
 

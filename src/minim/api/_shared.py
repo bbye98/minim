@@ -1163,7 +1163,7 @@ class OAuthAPIClient(APIClient):
 
         Parameters
         ----------
-        certificate_file : str or pathlib.Path; positional-only
+        certificate_file : PathLike; positional-only
             Name of or path to the certificate file.
 
         Returns

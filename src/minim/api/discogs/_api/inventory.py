@@ -50,7 +50,7 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        inventory_csv : bytes, str, or pathlib.Path; positional-only
+        inventory_csv : bytes or PathLike; positional-only
             Path to, name of, or a byte string of the contents of an
             inventory CSV file.
 
@@ -359,7 +359,7 @@ class InventoryAPI(DiscogsResourceAPI):
 
             **Examples**: :code:`599632`, :code:`"16105411"`.
 
-        target : str or pathlib.Path; keyword-only; optional
+        target : PathLike; keyword-only; optional
             Target directory or file. If provided, a CSV file is
             written in the specified folder or with the specified
             filename. Otherwise, the raw CSV data is returned.
@@ -423,7 +423,7 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        inventory_csv : bytes, str, or pathlib.Path; positional-only
+        inventory_csv : bytes or PathLike; positional-only
             Path to, name of, or contents of a CSV file containing the
             listings to add.
 
@@ -495,7 +495,7 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        inventory_csv : str or pathlib.Path; positional-only
+        inventory_csv : bytes or PathLike; positional-only
             Path to, name of, or contents of a CSV file containing the
             listings to update.
 
@@ -564,7 +564,7 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Parameters
         ----------
-        inventory_csv : str or pathlib.Path; positional-only
+        inventory_csv : bytes or PathLike; positional-only
             Path to, name of, or contents of a CSV file containing the
             listings to delete.
 

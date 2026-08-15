@@ -8,8 +8,6 @@ from typing import TYPE_CHECKING, ClassVar
 from ...._types import ORDERED_COLLECTION_TYPES
 from ...._utility import (
     as_buffer,
-    decode_32_bit_synchsafe_int,
-    encode_32_bit_synchsafe_int,
     join_values,
     validate_iso_8859_1_string,
     validate_number,
@@ -27,6 +25,8 @@ from ._frames import (
 from ._shared import (
     GENRES,
     TAG_VERSIONS,
+    decode_32_bit_synchsafe_int,
+    encode_32_bit_synchsafe_int,
     normalize_id3v1_tag_version,
     normalize_id3v2_tag_version,
 )
@@ -118,8 +118,7 @@ class ID3v1:
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing an ID3v1 tag.
 
         Returns
@@ -949,11 +948,7 @@ class ID3v2(AudioTags):
         obj._unknown_index = defaultdict(list)
         obj._flags = flags = ID3v2Flags._from_byte_2_4(flags, strict=strict)
 
-        if flags._is_unsynchronized:
-            stream = memoryview(stream.tobytes().replace(b"\xff\x00", b"\xff"))
         offset = 0
-        tag_end = len(stream)
-
         if flags._has_extended_header:
             flag_byte = stream[offset + 5]
             if strict and flag_byte & 0x8F:
@@ -969,6 +964,8 @@ class ID3v2(AudioTags):
                 ]
             offset += decode_32_bit_synchsafe_int(*stream[offset : offset + 4])
 
+        is_unsynchronized = strict and flags._is_unsynchronized
+        tag_end = len(stream)
         while offset < tag_end:
             if not stream[offset]:
                 frames.append(
@@ -984,12 +981,16 @@ class ID3v2(AudioTags):
             end_offset = (
                 offset + 10 + decode_32_bit_synchsafe_int(*frame_length)
             )
-            obj._add_frame(
-                ID3v2Frame._get_class(frame_id)._from_stream_2_4(
-                    stream[offset:end_offset], strict=strict
-                ),
-                strict=strict,
+            frame = ID3v2Frame._get_class(frame_id)._from_stream_2_4(
+                stream[offset:end_offset], strict=strict
             )
+            if is_unsynchronized and not frame._flags._is_unsynchronized:
+                raise ValueError(
+                    "ID3v2 tag unsynchronization flag is set, but a(n) "
+                    f"{frame_id.decode(encoding='ascii')} frame is not "
+                    "marked as unsynchronized."
+                )
+            obj._add_frame(frame, strict=strict)
             offset = end_offset + 10 * flags._has_footer
 
         if strict and not frames:
@@ -1015,8 +1016,7 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing an ID3v2 tag.
 
         strict : bool; keyword-only; default: :code:`True`

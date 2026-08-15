@@ -3,15 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
 
-from .._utility import (
-    decode_32_bit_synchsafe_int,
-    join_values,
-    set_obj_attr,
-    validate_type,
-)
+from .._utility import join_values, set_obj_attr, validate_type
 from ._shared import Audio
 from .metadata._shared import AudioStreamInfo
 from .metadata.id3._core import ID3v1, ID3v2
+from .metadata.id3._shared import decode_32_bit_synchsafe_int
 
 if TYPE_CHECKING:
     from .._types import PathLike
@@ -894,7 +890,7 @@ class MPEGAudio(Audio):
 
         Parameters
         ----------
-        file_path : str or pathlib.Path; positional-only
+        file_path : PathLike; positional-only
             Path to or name of the MPEG audio file. If not specified,
             changes are written back to the source file.
 

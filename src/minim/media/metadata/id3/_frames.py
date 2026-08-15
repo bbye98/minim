@@ -11,8 +11,6 @@ from ...._types import ORDERED_COLLECTION_TYPES
 from ...._utility import (
     ASCII_CHARS_REGEX,
     as_buffer,
-    decode_32_bit_synchsafe_int,
-    encode_32_bit_synchsafe_int,
     join_values,
     prepare_isrc,
     set_obj_attr,
@@ -21,7 +19,14 @@ from ...._utility import (
     validate_range,
     validate_type,
 )
-from ._shared import GENRES, TAG_VERSIONS, normalize_id3v2_tag_version
+from ._shared import (
+    GENRES,
+    TAG_VERSIONS,
+    UNSYNCHRONIZATION_RE,
+    decode_32_bit_synchsafe_int,
+    encode_32_bit_synchsafe_int,
+    normalize_id3v2_tag_version,
+)
 
 if TYPE_CHECKING:
     from typing import Any, Self
@@ -531,7 +536,7 @@ class ID3v2FrameFlags:
         "_discard_on_file_alter",
         "_discard_on_tag_alter",
         "_has_data_length_indicator",
-        "_has_grouping",
+        "_has_group_id",
         "_is_compressed",
         "_is_encrypted",
         "_is_read_only",
@@ -544,7 +549,7 @@ class ID3v2FrameFlags:
         discard_on_tag_alter: bool = False,
         discard_on_file_alter: bool = False,
         is_read_only: bool = False,
-        has_grouping: bool = False,
+        has_group_id: bool = False,
         is_compressed: bool = False,
         is_encrypted: bool = False,
         is_unsynchronized: bool = False,
@@ -566,7 +571,7 @@ class ID3v2FrameFlags:
         is_read_only : bool; keyword-only; default: :code:`False`
             Whether the current frame is read-only.
 
-        has_grouping : bool; keyword-only; default: :code:`False`
+        has_group_id : bool; keyword-only; default: :code:`False`
             Whether the current frame has a grouping identifier.
 
         is_compressed : bool; keyword-only; default: :code:`False`
@@ -586,7 +591,12 @@ class ID3v2FrameFlags:
         self.discard_on_tag_alter = discard_on_tag_alter
         self.discard_on_file_alter = discard_on_file_alter
         self.is_read_only = is_read_only
-        self.has_grouping = has_grouping
+        self.has_group_id = has_group_id
+        if is_compressed and not has_data_length_indicator:
+            raise ValueError(
+                "A data length indicator must be present when an ID3v2 "
+                "frame is compressed."
+            )
         self.is_compressed = is_compressed
         self.is_encrypted = is_encrypted
         self.is_unsynchronized = is_unsynchronized
@@ -631,10 +641,12 @@ class ID3v2FrameFlags:
         obj._discard_on_tag_alter = bool(status_flags & 0x80)
         obj._discard_on_file_alter = bool(status_flags & 0x40)
         obj._is_read_only = bool(status_flags & 0x20)
-        obj._is_compressed = bool(format_flags & 0x80)
+        obj._is_compressed = obj._has_data_length_indicator = bool(
+            format_flags & 0x80
+        )
         obj._is_encrypted = bool(format_flags & 0x40)
-        obj._has_grouping = bool(format_flags & 0x20)
-        obj._is_unsynchronized = obj._has_data_length_indicator = False
+        obj._has_group_id = bool(format_flags & 0x20)
+        obj._is_unsynchronized = False
         return obj
 
     @classmethod
@@ -684,7 +696,7 @@ class ID3v2FrameFlags:
         obj._discard_on_tag_alter = bool(status_flags & 0x40)
         obj._discard_on_file_alter = bool(status_flags & 0x20)
         obj._is_read_only = bool(status_flags & 0x10)
-        obj._has_grouping = bool(format_flags & 0x40)
+        obj._has_group_id = bool(format_flags & 0x40)
         obj._is_compressed = is_compressed
         obj._is_encrypted = bool(format_flags & 0x04)
         obj._is_unsynchronized = bool(format_flags & 0x02)
@@ -786,16 +798,16 @@ class ID3v2FrameFlags:
         self._is_read_only = value
 
     @property
-    def has_grouping(self) -> bool:
+    def has_group_id(self) -> bool:
         """
         Whether the current frame has a grouping identifier.
         """
-        return self._has_grouping
+        return self._has_group_id
 
-    @has_grouping.setter
-    def has_grouping(self, value: bool, /) -> None:
-        validate_type("has_grouping", value, bool)
-        self._has_grouping = value
+    @has_group_id.setter
+    def has_group_id(self, value: bool, /) -> None:
+        validate_type("has_group_id", value, bool)
+        self._has_group_id = value
 
     @property
     def is_compressed(self) -> bool:
@@ -808,6 +820,8 @@ class ID3v2FrameFlags:
     def is_compressed(self, value: bool, /) -> None:
         validate_type("is_compressed", value, bool)
         self._is_compressed = value
+        if value:
+            self._has_data_length_indicator = True
 
     @property
     def is_encrypted(self) -> bool:
@@ -844,6 +858,11 @@ class ID3v2FrameFlags:
     @has_data_length_indicator.setter
     def has_data_length_indicator(self, value: bool, /) -> None:
         validate_type("has_data_length_indicator", value, bool)
+        if not value and self._is_compressed:
+            raise ValueError(
+                "A data length indicator must be present when an "
+                "ID3v2.4 frame is compressed."
+            )
         self._has_data_length_indicator = value
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
@@ -873,7 +892,7 @@ class ID3v2FrameFlags:
                             | (0x10 if self._is_read_only else 0)
                         ),
                         (
-                            (0x40 if self._has_grouping else 0)
+                            (0x40 if self._has_group_id else 0)
                             | (0x08 if self._is_compressed else 0)
                             | (0x04 if self._is_encrypted else 0)
                             | (0x02 if self._is_unsynchronized else 0)
@@ -892,7 +911,7 @@ class ID3v2FrameFlags:
                         (
                             (0x80 if self._is_compressed else 0)
                             | (0x40 if self._is_encrypted else 0)
-                            | (0x20 if self._has_grouping else 0)
+                            | (0x20 if self._has_group_id else 0)
                         ),
                     )
                 )
@@ -923,7 +942,12 @@ class ID3v2Frame(ABC):
 
     __slots__ = ("_flags", "_group_id")
 
-    def __init__(self, *, flags: ID3v2FrameFlags | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
+    ) -> None:
         """
         Parameters
         ----------
@@ -933,9 +957,18 @@ class ID3v2Frame(ABC):
         """
         if flags is None:
             self._flags = ID3v2FrameFlags()
+            self._group_id = None
         else:
             validate_type("flags", flags, ID3v2FrameFlags)
             self._flags = flags
+            if flags._has_group_id:
+                validate_number("group_id", group_id, int, 0, 255)
+            elif group_id is not None:
+                raise ValueError(
+                    "A grouping identifier was specified, but the "
+                    "ID3v2 frame flags do not indicate grouping."
+                )
+            self._group_id = group_id
 
     def __init_subclass__(cls, **kwargs: dict[str, Any]) -> None:
         super().__init_subclass__(**kwargs)
@@ -1097,8 +1130,7 @@ class ID3v2Frame(ABC):
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing an ID3v2 frame.
 
         tag_version : str or tuple[int, int, int]
@@ -1172,6 +1204,30 @@ class ID3v2Frame(ABC):
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
+
+    @staticmethod
+    def _encode_2_2(frame_id: bytes, frame_data: bytes, /) -> bytes:
+        """
+        Encode an ID3v2.2 frame.
+
+        Parameters
+        ----------
+        frame_id : bytes; positional-only
+            Frame ID.
+
+        frame_data : bytes; positional-only
+            Frame data.
+
+        Returns
+        -------
+        frame : bytes
+            Encoded frame.
+        """
+        return (
+            frame_id
+            + len(frame_data).to_bytes(length=3, byteorder="big")
+            + frame_data
+        )
 
     @staticmethod
     def _split_bytestream(
@@ -1281,6 +1337,21 @@ class ID3v2Frame(ABC):
         """
         return self._flags
 
+    @property
+    def group_id(self) -> int | None:
+        """
+        Grouping identifier.
+        """
+        return self._group_id
+
+    @group_id.setter
+    def group_id(self, value: int | None) -> None:
+        if value is None:
+            self._flags._has_group_id = False
+        else:
+            validate_number("group_id", value, int, 0, 255)
+        self._group_id = value
+
     @abstractmethod
     def serialize(
         self,
@@ -1312,8 +1383,6 @@ class ID3v2Frame(ABC):
         stream : bytes
             Bytestream containing the ID3v2 frame.
         """
-        # TODO: Handle is_read_only, has_grouping, is_unsynchronized,
-        # has_data_length_indicator for all serialize() methods
         ...
 
     def _decode_2_3(
@@ -1340,7 +1409,7 @@ class ID3v2Frame(ABC):
             Decoded frame data.
 
         offset : int
-            Current byte offset.
+            Byte offset marking the start of frame data.
 
         frame_length : int
             Length of decoded frame data, in bytes.
@@ -1353,7 +1422,7 @@ class ID3v2Frame(ABC):
                 stream[offset:end_offset], byteorder="big"
             )
             offset = end_offset
-        if flags._has_grouping:
+        if flags._has_group_id:
             self._group_id = stream[offset]
             offset += 1
         if flags._is_compressed:
@@ -1392,14 +1461,14 @@ class ID3v2Frame(ABC):
             Decoded frame data.
 
         offset : int
-            Current byte offset.
+            Byte offset marking the start of frame data.
 
         frame_length : int
             Length of decoded frame data, in bytes.
         """
         offset = 10
         flags = self._flags
-        if flags._has_grouping:
+        if flags._has_group_id:
             self._group_id = stream[offset]
             offset += 1
         if flags._has_data_length_indicator:
@@ -1426,7 +1495,93 @@ class ID3v2Frame(ABC):
                     f"does not match data length indicator ({data_length})."
                 )
             frame_length = data_length
-        return (as_buffer(stream), offset, frame_length)
+        return as_buffer(stream), offset, frame_length
+
+    def _encode_2_3(self, frame_id: bytes, frame_data: bytes, /) -> bytes:
+        """
+        Encode an ID3v2.3 frame.
+
+        Parameters
+        ----------
+        frame_id : bytes; positional-only
+            Frame ID.
+
+        frame_data : bytes; positional-only
+            Frame data.
+
+        Returns
+        -------
+        frame : bytes
+            Encoded frame.
+        """
+        flags = self._flags
+        frame_length = len(frame_data)
+
+        extra_info = bytearray()
+        if flags._is_compressed:
+            extra_info.extend(frame_length.to_bytes(4, byteorder="big"))
+        if flags._has_group_id:
+            extra_info.append(self._group_id)
+
+        if flags._is_compressed:
+            frame_data = zlib.compress(frame_data)
+            frame_length = len(frame_data)
+
+        return b"".join(
+            (
+                frame_id,
+                (frame_length + len(extra_info)).to_bytes(
+                    length=4, byteorder="big"
+                ),
+                self._flags.serialize((2, 3, 0)),
+                extra_info,
+                frame_data,
+            )
+        )
+
+    def _encode_2_4(self, frame_id: bytes, frame_data: bytes, /) -> bytes:
+        """
+        Encode an ID3v2.4 frame.
+
+        Parameters
+        ----------
+        frame_id : bytes; positional-only
+            Frame ID.
+
+        frame_data : bytes; positional-only
+            Frame data.
+
+        Returns
+        -------
+        frame : bytes
+            Encoded frame.
+        """
+        flags = self._flags
+
+        extra_info = bytearray()
+        if flags._has_group_id:
+            extra_info.append(self._group_id)
+        if flags._has_data_length_indicator:
+            extra_info.extend(encode_32_bit_synchsafe_int(len(frame_data)))
+
+        if flags._is_compressed:
+            frame_data = zlib.compress(frame_data)
+        if flags._is_unsynchronized:
+            frame_data = UNSYNCHRONIZATION_RE.sub(b"\xff\x00", frame_data)
+
+        return b"".join(
+            (
+                frame_id,
+                bytes(
+                    encode_32_bit_synchsafe_int(
+                        len(frame_data) + len(extra_info)
+                    )
+                ),
+                self._flags.serialize((2, 4, 0)),
+                extra_info,
+                frame_data,
+            )
+        )
 
     def _resolve_text_encoding(
         self, text_encoding: str | None, tag_version: tuple[int, int, int], /
@@ -1724,7 +1879,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         text_encoding: str | None = None,
     ) -> bytes:
         """
-        Serialize the ID3v2 frame to a bytestream.
+        Serialize the text information frame to a bytestream.
 
         Parameters
         ----------
@@ -1748,36 +1903,29 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             Bytestream containing the text information frame.
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
+        frame_id = self._frame_ids.get(tag_version[1])
+        if frame_id is None:
+            raise RuntimeError(
+                f"A(n) {type(self).__name__} cannot be "
+                f"serialized to an ID3v2.{tag_version[1]} tag."
+            )
+
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
         null_char = (
             b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
         )
-        frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
+        frame_data = self._TEXT_ENCODINGS[text_encoding].to_bytes(
             byteorder="big"
         ) + null_char.join(
             ti.encode(encoding=text_encoding) for ti in self._text_info
         )
         match tag_version:
             case (2, 4, _):
-                return (
-                    self._frame_ids[4]
-                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
+                return self._encode_2_4(frame_id, frame_data)
             case (2, 3, _):
-                return (
-                    self._frame_ids[3]
-                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
+                return self._encode_2_3(frame_id, frame_data)
             case (2, 2, _):
-                return (
-                    self._frame_ids[2]
-                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
-                    + frame_bytes
-                )
+                return self._encode_2_2(frame_id, frame_data)
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
@@ -2060,24 +2208,29 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             Bytestream containing the datetime frame.
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
+        frame_id = self._frame_ids.get(4)
+        if frame_id is None:
+            raise RuntimeError(
+                f"A(n) {type(self).__name__} cannot be "
+                f"serialized to an ID3v2.{tag_version[1]} tag."
+            )
+
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
         match tag_version:
             case (2, 4, _):
-                frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                    byteorder="big"
-                ) + (
-                    b"\x00\x00"
-                    if text_encoding.startswith("utf-16")
-                    else b"\x00"
-                ).join(
-                    dt.to_string().encode(encoding=text_encoding)
-                    for dt in self._datetimes
-                )
-                return (
-                    self._frame_ids[4]
-                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
+                return self._encode_2_4(
+                    frame_id,
+                    self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                        byteorder="big"
+                    )
+                    + (
+                        b"\x00\x00"
+                        if text_encoding.startswith("utf-16")
+                        else b"\x00"
+                    ).join(
+                        dt.to_string().encode(encoding=text_encoding)
+                        for dt in self._datetimes
+                    ),
                 )
             case _:
                 raise ValueError(
@@ -2400,24 +2553,21 @@ class ID3v2APICFrame(ID3v2Frame):
                     and not mime_type.isupper()
                 ):
                     mime_type = f"image/{mime_type}"
-                frame_bytes = b"".join(
-                    (
-                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                            byteorder="big"
-                        ),
-                        mime_type.encode(encoding="ascii"),
-                        b"\x00",
-                        self._picture_type.to_bytes(byteorder="big"),
-                        self._description.encode(encoding=text_encoding),
-                        null_char,
-                        self._picture_data,
-                    )
-                )
-                return (
-                    self._frame_ids[4]
-                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
+                return self._encode_2_4(
+                    self._frame_ids[4],
+                    b"".join(
+                        (
+                            self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                                byteorder="big"
+                            ),
+                            mime_type.encode(encoding="ascii"),
+                            b"\x00",
+                            self._picture_type.to_bytes(byteorder="big"),
+                            self._description.encode(encoding=text_encoding),
+                            null_char,
+                            self._picture_data,
+                        )
+                    ),
                 )
             case (2, 3, _):
                 if (
@@ -2425,24 +2575,21 @@ class ID3v2APICFrame(ID3v2Frame):
                     and not mime_type.isupper()
                 ):
                     mime_type = f"image/{mime_type}"
-                frame_bytes = b"".join(
-                    (
-                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                            byteorder="big"
-                        ),
-                        mime_type.encode(encoding="ascii"),
-                        b"\x00",
-                        self._picture_type.to_bytes(byteorder="big"),
-                        self._description.encode(encoding=text_encoding),
-                        null_char,
-                        self._picture_data,
-                    )
-                )
-                return (
-                    self._frame_ids[3]
-                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
+                return self._encode_2_3(
+                    self._frame_ids[3],
+                    b"".join(
+                        (
+                            self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                                byteorder="big"
+                            ),
+                            mime_type.encode(encoding="ascii"),
+                            b"\x00",
+                            self._picture_type.to_bytes(byteorder="big"),
+                            self._description.encode(encoding=text_encoding),
+                            null_char,
+                            self._picture_data,
+                        )
+                    ),
                 )
             case (2, 2, _):
                 if len(mime_type) == 3:
@@ -2455,22 +2602,20 @@ class ID3v2APICFrame(ID3v2Frame):
                             f"MIME type {mime_type!r}."
                         )
                     mime_type = mime_type_
-                frame_bytes = b"".join(
-                    (
-                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                            byteorder="big"
-                        ),
-                        mime_type.encode(encoding="ascii"),
-                        self._picture_type.to_bytes(byteorder="big"),
-                        self._description.encode(encoding=text_encoding),
-                        null_char,
-                        self._picture_data,
-                    )
-                )
-                return (
-                    self._frame_ids[2]
-                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
-                    + frame_bytes
+                return self._encode_2_2(
+                    self._frame_ids[2],
+                    b"".join(
+                        (
+                            self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                                byteorder="big"
+                            ),
+                            mime_type.encode(encoding="ascii"),
+                            self._picture_type.to_bytes(byteorder="big"),
+                            self._description.encode(encoding=text_encoding),
+                            null_char,
+                            self._picture_data,
+                        )
+                    ),
                 )
             case _:
                 raise ValueError(
@@ -2722,7 +2867,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
-        frame_bytes = b"".join(
+        frame_data = b"".join(
             (
                 self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
                 self._language.encode(encoding="ascii"),
@@ -2733,33 +2878,16 @@ class ID3v2COMMFrame(ID3v2Frame):
         )
         match tag_version:
             case (2, 4, _):
-                return (
-                    b"COMM"
-                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
+                return self._encode_2_4(b"COMM", frame_data)
             case (2, 3, _):
-                return (
-                    b"COMM"
-                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
+                return self._encode_2_3(b"COMM", frame_data)
             case (2, 2, _):
-                return (
-                    b"COM"
-                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
-                    + frame_bytes
-                )
+                return self._encode_2_2(b"COM", frame_data)
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
-
-
-# class ID3v2SYLTFrame(ID3v2Frame): ...  # TODO
 
 
 class ID3v2USLTFrame(ID3v2Frame):
@@ -3006,7 +3134,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
-        frame_bytes = b"".join(
+        frame_data = b"".join(
             (
                 self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
                 self._language.encode(encoding="ascii"),
@@ -3021,25 +3149,11 @@ class ID3v2USLTFrame(ID3v2Frame):
         )
         match tag_version:
             case (2, 4, _):
-                return (
-                    b"USLT"
-                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
+                return self._encode_2_4(b"USLT", frame_data)
             case (2, 3, _):
-                return (
-                    b"USLT"
-                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
+                return self._encode_2_3(b"USLT", frame_data)
             case (2, 2, _):
-                return (
-                    b"ULT"
-                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
-                    + frame_bytes
-                )
+                return self._encode_2_2(b"ULT", frame_data)
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
@@ -3755,46 +3869,41 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         )
         match tag_version:
             case (2, 4, _):
-                frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                    byteorder="big"
-                ) + null_char.join(
-                    ti.encode(encoding=text_encoding) for ti in self._text_info
-                )
-                return (
-                    self._frame_ids[4]
-                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
-                raise NotImplementedError
-            case (2, 3, _):
-                frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                    byteorder="big"
-                ) + null_char.join(
-                    ti.encode(encoding=text_encoding)
-                    for ti in self._serialize_content_types(
-                        self._text_info, self._refinements
+                return self._encode_2_4(
+                    b"TCON",
+                    self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                        byteorder="big"
                     )
+                    + null_char.join(
+                        ti.encode(encoding=text_encoding)
+                        for ti in self._text_info
+                    ),
                 )
-                return (
-                    self._frame_ids[3]
-                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
+            case (2, 3, _):
+                return self._encode_2_3(
+                    b"TCON",
+                    self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                        byteorder="big"
+                    )
+                    + null_char.join(
+                        ti.encode(encoding=text_encoding)
+                        for ti in self._serialize_content_types(
+                            self._text_info, self._refinements
+                        )
+                    ),
                 )
             case (2, 2, _):
-                frame_bytes = self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                    byteorder="big"
-                ) + null_char.join(
-                    ti.encode(encoding=text_encoding)
-                    for ti in self._serialize_content_types(
-                        self._text_info, self._refinements
+                return self._encode_2_2(
+                    b"TCO",
+                    self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                        byteorder="big"
                     )
-                )
-                return (
-                    self._frame_ids[2]
-                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
-                    + frame_bytes
+                    + null_char.join(
+                        ti.encode(encoding=text_encoding)
+                        for ti in self._serialize_content_types(
+                            self._text_info, self._refinements
+                        )
+                    ),
                 )
             case _:
                 raise ValueError(
@@ -4084,16 +4193,12 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                         )
                     )
                 return b"".join(
-                    (
-                        frame_id
-                        + len(
-                            frame_bytes := self._TEXT_ENCODINGS[
-                                text_encoding
-                            ].to_bytes(byteorder="big")
-                            + null_char.join(data)
-                        ).to_bytes(length=4, byteorder="big")
-                        + self._flags.serialize(tag_version)
-                        + frame_bytes
+                    self._encode_2_3(
+                        frame_id,
+                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                            byteorder="big"
+                        )
+                        + null_char.join(data),
                     )
                     if any(data)
                     else b""
@@ -4130,15 +4235,12 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                         )
                     )
                 return b"".join(
-                    (
-                        frame_id
-                        + len(
-                            frame_bytes := self._TEXT_ENCODINGS[
-                                text_encoding
-                            ].to_bytes(byteorder="big")
-                            + null_char.join(data)
-                        ).to_bytes(length=3, byteorder="big")
-                        + frame_bytes
+                    self._encode_2_2(
+                        frame_id,
+                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
+                            byteorder="big"
+                        )
+                        + null_char.join(data),
                     )
                     if any(data)
                     else b""
@@ -4153,9 +4255,6 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
-
-
-# class ID3v2TDRLFrame(ID3v2DateTimeFrame): ...  # TODO
 
 
 class ID3v2TIT1Frame(ID3v2TextInfoFrame):
@@ -5288,37 +5387,22 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         null_char = (
             b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
         )
-        frame_bytes = b"".join(
+        frame_data = b"".join(
             (
                 self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
                 self._description.encode(encoding=text_encoding),
                 null_char.join(
                     ti.encode(encoding=text_encoding) for ti in self._text_info
                 ),
-                self._text_info.encode(encoding=text_encoding),
             )
         )
         match tag_version:
             case (2, 4, _):
-                return (
-                    self._frame_ids[4]
-                    + bytes(encode_32_bit_synchsafe_int(len(frame_bytes)))
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
+                return self._encode_2_4(self._frame_ids[4], frame_data)
             case (2, 3, _):
-                return (
-                    self._frame_ids[3]
-                    + len(frame_bytes).to_bytes(length=4, byteorder="big")
-                    + self._flags.serialize(tag_version)
-                    + frame_bytes
-                )
+                return self._encode_2_3(self._frame_ids[3], frame_data)
             case (2, 2, _):
-                return (
-                    self._frame_ids[2]
-                    + len(frame_bytes).to_bytes(length=3, byteorder="big")
-                    + frame_bytes
-                )
+                return self._encode_2_2(self._frame_ids[2], frame_data)
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
@@ -5495,14 +5579,14 @@ class UnknownID3v2Frame(ID3v2Frame):
             if len(frame_id) != 3:
                 raise ValueError(
                     f"Frame ID {frame_id!r} is incompatible with "
-                    f"ID3v2 tag version {tag_version!r}."
+                    f"ID3v2.{tag_version[1]} tags."
                 )
             return frame_id
 
         if len(frame_id) != 4:
             raise ValueError(
                 f"Frame ID {frame_id!r} is incompatible with "
-                f"ID3v2 tag version {tag_version!r}."
+                f"ID3v2.{tag_version[1]} tags."
             )
         return frame_id
 
@@ -5541,8 +5625,8 @@ class UnknownID3v2Frame(ID3v2Frame):
                     raise ValueError(
                         "Frame ID "
                         f"{self._frame_id.decode(encoding='ascii')!r} "
-                        "is incompatible with ID3v2 tag version "
-                        f"{tag_version!r}."
+                        f"is incompatible with ID3v2.{tag_version[1]} "
+                        "tags."
                     )
                 return b"".join(
                     (
@@ -5557,8 +5641,8 @@ class UnknownID3v2Frame(ID3v2Frame):
                     raise ValueError(
                         "Frame ID "
                         f"{self._frame_id.decode(encoding='ascii')!r} "
-                        "is incompatible with ID3v2 tag version "
-                        f"{tag_version!r}."
+                        f"is incompatible with ID3v2.{tag_version[1]} "
+                        "tags."
                     )
                 return b"".join(
                     (
@@ -5573,15 +5657,13 @@ class UnknownID3v2Frame(ID3v2Frame):
                     raise ValueError(
                         "Frame ID "
                         f"{self._frame_id.decode(encoding='ascii')!r} "
-                        "is incompatible with ID3v2 tag version "
-                        f"{tag_version!r}."
+                        f"is incompatible with ID3v2.{tag_version[1]} "
+                        "tags."
                     )
-                return b"".join(
-                    (
-                        self._frame_id,
-                        self._frame_length.to_bytes(length=3, byteorder="big"),
-                        self._frame_data,
-                    )
+                return (
+                    self._frame_id
+                    + self._frame_length.to_bytes(length=3, byteorder="big")
+                    + self._frame_data
                 )
             case _:
                 raise ValueError(
@@ -5650,8 +5732,7 @@ class ID3v2Padding:
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing padding.
 
         strict : bool; keyword-only; default: :code:`True`

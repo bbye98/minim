@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ...._types import BytesLike
+
 GENRES = {
     0: "Blues",
     1: "Classic Rock",
@@ -196,6 +202,66 @@ GENRES = {
 }
 GENRES |= {v.lower(): k for k, v in GENRES.items()}
 TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
+UNSYNCHRONIZATION_RE = re.compile(rb"\xff(?=\x00|[\xe0-\xff]|$)")
+
+
+def decode_32_bit_synchsafe_int(
+    byte_1: int, byte_2: int, byte_3: int, byte_4: int, /
+) -> int:
+    """
+    Decode a 32-bit synchsafe integer.
+
+    Parameters
+    ----------
+    byte_1 : int; positional-only
+        First byte of the synchsafe integer.
+
+    byte_2 : int; positional-only
+        Second byte of the synchsafe integer.
+
+    byte_3 : int; positional-only
+        Third byte of the synchsafe integer.
+
+    byte_4 : int; positional-only
+        Fourth byte of the synchsafe integer.
+
+    Returns
+    -------
+    value : int
+        Decoded integer value.
+    """
+    return (byte_1 << 21) | (byte_2 << 14) | (byte_3 << 7) | byte_4
+
+
+def encode_32_bit_synchsafe_int(value: int, /) -> tuple[int, int, int, int]:
+    """
+    Encode a 32-bit synchsafe integer.
+
+    Parameters
+    ----------
+    value : int; positional-only
+        Integer value to encode.
+
+    Returns
+    -------
+    byte_1 : int
+        First byte in synchsafe integer.
+
+    byte_2 : int
+        Second byte in synchsafe integer.
+
+    byte_3 : int
+        Third byte in synchsafe integer.
+
+    byte_4 : int
+        Fourth byte in synchsafe integer.
+    """
+    return (
+        (value >> 21) & 0x7F,
+        (value >> 14) & 0x7F,
+        (value >> 7) & 0x7F,
+        value & 0x7F,
+    )
 
 
 def normalize_id3v1_tag_version(
