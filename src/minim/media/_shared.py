@@ -22,7 +22,7 @@ class Audio(ABC):
     __slots__ = (
         "_file",
         "_file_path",
-        "_format_metadata",
+        "_metadata",
         "_mmap",
         "_stream_info",
         "_strict",
@@ -44,6 +44,7 @@ class Audio(ABC):
         self._file_path = Path(file_path).expanduser().resolve(strict=True)
         validate_type("strict", strict, bool)
         self._strict = strict
+        self._file = self._mmap = self._view = None
         self.load_metadata()
 
     @abstractmethod
@@ -87,18 +88,19 @@ class Audio(ABC):
         ...
 
     @property
+    def metadata(self) -> Any:
+        """
+        Metadata structures and ancillary information stored in the
+        audio file.
+        """
+        return self._metadata
+
+    @property
     def stream_info(self) -> AudioStreamInfo | None:
         """
         Technical properties of the decoded audio stream.
         """
         return self._stream_info
-
-    @property
-    def format_metadata(self) -> Any:
-        """
-        Structural metadata intrinsic to the file format or container.
-        """
-        return self._format_metadata
 
     @property
     def tags(self) -> AudioTags:
@@ -120,12 +122,12 @@ class Audio(ABC):
         """
         Release and unmap the audio file from memory.
         """
-        if hasattr(self, "_view"):
+        if self._view is not None:
             self._view.release()
-            del self._view
-        if hasattr(self, "_mmap") and not self._mmap.closed:
-            self._mmap.close()
-            del self._mmap
-        if hasattr(self, "_file") and not self._file.closed:
-            self._file.close()
-            del self._file
+            self._view = None
+        if (mmap := self._mmap) is not None and not mmap.closed:
+            mmap.close()
+            self._mmap = None
+        if (file := self._file) is not None and not file.closed:
+            file.close()
+            self._file = None

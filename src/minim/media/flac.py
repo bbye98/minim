@@ -1645,65 +1645,34 @@ class FLACAudio(Audio):
     FLAC audio file.
     """
 
-    __slots__ = ("_audio_offset", "_keep_empty_tags")
-
-    def __init__(
-        self,
-        file_path: PathLike,
-        /,
-        *,
-        keep_empty_tags: bool = False,
-        strict: bool = True,
-    ) -> None:
-        """
-        Parameters
-        ----------
-        file_path : PathLike; positional-only
-            Path to or name of the FLAC audio file.
-
-        keep_empty_tags : bool; keyword-only; default: :code:`False`
-            Whether to keep field–value pairs in the Vorbis comment with
-            empty values.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the FLAC
-            format specifications.
-
-            .. note::
-
-               If :code:`False` and multiple Vorbis comments are
-               present, the last one encountered is assigned to the
-               :code:`tags` attribute.
-        """
-        validate_type("keep_empty_tags", keep_empty_tags, bool)
-        self._keep_empty_tags = keep_empty_tags
-        super().__init__(file_path, strict=strict)
+    __slots__ = ("_audio_offset",)
 
     @property
-    def format_metadata(self) -> FLACMetadataView:
+    def metadata(self) -> FLACMetadataView:
         """
-        Structural metadata intrinsic to the FLAC file.
+        Metadata structures and ancillary information stored in the
+        FLAC audio file.
 
         .. tip::
 
            :code:`FLACMetadataView` is a read-only view into the list
            containing the FLAC metadata blocks.
         """
-        return FLACMetadataView(self._format_metadata)
+        return FLACMetadataView(self._metadata)
 
     def _merge_adjacent_padding(self) -> None:
         """
         Merge adjacent :code:`PADDING` blocks, reclaiming redundant
         four-byte headers.
         """
-        blocks = self._format_metadata[:1]
-        for block in self._format_metadata[1:]:
+        blocks = self._metadata[:1]
+        for block in self._metadata[1:]:
             prev_block = blocks[-1]
             if prev_block._block_type == block._block_type == 1:
                 prev_block.adjust_length(4 + block._block_length)
             else:
                 blocks.append(block)
-        self._format_metadata = blocks
+        self._metadata = blocks
 
     def load_metadata(self) -> None:
         """
@@ -1717,7 +1686,8 @@ class FLACAudio(Audio):
         if view[:offset] != b"fLaC":
             raise ValueError(f"{file_path} is not a valid FLAC file.")
 
-        self._format_metadata = metadata_blocks = []
+        self._metadata = metadata_blocks = []
+        self._tags = None
         strict = self._strict
         seen_vorbis_comment = False
         block_header = 0x7F
@@ -1784,9 +1754,7 @@ class FLACAudio(Audio):
                             f"times in '{file_path}'."
                         )
 
-                    metadata_block = VorbisComment.from_stream(
-                        block_data, keep_empty_values=self._keep_empty_tags
-                    )
+                    metadata_block = VorbisComment.from_stream(block_data)
                     metadata_blocks.append(metadata_block)
                     self._tags = metadata_block
                 case 5:  # CUESHEET
@@ -1875,7 +1843,7 @@ class FLACAudio(Audio):
                     "moved, or removed."
                 )
 
-        metadata_blocks = self._format_metadata
+        metadata_blocks = self._metadata
         num_metadata_blocks = len(metadata_blocks)
         if index is not None:
             if index < 0:
@@ -1962,8 +1930,8 @@ class FLACAudio(Audio):
         ----------
         to_index : int; keyword-only
             Index to move metadata blocks to. Use
-            :code:`len(self.format_metadata)` to append metadata blocks
-            to the end.
+            :code:`len(self.metadata)` to append metadata blocks to the
+            end.
 
         indices : int or Collection[int]; keyword-only; optional
             Indices of metadata blocks to move.
@@ -1987,7 +1955,7 @@ class FLACAudio(Audio):
                 "Exactly one of `indices` or `block_types` must be specified."
             )
 
-        metadata_blocks = self._format_metadata
+        metadata_blocks = self._metadata
         num_metadata_blocks = len(metadata_blocks)
         max_block_index = num_metadata_blocks - 1
         validate_number(
@@ -2081,7 +2049,7 @@ class FLACAudio(Audio):
         padding_length = -4
         has_padding = False
 
-        for block in self._format_metadata:
+        for block in self._metadata:
             if block._block_type == 1:
                 padding_length += 4 + block._block_length
                 has_padding = True
@@ -2092,7 +2060,7 @@ class FLACAudio(Audio):
             return
 
         non_padding_blocks.append(FLACPadding(padding_length))
-        self._format_metadata = non_padding_blocks
+        self._metadata = non_padding_blocks
 
     def remove_metadata(
         self,
@@ -2144,7 +2112,7 @@ class FLACAudio(Audio):
                 "Exactly one of `indices` or `block_types` must be specified."
             )
 
-        metadata_blocks = self._format_metadata
+        metadata_blocks = self._metadata
         if has_indices:
             num_metadata_blocks = len(metadata_blocks)
             max_block_index = num_metadata_blocks - 1
@@ -2222,13 +2190,9 @@ class FLACAudio(Audio):
             Whether to keep all :code:`PADDING` blocks.
         """
         metadata_blocks = (
-            self._format_metadata
+            self._metadata
             if include_padding
-            else [
-                block
-                for block in self._format_metadata
-                if block._block_type != 1
-            ]
+            else [block for block in self._metadata if block._block_type != 1]
         )
         metadata_length = 4 + sum(
             4 + block._block_length for block in metadata_blocks
