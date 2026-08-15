@@ -344,14 +344,11 @@ class ID3v2Flags:
     """
 
     __slots__ = (
-        "_has_crc",
         "_has_extended_header",
         "_has_footer",
         "_is_compressed",
         "_is_experimental",
         "_is_unsynchronized",
-        "_is_update",
-        "_tag_restrictions",
     )
 
     def __init__(
@@ -362,9 +359,6 @@ class ID3v2Flags:
         is_experimental: bool = False,
         has_footer: bool = False,
         is_compressed: bool = False,
-        is_update: bool = False,
-        has_crc: bool = False,
-        tag_restrictions: int | None = None,
     ) -> None:
         """
         Parameters
@@ -387,26 +381,12 @@ class ID3v2Flags:
 
         is_compressed : bool; keyword-only; default: :code:`False`
             Whether the current tag has compressed data.
-
-        is_update : bool; keyword-only; default: :code:`False`
-            Whether the current tag has an extended header and is
-            identified as an updated version of an earlier tag.
-
-        has_crc : bool; keyword-only; default: :code:`False`
-            Whether the current tag has an extended header with CRC
-            data.
-
-        tag_restrictions : int; keyword-only; optional
-            Tag restrictions byte in the extended header.
         """
         self.is_unsynchronized = is_unsynchronized
         self.has_extended_header = has_extended_header
         self.is_experimental = is_experimental
         self.has_footer = has_footer
         self.is_compressed = is_compressed
-        self.is_update = is_update
-        self.has_crc = has_crc
-        self.tag_restrictions = tag_restrictions
 
     @classmethod
     def _from_byte_2_2(
@@ -617,45 +597,6 @@ class ID3v2Flags:
         validate_type("is_compressed", value, bool)
         self._is_compressed = value
 
-    @property
-    def is_update(self) -> bool:
-        """
-        Whether the current tag is an updated version of an earlier
-        tag.
-        """
-        return self._is_update
-
-    @is_update.setter
-    def is_update(self, value: bool, /) -> None:
-        validate_type("is_update", value, bool)
-        self._is_update = value
-
-    @property
-    def has_crc(self) -> bool:
-        """
-        Whether the current tag has an extended header with CRC
-        data.
-        """
-        return self._has_crc
-
-    @has_crc.setter
-    def has_crc(self, value: bool, /) -> None:
-        validate_type("has_crc", value, bool)
-        self._has_crc = value
-
-    @property
-    def tag_restrictions(self) -> int:
-        """
-        Tag restrictions byte.
-        """
-        return self._tag_restrictions
-
-    @tag_restrictions.setter
-    def tag_restrictions(self, value: int | None, /) -> None:
-        if value is not None:
-            validate_number("tag_restrictions", value, int, 0, 255)
-        self._tag_restrictions = value
-
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
         Serialize the ID3v2 flags to a bytestream.
@@ -722,7 +663,10 @@ class ID3v2(AudioTags):
         "_class_index",
         "_flags",
         "_frames",
+        "_has_crc",
+        "_is_update",
         "_key_index",
+        "_tag_restrictions",
         "_unknown_index",
     )
 
@@ -732,6 +676,9 @@ class ID3v2(AudioTags):
         /,
         *,
         flags: ID3v2Flags | None = None,
+        is_update: bool = False,
+        has_crc: bool = False,
+        tag_restrictions: int = 0,
     ) -> None:
         """
         Parameters
@@ -743,6 +690,17 @@ class ID3v2(AudioTags):
         flags : minim.media.metadata.id3.ID3v2Flags; keyword-only; \
         optional
             Flags and extended header for ID3v2 tags.
+
+        is_update : bool; keyword-only; default: :code:`False`
+            Whether the current tag has an extended header and is
+            identified as an updated version of an earlier tag.
+
+        has_crc : bool; keyword-only; default: :code:`False`
+            Whether the current tag has an extended header with CRC
+            data.
+
+        tag_restrictions : int; keyword-only; default: :code:`0`
+            Tag restrictions byte in the extended header.
         """
         if not isinstance(frames, ORDERED_COLLECTION_TYPES):
             frames = [frames]
@@ -759,6 +717,10 @@ class ID3v2(AudioTags):
         else:
             validate_type("flags", flags, ID3v2Flags)
             self._flags = flags
+
+        self.is_update = is_update
+        self.has_crc = has_crc
+        self.tag_restrictions = tag_restrictions
 
     @classmethod
     def _from_stream_2_2(
@@ -799,6 +761,8 @@ class ID3v2(AudioTags):
         obj._key_index = defaultdict(dict)
         obj._unknown_index = defaultdict(list)
         obj._flags = flags = ID3v2Flags._from_byte_2_2(flags, strict=strict)
+        obj._has_crc = obj._is_update = False
+        obj._tag_restrictions = 0
 
         if flags._is_compressed:
             raise NotImplementedError(
@@ -887,8 +851,10 @@ class ID3v2(AudioTags):
                     "Non-zero bits found in reserved section "
                     "of ID3 extended header flags byte."
                 )
-            flags._has_crc = bool(flag_byte >> 8)
+            obj._has_crc = bool(flag_byte >> 8)
             offset += int.from_bytes(stream[offset : offset + 4]) + 4
+        obj._is_update = False
+        obj._tag_restrictions = 0
 
         while offset < tag_end:
             if not stream[offset]:
@@ -956,11 +922,11 @@ class ID3v2(AudioTags):
                     "Non-zero bits found in reserved section "
                     "of ID3 extended header flags byte."
                 )
-            flags._is_update = is_update = bool((flag_byte >> 7) & 1)
-            flags._has_crc = has_crc = bool((flag_byte >> 6) & 1)
+            obj._is_update = bool((flag_byte >> 7) & 1)
+            obj._has_crc = bool((flag_byte >> 6) & 1)
             if bool((flag_byte >> 5) & 1):
-                flags._tag_restrictions = stream[
-                    offset + 7 + is_update + 6 * has_crc
+                obj._tag_restrictions = stream[
+                    offset + 7 + obj._is_update + 6 * obj._has_crc
                 ]
             offset += decode_32_bit_synchsafe_int(*stream[offset : offset + 4])
 
@@ -1048,6 +1014,44 @@ class ID3v2(AudioTags):
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
+
+    @property
+    def is_update(self) -> bool:
+        """
+        Whether the current tag is an updated version of an earlier
+        tag.
+        """
+        return self._is_update
+
+    @is_update.setter
+    def is_update(self, value: bool, /) -> None:
+        validate_type("is_update", value, bool)
+        self._is_update = value
+
+    @property
+    def has_crc(self) -> bool:
+        """
+        Whether the current tag has an extended header with CRC
+        data.
+        """
+        return self._has_crc
+
+    @has_crc.setter
+    def has_crc(self, value: bool, /) -> None:
+        validate_type("has_crc", value, bool)
+        self._has_crc = value
+
+    @property
+    def tag_restrictions(self) -> int:
+        """
+        Tag restrictions byte.
+        """
+        return self._tag_restrictions
+
+    @tag_restrictions.setter
+    def tag_restrictions(self, value: int, /) -> None:
+        validate_number("tag_restrictions", value, int, 0, 255)
+        self._tag_restrictions = value
 
     @property
     def album(self) -> list[str] | None:
