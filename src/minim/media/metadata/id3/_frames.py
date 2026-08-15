@@ -23,8 +23,8 @@ from ._shared import (
     GENRES,
     TAG_VERSIONS,
     UNSYNCHRONIZATION_RE,
-    decode_32_bit_synchsafe_int,
-    encode_32_bit_synchsafe_int,
+    decode_synchsafe_int,
+    encode_synchsafe_int,
     normalize_id3v2_tag_version,
 )
 
@@ -1473,9 +1473,7 @@ class ID3v2Frame(ABC):
             offset += 1
         if flags._has_data_length_indicator:
             end_offset = offset + 4
-            data_length = decode_32_bit_synchsafe_int(
-                *stream[offset:end_offset]
-            )
+            data_length = decode_synchsafe_int(*stream[offset:end_offset])
             offset = end_offset
         if flags._is_unsynchronized:
             stream = (
@@ -1562,7 +1560,7 @@ class ID3v2Frame(ABC):
         if flags._has_group_id:
             extra_info.append(self._group_id)
         if flags._has_data_length_indicator:
-            extra_info.extend(encode_32_bit_synchsafe_int(len(frame_data)))
+            extra_info.extend(encode_synchsafe_int(len(frame_data)))
 
         if flags._is_compressed:
             frame_data = zlib.compress(frame_data)
@@ -1572,11 +1570,7 @@ class ID3v2Frame(ABC):
         return b"".join(
             (
                 frame_id,
-                bytes(
-                    encode_32_bit_synchsafe_int(
-                        len(frame_data) + len(extra_info)
-                    )
-                ),
+                bytes(encode_synchsafe_int(len(frame_data) + len(extra_info))),
                 self._flags.serialize((2, 4, 0)),
                 extra_info,
                 frame_data,
@@ -1848,7 +1842,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -2101,7 +2095,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -2479,7 +2473,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[
@@ -2816,7 +2810,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -3081,7 +3075,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -3362,7 +3356,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -3554,7 +3548,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -3722,7 +3716,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -4586,7 +4580,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -4861,7 +4855,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -5105,7 +5099,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -5328,7 +5322,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_4(
             stream,
-            frame_length=10 + decode_32_bit_synchsafe_int(*stream[4:8]),
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -5524,7 +5518,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         obj = super()._from_stream_2_4(stream, strict=strict)
         if not hasattr(obj, "_frame_id"):
             obj._frame_id = stream[:4].tobytes()
-            obj._frame_length = decode_32_bit_synchsafe_int(*stream[4:8])
+            obj._frame_length = decode_synchsafe_int(*stream[4:8])
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
         return obj
 
@@ -5631,7 +5625,7 @@ class UnknownID3v2Frame(ID3v2Frame):
                 return b"".join(
                     (
                         self._frame_id,
-                        bytes(encode_32_bit_synchsafe_int(self._frame_length)),
+                        bytes(encode_synchsafe_int(self._frame_length)),
                         self._flags.to_bytes_2_4(),
                         self._frame_data,
                     )
@@ -5670,105 +5664,3 @@ class UnknownID3v2Frame(ID3v2Frame):
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(TAG_VERSIONS)}."
                 )
-
-
-class ID3v2Padding:
-    """
-    ID3v2 padding.
-    """
-
-    __slots__ = ("_length",)
-
-    def __init__(self, length: int, /) -> None:
-        """
-        Parameters
-        ----------
-        length : int; positional-only
-            Padding length in bytes.
-        """
-        self.length = length
-
-    @property
-    def length(self) -> int:
-        """
-        Padding length in bytes.
-        """
-        return self._length
-
-    @length.setter
-    def length(self, length: int, /) -> None:
-        validate_number("length", length, int, 0)
-        self._length = length
-
-    def adjust_length(self, change: int, /) -> None:
-        """
-        Adjust the padding length.
-
-        Parameters
-        ----------
-        change : int; positional-only
-            Change to the padding length in bytes.
-        """
-        self.length += change
-
-    def set_length(self, block_length: int, /) -> None:
-        """
-        Resize padding.
-
-        Parameters
-        ----------
-        length : int; positional-only
-            New padding length in bytes.
-        """
-        self.length = block_length
-
-    @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> ID3v2Padding:
-        """
-        Instantiate an :class:`ID3v2Padding` object from a bytes-like
-        object.
-
-        Parameters
-        ----------
-        stream : BytesLike; positional-only; optional
-            Bytes-like object containing padding.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        padding : minim.media.metadata.ID3v2Padding
-            Padding.
-        """
-        stream = as_buffer(stream)
-        if strict and any(stream):
-            raise ValueError("Non-zero bits found in ID3v2 padding bytes.")
-
-        obj = cls.__new__(cls)
-        obj._length = len(stream)
-        return obj
-
-    def serialize(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> bytes:
-        """
-        Serialize the padding to a bytestream.
-
-        Parameters
-        ----------
-        *args : tuple[Any, ...]
-            Additional (ignored) positional arguments.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
-
-        Returns
-        -------
-        stream : bytes
-            Bytestream containing the padding bytes.
-        """
-        return self._length * b"\x00"

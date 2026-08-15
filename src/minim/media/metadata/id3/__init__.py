@@ -1,9 +1,8 @@
-from ._core import ID3v2Flags
+from ._core import ID3v2Flags, ID3v2Padding
 from ._frames import (
     ID3v2APICFrame,
     ID3v2COMMFrame,
     ID3v2FrameFlags,
-    ID3v2Padding,
     ID3v2TALBFrame,
     ID3v2TBPMFrame,
     ID3v2TCMPFrame,
@@ -29,6 +28,7 @@ from ._frames import (
 
 __all__ = [  # noqa: RUF022
     "ID3v2Flags",
+    "ID3v2Padding",
     "ID3v2FrameFlags",
     "ID3v2APICFrame",
     "ID3v2COMMFrame",
@@ -53,5 +53,4 @@ __all__ = [  # noqa: RUF022
     "ID3v2TSSEFrame",
     "ID3v2TXXXFrame",
     "UnknownID3v2Frame",
-    "ID3v2Padding",
 ]

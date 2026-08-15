@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import struct
+import zlib
 from collections import defaultdict
 from datetime import datetime
 from typing import TYPE_CHECKING, ClassVar
@@ -18,15 +19,15 @@ from .._shared import AudioTags
 from ._frames import (
     ID3v2DateTimeFrame,
     ID3v2Frame,
-    ID3v2Padding,
     ID3v2TXXXFrame,
     UnknownID3v2Frame,
 )
 from ._shared import (
     GENRES,
     TAG_VERSIONS,
-    decode_32_bit_synchsafe_int,
-    encode_32_bit_synchsafe_int,
+    UNSYNCHRONIZATION_RE,
+    decode_synchsafe_int,
+    encode_synchsafe_int,
     normalize_id3v1_tag_version,
     normalize_id3v2_tag_version,
 )
@@ -642,6 +643,108 @@ class ID3v2Flags:
                 )
 
 
+class ID3v2Padding:
+    """
+    ID3v2 padding.
+    """
+
+    __slots__ = ("_length",)
+
+    def __init__(self, length: int, /) -> None:
+        """
+        Parameters
+        ----------
+        length : int; positional-only
+            Padding length in bytes.
+        """
+        self.length = length
+
+    @property
+    def length(self) -> int:
+        """
+        Padding length in bytes.
+        """
+        return self._length
+
+    @length.setter
+    def length(self, length: int, /) -> None:
+        validate_number("length", length, int, 0)
+        self._length = length
+
+    def adjust_length(self, change: int, /) -> None:
+        """
+        Adjust the padding length.
+
+        Parameters
+        ----------
+        change : int; positional-only
+            Change to the padding length in bytes.
+        """
+        self.length += change
+
+    def set_length(self, block_length: int, /) -> None:
+        """
+        Resize padding.
+
+        Parameters
+        ----------
+        length : int; positional-only
+            New padding length in bytes.
+        """
+        self.length = block_length
+
+    @classmethod
+    def from_stream(
+        cls, stream: BytesLike, /, *, strict: bool = True
+    ) -> ID3v2Padding:
+        """
+        Instantiate an :class:`ID3v2Padding` object from a bytes-like
+        object.
+
+        Parameters
+        ----------
+        stream : BytesLike; positional-only; optional
+            Bytes-like object containing padding.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        padding : minim.media.metadata.ID3v2Padding
+            Padding.
+        """
+        stream = as_buffer(stream)
+        if strict and any(stream):
+            raise ValueError("Non-zero bits found in ID3v2 padding bytes.")
+
+        obj = cls.__new__(cls)
+        obj._length = len(stream)
+        return obj
+
+    def serialize(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> bytes:
+        """
+        Serialize the padding to a bytestream.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Additional (ignored) positional arguments.
+
+        **kwargs : dict[str, Any]
+            Additional (ignored) keyword arguments.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the padding bytes.
+        """
+        return self._length * b"\x00"
+
+
 class ID3v2(AudioTags):
     """
     ID3v2 metadata container.
@@ -666,6 +769,7 @@ class ID3v2(AudioTags):
         "_has_crc",
         "_is_update",
         "_key_index",
+        "_padding",
         "_tag_restrictions",
         "_unknown_index",
     )
@@ -701,6 +805,11 @@ class ID3v2(AudioTags):
 
         tag_restrictions : int; keyword-only; default: :code:`0`
             Tag restrictions byte in the extended header.
+
+            .. note::
+
+               Currently, tag restrictions are not enforced when 
+               serializing ID3v2 tags.
         """
         if not isinstance(frames, ORDERED_COLLECTION_TYPES):
             frames = [frames]
@@ -757,6 +866,7 @@ class ID3v2(AudioTags):
         """
         obj = cls.__new__(cls)
         obj._frames = frames = []
+        obj._padding = None
         obj._class_index = defaultdict(list)
         obj._key_index = defaultdict(dict)
         obj._unknown_index = defaultdict(list)
@@ -776,8 +886,8 @@ class ID3v2(AudioTags):
 
         while offset < tag_end:
             if not stream[offset]:
-                frames.append(
-                    ID3v2Padding.from_stream(stream[offset:], strict=strict)
+                obj._padding = ID3v2Padding.from_stream(
+                    stream[offset:], strict=strict
                 )
                 break
 
@@ -834,6 +944,7 @@ class ID3v2(AudioTags):
         """
         obj = cls.__new__(cls)
         obj._frames = frames = []
+        obj._padding = None
         obj._class_index = defaultdict(list)
         obj._key_index = defaultdict(dict)
         obj._unknown_index = defaultdict(list)
@@ -853,13 +964,15 @@ class ID3v2(AudioTags):
                 )
             obj._has_crc = bool(flag_byte >> 8)
             offset += int.from_bytes(stream[offset : offset + 4]) + 4
+        else:
+            obj._has_crc = False
         obj._is_update = False
         obj._tag_restrictions = 0
 
         while offset < tag_end:
             if not stream[offset]:
-                frames.append(
-                    ID3v2Padding.from_stream(stream[offset:], strict=strict)
+                obj._padding = ID3v2Padding.from_stream(
+                    stream[offset:], strict=strict
                 )
                 break
 
@@ -909,6 +1022,7 @@ class ID3v2(AudioTags):
         """
         obj = cls.__new__(cls)
         obj._frames = frames = []
+        obj._padding = None
         obj._class_index = defaultdict(list)
         obj._key_index = defaultdict(dict)
         obj._unknown_index = defaultdict(list)
@@ -928,14 +1042,22 @@ class ID3v2(AudioTags):
                 obj._tag_restrictions = stream[
                     offset + 7 + obj._is_update + 6 * obj._has_crc
                 ]
-            offset += decode_32_bit_synchsafe_int(*stream[offset : offset + 4])
+            offset += decode_synchsafe_int(*stream[offset : offset + 4])
+        else:
+            obj._is_update = obj._has_crc = False
+            obj._tag_restrictions = 0
 
         is_unsynchronized = strict and flags._is_unsynchronized
         tag_end = len(stream)
         while offset < tag_end:
             if not stream[offset]:
-                frames.append(
-                    ID3v2Padding.from_stream(stream[offset:], strict=strict)
+                if strict and flags._has_footer:
+                    raise ValueError(
+                        "ID3v2.4 tag cannot simultaneously have a "
+                        "footer and padding."
+                    )
+                obj._padding = ID3v2Padding.from_stream(
+                    stream[offset:], strict=strict
                 )
                 break
 
@@ -944,17 +1066,15 @@ class ID3v2(AudioTags):
                     stream, offset
                 )
             )
-            end_offset = (
-                offset + 10 + decode_32_bit_synchsafe_int(*frame_length)
-            )
+            end_offset = offset + 10 + decode_synchsafe_int(*frame_length)
             frame = ID3v2Frame._get_class(frame_id)._from_stream_2_4(
                 stream[offset:end_offset], strict=strict
             )
             if is_unsynchronized and not frame._flags._is_unsynchronized:
                 raise ValueError(
-                    "ID3v2 tag unsynchronization flag is set, but a(n) "
-                    f"{frame_id.decode(encoding='ascii')} frame is not "
-                    "marked as unsynchronized."
+                    "ID3v2.4 tag unsynchronization flag is set, but "
+                    f"a(n) {frame_id.decode(encoding='ascii')} frame "
+                    "is not marked as unsynchronized."
                 )
             obj._add_frame(frame, strict=strict)
             offset = end_offset + 10 * flags._has_footer
@@ -1001,7 +1121,7 @@ class ID3v2(AudioTags):
         if frame_id != b"ID3":
             raise ValueError("`stream` does not contain an ID3v2 tag.")
 
-        stream = stream[10 : 10 + decode_32_bit_synchsafe_int(*tag_length)]
+        stream = stream[10 : 10 + decode_synchsafe_int(*tag_length)]
         match tag_version := (2, minor, patch):
             case (2, 4, _):
                 return cls._from_stream_2_4(stream, flags=flags, strict=strict)
@@ -1045,6 +1165,11 @@ class ID3v2(AudioTags):
     def tag_restrictions(self) -> int:
         """
         Tag restrictions byte.
+
+        .. note::
+
+           Currently, tag restrictions are not enforced when serializing
+           ID3v2 tags.
         """
         return self._tag_restrictions
 
@@ -1062,7 +1187,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @album.setter
-    def album(self, value: str | OrderedCollection[str], /) -> None: ...
+    def album(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def album_artist(self) -> list[str] | None:
@@ -1074,7 +1201,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @album_artist.setter
-    def album_artist(self, value: str | OrderedCollection[str], /) -> None: ...
+    def album_artist(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def artist(self) -> list[str] | None:
@@ -1088,7 +1217,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @artist.setter
-    def artist(self, value: str | OrderedCollection[str], /) -> None: ...
+    def artist(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def bpm(self) -> list[str] | None:
@@ -1103,7 +1234,7 @@ class ID3v2(AudioTags):
         self,
         value: float | str | OrderedCollection[int | float | str],
         /,
-    ) -> None: ...
+    ) -> None: ...  # TODO
 
     @property
     def comment(self) -> list[str] | None:
@@ -1114,7 +1245,9 @@ class ID3v2(AudioTags):
             return [frame._comment for frame in frames]
 
     @comment.setter
-    def comment(self, value: str | OrderedCollection[str], /) -> None: ...
+    def comment(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def compilation(self) -> list[str] | None:
@@ -1128,7 +1261,7 @@ class ID3v2(AudioTags):
     @compilation.setter
     def compilation(
         self, value: bool | int | str | OrderedCollection[bool | int | str], /
-    ) -> None: ...
+    ) -> None: ...  # TODO
 
     @property
     def composer(self) -> list[str] | None:
@@ -1139,7 +1272,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @composer.setter
-    def composer(self, value: str | OrderedCollection[str], /) -> None: ...
+    def composer(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def contact(self) -> list[str] | None:
@@ -1157,7 +1292,9 @@ class ID3v2(AudioTags):
             return frame._text_info.copy()
 
     @contact.setter
-    def contact(self, value: str | OrderedCollection[str], /) -> None: ...
+    def contact(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def copyright(self) -> list[str] | None:
@@ -1168,7 +1305,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @copyright.setter
-    def copyright(self, value: str | OrderedCollection[str], /) -> None: ...
+    def copyright(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def date(self) -> list[str] | None:
@@ -1186,7 +1325,7 @@ class ID3v2(AudioTags):
     @date.setter
     def date(
         self, value: str | datetime | OrderedCollection[str | datetime], /
-    ) -> None: ...
+    ) -> None: ...  # TODO
 
     @property
     def description(self) -> list[str] | None:
@@ -1204,7 +1343,9 @@ class ID3v2(AudioTags):
             return frame._text_info.copy()
 
     @description.setter
-    def description(self, value: str | OrderedCollection[str], /) -> None: ...
+    def description(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def disc_number(self) -> list[str] | None:
@@ -1217,7 +1358,7 @@ class ID3v2(AudioTags):
     @disc_number.setter
     def disc_number(
         self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...
+    ) -> None: ...  # TODO
 
     @property
     def disc_total(self) -> list[str | None] | None:
@@ -1230,7 +1371,7 @@ class ID3v2(AudioTags):
     @disc_total.setter
     def disc_total(
         self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...
+    ) -> None: ...  # TODO
 
     @property
     def encoder(self) -> list[str] | None:
@@ -1243,7 +1384,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @encoder.setter
-    def encoder(self, value: str | OrderedCollection[str], /) -> None: ...
+    def encoder(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def genre(self) -> list[str] | None:
@@ -1254,7 +1397,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @genre.setter
-    def genre(self, value: str | OrderedCollection[str], /) -> None: ...
+    def genre(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def grouping(self) -> list[str] | None:
@@ -1265,7 +1410,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @grouping.setter
-    def grouping(self, value: str | OrderedCollection[str], /) -> None: ...
+    def grouping(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def isrc(self) -> list[str] | None:
@@ -1277,7 +1424,7 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @isrc.setter
-    def isrc(self, value: str | OrderedCollection[str], /) -> None: ...
+    def isrc(self, value: str | OrderedCollection[str], /) -> None: ...  # TODO
 
     @property
     def label(self) -> list[str] | None:
@@ -1288,7 +1435,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @label.setter
-    def label(self, value: str | OrderedCollection[str], /) -> None: ...
+    def label(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def license(self) -> list[str] | None:
@@ -1305,7 +1454,9 @@ class ID3v2(AudioTags):
             return frame._text_info.copy()
 
     @license.setter
-    def license(self, value: str | OrderedCollection[str], /) -> None: ...
+    def license(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def location(self) -> list[str] | None:
@@ -1323,7 +1474,9 @@ class ID3v2(AudioTags):
             return frame._text_info.copy()
 
     @location.setter
-    def location(self, value: str | OrderedCollection[str], /) -> None: ...
+    def location(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def lyrics(self) -> list[str] | None:
@@ -1340,7 +1493,9 @@ class ID3v2(AudioTags):
         return lyrics or None
 
     @lyrics.setter
-    def lyrics(self, value: str | OrderedCollection[str], /) -> None: ...
+    def lyrics(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def performer(self) -> list[str] | None:
@@ -1353,7 +1508,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @performer.setter
-    def performer(self, value: str | OrderedCollection[str], /) -> None: ...
+    def performer(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def title(self) -> list[str] | None:
@@ -1364,7 +1521,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @title.setter
-    def title(self, value: str | OrderedCollection[str], /) -> None: ...
+    def title(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     @property
     def track_number(self) -> list[str] | None:
@@ -1378,7 +1537,7 @@ class ID3v2(AudioTags):
     @track_number.setter
     def track_number(
         self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...
+    ) -> None: ...  # TODO
 
     @property
     def track_total(self) -> list[str | None] | None:
@@ -1391,7 +1550,7 @@ class ID3v2(AudioTags):
     @track_total.setter
     def track_total(
         self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...
+    ) -> None: ...  # TODO
 
     @property
     def version(self) -> list[str] | None:
@@ -1403,7 +1562,9 @@ class ID3v2(AudioTags):
             return frames[-1]._text_info.copy()
 
     @version.setter
-    def version(self, value: str | OrderedCollection[str], /) -> None: ...
+    def version(
+        self, value: str | OrderedCollection[str], /
+    ) -> None: ...  # TODO
 
     def _add_frame(
         self,
@@ -1530,25 +1691,133 @@ class ID3v2(AudioTags):
         stream : bytes
             Bytestream containing the serialized ID3v2 tag.
         """
-        # TODO: Handle has_crc, has_extended_header, has_footer,
-        # is_unsynchonized, tag_restrictions
         tag_version = normalize_id3v2_tag_version(tag_version)
-        frames = self._frames
-        if not include_padding and isinstance(frames[-1], ID3v2Padding):
-            frames = frames[:-1]
+        if tag_version not in TAG_VERSIONS:
+            raise ValueError(
+                f"Invalid ID3v2 tag version {tag_version!r}. "
+                f"Valid values: {join_values(TAG_VERSIONS)}."
+            )
+
         frames = b"".join(
             frame.serialize(tag_version, text_encoding=text_encoding)
-            for frame in frames
+            for frame in self._frames
         )
-        return (
-            self._STRUCT_ID3_HEADER.pack(
-                b"ID3",
-                2,
-                tag_version[1],
-                int.from_bytes(
-                    self._flags.serialize(tag_version), byteorder="big"
+        padding = self._padding
+        include_padding = include_padding and padding is not None
+        if include_padding:
+            padding_length = padding._length
+            padding = self._padding.serialize()
+        else:
+            padding = b""
+            padding_length = 0
+
+        flags = self._flags
+        match tag_version:
+            case (2, 4, _):
+                if flags._has_footer:
+                    padding = b""
+                    padding_length = 0
+
+                if flags._has_extended_header:
+                    tag_restrictions = self._tag_restrictions
+                    extended_header = bytes(
+                        (
+                            1,
+                            (
+                                (self._is_update << 6)
+                                | (self._has_crc << 5)
+                                | ((tag_restrictions != 0) << 4)
+                            ),
+                        )
+                    )
+
+                    # TODO: Enforce tag restrictions? Not trivial to
+                    # restrict only text information frames, and need
+                    # external library to resolve image sizes.
+
+                    if self._is_update:
+                        extended_header += b"\x00"
+                    if self._has_crc:
+                        extended_header += bytes(
+                            (
+                                5,
+                                *encode_synchsafe_int(
+                                    zlib.crc32(frames + padding), num_bytes=5
+                                ),
+                            )
+                        )
+                    if tag_restrictions:
+                        extended_header += bytes((1, tag_restrictions))
+                    extended_header = (
+                        bytes(encode_synchsafe_int(4 + len(extended_header)))
+                        + extended_header
+                    )
+                else:
+                    extended_header = b""
+
+                if flags._has_footer:
+                    footer = self._STRUCT_ID3_HEADER.pack(
+                        b"3DI",
+                        tag_version[1],
+                        0,
+                        int.from_bytes(
+                            self._flags.serialize(tag_version), byteorder="big"
+                        ),
+                        *encode_synchsafe_int(
+                            len(extended_header) + len(frames) + padding_length
+                        ),
+                    )
+                else:
+                    footer = b""
+
+            case (2, 3, _):
+                if flags._has_extended_header:
+                    extended_header = (self._has_crc << 15).to_bytes(
+                        2, byteorder="big"
+                    ) + (padding_length if include_padding else 0).to_bytes(
+                        4, byteorder="big"
+                    )
+                    if self._has_crc:
+                        extended_header += zlib.crc32(frames).to_bytes(
+                            4, byteorder="big"
+                        )
+                    extended_header = (
+                        len(extended_header).to_bytes(4, byteorder="big")
+                        + extended_header
+                    )
+                else:
+                    extended_header = b""
+
+                if flags._is_unsynchronized:
+                    frames = UNSYNCHRONIZATION_RE.sub(
+                        b"\xff\x00", extended_header + frames
+                    )
+                    extended_header = b""
+
+                footer = b""
+
+            case (2, 2, _):
+                extended_header = footer = b""
+
+                if flags._is_unsynchronized:
+                    frames = UNSYNCHRONIZATION_RE.sub(b"\xff\x00", frames)
+
+        return b"".join(
+            (
+                self._STRUCT_ID3_HEADER.pack(
+                    b"ID3",
+                    tag_version[1],
+                    0,
+                    int.from_bytes(
+                        self._flags.serialize(tag_version), byteorder="big"
+                    ),
+                    *encode_synchsafe_int(
+                        len(extended_header) + len(frames) + padding_length
+                    ),
                 ),
-                *encode_32_bit_synchsafe_int(len(frames)),
+                extended_header,
+                frames,
+                padding,
+                footer,
             )
-            + frames
         )

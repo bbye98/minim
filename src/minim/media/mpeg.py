@@ -7,7 +7,7 @@ from .._utility import join_values, set_obj_attr, validate_type
 from ._shared import Audio
 from .metadata._shared import AudioStreamInfo
 from .metadata.id3._core import ID3v1, ID3v2
-from .metadata.id3._shared import decode_32_bit_synchsafe_int
+from .metadata.id3._shared import decode_synchsafe_int
 
 if TYPE_CHECKING:
     from .._types import PathLike
@@ -843,7 +843,7 @@ class MPEGAudio(Audio):
 
         # Process ID3v2 tags, if any
         if view[:3] == b"ID3":
-            offset = 10 + decode_32_bit_synchsafe_int(*view[6:10])
+            offset = 10 + decode_synchsafe_int(*view[6:10])
             tags = ID3v2.from_stream(view[:offset], strict=strict)
             format_metadata.append(tags)
             self._tags = tags
