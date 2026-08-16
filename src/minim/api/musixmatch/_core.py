@@ -108,7 +108,7 @@ class MusixmatchLyricsAPIClient(APIClient):
         /,
         *,
         params: dict[str, Any] | None = None,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> httpx.Response:
         """
         Make an HTTP request to a Musixmatch Lyrics API endpoint.

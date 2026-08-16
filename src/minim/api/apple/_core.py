@@ -210,7 +210,7 @@ class iTunesSearchAPIClient(APIClient):
         endpoint: str,
         /,
         retry: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> httpx.Response:
         """
         Make an HTTP request to an iTunes Search API endpoint.

@@ -32,6 +32,16 @@ class Audio(ABC):
 
     def __init__(self, file_path: PathLike, /, *, strict: bool = True) -> None:
         """
+        .. note::
+
+           Metadata structures and ancillary information are loaded from
+           the audio file when the object is instantiated.
+
+           .. seealso::
+
+              :meth:`load_metadata` – Load metadata structures and
+              ancillary information from the audio file.
+
         Parameters
         ----------
         file_path : PathLike; positional-only
@@ -40,6 +50,16 @@ class Audio(ABC):
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the audio
             format specifications.
+
+        Raises
+        ------
+        FileNotFoundError
+            If `file_path` is an invalid file path or the file does not
+            exist.
+
+        TypeError
+            If `file_path` is not a path-like object or `strict` is not
+            a Boolean.
         """
         self._file_path = Path(file_path).expanduser().resolve(strict=True)
         validate_type("strict", strict, bool)
@@ -48,9 +68,7 @@ class Audio(ABC):
         self.load_metadata()
 
     @abstractmethod
-    def add_metadata(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> None:
+    def add_metadata(self, *args: Any, **kwargs: Any) -> None:
         """
         Add metadata structures and ancillary information.
         """
@@ -65,16 +83,14 @@ class Audio(ABC):
         ...
 
     @abstractmethod
-    def remove_metadata(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> None:
+    def remove_metadata(self, *args: Any, **kwargs: Any) -> None:
         """
         Remove metadata structures and/or ancillary information.
         """
         ...
 
     @abstractmethod
-    def save(self, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """
         Write changes to disk.
 
@@ -91,6 +107,7 @@ class Audio(ABC):
     @property
     def metadata(self) -> Any:
         """
+        :bdg-primary-line:`read`
         Metadata structures and/or ancillary information stored in the
         audio file.
         """
@@ -99,6 +116,7 @@ class Audio(ABC):
     @property
     def stream_info(self) -> AudioStreamInfo | None:
         """
+        :bdg-primary-line:`read`
         Technical properties of the decoded audio stream.
         """
         return self._stream_info
@@ -106,6 +124,7 @@ class Audio(ABC):
     @property
     def tags(self) -> AudioTags:
         """
+        :bdg-primary-line:`read`
         Metadata fields associated with the audio.
         """
         return self._tags

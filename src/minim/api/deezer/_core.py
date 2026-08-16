@@ -516,7 +516,7 @@ class DeezerAPIClient(OAuth2APIClient):
         *,
         retry: bool = True,
         params: dict[str, Any] | None = None,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> httpx.Response:
         """
         Make an HTTP request to a Deezer API endpoint.

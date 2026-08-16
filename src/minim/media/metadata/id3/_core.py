@@ -723,9 +723,7 @@ class ID3v2Padding:
         obj._length = len(stream)
         return obj
 
-    def serialize(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> bytes:
+    def serialize(self, *args: Any, **kwargs: Any) -> bytes:
         """
         Serialize the padding to a bytestream.
 

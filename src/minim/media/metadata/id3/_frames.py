@@ -13,7 +13,6 @@ from ...._utility import (
     as_buffer,
     join_values,
     prepare_isrc,
-    set_obj_attr,
     validate_number,
     validate_numeric,
     validate_range,
@@ -954,6 +953,11 @@ class ID3v2Frame(ABC):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+        
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
         if flags is None:
             self._flags = ID3v2FrameFlags()
@@ -970,7 +974,7 @@ class ID3v2Frame(ABC):
                 )
             self._group_id = group_id
 
-    def __init_subclass__(cls, **kwargs: dict[str, Any]) -> None:
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         for frame_ids in cls._frame_ids.values():
             if isinstance(frame_ids, bytes):
@@ -1027,6 +1031,7 @@ class ID3v2Frame(ABC):
 
         obj = cls.__new__(cls)
         obj._flags = ID3v2FrameFlags()
+        obj._group_id = None
         return obj
 
     @classmethod
@@ -1425,6 +1430,8 @@ class ID3v2Frame(ABC):
         if flags._has_group_id:
             self._group_id = stream[offset]
             offset += 1
+        else:
+            self._group_id = None
         if flags._is_compressed:
             stream = zlib.decompress(stream[offset:frame_length])
             if strict and (data_length := len(stream)) != decompressed_length:
@@ -1471,6 +1478,8 @@ class ID3v2Frame(ABC):
         if flags._has_group_id:
             self._group_id = stream[offset]
             offset += 1
+        else:
+            self._group_id = None
         if flags._has_data_length_indicator:
             end_offset = offset + 4
             data_length = decode_synchsafe_int(*stream[offset:end_offset])
@@ -1646,6 +1655,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         *,
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -1662,8 +1672,13 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
-        super().__init__(flags=flags)
+        super().__init__(flags=flags, group_id=group_id)
 
         if isinstance(text_info, str):
             self._text_info = [text_info]
@@ -1712,16 +1727,17 @@ class ID3v2TextInfoFrame(ID3v2Frame):
                 "separate instances."
             )
         TEXT_ENCODINGS = self._TEXT_ENCODINGS
-        return type_(
-            self._text_info + other._text_info,
-            text_encoding=TEXT_ENCODINGS[
-                max(
-                    TEXT_ENCODINGS[self._text_encoding],
-                    TEXT_ENCODINGS[other._text_encoding],
-                )
-            ],
-            flags=self._flags,
-        )
+        obj = type_.__new__(type_)
+        obj._text_info = self._text_info + other._text_info
+        obj._text_encoding = TEXT_ENCODINGS[
+            max(
+                TEXT_ENCODINGS[self._text_encoding],
+                TEXT_ENCODINGS[other._text_encoding],
+            )
+        ]
+        obj._flags = self._flags
+        obj._group_id = self._group_id
+        return obj
 
     def __iadd__(self, other: ID3v2TextInfoFrame) -> Self:
         type_ = type(self)
@@ -1946,6 +1962,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         *,
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -1963,8 +1980,15 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
-        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
+        super(ID3v2TextInfoFrame, self).__init__(
+            flags=flags, group_id=group_id
+        )
 
         validate_type("text_encoding", text_encoding, str)
         text_encoding = text_encoding.lower()
@@ -1991,6 +2015,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         obj = type_.__new__(type_)
         obj._datetimes = self._datetimes + other._datetimes
         obj._flags = self._flags
+        obj._group_id = self._group_id
         obj._text_encoding = TEXT_ENCODINGS[
             max(
                 TEXT_ENCODINGS[self._text_encoding],
@@ -2036,6 +2061,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             for self_dt, other_dt in zip(self._datetimes, other._datetimes)
         ]
         obj._flags = other._flags
+        obj._group_id = (
+            other._group_id if self._group_id is None else self._group_id
+        )
         obj._text_encoding = TEXT_ENCODINGS[
             max(
                 TEXT_ENCODINGS[self._text_encoding],
@@ -2059,6 +2087,8 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
         for self_dt, other_dt in zip(self._datetimes, other._datetimes):
             self_dt |= other_dt
+        if other._group_id is not None:
+            self._group_id = other._group_id
         TEXT_ENCODINGS = self._TEXT_ENCODINGS
         self._text_encoding = TEXT_ENCODINGS[
             max(
@@ -2066,6 +2096,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 TEXT_ENCODINGS[other._text_encoding],
             )
         ]
+
         return self
 
     @classmethod
@@ -2285,6 +2316,7 @@ class ID3v2APICFrame(ID3v2Frame):
         description: str = "",
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -2313,8 +2345,13 @@ class ID3v2APICFrame(ID3v2Frame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
-        super().__init__(flags=flags)
+        super().__init__(flags=flags, group_id=group_id)
 
         validate_number("picture_type", picture_type, int, 0, 20)
         self._picture_type = picture_type
@@ -2654,6 +2691,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         language: str = "eng",
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -2676,8 +2714,13 @@ class ID3v2COMMFrame(ID3v2Frame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
-        super().__init__(flags=flags)
+        super().__init__(flags=flags, group_id=group_id)
 
         validate_type("description", description, str)
         self._description = description
@@ -2922,6 +2965,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         language: str = "eng",
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -2944,8 +2988,13 @@ class ID3v2USLTFrame(ID3v2Frame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
-        super().__init__(flags=flags)
+        super().__init__(flags=flags, group_id=group_id)
 
         validate_type("description", description, str)
         self._description = description
@@ -3214,6 +3263,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         *,
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -3231,8 +3281,15 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
-        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
+        super(ID3v2TextInfoFrame, self).__init__(
+            flags=flags, group_id=group_id
+        )
 
         if isinstance(bpm, (int, float, str)):
             self._text_info = [str(round(float(bpm)))]
@@ -3402,6 +3459,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         *,
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -3421,6 +3479,11 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
         super(ID3v2TextInfoFrame, self).__init__(flags=flags)
 
@@ -4963,6 +5026,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         *,
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -4979,8 +5043,15 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
-        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
+        super(ID3v2TextInfoFrame, self).__init__(
+            flags=flags, group_id=group_id
+        )
 
         if isinstance(isrcs, str):
             isrcs = [isrcs]
@@ -5175,6 +5246,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         *,
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -5194,8 +5266,15 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
-        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
+        super(ID3v2TextInfoFrame, self).__init__(
+            flags=flags, group_id=group_id
+        )
 
         validate_type("description", description, str)
         self._description = description
@@ -5418,7 +5497,12 @@ class UnknownID3v2Frame(ID3v2Frame):
     __slots__ = ("_frame_data", "_frame_id", "_frame_length")
 
     def __init__(
-        self, frame_id: bytes | bytearray, frame_data: bytes | bytearray
+        self,
+        frame_id: bytes | bytearray,
+        frame_data: bytes | bytearray,
+        *,
+        flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
     ) -> None:
         """
         Parameters
@@ -5428,15 +5512,26 @@ class UnknownID3v2Frame(ID3v2Frame):
 
         frame_data : bytes or bytearray
             ID3v2 frame data.
+
+        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
+        optional
+            Flags for the ID3v2 frame.
+        
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
         """
+        super().__init__(flags=flags, group_id=group_id)
         validate_type("frame_id", frame_id, bytes | bytearray)
         if not 3 <= len(frame_id) <= 4:
             raise ValueError(
                 "`frame_id` must be three- or four-characters long."
             )
-        set_obj_attr(self, "_frame_id", bytes(frame_id))
+        self._frame_id = bytes(frame_id)
         validate_type("frame_data", frame_data, bytes | bytearray)
-        set_obj_attr(self, "_frame_data", bytes(frame_data))
+        self._frame_data = bytes(frame_data)
+        self._frame_length = len(self._frame_data)
 
     @classmethod
     def _from_stream_2_2(
@@ -5463,7 +5558,6 @@ class UnknownID3v2Frame(ID3v2Frame):
         obj = super()._from_stream_2_2(stream, strict=strict)
         obj._frame_id = stream[:3].tobytes()
         obj._frame_length = int.from_bytes(stream[3:6], byteorder="big")
-        obj._flags = ID3v2FrameFlags()
         obj._frame_data = stream[6 : 6 + obj._frame_length].tobytes()
         return obj
 
@@ -5590,8 +5684,8 @@ class UnknownID3v2Frame(ID3v2Frame):
     def serialize(
         self,
         tag_version: str | tuple[int, int, int],
-        *args: tuple[Any, ...],
-        **kwargs: dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.

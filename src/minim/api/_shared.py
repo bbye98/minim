@@ -85,9 +85,7 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
                 """
             )
 
-    def log_message(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> None:
+    def log_message(self, *args: Any, **kwargs: Any) -> None:
         """
         Suppress the HTTP server logging output.
 
@@ -569,8 +567,8 @@ class TTLCache:
             @wraps(func)
             def wrapped(
                 self: ResourceAPI,
-                *args: tuple[Any, ...],
-                **kwargs: dict[str, Any],
+                *args: Any,
+                **kwargs: Any,
             ) -> Any:
                 return (
                     func(self, *args, **kwargs)
@@ -675,9 +673,7 @@ class TTLCache:
 
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)
-            def wrapped(
-                *args: tuple[Any, ...], **kwargs: dict[str, Any]
-            ) -> Any:
+            def wrapped(*args: Any, **kwargs: Any) -> Any:
                 key = (
                     func.__name__,
                     tuple(self._make_hashable(a) for a in args[1:]),
@@ -799,7 +795,7 @@ class APIClient(ABC):
 
     @abstractmethod
     def _request(
-        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+        self, method: str, endpoint: str, /, **kwargs: Any
     ) -> httpx.Response:
         """
         Make an HTTP request to an API endpoint.
@@ -958,14 +954,14 @@ class OAuthAPIClient(APIClient):
     def set_auth_flow(
         self,
         auth_flow: str | None,
-        *args: tuple[Any, ...],
+        *args: Any,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
         redirect_handler: str | None = None,
         open_browser: bool = False,
         store_tokens: bool = True,
         authenticate: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> None:
         """
         Set or update the authorization flow and related parameters.
@@ -1072,7 +1068,7 @@ class OAuthAPIClient(APIClient):
     @classmethod
     @abstractmethod
     def get_tokens(
-        cls, **kwargs: dict[str, Any]
+        cls, **kwargs: Any
     ) -> list[dict[str, Any]] | None:
         """
         Retrieve specific or all access tokens and their metadata for
@@ -1087,7 +1083,7 @@ class OAuthAPIClient(APIClient):
 
     @classmethod
     @abstractmethod
-    def remove_tokens(cls, **kwargs: dict[str, Any]) -> None:
+    def remove_tokens(cls, **kwargs: Any) -> None:
         """
         Remove specific or all access tokens and their metadata for this
         client from local storage.
@@ -1786,7 +1782,7 @@ class OAuth1APIClient(OAuthAPIClient):
         return f"{method}&{quote(f'{self.BASE_URL}/{endpoint}', safe='')}&{encoded_params}"
 
     def _request(
-        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+        self, method: str, endpoint: str, /, **kwargs: Any
     ) -> httpx.Response:
         """
         Make an HTTP request to an API endpoint.

@@ -850,6 +850,7 @@ class MPEGAudio(Audio):
             self._audio_offset = offset
         else:
             self._audio_offset = 0
+        # TODO: Sync to audio frames for _audio_offset
 
         # Process ID3v1 tags, if any
         end_audio_offset = len(view)

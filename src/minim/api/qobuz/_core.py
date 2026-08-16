@@ -114,7 +114,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         enable_cache: bool = True,
         store_tokens: bool = True,
         user_agent: str | None = None,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> None:
         """
         Parameters
@@ -564,7 +564,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         pass  # Implemented as _obtain_user_auth_token()
 
     def _obtain_user_auth_token(
-        self, auth_flow: str | None = None, **kwargs: dict[str, Any]
+        self, auth_flow: str | None = None, **kwargs: Any
     ) -> None:
         """
         Get and set a new user authentication token via the provided or
@@ -640,7 +640,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         *,
         signed: bool = False,
         sig_params: dict[str, Any] | None = None,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> httpx.Response:
         """
         Make an HTTP request to a private Qobuz API endpoint.
@@ -741,7 +741,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         open_browser: bool = False,
         store_tokens: bool = True,
         authenticate: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> None:
         """
         Set or update the authorization flow and related parameters.

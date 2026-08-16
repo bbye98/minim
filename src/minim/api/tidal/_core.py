@@ -113,7 +113,7 @@ class BaseTIDALAPIClient(OAuth2APIClient):
         /,
         *,
         retry: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> httpx.Response:
         """
         Make an HTTP request to a TIDAL API endpoint.
@@ -430,7 +430,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         /,
         *,
         retry: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> httpx.Response:
         """
         Make an HTTP request to a TIDAL API endpoint.
@@ -873,7 +873,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         /,
         *,
         retry: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> httpx.Response:
         """
         Make an HTTP request to a private TIDAL API endpoint.

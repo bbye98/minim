@@ -38,13 +38,13 @@ class AudioStreamInfo:
     _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (1, 4_294_967_295)
     _BIT_DEPTH_RANGE: ClassVar[tuple[int, int]] = (1, 32)
 
-    #: Number of channels.
+    #: :bdg-primary-line:`read` Number of channels.
     num_channels: int
-    #: Sample rate in hertz.
+    #: :bdg-primary-line:`read` Sample rate in hertz.
     sample_rate: int
-    #: Bits per sample.
+    #: :bdg-primary-line:`read` Bits per sample.
     bit_depth: int | None
-    #: Total number of samples.
+    #: :bdg-primary-line:`read` Total number of samples.
     num_samples: int
 
     def __post_init__(self) -> None:
@@ -71,6 +71,7 @@ class AudioStreamInfo:
     @property
     def duration(self) -> float:
         """
+        :bdg-primary-line:`read`
         Duration in seconds.
         """
         return self.num_samples / self.sample_rate
@@ -448,8 +449,8 @@ class AudioTags(ABC):
         self,
         fields: str | Collection[str],
         /,
-        *args: tuple[Any, ...],
-        **kwargs: dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> Any | dict[str, Any]:
         """
         Get track attributes.
@@ -475,9 +476,7 @@ class AudioTags(ABC):
         ...
 
     @abstractmethod
-    def serialize(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> bytes:
+    def serialize(self, *args: Any, **kwargs: Any) -> bytes:
         """
         Serialize metadata to a bytestream.
 
@@ -497,7 +496,7 @@ class AudioTags(ABC):
         ...
 
     @abstractmethod
-    def set(self, **kwargs: dict[str, Any]) -> None:
+    def set(self, **kwargs: Any) -> None:
         """
         Set track attributes.
 

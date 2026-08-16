@@ -30,6 +30,18 @@ class VorbisComment(AudioTags):
         `Ogg Vorbis I format specification:
         comment field and header specification
         <https://www.xiph.org/vorbis/doc/v-comment.html>`_.
+
+    This class implements the operators:
+
+    * :code:`__len__` or :code:`len()` – Return the number of fields.
+
+    * :code:`__or__` or :code:`|` – Merge two Vorbis comments, keeping
+      the vendor name from the right-hand operand, if present, otherwise
+      from the left.
+
+    * :code:`__ior__` or :code:`|=` – Merge another Vorbis comment into
+      the current one in-place, keeping the vendor name from the
+      right-hand operand, if present, otherwise from the left.
     """
 
     _INVALID_KEY_CHARS_REGEX: ClassVar[re.Pattern[str]] = re.compile(
@@ -68,6 +80,9 @@ class VorbisComment(AudioTags):
         ----------
         fields : dict[str, Any]; optional
             Key–value pairs of track attributes.
+
+            **Example**: \
+            :code:`{"ARTIST": "Galantis", "TITLE": "Runaway (U & I)"}`.
 
         vendor : str; optional
             Vendor name.
@@ -114,6 +129,9 @@ class VorbisComment(AudioTags):
             validate_type("vendor", vendor, str)
         self._vendor = vendor
 
+    def __len__(self) -> int:
+        return len(self._fields)
+
     def __or__(self, other: Self) -> Self:
         type_ = type(self)
         if not isinstance(other, type_):
@@ -123,7 +141,13 @@ class VorbisComment(AudioTags):
             )
 
         obj = type_.__new__(type_)
-        obj._fields = self._fields | other._fields
+        fields = {key: values.copy() for key, values in self._fields.items()}
+        for key, values in other._fields.items():
+            if key in fields:
+                fields[key] += values
+            else:
+                fields[key] = values.copy()
+        obj._fields = fields
         obj._vendor = other._vendor
         return obj
 
@@ -135,7 +159,12 @@ class VorbisComment(AudioTags):
                 f"{type_.__name__!r} and {type(other).__name__!r}."
             )
 
-        self._fields |= other._fields
+        fields = self._fields
+        for key, values in other._fields:
+            if key in fields:
+                fields[key] += values
+            else:
+                fields[key] = values.copy()
         self._vendor = other._vendor or self._vendor
 
     @classmethod
@@ -154,6 +183,11 @@ class VorbisComment(AudioTags):
         -------
         vorbis_comment : minim.media.metadata.VorbisComment
             Vorbis comment metadata container.
+
+        Raises
+        ------
+        TypeError
+            If `stream` is not a bytes-like object.
         """
         obj = cls.__new__(cls)
         stream = as_buffer(stream)
@@ -239,6 +273,7 @@ class VorbisComment(AudioTags):
     @property
     def album(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`ALBUM` – Title of the album or collection.
         """
         return self.get("ALBUM")
@@ -250,6 +285,7 @@ class VorbisComment(AudioTags):
     @property
     def album_artist(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`ALBUMARTIST` – Main artists credited for the entire album
         or collection.
         """
@@ -262,6 +298,7 @@ class VorbisComment(AudioTags):
     @property
     def artist(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`ARTIST` – Main artists of the recording (e.g., the
         performing band or singers in popular music, the composers for
         classical music, or the authors of the original text in
@@ -276,6 +313,7 @@ class VorbisComment(AudioTags):
     @property
     def bpm(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`BPM` – Tempo in beats per minute (BPM).
         """
         return self.get("BPM")
@@ -291,6 +329,7 @@ class VorbisComment(AudioTags):
     @property
     def comment(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`COMMENT` – Free-form comments.
         """
         return self.get("COMMENT")
@@ -302,6 +341,7 @@ class VorbisComment(AudioTags):
     @property
     def compilation(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`COMPILATION` – Whether the recording is part of a
         compilation.
         """
@@ -316,6 +356,7 @@ class VorbisComment(AudioTags):
     @property
     def composer(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`COMPOSER` – Composers or songwriters.
         """
         return self.get("COMPOSER")
@@ -327,6 +368,7 @@ class VorbisComment(AudioTags):
     @property
     def contact(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`CONTACT` – Contact information for the creators or
         distributors.
         """
@@ -339,6 +381,7 @@ class VorbisComment(AudioTags):
     @property
     def copyright(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`COPYRIGHT` – Copyright attribution.
         """
         return self.get("COPYRIGHT")
@@ -350,6 +393,7 @@ class VorbisComment(AudioTags):
     @property
     def date(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`DATE` or :code:`YEAR` (legacy) – Recording or release
         date.
         """
@@ -364,6 +408,7 @@ class VorbisComment(AudioTags):
     @property
     def description(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`DESCRIPTION` – General description.
         """
         return self.get("DESCRIPTION")
@@ -375,6 +420,7 @@ class VorbisComment(AudioTags):
     @property
     def disc_number(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`DISCNUMBER` – Disc number within a multi-disc set.
         """
         return self.get("DISCNUMBER")
@@ -388,6 +434,7 @@ class VorbisComment(AudioTags):
     @property
     def disc_total(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`DISCTOTAL` or :code:`TOTALDISCS` (legacy) – Total number
         of discs.
         """
@@ -402,6 +449,7 @@ class VorbisComment(AudioTags):
     @property
     def encoder(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`ENCODER` – Software or hardware used for encoding, or the
         person or organization that encoded the audio file.
         """
@@ -414,6 +462,7 @@ class VorbisComment(AudioTags):
     @property
     def genre(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`GENRE` – Musical genres.
         """
         return self.get("GENRE")
@@ -425,6 +474,7 @@ class VorbisComment(AudioTags):
     @property
     def grouping(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`GROUPING` – Content group description.
         """
         return self.get("GROUPING")
@@ -436,6 +486,7 @@ class VorbisComment(AudioTags):
     @property
     def isrc(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`ISRC` – International Standard Recording Code (ISRC).
         """
         return self.get("ISRC")
@@ -447,6 +498,7 @@ class VorbisComment(AudioTags):
     @property
     def label(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`ORGANIZATION` – Publishers or record labels.
         """
         return self.get("ORGANIZATION")
@@ -458,6 +510,7 @@ class VorbisComment(AudioTags):
     @property
     def license(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`LICENSE` – License information.
         """
         return self.get("LICENSE")
@@ -469,6 +522,7 @@ class VorbisComment(AudioTags):
     @property
     def location(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`LOCATION` – Recording locations.
         """
         return self.get("LOCATION")
@@ -480,6 +534,7 @@ class VorbisComment(AudioTags):
     @property
     def lyrics(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`LYRICS` – Lyrics or transcription.
         """
         return self.get("LYRICS")
@@ -491,6 +546,7 @@ class VorbisComment(AudioTags):
     @property
     def performer(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`PERFORMER` – Performers (e.g., the conductor, orchestra,
         and/or soloists in classical music, or the narrator in
         audiobooks).
@@ -504,6 +560,7 @@ class VorbisComment(AudioTags):
     @property
     def title(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`TITLE` – Title of the recording.
         """
         return self.get("TITLE")
@@ -515,6 +572,7 @@ class VorbisComment(AudioTags):
     @property
     def track_number(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`TRACKNUMBER` – Track number within the album or
         collection.
         """
@@ -529,6 +587,7 @@ class VorbisComment(AudioTags):
     @property
     def track_total(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`TRACKTOTAL` or :code:`TOTALTRACKS` (legacy) – Total
         number of tracks.
         """
@@ -543,6 +602,7 @@ class VorbisComment(AudioTags):
     @property
     def vendor(self) -> str | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         Vendor name.
         """
         return self._vendor
@@ -555,6 +615,7 @@ class VorbisComment(AudioTags):
     @property
     def version(self) -> list[str] | None:
         """
+        :bdg-primary-line:`read` :bdg-secondary-line:`write`
         :code:`VERSION` – Version of the recording (e.g., remix
         information).
         """
@@ -589,8 +650,13 @@ class VorbisComment(AudioTags):
 
         Parameters
         ----------
-        **kwargs
+        **kwargs : dict[str, Any]
             Key–value pairs of track attributes.
+
+        Raises
+        ------
+        TypeError
+            If any key or value cannot be stringified.
         """
         for key, value in kwargs.items():
             key = self._normalize_field_name(key)
@@ -637,6 +703,11 @@ class VorbisComment(AudioTags):
             Track attributes. If `fields` is a collection of strings, a
             dictionary mapping field names to their corresponding values
             is returned.
+
+        Raises
+        ------
+        TypeError
+            If `fields` is not a string or collection of strings.
         """
         if not (
             isinstance(fields, str)
@@ -659,7 +730,7 @@ class VorbisComment(AudioTags):
         fields: str | Collection[str],
         /,
         *,
-        indices: Collection[int] | None = None,
+        indices: int | Collection[int] | None = None,
     ) -> None:
         """
         Remove track attributes.
@@ -668,9 +739,24 @@ class VorbisComment(AudioTags):
         ----------
         fields : str or Collection[str]; positional-only
             Field names of the attributes.
+
+        indices : int or Collection[int]; keyword-only; optional
+            Indices of values to remove from a specific field. Can be
+            provided only when `fields` is a string.
+
+        Raises
+        ------
+        TypeError
+            If `fields` is not a string or a collection of strings, or
+            if `indices` is not an integer or a collection of integers.
+
+        ValueError
+            If `indices` is specified when `fields` is a collection of
+            strings.
         """
+        is_string = isinstance(fields, str)
         if not (
-            isinstance(fields, str)
+            is_string
             or (
                 isinstance(fields, COLLECTION_TYPES)
                 and all(isinstance(field, str) for field in fields)
@@ -680,10 +766,20 @@ class VorbisComment(AudioTags):
                 "`fields` must be a string or a collection of strings."
             )
 
-        if isinstance(fields, str):
+        if is_string:
             if indices is None:
                 del self._fields[self._normalize_field_name(fields)]
             else:
+                if isinstance(indices, int):
+                    indices = [indices]
+                elif not (
+                    isinstance(indices, COLLECTION_TYPES)
+                    and all(isinstance(index, int) for index in indices)
+                ):
+                    raise TypeError(
+                        "`indices` must be an integer or a collection "
+                        "of integers."
+                    )
                 field_value = self._fields[self._normalize_field_name(fields)]
                 for idx in sorted(indices, reverse=True):
                     field_value.pop(idx)
@@ -725,6 +821,14 @@ class VorbisComment(AudioTags):
         ----------
         **kwargs
             Key–value pairs of track attributes.
+
+        Raises
+        ------
+        TypeError
+            If any key or value cannot be stringified.
+
+        ValueError
+            If any value is outside the allowed range for its field.
         """
         for key, value in kwargs.items():
             key = self._normalize_field_name(key)
@@ -764,9 +868,9 @@ class VorbisComment(AudioTags):
         Parameters
         ----------
         include_framing_bit : bool; keyword-only; default: :code:`False`
-            Whether to include a framing bit (single byte of value
-            :code:`1`) at the end of the bytestream. Required only by
-            the Ogg container format.
+            Whether to include a framing bit (:code:`b'\x01'`) at the
+            end of the bytestream. Required only by the Ogg container
+            format.
 
         Returns
         -------
