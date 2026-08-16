@@ -16,7 +16,7 @@ from ._shared import AudioTags
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Any
+    from typing import Any, Self
 
     from ..._types import BytesLike, Collection, OrderedCollection
 
@@ -56,7 +56,7 @@ class VorbisComment(AudioTags):
         ),
     }
 
-    __slots__ = ("_fields", "_num_fields", "_vendor")
+    __slots__ = ("_fields", "_vendor")
 
     def __init__(
         self,
@@ -73,6 +73,12 @@ class VorbisComment(AudioTags):
             Vendor name.
 
             **Example**: :code:`"Xiph.Org libVorbis I 20020717"`.
+
+        Raises
+        ------
+        TypeError
+            If `fields` is not a dictionary or contains keys or values
+            that cannot be stringified, or if `vendor` is not a string.
         """
         normalize_field_name = self._normalize_field_name
         stringify = self._stringify
@@ -103,11 +109,34 @@ class VorbisComment(AudioTags):
                     self._fields[normalize_field_name(field_name)] = [
                         field_value
                     ]
-        self._num_fields = len(self._fields)
 
         if vendor is not None:
             validate_type("vendor", vendor, str)
         self._vendor = vendor
+
+    def __or__(self, other: Self) -> Self:
+        type_ = type(self)
+        if not isinstance(other, type_):
+            raise TypeError(
+                "Unsupported operand type(s) for |: "
+                f"{type_.__name__!r} and {type(other).__name__!r}."
+            )
+
+        obj = type_.__new__(type_)
+        obj._fields = self._fields | other._fields
+        obj._vendor = other._vendor
+        return obj
+
+    def __ior__(self, other: Self) -> Self:
+        type_ = type(self)
+        if not isinstance(other, type_):
+            raise TypeError(
+                "Unsupported operand type(s) for |: "
+                f"{type_.__name__!r} and {type(other).__name__!r}."
+            )
+
+        self._fields |= other._fields
+        self._vendor = other._vendor or self._vendor
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> VorbisComment:
@@ -138,7 +167,7 @@ class VorbisComment(AudioTags):
         )
         offset = end_offset
         end_offset = offset + 4
-        obj._num_fields = int.from_bytes(
+        num_fields = int.from_bytes(
             stream[offset:end_offset], byteorder="little"
         )
         offset = end_offset
@@ -146,7 +175,7 @@ class VorbisComment(AudioTags):
         # Read comment vectors
         normalize_field_name = cls._normalize_field_name
         fields = obj._fields = {}
-        for _ in range(obj._num_fields):
+        for _ in range(num_fields):
             end_offset = offset + 4
             length = int.from_bytes(
                 stream[offset:end_offset], byteorder="little"
@@ -565,11 +594,10 @@ class VorbisComment(AudioTags):
         """
         for key, value in kwargs.items():
             key = self._normalize_field_name(key)
-            new_key = key not in self._fields
-            if new_key:
-                self._fields[key] = values = []
-            else:
+            if key in self._fields:
                 values = self._fields[key]
+            else:
+                self._fields[key] = values = []
             validate = self._validators.get(key)
             has_validator = validate is not None
 
@@ -593,12 +621,6 @@ class VorbisComment(AudioTags):
                     f"The value {value!r} for field '{key}' has "
                     f"unsupported type {type(value).__name__}."
                 )
-
-            if new_key:
-                if values:
-                    self._num_fields += 1
-                else:
-                    del self._fields[key]
 
     def get(self, fields: str | Collection[str], /) -> list[str] | None:
         """
@@ -706,15 +728,12 @@ class VorbisComment(AudioTags):
         """
         for key, value in kwargs.items():
             key = self._normalize_field_name(key)
-            new_key = key not in self._fields
             validate = self._validators.get(key)
             has_validator = validate is not None
             if isinstance(value := self._stringify(value), str):
                 if has_validator:
                     validate(value)
                 self._fields[key] = [value]
-                if new_key:
-                    self._num_fields += 1
             elif isinstance(value, ORDERED_COLLECTION_TYPES):
                 self._fields[key] = values = []
                 for item in value:
@@ -727,13 +746,6 @@ class VorbisComment(AudioTags):
                             f"The value {item!r} in field '{key}' has "
                             f"unsupported type {type(item).__name__}."
                         )
-                if values:
-                    if new_key:
-                        self._num_fields += 1
-                else:
-                    del self._fields[key]
-                    if not new_key:
-                        self._num_fields -= 1
             else:
                 raise TypeError(
                     f"The value {value!r} for field '{key}' has "
@@ -768,7 +780,7 @@ class VorbisComment(AudioTags):
                 )
             ).to_bytes(length=4, byteorder="little"),
             vendor,
-            self._num_fields.to_bytes(length=4, byteorder="little"),
+            len(self._fields).to_bytes(length=4, byteorder="little"),
         ]
         for key, values in self._fields.items():
             for value in values:

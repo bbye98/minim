@@ -838,14 +838,14 @@ class MPEGAudio(Audio):
         # file_path = self._file_path
         view = self._view
 
-        self._format_metadata = format_metadata = []
+        self._metadata = metadata = []
         strict = self._strict
 
         # Process ID3v2 tags, if any
         if view[:3] == b"ID3":
             offset = 10 + decode_synchsafe_int(*view[6:10])
             tags = ID3v2.from_stream(view[:offset], strict=strict)
-            format_metadata.append(tags)
+            metadata.append(tags)
             self._tags = tags
             self._audio_offset = offset
         else:
@@ -855,7 +855,7 @@ class MPEGAudio(Audio):
         end_audio_offset = len(view)
         if view[-128:-125] == b"TAG":
             tags = ID3v1.from_stream(view[-128:])
-            format_metadata.append(tags)
+            metadata.append(tags)
             if not hasattr(self, "_tags"):
                 self._tags = tags
             end_audio_offset -= 128

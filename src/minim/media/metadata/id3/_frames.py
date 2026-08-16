@@ -130,16 +130,16 @@ class DateTime:
                 "Unsupported operand type(s) for |: "
                 f"{type_.__name__!r} and {type(other).__name__!r}."
             )
-        return DateTime(
-            year=other.year or self.year,
-            month=other.month or self.month,
-            day=other.day or self.day,
-            hour=other.hour or self.hour,
-            minute=other.minute or self.minute,
-            second=other.second or self.second,
-            extra=other.extra or self.extra,
-            strict=False,
-        )
+
+        obj = type_.__new__(type_)
+        obj._year = other._year or self._year
+        obj._month = other._month or self._month
+        obj.day = other._day or self._day
+        obj._hour = self._hour if other._hour is None else other._hour
+        obj._minute = self._minute if other._minute is None else other._hour
+        obj._second = self._second if other._second is None else other.second
+        obj._extra = other.extra or self.extra
+        return obj
 
     def __ior__(self, other: Self) -> Self:
         type_ = type(self)
@@ -148,20 +148,20 @@ class DateTime:
                 "Unsupported operand type(s) for |=: "
                 f"{type_.__name__!r} and {type(other).__name__!r}."
             )
-        if other.year is not None:
-            self.year = other.year
-        if other.month is not None:
-            self.month = other.month
-        if other.day is not None:
-            self.day = other.day
-        if other.hour is not None:
-            self.hour = other.hour
-        if other.minute is not None:
-            self.minute = other.minute
-        if other.second is not None:
-            self.second = other.second
-        if other.extra is not None:
-            self.extra = other.extra
+        if other._year is not None:
+            self._year = other._year
+        if other._month is not None:
+            self._month = other._month
+        if other._day is not None:
+            self.day = other._day
+        if other._hour is not None:
+            self._hour = other._hour
+        if other._minute is not None:
+            self._minute = other._minute
+        if other._second is not None:
+            self._second = other._second
+        if other._extra is not None:
+            self._extra = other._extra
         return self
 
     @classmethod
@@ -270,7 +270,7 @@ class DateTime:
     def year(self, value: int | None) -> None:
         if value is not None:
             validate_range("year", value, MINYEAR, MAXYEAR)
-            if self._month:
+            if self._month is not None and self._day is not None:
                 validate_range(
                     "day",
                     self._day,
@@ -290,7 +290,7 @@ class DateTime:
     def month(self, value: int | None) -> None:
         if value is not None:
             validate_range("month", value, 1, 12)
-            if self._year:
+            if self._year is not None and self._day is not None:
                 validate_range(
                     "day",
                     self._day,
@@ -314,7 +314,7 @@ class DateTime:
                 value,
                 1,
                 self._get_num_days_in_month(self._month, year=self._year)
-                if self._year and self._month
+                if self._year is not None and self._month is not None
                 else 31,
             )
         self._day = value
@@ -1986,17 +1986,18 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 "Unsupported operand type(s) for +: "
                 f"{type_.__name__!r} and {type(other).__name__!r}."
             )
+
         TEXT_ENCODINGS = self._TEXT_ENCODINGS
-        return type_(
-            self._datetimes + other._datetimes,
-            text_encoding=TEXT_ENCODINGS[
-                max(
-                    TEXT_ENCODINGS[self._text_encoding],
-                    TEXT_ENCODINGS[other._text_encoding],
-                )
-            ],
-            flags=self._flags,
-        )
+        obj = type_.__new__(type_)
+        obj._datetimes = self._datetimes + other._datetimes
+        obj._flags = self._flags
+        obj._text_encoding = TEXT_ENCODINGS[
+            max(
+                TEXT_ENCODINGS[self._text_encoding],
+                TEXT_ENCODINGS[other._text_encoding],
+            )
+        ]
+        return obj
 
     def __iadd__(self, other: ID3v2DateTimeFrame) -> Self:
         type_ = type(self)
@@ -2015,7 +2016,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         ]
         return self
 
-    def __or__(self, other: ID3v2DateTimeFrame) -> Self:
+    def __or__(self, other: Self) -> Self:
         type_ = type(self)
         if not isinstance(other, type_):
             raise TypeError(
@@ -2024,25 +2025,26 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             )
         if len(self._datetimes) != len(other._datetimes):
             raise ValueError(
-                "Cannot combine ID3v2DateTimeFrame objects with "
+                f"Cannot combine {type_.__name__} objects with "
                 "different numbers of datetimes."
             )
-        TEXT_ENCODINGS = self._TEXT_ENCODINGS
-        return type_(
-            (
-                self_dt | other_dt
-                for self_dt, other_dt in zip(self._datetimes, other._datetimes)
-            ),
-            text_encoding=TEXT_ENCODINGS[
-                max(
-                    TEXT_ENCODINGS[self._text_encoding],
-                    TEXT_ENCODINGS[other._text_encoding],
-                )
-            ],
-            flags=other._flags,
-        )
 
-    def __ior__(self, other: ID3v2DateTimeFrame) -> Self:
+        TEXT_ENCODINGS = self._TEXT_ENCODINGS
+        obj = type_.__new__(type_)
+        obj._datetimes = [
+            self_dt | other_dt
+            for self_dt, other_dt in zip(self._datetimes, other._datetimes)
+        ]
+        obj._flags = other._flags
+        obj._text_encoding = TEXT_ENCODINGS[
+            max(
+                TEXT_ENCODINGS[self._text_encoding],
+                TEXT_ENCODINGS[other._text_encoding],
+            )
+        ]
+        return obj
+
+    def __ior__(self, other: Self) -> Self:
         type_ = type(self)
         if not isinstance(other, type_):
             raise TypeError(
@@ -2051,9 +2053,10 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             )
         if len(self._datetimes) != len(other._datetimes):
             raise ValueError(
-                "Cannot combine ID3v2DateTimeFrame objects with "
+                f"Cannot combine {type_.__name__} objects with "
                 "different numbers of datetimes."
             )
+
         for self_dt, other_dt in zip(self._datetimes, other._datetimes):
             self_dt |= other_dt
         TEXT_ENCODINGS = self._TEXT_ENCODINGS

@@ -52,14 +52,15 @@ class Audio(ABC):
         self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> None:
         """
-        Add audio metadata.
+        Add metadata structures and ancillary information.
         """
         ...
 
     @abstractmethod
     def load_metadata(self) -> None:
         """
-        Load audio metadata.
+        Load metadata structures and ancillary information from the
+        audio file.
         """
         ...
 
@@ -68,7 +69,7 @@ class Audio(ABC):
         self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> None:
         """
-        Remove audio metadata.
+        Remove metadata structures and/or ancillary information.
         """
         ...
 
@@ -90,7 +91,7 @@ class Audio(ABC):
     @property
     def metadata(self) -> Any:
         """
-        Metadata structures and ancillary information stored in the
+        Metadata structures and/or ancillary information stored in the
         audio file.
         """
         return self._metadata

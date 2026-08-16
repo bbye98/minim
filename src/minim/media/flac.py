@@ -1676,7 +1676,7 @@ class FLACAudio(Audio):
 
     def load_metadata(self) -> None:
         """
-        Load FLAC metadata blocks.
+        Load metadata blocks from the FLAC audio file.
         """
         self.open()
         file_path = self._file_path
@@ -1756,6 +1756,7 @@ class FLACAudio(Audio):
 
                     metadata_block = VorbisComment.from_stream(block_data)
                     metadata_blocks.append(metadata_block)
+                    seen_vorbis_comment = True
                     self._tags = metadata_block
                 case 5:  # CUESHEET
                     metadata_blocks.append(

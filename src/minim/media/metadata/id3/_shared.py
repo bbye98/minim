@@ -1,10 +1,6 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ...._types import BytesLike
 
 GENRES = {
     0: "Blues",
@@ -205,22 +201,36 @@ TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
 UNSYNCHRONIZATION_RE = re.compile(rb"\xff(?=\x00|[\xe0-\xff]|$)")
 
 
-def decode_synchsafe_int(*bytes_: tuple[int, ...]) -> int:
+def decode_synchsafe_int(*bytes_: int) -> int:
     """
     Decode a synchsafe integer.
 
     Parameters
     ----------
     *bytes_ : tuple[int, ...]; positional-only
-        Bytes of the synchsave integer.
+        Bytes of the synchsafe integer.
 
     Returns
     -------
     value : int
         Decoded integer value.
+
+    Raises
+    ------
+    TypeError
+        If any of the values in `bytes_` is not an integer.
+
+    ValueError
+        If any of the integers in `bytes_` does not have its most
+        significant bit cleared.
     """
     value = 0
-    for byte in bytes_:
+    for byte_index, byte in enumerate(bytes_):
+        if byte & 0x80:
+            raise ValueError(
+                f"Byte {byte_index} in the synchsafe integer does not "
+                "have its most significant bit cleared."
+            )
         value = (value << 7) | byte
     return value
 
@@ -237,12 +247,17 @@ def encode_synchsafe_int(
         Integer value to encode.
 
     num_bytes : int; keyword-only; default: :code:`4`
-        Number of bytes.
+        Number of bytes in the synchsafe integer.
 
     Returns
     -------
     bytes : tuple[int, ...]
         Bytes of the synchsafe integer.
+
+    Raises
+    ------
+    TypeError
+        If `value` or `num_bytes` is not an integer.
     """
     return tuple(
         (value >> (7 * byte_index) & 0x7F)
@@ -268,6 +283,11 @@ def normalize_id3v1_tag_version(
     -------
     tag_version : tuple[int, int]
         ID3v1 tag version.
+
+    Raises
+    ------
+    TypeError
+        If `tag_version` is not a string or a tuple of two integers.
     """
     match tag_version:
         case tuple() | list():
@@ -299,6 +319,11 @@ def normalize_id3v2_tag_version(
     -------
     tag_version : tuple[int, int, int]
         ID3v2 tag version.
+
+    Raises
+    ------
+    TypeError
+        If `tag_version` is not a string or a tuple of two integers.
     """
     match tag_version:
         case tuple() | list():
