@@ -31,17 +31,17 @@ class VorbisComment(AudioTags):
         comment field and header specification
         <https://www.xiph.org/vorbis/doc/v-comment.html>`_.
 
-    This class implements the operators:
+    This class implements the following special methods:
 
-    * :code:`__len__` or :code:`len()` – Return the number of fields.
+    * :code:`__len__` – Return the number of fields.
 
-    * :code:`__or__` or :code:`|` – Merge two Vorbis comments, keeping
-      the vendor name from the right-hand operand, if present, otherwise
-      from the left.
+    * :code:`__or__` – Merge two Vorbis comments, keeping the vendor
+      name from the right-hand operand, if present, otherwise from the
+      left.
 
-    * :code:`__ior__` or :code:`|=` – Merge another Vorbis comment into
-      the current one in-place, keeping the vendor name from the
-      right-hand operand, if present, otherwise from the left.
+    * :code:`__ior__` – Merge another Vorbis comment into the current
+      one in-place, keeping the vendor name from the right-hand operand,
+      if present, otherwise from the left.
     """
 
     _INVALID_KEY_CHARS_REGEX: ClassVar[re.Pattern[str]] = re.compile(
@@ -688,7 +688,9 @@ class VorbisComment(AudioTags):
                     f"unsupported type {type(value).__name__}."
                 )
 
-    def get(self, fields: str | Collection[str], /) -> list[str] | None:
+    def get(
+        self, fields: str | Collection[str], /
+    ) -> list[str] | dict[str, list[str] | None] | None:
         """
         Get track attributes.
 
@@ -699,7 +701,7 @@ class VorbisComment(AudioTags):
 
         Returns
         -------
-        attributes : Any or dict[str, Any]
+        attributes : list[str], dict[str, list[str] | None], or None
             Track attributes. If `fields` is a collection of strings, a
             dictionary mapping field names to their corresponding values
             is returned.

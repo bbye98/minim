@@ -8,6 +8,7 @@ import string
 import struct
 import warnings
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from dataclasses import FrozenInstanceError, dataclass
 from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
 
@@ -48,6 +49,7 @@ __all__ = [  # noqa: RUF022
     "FLACCueSheetTrackIndex",
     "FLACPicture",
     "UnknownFLACMetadataBlock",
+    "FLACMetadataView",
 ]
 
 
@@ -349,16 +351,16 @@ class FLACPadding(FLACMetadataBlock):
     """
     FLAC :code:`PADDING` metadata block data.
 
-    This class implements the operators:
+    This class implements the following special methods:
 
-    * :code:`__and__` or :code:`+` – Merge two :code:`PADDING` metadata
+    * :code:`__add__` – Merge two :code:`PADDING` metadata
       blocks.
 
-    * :code:`__iand__` or :code:`+=` – Merge another :code:`PADDING`
-      metadata block into the current one in-place.
+    * :code:`__iadd__` – Merge another :code:`PADDING` metadata block
+      into the current one in-place.
 
-    * :code:`__len__` or :code:`len()` – Return the length of the
-      :code:`PADDING` metadata block.
+    * :code:`__len__` – Return the length of the :code:`PADDING` metadata
+      block.
     """
 
     _block_type: ClassVar[int] = 1
@@ -1909,21 +1911,87 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
 class FLACMetadataView:
     """
     View of FLAC metadata blocks.
+
+    .. important::
+
+       This class is managed by :class:`FLACAudio` and should not be
+       instantiated directly.
+
+    This class implements the following special methods:
+
+    * :code:`__getitem__` – Return the metadata block at an index.
+
+    * :code:`__iter__` – Return an iterator of the metadata blocks.
+
+    * :code:`__len__` – Return the number of metadata blocks.
     """
 
-    __slots__ = ("_blocks",)
+    __slots__ = ("_blocks", "_class_index")
 
-    def __init__(self, blocks: list[FLACMetadataBlock], /) -> None:
+    def __init__(
+        self, blocks: list[FLACMetadataBlock | VorbisComment], /
+    ) -> None:
         self._blocks = blocks
+        self._class_index = defaultdict(list)
+        for block in blocks:
+            self._class_index[type(block)].append(block)
 
-    def __getitem__(self, index: int, /) -> FLACMetadataBlock:
+    def __getitem__(self, index: int, /) -> FLACMetadataBlock | VorbisComment:
         return self._blocks[index]
+
+    def __iter__(self):
+        return iter(self._blocks)
 
     def __len__(self):
         return len(self._blocks)
 
-    def __iter__(self):
-        return iter(self._blocks)
+    def get(
+        self,
+        block_types: int
+        | type[FLACMetadataBlock | VorbisComment]
+        | Collection[int | type[FLACMetadataBlock | VorbisComment]],
+        /,
+    ) -> (
+        list[FLACMetadataBlock | VorbisComment]
+        | dict[int, list[FLACMetadataBlock | VorbisComment]]
+    ):
+        """
+        Get FLAC metadata blocks by type.
+
+        Parameters
+        ----------
+        block_types : int, type[FLACMetadataBlock | VorbisComment], or \
+        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
+        positional-only
+            Types of metadata blocks to move.
+
+            **Valid values**:
+
+            * :code:`0` or :class:`FLACStreamInfo` – :code:`STREAMINFO`.
+            * :code:`1` or :class:`FLACPadding` – :code:`PADDING`.
+            * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
+            * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
+            * :code:`4` or :class:`VorbisComment` – :code:`VORBIS_COMMENT`.
+            * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
+            * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
+        """
+        if isinstance(block_types, int):
+            block_types = {block_types}
+        elif issubclass(block_types, FLACMetadataBlock | VorbisComment):
+            block_types = {block_types._block_type}
+        elif isinstance(block_types, COLLECTION_TYPES):
+            block_types = {
+                block_type
+                if isinstance(block_type, int)
+                else block_type._block_type
+                for block_type in block_types
+            }
+        if len(block_types) == 1:
+            return self._class_index[block_types.pop()]
+        return {
+            block_type: self._class_index[block_type]
+            for block_type in block_types
+        }
 
 
 class FLACAudio(Audio):
@@ -1942,8 +2010,8 @@ class FLACAudio(Audio):
 
         .. tip::
 
-           :code:`FLACMetadataView` is a read-only view into the list
-           containing the FLAC metadata blocks.
+           :class:`FLACMetadataView` is a read-only view of the FLAC
+           metadata blocks.
         """
         return FLACMetadataView(self._metadata)
 
@@ -2080,15 +2148,15 @@ class FLACAudio(Audio):
                             block_data, block_type=block_type
                         )
                     )
+        block_data = None
+        self.close()
 
         if not metadata_blocks or metadata_blocks[0]._block_type != 0:
             raise RuntimeError(
                 f"STREAMINFO block was not found in '{file_path}'."
             )
 
-        block_data = None
         self._audio_offset = offset
-        self.close()
 
     def add_metadata(
         self,
@@ -2210,7 +2278,10 @@ class FLACAudio(Audio):
         *,
         to_index: int,
         indices: int | OrderedCollection[int] | None = None,
-        block_types: int | Collection[int] | None = None,
+        block_types: int
+        | type[FLACMetadataBlock | VorbisComment]
+        | Collection[int | type[FLACMetadataBlock | VorbisComment]]
+        | None = None,
     ) -> None:
         """
         Move FLAC metadata blocks.
@@ -2234,17 +2305,19 @@ class FLACAudio(Audio):
         indices : int or Collection[int]; keyword-only; optional
             Indices of metadata blocks to move.
 
-        block_types : int or Collection[int]; keyword-only; optional
-            Types of metadata blocks to move.
+        block_types : int, type[FLACMetadataBlock | VorbisComment], or \
+        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
+        keyword-only; optional
+            Types of metadata blocks to remove.
 
             **Valid values**:
 
-            * :code:`1` – :code:`PADDING`.
-            * :code:`2` – :code:`APPLICATION`.
-            * :code:`3` – :code:`SEEKTABLE`.
-            * :code:`4` – :code:`VORBIS_COMMENT`.
-            * :code:`5` – :code:`CUESHEET`.
-            * :code:`6` – :code:`PICTURE`.
+            * :code:`1` or :class:`FLACPadding` – :code:`PADDING`.
+            * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
+            * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
+            * :code:`4` or :class:`VorbisComment` – :code:`VORBIS_COMMENT`.
+            * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
+            * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
         """
         has_indices = indices is not None
         has_types = block_types is not None
@@ -2303,8 +2376,21 @@ class FLACAudio(Audio):
         else:
             if isinstance(block_types, int):
                 block_types = {block_types}
-            elif not isinstance(block_types, set):
-                block_types = set(block_types)
+            elif issubclass(block_types, FLACMetadataBlock | VorbisComment):
+                block_types = {block_types._block_type}
+            elif isinstance(block_types, COLLECTION_TYPES):
+                block_types = {
+                    block_type
+                    if isinstance(block_type, int)
+                    else block_type._block_type
+                    for block_type in block_types
+                }
+            else:
+                raise TypeError(
+                    "`block_types` must be an integer, a subclass of "
+                    "FLACMetadataBlock, or collection of integers and "
+                    "classes."
+                )
             if 0 in block_types:
                 raise ValueError(
                     "STREAMINFO metadata blocks cannot be added, "
@@ -2364,7 +2450,10 @@ class FLACAudio(Audio):
         self,
         *,
         indices: int | Collection[int] | None = None,
-        block_types: int | Collection[int] | None = None,
+        block_types: int
+        | type[FLACMetadataBlock | VorbisComment]
+        | Collection[int | type[FLACMetadataBlock | VorbisComment]]
+        | None = None,
     ) -> None:
         """
         Remove FLAC metadata blocks.
@@ -2391,17 +2480,19 @@ class FLACAudio(Audio):
         indices : int or Collection[int]; keyword-only; optional
             Indices of metadata blocks to remove.
 
-        block_types : int or Collection[int]; keyword-only; optional
+        block_types : int, type[FLACMetadataBlock | VorbisComment], or \
+        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
+        keyword-only; optional
             Types of metadata blocks to remove.
 
             **Valid values**:
 
-            * :code:`1` – :code:`PADDING`.
-            * :code:`2` – :code:`APPLICATION`.
-            * :code:`3` – :code:`SEEKTABLE`.
-            * :code:`4` – :code:`VORBIS_COMMENT`.
-            * :code:`5` – :code:`CUESHEET`.
-            * :code:`6` – :code:`PICTURE`.
+            * :code:`1` or :class:`FLACPadding` – :code:`PADDING`.
+            * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
+            * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
+            * :code:`4` or :class:`VorbisComment` – :code:`VORBIS_COMMENT`.
+            * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
+            * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
         """
         has_indices = indices is not None
         has_types = block_types is not None
@@ -2451,8 +2542,21 @@ class FLACAudio(Audio):
         else:
             if isinstance(block_types, int):
                 block_types = {block_types}
-            elif not isinstance(block_types, set):
-                block_types = set(block_types)
+            elif issubclass(block_types, FLACMetadataBlock | VorbisComment):
+                block_types = {block_types._block_type}
+            elif isinstance(block_types, COLLECTION_TYPES):
+                block_types = {
+                    block_type
+                    if isinstance(block_type, int)
+                    else block_type._block_type
+                    for block_type in block_types
+                }
+            else:
+                raise TypeError(
+                    "`block_types` must be an integer, a subclass of "
+                    "FLACMetadataBlock, or collection of integers and "
+                    "classes."
+                )
             block_types.discard(1)
             if 0 in block_types:
                 raise ValueError(
