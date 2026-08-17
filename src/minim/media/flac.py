@@ -101,7 +101,7 @@ class FLACMetadataBlock(ABC):
     @property
     def block_length(self) -> int:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Length of the encoded metadata block data in bytes.
         """
         return self._block_length
@@ -109,7 +109,7 @@ class FLACMetadataBlock(ABC):
     @property
     def block_type(self) -> int:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Metadata block type.
         """
         return self._block_type
@@ -139,7 +139,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         Number of channels.
 
     sample_rate : int; keyword-only
-        Sample rate in hertz.
+        Sample rate, in hertz.
 
     bit_depth : int; keyword-only
         Bits per sample.
@@ -191,15 +191,20 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
     _block_length: ClassVar[int] = 34
     _block_type: ClassVar[int] = 0
 
-    #: :bdg-primary-line:`read` Minimum block size in samples.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Minimum block
+    #: size in samples.
     min_block_size: int
-    #: :bdg-primary-line:`read` Maximum block size in samples.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Maximum block
+    #: size in samples.
     max_block_size: int
-    #: :bdg-primary-line:`read` Minimum frame size in bytes.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Minimum frame
+    #: size in bytes.
     min_frame_size: int
-    #: :bdg-primary-line:`read` Maximum frame size in bytes.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Maximum frame
+    #: size in bytes.
     max_frame_size: int
-    #: :bdg-primary-line:`read` MD5 hash of the unencoded audio data.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` MD5 hash of the
+    #: unencoded audio data.
     md5: str
 
     def __post_init__(self) -> None:
@@ -314,7 +319,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
     @property
     def bitrate(self) -> int:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Bitrate in kilobits per second.
         """
         return super().bitrate
@@ -414,7 +419,7 @@ class FLACPadding(FLACMetadataBlock):
     @property
     def block_length(self) -> int:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`PADDING` metadata block length in bytes.
         """
         return self._length
@@ -537,9 +542,9 @@ class FLACApplication(FLACMetadataBlock):
 
     _block_type: ClassVar[int] = 2
 
-    #: :bdg-primary-line:`read` Application ID.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Application ID.
     app_id: bytes | bytearray | str
-    #: :bdg-primary-line:`read` Application data.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Application data.
     app_data: bytes | bytearray = b""
 
     def __post_init__(self) -> None:
@@ -624,7 +629,7 @@ class FLACSeekTable(FLACMetadataBlock):
 
     _block_type: ClassVar[int] = 3
 
-    #: :bdg-primary-line:`read` Seek points.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Seek points.
     seek_points: tuple[FLACSeekPoint, ...]
 
     def __post_init__(self) -> None:
@@ -816,14 +821,15 @@ class FLACSeekPoint(
 
     __slots__ = ()
 
-    #: :bdg-primary-line:`read` :code:`self[0]` – Sample number of the
-    #: first sample in the target frame.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[0]` –
+    #: Sample number of the first sample in the target frame.
     sample_number: int
-    #: :bdg-primary-line:`read` :code:`self[1]` – Byte offset of the
-    #: target frame header relative to the first frame header.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[1]` –
+    #: Byte offset of the target frame header relative to the first
+    #: frame header.
     byte_offset: int
-    #: :bdg-primary-line:`read` :code:`self[2]` – Number of samples in
-    #: the target frame.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[2]` –
+    #: Number of samples in the target frame.
     num_samples: int
 
     def __new__(
@@ -917,13 +923,16 @@ class FLACCueSheet(FLACMetadataBlock):
 
     _block_type: ClassVar[int] = 5
 
-    #: :bdg-primary-line:`read` Media catalog number.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Media catalog
+    #: number.
     media_catalog_number: str
-    #: :bdg-primary-line:`read` Number of lead-in samples for CD-DA cue sheets.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Number of lead-in
+    #: samples for CD-DA cue sheets.
     num_lead_in_samples: int
-    #: :bdg-primary-line:`read` Whether the cue sheet is for CD-DA.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Whether the cue
+    #: sheet is for CD-DA.
     is_cd: bool
-    #: :bdg-primary-line:`read` Tracks.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Tracks.
     tracks: tuple[FLACCueSheetTrack, ...]
 
     def __post_init__(self) -> None:
@@ -1230,18 +1239,21 @@ class FLACCueSheetTrack:
 
     _STRUCT: ClassVar[struct.Struct] = struct.Struct(">QB12sB13sB")
 
-    #: :bdg-primary-line:`read` Sample offset of the track relative to
-    #: the beginning of the FLAC audio stream.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Sample offset of
+    #: the track relative to the beginning of the FLAC audio stream.
     sample_offset: int
-    #: :bdg-primary-line:`read` Track number.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Track number.
     number: int
-    #: :bdg-primary-line:`read` International Standard Recording Code (ISRC).
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` International
+    #: Standard Recording Code (ISRC).
     isrc: str
-    #: :bdg-primary-line:`read` Whether the track contains audio data.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Whether the track
+    #: contains audio data.
     is_audio: bool
-    #: :bdg-primary-line:`read` Whether the track has pre-emphasis.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Whether the track
+    #: has pre-emphasis.
     has_pre_emphasis: bool
-    #: :bdg-primary-line:`read` Track indices.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Track indices.
     indices: tuple[FLACCueSheetTrackIndex, ...]
 
     def __post_init__(self) -> None:
@@ -1447,10 +1459,11 @@ class FLACCueSheetTrackIndex(
 
     __slots__ = ()
 
-    #: :bdg-primary-line:`read` :code:`self[0]` – Sample offset of the
-    #: index point relative to the track offset.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[0]` –
+    #: Sample offset of the index point relative to the track offset.
     sample_offset: int
-    #: :bdg-primary-line:`read` :code:`self[1]` – Track index number.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[1]` –
+    #: Track index number.
     number: int
 
     def __new__(cls, sample_offset: int, number: int) -> Self:
@@ -1558,13 +1571,17 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
     _frame_ids: ClassVar[dict[int, bytes]] = {}
     _block_type: ClassVar[int] = 6
 
-    #: :bdg-primary-line:`read` Image width in pixels.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Image width in
+    #: pixels.
     width: int = 0
-    #: :bdg-primary-line:`read` Image height in pixels.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Image height in
+    #: pixels.
     height: int = 0
-    #: :bdg-primary-line:`read` Color depth in bits per pixel.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Color depth in
+    #: bits per pixel.
     color_depth: int = 0
-    #: :bdg-primary-line:`read` Number of indexed colors.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Number of indexed
+    #: colors.
     num_indexed_colors: int = 0
 
     def __init__(
@@ -1891,7 +1908,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
     @property
     def block_data(self) -> bytes:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Metadata block data.
         """
         return self._block_data
@@ -2028,7 +2045,7 @@ class FLACAudio(Audio):
     @property
     def metadata(self) -> FLACMetadataView:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Metadata structures and ancillary information stored in the
         FLAC audio file.
 

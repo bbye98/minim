@@ -38,13 +38,16 @@ class AudioStreamInfo:
     _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (1, 4_294_967_295)
     _BIT_DEPTH_RANGE: ClassVar[tuple[int, int]] = (1, 32)
 
-    #: :bdg-primary-line:`read` Number of channels.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Number of
+    #: channels.
     num_channels: int
-    #: :bdg-primary-line:`read` Sample rate in hertz.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Sample rate, in
+    #: hertz.
     sample_rate: int
-    #: :bdg-primary-line:`read` Bits per sample.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Bits per sample.
     bit_depth: int | None
-    #: :bdg-primary-line:`read` Total number of samples.
+    #: :bdg-primary:`read` :bdg-secondary-line:`write` Total number of
+    #: samples.
     num_samples: int
 
     def __post_init__(self) -> None:
@@ -71,7 +74,7 @@ class AudioStreamInfo:
     @property
     def duration(self) -> float:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Duration in seconds.
         """
         return self.num_samples / self.sample_rate

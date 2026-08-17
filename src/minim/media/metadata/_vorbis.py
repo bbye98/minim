@@ -273,7 +273,7 @@ class VorbisComment(AudioTags):
     @property
     def album(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`ALBUM` – Title of the album or collection.
         """
         return self.get("ALBUM")
@@ -285,7 +285,7 @@ class VorbisComment(AudioTags):
     @property
     def album_artist(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`ALBUMARTIST` – Main artists credited for the entire album
         or collection.
         """
@@ -298,7 +298,7 @@ class VorbisComment(AudioTags):
     @property
     def artist(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`ARTIST` – Main artists of the recording (e.g., the
         performing band or singers in popular music, the composers for
         classical music, or the authors of the original text in
@@ -313,7 +313,7 @@ class VorbisComment(AudioTags):
     @property
     def bpm(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`BPM` – Tempo in beats per minute (BPM).
         """
         return self.get("BPM")
@@ -329,7 +329,7 @@ class VorbisComment(AudioTags):
     @property
     def comment(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`COMMENT` – Free-form comments.
         """
         return self.get("COMMENT")
@@ -341,7 +341,7 @@ class VorbisComment(AudioTags):
     @property
     def compilation(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`COMPILATION` – Whether the recording is part of a
         compilation.
         """
@@ -356,7 +356,7 @@ class VorbisComment(AudioTags):
     @property
     def composer(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`COMPOSER` – Composers or songwriters.
         """
         return self.get("COMPOSER")
@@ -368,7 +368,7 @@ class VorbisComment(AudioTags):
     @property
     def contact(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`CONTACT` – Contact information for the creators or
         distributors.
         """
@@ -381,7 +381,7 @@ class VorbisComment(AudioTags):
     @property
     def copyright(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`COPYRIGHT` – Copyright attribution.
         """
         return self.get("COPYRIGHT")
@@ -393,7 +393,7 @@ class VorbisComment(AudioTags):
     @property
     def date(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`DATE` or :code:`YEAR` (legacy) – Recording or release
         date.
         """
@@ -408,7 +408,7 @@ class VorbisComment(AudioTags):
     @property
     def description(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`DESCRIPTION` – General description.
         """
         return self.get("DESCRIPTION")
@@ -420,7 +420,7 @@ class VorbisComment(AudioTags):
     @property
     def disc_number(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`DISCNUMBER` – Disc number within a multi-disc set.
         """
         return self.get("DISCNUMBER")
@@ -434,7 +434,7 @@ class VorbisComment(AudioTags):
     @property
     def disc_total(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`DISCTOTAL` or :code:`TOTALDISCS` (legacy) – Total number
         of discs.
         """
@@ -449,7 +449,7 @@ class VorbisComment(AudioTags):
     @property
     def encoder(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`ENCODER` – Software or hardware used for encoding, or the
         person or organization that encoded the audio file.
         """
@@ -462,7 +462,7 @@ class VorbisComment(AudioTags):
     @property
     def genre(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`GENRE` – Musical genres.
         """
         return self.get("GENRE")
@@ -474,7 +474,7 @@ class VorbisComment(AudioTags):
     @property
     def grouping(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`GROUPING` – Content group description.
         """
         return self.get("GROUPING")
@@ -486,7 +486,7 @@ class VorbisComment(AudioTags):
     @property
     def isrc(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`ISRC` – International Standard Recording Code (ISRC).
         """
         return self.get("ISRC")
@@ -498,7 +498,7 @@ class VorbisComment(AudioTags):
     @property
     def label(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`ORGANIZATION` – Publishers or record labels.
         """
         return self.get("ORGANIZATION")
@@ -510,7 +510,7 @@ class VorbisComment(AudioTags):
     @property
     def license(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`LICENSE` – License information.
         """
         return self.get("LICENSE")
@@ -522,7 +522,7 @@ class VorbisComment(AudioTags):
     @property
     def location(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`LOCATION` – Recording locations.
         """
         return self.get("LOCATION")
@@ -534,7 +534,7 @@ class VorbisComment(AudioTags):
     @property
     def lyrics(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`LYRICS` – Lyrics or transcription.
         """
         return self.get("LYRICS")
@@ -546,7 +546,7 @@ class VorbisComment(AudioTags):
     @property
     def performer(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`PERFORMER` – Performers (e.g., the conductor, orchestra,
         and/or soloists in classical music, or the narrator in
         audiobooks).
@@ -560,7 +560,7 @@ class VorbisComment(AudioTags):
     @property
     def title(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`TITLE` – Title of the recording.
         """
         return self.get("TITLE")
@@ -572,7 +572,7 @@ class VorbisComment(AudioTags):
     @property
     def track_number(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`TRACKNUMBER` – Track number within the album or
         collection.
         """
@@ -587,7 +587,7 @@ class VorbisComment(AudioTags):
     @property
     def track_total(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`TRACKTOTAL` or :code:`TOTALTRACKS` (legacy) – Total
         number of tracks.
         """
@@ -602,7 +602,7 @@ class VorbisComment(AudioTags):
     @property
     def vendor(self) -> str | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         Vendor name.
         """
         return self._vendor
@@ -615,7 +615,7 @@ class VorbisComment(AudioTags):
     @property
     def version(self) -> list[str] | None:
         """
-        :bdg-primary-line:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`read` :bdg-secondary:`write`
         :code:`VERSION` – Version of the recording (e.g., remix
         information).
         """

@@ -27,7 +27,7 @@ class MPEGStreamInfo(AudioStreamInfo):
         Number of channels.
 
     sample_rate : int; keyword-only
-        Sample rate in hertz.
+        Sample rate, in hertz.
 
     num_samples : int; keyword-only
         Total number of samples.
@@ -132,7 +132,7 @@ class MPEGStreamInfo(AudioStreamInfo):
             Number of channels.
 
         sample_rate : int; keyword-only
-            Sample rate in hertz.
+            Sample rate, in hertz.
 
         num_samples : int; keyword-only
             Total number of samples.

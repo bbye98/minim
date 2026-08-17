@@ -107,7 +107,7 @@ class Audio(ABC):
     @property
     def metadata(self) -> Any:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Metadata structures and/or ancillary information stored in the
         audio file.
         """
@@ -116,7 +116,7 @@ class Audio(ABC):
     @property
     def stream_info(self) -> AudioStreamInfo | None:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Technical properties of the decoded audio stream.
         """
         return self._stream_info
@@ -124,7 +124,7 @@ class Audio(ABC):
     @property
     def tags(self) -> AudioTags:
         """
-        :bdg-primary-line:`read`
+        :bdg-primary:`read` :bdg-secondary-line:`write`
         Metadata fields associated with the audio.
         """
         return self._tags
