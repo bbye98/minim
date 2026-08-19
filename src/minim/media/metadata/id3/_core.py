@@ -23,8 +23,8 @@ from ._frames import (
     UnknownID3v2Frame,
 )
 from ._shared import (
-    GENRES,
-    TAG_VERSIONS,
+    ID3V1_GENRES,
+    ID3V2_TAG_VERSIONS,
     UNSYNCHRONIZATION_RE,
     decode_synchsafe_int,
     encode_synchsafe_int,
@@ -226,13 +226,13 @@ class ID3v1:
         """
         Musical genre.
         """
-        return GENRES.get(self._genre, str(self._genre))
+        return ID3V1_GENRES.get(self._genre, str(self._genre))
 
     @genre.setter
     def genre(self, value: int | str | None, /) -> None:
         if value is not None:
             if isinstance(value, str) and not value.isdecimal():
-                value_ = GENRES.get(value.lower())
+                value_ = ID3V1_GENRES.get(value.lower())
                 if value_ is None:
                     raise ValueError(
                         f"Invalid or unknown ID3v1 genre {value!r}."
@@ -531,7 +531,7 @@ class ID3v2Flags:
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
     @property
@@ -1130,7 +1130,7 @@ class ID3v2(AudioTags):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
     @property
@@ -1690,10 +1690,10 @@ class ID3v2(AudioTags):
             Bytestream containing the serialized ID3v2 tag.
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
-        if tag_version not in TAG_VERSIONS:
+        if tag_version not in ID3V2_TAG_VERSIONS:
             raise ValueError(
                 f"Invalid ID3v2 tag version {tag_version!r}. "
-                f"Valid values: {join_values(TAG_VERSIONS)}."
+                f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
             )
 
         frames = b"".join(

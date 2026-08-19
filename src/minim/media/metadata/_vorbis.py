@@ -79,7 +79,7 @@ class VorbisComment(AudioTags):
         Parameters
         ----------
         fields : dict[str, Any]; optional
-            Key–value pairs of track attributes.
+            Key–value pairs of track metadata.
 
             **Example**: \
             :code:`{"ARTIST": "Galantis", "TITLE": "Runaway (U & I)"}`.
@@ -634,7 +634,7 @@ class VorbisComment(AudioTags):
 
     def append(self, **kwargs: Any) -> None:
         """
-        Append track attributes.
+        Append track metadata.
 
         .. note::
 
@@ -658,13 +658,13 @@ class VorbisComment(AudioTags):
         Parameters
         ----------
         fields : dict[str, Any]; optional
-            Key–value pairs of track attributes.
+            Key–value pairs of track metadata.
 
             **Example**: \
             :code:`{"ARTIST": "Galantis", "TITLE": "Runaway (U & I)"}`.
 
         **kwargs : dict[str, Any]
-            Key–value pairs of track attributes.
+            Key–value pairs of track metadata.
 
         Raises
         ------
@@ -702,79 +702,84 @@ class VorbisComment(AudioTags):
                 )
 
     def get(
-        self, fields: str | Collection[str], /
+        self, field_names: str | Collection[str], /
     ) -> list[str] | dict[str, list[str] | None] | None:
         """
-        Get track attributes.
+        Get track metadata.
 
         Parameters
         ----------
-        fields : str or Collection[str]; positional-only
-            Field names of the attributes.
+        field_names : str or Collection[str]; positional-only
+            Field names of the track metadata to get.
 
         Returns
         -------
-        attributes : list[str], dict[str, list[str] | None], or None
-            Track attributes. If `fields` is a collection of strings, a
-            dictionary mapping field names to their corresponding values
-            is returned.
+        metadata : list[str], dict[str, list[str] | None], or None
+            Track metadata. If `field_names` is a collection of strings,
+            a dictionary mapping field names to their corresponding
+            values is returned.
 
         Raises
         ------
         TypeError
-            If `fields` is not a string or collection of strings.
+            If `field_names` is not a string or collection of strings.
         """
         if not (
-            isinstance(fields, str)
+            isinstance(field_names, str)
             or (
-                isinstance(fields, COLLECTION_TYPES)
-                and all(isinstance(field, str) for field in fields)
+                isinstance(field_names, COLLECTION_TYPES)
+                and all(
+                    isinstance(field_name, str) for field_name in field_names
+                )
             )
         ):
             raise TypeError(
                 "`fields` must be a string or a collection of strings."
             )
 
-        if isinstance(fields, str):
-            return self._fields.get(self._normalize_field_name(fields))
+        if isinstance(field_names, str):
+            return self._fields.get(self._normalize_field_name(field_names))
 
-        return {field: self.get(field) for field in fields}
+        return {field_name: self.get(field_name) for field_name in field_names}
 
     def remove(
         self,
-        fields: str | Collection[str],
+        field_names: str | Collection[str],
         /,
         *,
         indices: int | Collection[int] | None = None,
     ) -> None:
         """
-        Remove track attributes.
+        Remove track metadata.
 
         Parameters
         ----------
-        fields : str or Collection[str]; positional-only
-            Field names of the attributes.
+        field_names : str or Collection[str]; positional-only
+            Field names of the track metadata to remove.
 
         indices : int or Collection[int]; keyword-only; optional
             Indices of values to remove from a specific field. Can be
-            provided only when `fields` is a string.
+            provided only when `field_names` is a string.
 
         Raises
         ------
         TypeError
-            If `fields` is not a string or a collection of strings, or
-            if `indices` is not an integer or a collection of integers.
+            If `field_names` is not a string or a collection of strings,
+            or if `indices` is not an integer or a collection of
+            integers.
 
         ValueError
-            If `indices` is specified when `fields` is a collection of
-            strings.
+            If `indices` is specified when `field_names` is a collection
+            of strings.
         """
-        is_string = isinstance(fields, str)
+        is_string = isinstance(field_names, str)
         if not (
             is_string
             or (
-                isinstance(fields, COLLECTION_TYPES)
-                and all(isinstance(field, str) for field in fields)
+                isinstance(field_names, COLLECTION_TYPES)
+                and all(
+                    isinstance(field_name, str) for field_name in field_names
+                )
             )
         ):
             raise TypeError(
@@ -783,7 +788,7 @@ class VorbisComment(AudioTags):
 
         if is_string:
             if indices is None:
-                del self._fields[self._normalize_field_name(fields)]
+                del self._fields[self._normalize_field_name(field_names)]
             else:
                 if isinstance(indices, int):
                     indices = [indices]
@@ -795,7 +800,9 @@ class VorbisComment(AudioTags):
                         "`indices` must be an integer or a collection "
                         "of integers."
                     )
-                field_value = self._fields[self._normalize_field_name(fields)]
+                field_value = self._fields[
+                    self._normalize_field_name(field_names)
+                ]
                 for idx in sorted(indices, reverse=True):
                     field_value.pop(idx)
             return
@@ -806,12 +813,12 @@ class VorbisComment(AudioTags):
                 "collection of strings."
             )
 
-        for field in fields:
-            self.remove(field)
+        for field_name in field_names:
+            self.remove(field_name)
 
     def set(self, fields: dict[str, Any], **kwargs: Any) -> None:
         """
-        Set track attributes.
+        Set track metadata.
 
         .. note::
 
@@ -835,13 +842,13 @@ class VorbisComment(AudioTags):
         Parameters
         ----------
         fields : dict[str, Any]; optional
-            Key–value pairs of track attributes.
+            Key–value pairs of track metadata.
 
             **Example**: \
             :code:`{"ARTIST": "Galantis", "TITLE": "Runaway (U & I)"}`.
 
         **kwargs : dict[str, Any]
-            Additional key–value pairs of track attributes.
+            Additional key–value pairs of track metadata.
 
         Raises
         ------
@@ -900,7 +907,7 @@ class VorbisComment(AudioTags):
         Returns
         -------
         stream : bytes
-            Bytestream containing the serialized Vorbis comment block.
+            Bytestream containing the Vorbis comment.
         """
         vectors = [
             len(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-GENRES = {
+ID3V1_GENRES = {
     0: "Blues",
     1: "Classic Rock",
     2: "Country",
@@ -196,8 +196,8 @@ GENRES = {
     190: "Garage Rock",
     191: "Psybient",
 }
-GENRES |= {v.lower(): k for k, v in GENRES.items()}
-TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
+ID3V1_GENRES |= {v.lower(): k for k, v in ID3V1_GENRES.items()}
+ID3V2_TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}
 UNSYNCHRONIZATION_RE = re.compile(rb"\xff(?=\x00|[\xe0-\xff]|$)")
 
 
@@ -288,9 +288,17 @@ def normalize_id3v1_tag_version(
     ------
     TypeError
         If `tag_version` is not a string or a tuple of two integers.
+
+    ValueError
+        If `tag_version` is a tuple but does not contain two integers.
     """
     match tag_version:
         case tuple() | list():
+            if len(tag_version) != 2:
+                raise ValueError(
+                    "When `tag_version` is a tuple, it must contain "
+                    "two integers."
+                )
             return tag_version
         case str():
             return tuple(int(v) for v in tag_version.split("."))
@@ -323,10 +331,18 @@ def normalize_id3v2_tag_version(
     Raises
     ------
     TypeError
-        If `tag_version` is not a string or a tuple of two integers.
+        If `tag_version` is not a string or a tuple of three integers.
+
+    ValueError
+        If `tag_version` is a tuple but does not contain three integers.
     """
     match tag_version:
         case tuple() | list():
+            if len(tag_version) != 3:
+                raise ValueError(
+                    "When `tag_version` is a tuple, it must contain "
+                    "three integers."
+                )
             return tag_version
         case str():
             return tuple(int(v) for v in tag_version.split("."))

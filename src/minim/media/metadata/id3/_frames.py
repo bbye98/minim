@@ -19,8 +19,8 @@ from ...._utility import (
     validate_type,
 )
 from ._shared import (
-    GENRES,
-    TAG_VERSIONS,
+    ID3V1_GENRES,
+    ID3V2_TAG_VERSIONS,
     UNSYNCHRONIZATION_RE,
     decode_synchsafe_int,
     encode_synchsafe_int,
@@ -755,7 +755,7 @@ class ID3v2FrameFlags:
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
     @property
@@ -919,7 +919,7 @@ class ID3v2FrameFlags:
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -1172,7 +1172,7 @@ class ID3v2Frame(ABC):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
     @classmethod
@@ -1207,7 +1207,7 @@ class ID3v2Frame(ABC):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
     @staticmethod
@@ -1939,7 +1939,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -2263,7 +2263,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -2654,7 +2654,7 @@ class ID3v2APICFrame(ID3v2Frame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -2926,7 +2926,7 @@ class ID3v2COMMFrame(ID3v2Frame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -3203,7 +3203,7 @@ class ID3v2USLTFrame(ID3v2Frame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -3787,7 +3787,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._text_info = [
-            GENRES.get(int(content_type), content_type)
+            ID3V1_GENRES.get(int(content_type), content_type)
             if content_type.isdecimal()
             else content_type
             for content_type in cls._split_bytestream(
@@ -3839,7 +3839,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
                     pending_refinement = False
 
                 code = int(genre.group(1))
-                text_info.append(GENRES.get(code, genre.group(0)))
+                text_info.append(ID3V1_GENRES.get(code, genre.group(0)))
                 pending_refinement = True
                 index = genre.end()
 
@@ -3885,7 +3885,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
                     if content_type.startswith("(")
                     else content_type
                 )
-                if (code := GENRES.get(content_type.lower())) is None
+                if (code := ID3V1_GENRES.get(content_type.lower())) is None
                 else f"({code})"
             )
             + refinement
@@ -3968,7 +3968,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -4313,7 +4313,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -5482,7 +5482,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
 
 
@@ -5759,5 +5759,5 @@ class UnknownID3v2Frame(ID3v2Frame):
             case _:
                 raise ValueError(
                     f"Invalid ID3v2 tag version {tag_version!r}. "
-                    f"Valid values: {join_values(TAG_VERSIONS)}."
+                    f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )

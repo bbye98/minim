@@ -2302,7 +2302,7 @@ class FLACAudio(Audio):
         minim.media.metadata.VorbisComment, or \
         OrderedCollection[minim.media.flac.FLACMetadataBlock \
         | minim.media.metadata.VorbisComment]; positional-only
-            Metadata blocks.
+            Metadata blocks to add.
 
             .. note::
 
