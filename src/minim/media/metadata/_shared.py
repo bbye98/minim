@@ -11,10 +11,10 @@ from ..._utility import validate_number
 if TYPE_CHECKING:
     from typing import Any
 
-    from ..._types import Collection, OrderedCollection
+    from ..._types import OrderedCollection
 
 
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=True, slots=True)
 class AudioStreamInfo:
     """
     Audio stream information.
@@ -38,15 +38,14 @@ class AudioStreamInfo:
     _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (1, 4_294_967_295)
     _BIT_DEPTH_RANGE: ClassVar[tuple[int, int]] = (1, 32)
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Number of
-    #: channels.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Number of channels.
     num_channels: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Sample rate, in
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Sample rate, in
     #: hertz.
     sample_rate: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Bits per sample.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Bits per sample.
     bit_depth: int | None
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Total number of
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Total number of
     #: samples.
     num_samples: int
 
@@ -67,22 +66,23 @@ class AudioStreamInfo:
     @abstractmethod
     def bitrate(self) -> int:
         """
-        Bitrate in kilobits per second.
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Bitrate, in kilobits per second.
         """
         return self.sample_rate * self.num_channels * self.bit_depth / 1_000
 
     @property
     def duration(self) -> float:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
-        Duration in seconds.
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Duration, in seconds.
         """
         return self.num_samples / self.sample_rate
 
 
 class AudioTags(ABC):
     """
-    Abstract base class for audio metadata containers.
+    Abstract base class for track metadata containers.
     """
 
     __slots__ = ()
@@ -119,6 +119,7 @@ class AudioTags(ABC):
     @abstractmethod
     def album(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Title of the album or collection.
         """
         ...
@@ -131,6 +132,7 @@ class AudioTags(ABC):
     @abstractmethod
     def album_artist(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Main artists credited for the entire album or collection.
         """
         ...
@@ -143,6 +145,7 @@ class AudioTags(ABC):
     @abstractmethod
     def artist(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Main artists of the recording (e.g., the performing band or
         singers in popular music, the composers for classical music, or
         the authors of the original text in audiobooks).
@@ -157,7 +160,8 @@ class AudioTags(ABC):
     @abstractmethod
     def bpm(self) -> list[str] | None:
         """
-        Tempo in beats per minute (BPM).
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Tempo, in beats per minute (BPM).
         """
         ...
 
@@ -173,6 +177,7 @@ class AudioTags(ABC):
     @abstractmethod
     def comment(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Free-form comments.
         """
         ...
@@ -185,6 +190,7 @@ class AudioTags(ABC):
     @abstractmethod
     def compilation(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Whether the recording is part of a compilation.
         """
         ...
@@ -199,6 +205,7 @@ class AudioTags(ABC):
     @abstractmethod
     def composer(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Composers or songwriters.
         """
         ...
@@ -211,6 +218,7 @@ class AudioTags(ABC):
     @abstractmethod
     def contact(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Contact information for the creators or distributors.
         """
         ...
@@ -223,6 +231,7 @@ class AudioTags(ABC):
     @abstractmethod
     def copyright(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Copyright attribution.
         """
         ...
@@ -235,6 +244,7 @@ class AudioTags(ABC):
     @abstractmethod
     def date(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Release date.
         """
         ...
@@ -249,6 +259,7 @@ class AudioTags(ABC):
     @abstractmethod
     def description(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         General description.
         """
         ...
@@ -261,6 +272,7 @@ class AudioTags(ABC):
     @abstractmethod
     def disc_number(self) -> str | list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Disc number within a multi-disc set.
         """
         ...
@@ -275,6 +287,7 @@ class AudioTags(ABC):
     @abstractmethod
     def disc_total(self) -> str | list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Total number of discs.
         """
         ...
@@ -289,6 +302,7 @@ class AudioTags(ABC):
     @abstractmethod
     def encoder(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Software or hardware used for encoding, or the person or
         organization that encoded the audio file.
         """
@@ -302,6 +316,7 @@ class AudioTags(ABC):
     @abstractmethod
     def genre(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Musical genres.
         """
         ...
@@ -314,6 +329,7 @@ class AudioTags(ABC):
     @abstractmethod
     def grouping(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Content group description.
         """
         ...
@@ -326,6 +342,7 @@ class AudioTags(ABC):
     @abstractmethod
     def isrc(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         International Standard Recording Code (ISRC).
         """
         ...
@@ -338,6 +355,7 @@ class AudioTags(ABC):
     @abstractmethod
     def label(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Publisher or record label.
         """
         ...
@@ -350,6 +368,7 @@ class AudioTags(ABC):
     @abstractmethod
     def license(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         License information.
         """
         ...
@@ -362,6 +381,7 @@ class AudioTags(ABC):
     @abstractmethod
     def location(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Recording locations.
         """
         ...
@@ -374,6 +394,7 @@ class AudioTags(ABC):
     @abstractmethod
     def lyrics(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Lyrics or transcription.
         """
         ...
@@ -386,6 +407,7 @@ class AudioTags(ABC):
     @abstractmethod
     def performer(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Performers (e.g., the conductor, orchestra, and/or soloists in
         classical music, or the narrator in audiobooks).
         """
@@ -399,6 +421,7 @@ class AudioTags(ABC):
     @abstractmethod
     def title(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Title of the recording.
         """
         ...
@@ -411,6 +434,7 @@ class AudioTags(ABC):
     @abstractmethod
     def track_number(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Track number within the album or collection.
         """
         ...
@@ -425,6 +449,7 @@ class AudioTags(ABC):
     @abstractmethod
     def track_total(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Total number of tracks.
         """
         ...
@@ -439,6 +464,7 @@ class AudioTags(ABC):
     @abstractmethod
     def version(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Version of the recording (e.g., remix information).
         """
         ...
@@ -448,21 +474,12 @@ class AudioTags(ABC):
     def version(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @abstractmethod
-    def get(
-        self,
-        fields: str | Collection[str],
-        /,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any | dict[str, Any]:
+    def get(self, *args: Any, **kwargs: Any) -> Any:
         """
-        Get track attributes.
+        Get track metadata.
 
         Parameters
         ----------
-        fields : str or Collection[str]; positional-only
-            Field names of the attributes.
-
         *args : tuple[Any, ...]
             Positional arguments to accept in implementations.
 
@@ -471,17 +488,15 @@ class AudioTags(ABC):
 
         Returns
         -------
-        attributes : Any or dict[str, Any]
-            Track attributes. If `fields` is a collection of strings, a
-            dictionary mapping field names to their corresponding values
-            is returned.
+        tags : Any
+            Track metadata.
         """
         ...
 
     @abstractmethod
     def serialize(self, *args: Any, **kwargs: Any) -> bytes:
         """
-        Serialize metadata to a bytestream.
+        Serialize the track metadata container to a bytestream.
 
         Parameters
         ----------
@@ -494,18 +509,22 @@ class AudioTags(ABC):
         Returns
         -------
         stream : bytes
-            Bytestream containing the serialized metadata.
+            Bytestream containing the serialized track metadata
+            container.
         """
         ...
 
     @abstractmethod
-    def set(self, **kwargs: Any) -> None:
+    def set(self, *args: Any, **kwargs: Any) -> None:
         """
-        Set track attributes.
+        Set track metadata.
 
         Parameters
         ----------
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
         **kwargs : dict[str, Any]
-            Key–value pairs of track attributes.
+            Keyword arguments to accept in implementations.
         """
         ...

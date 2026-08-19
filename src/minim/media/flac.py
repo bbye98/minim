@@ -26,12 +26,10 @@ from .._utility import (
 from ._shared import Audio
 from .metadata._shared import AudioStreamInfo
 from .metadata._vorbis import VorbisComment
-from .metadata.id3._frames import (
-    ID3v2APICFrame,
-    ID3v2FrameFlags,
-)
+from .metadata.id3._frames import ID3v2APICFrame, ID3v2FrameFlags
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from typing import Self
 
     from .._types import Collection, OrderedCollection, PathLike
@@ -55,13 +53,10 @@ __all__ = [  # noqa: RUF022
 
 class FLACMetadataBlock(ABC):
     """
-    Abstract base class for FLAC metadata block data.
+    Abstract base class for FLAC metadata blocks.
     """
 
     __slots__ = ()
-
-    def __len__(self) -> int:
-        return self._block_length
 
     @classmethod
     @abstractmethod
@@ -73,20 +68,20 @@ class FLACMetadataBlock(ABC):
         Parameters
         ----------
         stream : BytesLike; positional-only; optional
-            Bytes-like object containing a FLAC metadata block data.
+            Bytes-like object containing FLAC metadata block data.
 
         Returns
         -------
-        metadata_block : minim.media.flac.FLACMetadataBlock
+        block : minim.media.flac.FLACMetadataBlock
             FLAC metadata block.
         """
         ...
 
     @property
     @abstractmethod
-    def _block_length(self) -> int:
+    def _block_data_length(self) -> int:
         """
-        Length of the encoded metadata block data in bytes.
+        Length of the encoded metadata block data, in bytes.
         """
         ...
 
@@ -99,17 +94,17 @@ class FLACMetadataBlock(ABC):
         ...
 
     @property
-    def block_length(self) -> int:
+    def block_data_length(self) -> int:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
-        Length of the encoded metadata block data in bytes.
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Length of the encoded metadata block data, in bytes.
         """
-        return self._block_length
+        return self._block_data_length
 
     @property
     def block_type(self) -> int:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Metadata block type.
         """
         return self._block_type
@@ -117,21 +112,20 @@ class FLACMetadataBlock(ABC):
     @abstractmethod
     def serialize(self) -> bytes:
         """
-        Serialize the metadata block data to a bytestream.
+        Serialize the FLAC metadata block data to a bytestream.
 
         Returns
         -------
         stream : bytes
-            Bytestream containing the metadata block data.
+            Bytestream containing the FLAC metadata block data.
         """
         ...
 
 
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
+@dataclass(frozen=True, kw_only=True, repr=True, slots=True)
 class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
     """
-    FLAC audio stream information (:code:`STREAMINFO` metadata block
-    data).
+    FLAC audio stream information (:code:`STREAMINFO` metadata block).
 
     Parameters
     ----------
@@ -148,22 +142,22 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         Total number of samples.
 
     min_block_size : int; keyword-only
-        Minimum block size in samples.
+        Minimum block size, in samples.
 
         **Valid range**: :code:`16` to :code:`65_535`.
 
     max_block_size : int; keyword-only
-        Maximum block size in samples.
+        Maximum block size, in samples.
 
         **Valid range**: :code:`16` to :code:`65_535`.
 
     min_frame_size : int; keyword-only
-        Minimum frame size in bytes.
+        Minimum frame size, in bytes.
 
         **Valid range**: :code:`0` to :code:`16_777_215`.
 
     max_frame_size : int; keyword-only
-        Maximum frame size in bytes.
+        Maximum frame size, in bytes.
 
         **Valid range**: :code:`0` to :code:`16_777_215`.
 
@@ -188,22 +182,22 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
     _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (1, 655_350)
     _BIT_DEPTH_RANGE: ClassVar[tuple[int, int]] = (1, 32)
 
-    _block_length: ClassVar[int] = 34
+    _block_data_length: ClassVar[int] = 34
     _block_type: ClassVar[int] = 0
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Minimum block
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Minimum block
     #: size in samples.
     min_block_size: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Maximum block
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Maximum block
     #: size in samples.
     max_block_size: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Minimum frame
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Minimum frame
     #: size in bytes.
     min_frame_size: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Maximum frame
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Maximum frame
     #: size in bytes.
     max_frame_size: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` MD5 hash of the
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` MD5 hash of the
     #: unencoded audio data.
     md5: str
 
@@ -249,7 +243,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         Parameters
         ----------
         stream : BytesLike; positional-only; optional
-            Bytes-like object containing the :code:`STREAMINFO` metadata
+            Bytes-like object containing :code:`STREAMINFO` metadata
             block data.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -259,7 +253,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         Returns
         -------
         stream_info : minim.media.flac.FLACStreamInfo
-            :code:`STREAMINFO` metadata block data object.
+            :code:`STREAMINFO` metadata block.
 
         Raises
         ------
@@ -319,8 +313,8 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
     @property
     def bitrate(self) -> int:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
-        Bitrate in kilobits per second.
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Bitrate, in kilobits per second.
         """
         return super().bitrate
 
@@ -332,7 +326,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`STREAMINFO` metadata block
+            Bytestream containing the :code:`STREAMINFO` metadata block
             data.
         """
         return b"".join(
@@ -354,7 +348,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
 
 class FLACPadding(FLACMetadataBlock):
     """
-    FLAC :code:`PADDING` metadata block data.
+    FLAC :code:`PADDING` metadata block.
 
     This class implements the following special methods:
 
@@ -372,22 +366,25 @@ class FLACPadding(FLACMetadataBlock):
 
     __slots__ = ("_length",)
 
-    def __init__(self, block_length: int, /) -> None:
+    def __init__(self, length: int) -> None:
         """
         Parameters
         ----------
-        block_length : int; positional-only
-            :code:`PADDING` metadata block length in bytes.
+        length : int
+            Padding length, in bytes.
 
         Raises
         ------
         TypeError
-            If `block_length` is not an integer.
+            If `length` is not an integer.
 
         ValueError
-            If `block_length` is not zero or positive.
+            If `length` is not zero or positive.
         """
-        self.block_length = block_length
+        self.block_data_length = length
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(length={self._length})"
 
     def __add__(self, other: FLACPadding) -> Self:
         if not isinstance(other, FLACPadding):
@@ -410,34 +407,33 @@ class FLACPadding(FLACMetadataBlock):
         return self._length
 
     @property
-    def _block_length(self) -> int:
+    def _block_data_length(self) -> int:
         """
-        :code:`PADDING` metadata block length in bytes.
+        :code:`PADDING` metadata block length, in bytes.
         """
         return self._length
 
     @property
-    def block_length(self) -> int:
+    def block_data_length(self) -> int:
         """
-        :bdg-primary:`read` :bdg-secondary:`write`
-        :code:`PADDING` metadata block length in bytes.
+        :bdg-primary:`get` :bdg-secondary:`set`
+        :code:`PADDING` metadata block length, in bytes.
         """
         return self._length
 
-    @block_length.setter
-    def block_length(self, block_length: int, /) -> None:
-        validate_number("block_length", block_length, int, 0)
-        self._length = block_length
+    @block_data_length.setter
+    def block_data_length(self, length: int, /) -> None:
+        validate_number("length", length, int, 0)
+        self._length = length
 
     def adjust_length(self, change: int, /) -> None:
         """
-        Adjust the length of the :code:`PADDING` metadata block.
+        Adjust the padding length.
 
         Parameters
         ----------
         change : int; positional-only
-            Change to the :code:`PADDING` metadata block length in
-            bytes.
+            Change to the padding length, in bytes.
 
         Raises
         ------
@@ -447,24 +443,24 @@ class FLACPadding(FLACMetadataBlock):
         validate_type("change", change, int)
         self._length += change
 
-    def set_length(self, block_length: int, /) -> None:
+    def set_length(self, length: int, /) -> None:
         """
-        Resize the :code:`PADDING` metadata block.
+        Set the padding length.
 
         Parameters
         ----------
-        block_length : int; positional-only
-            New :code:`PADDING` metadata block length in bytes.
+        length : int; positional-only
+            Padding length, in bytes.
 
         Raises
         ------
         TypeError
-            If `block_length` is not an integer.
+            If `length` is not an integer.
 
         ValueError
-            If `block_length` is not zero or positive.
+            If `length` is not zero or positive.
         """
-        self.block_length = block_length
+        self.block_data_length = length
 
     @classmethod
     def from_stream(
@@ -487,7 +483,7 @@ class FLACPadding(FLACMetadataBlock):
         Returns
         -------
         padding : minim.media.flac.FLACPadding
-            :code:`PADDING` metadata block data.
+            :code:`PADDING` metadata block.
         """
         stream = as_buffer(stream)
         if strict and any(stream):
@@ -505,60 +501,58 @@ class FLACPadding(FLACMetadataBlock):
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`PADDING` metadata block data.
+            Bytestream containing the :code:`PADDING` metadata block
+            data.
         """
         return self._length * b"\x00"
 
 
-@dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACApplication(FLACMetadataBlock):
     """
-    FLAC :code:`APPLICATION` metadata block data.
-
-    Parameters
-    ----------
-    app_id : bytes, bytearray, or str; keyword-only
-        Four-character binary or eight-character hexadecimal application
-        ID.
-
-        .. seealso::
-
-           `FLAC Application Metadata Block IDs
-           <https://www.iana.org/assignments/flac/flac.xhtml>`_ –
-           Registry of eight-character hexadecimal IDs for third-party
-           applications.
-
-    app_data : bytes or bytearray; keyword-only; default: :code:`b""`
-        Application data.
-
-    Raises
-    ------
-    TypeError
-        If `app_id` or `app_data` are not bytes-like objects.
-
-    ValueError
-        If `app_id` is not a hexadecimal string of length 4.
+    FLAC :code:`APPLICATION` metadata block.
     """
 
     _block_type: ClassVar[int] = 2
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Application ID.
-    app_id: bytes | bytearray | str
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Application data.
-    app_data: bytes | bytearray = b""
+    def __init__(
+        self,
+        app_id: bytes | bytearray | str,
+        app_data: bytes | bytearray = b"",
+    ) -> None:
+        """
+        Parameters
+        ----------
+        app_id : bytes, bytearray, or str; keyword-only
+            Four-character binary or eight-character hexadecimal 
+            application ID.
 
-    def __post_init__(self) -> None:
-        app_id = self.app_id
-        validate_type("app_id", app_id, bytes | bytearray | str)
-        if isinstance(app_id, str):
-            try:
-                app_id = bytes.fromhex(app_id)
-            except ValueError as e:
-                raise ValueError(
-                    "`app_id` must be a valid hexadecimal string."
-                ) from e
-        if len(app_id) != 4:
-            raise ValueError("A binary `app_id` must have length 4.")
+            .. seealso::
+
+               `FLAC Application Metadata Block IDs
+               <https://www.iana.org/assignments/flac/flac.xhtml>`_ –
+               Registry of eight-character hexadecimal IDs for 
+               third-party applications.
+
+        app_data : bytes or bytearray; keyword-only; \
+        default: :code:`b""`
+            Application data.
+
+        Raises
+        ------
+        TypeError
+            If `app_id` or `app_data` are not bytes-like objects.
+
+        ValueError
+            If `app_id` is not a hexadecimal string of length 4.
+        """
+        self.app_id = app_id
+        self._app_data = app_data
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}(app_id={self._app_id!r}, "
+            f"app_data=<{len(self._app_data)} bytes>)"
+        )
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACApplication:
@@ -575,21 +569,56 @@ class FLACApplication(FLACMetadataBlock):
         Returns
         -------
         app : minim.media.flac.FLACApplication
-            :code:`APPLICATION` metadata block data.
+            :code:`APPLICATION` metadata block.
         """
         stream = as_buffer(stream)
         obj = cls.__new__(cls)
-        set_obj_attr(obj, "app_id", stream[:4].tobytes())
-        set_obj_attr(obj, "app_data", stream[4:].tobytes())
+        obj._app_id = stream[:4].tobytes()
+        obj._app_data = stream[4:].tobytes()
         return obj
 
     @property
-    def _block_length(self) -> int:
+    def _block_data_length(self) -> int:
         """
-        Length of encoded :code:`APPLICATION` metadata block data in
-        bytes.
+        Length of the encoded :code:`APPLICATION` metadata block data,
+        in bytes.
         """
-        return 4 + len(self.app_data)
+        return 4 + len(self._app_data)
+
+    @property
+    def app_id(self) -> bytes | bytearray:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Application ID.
+        """
+        return self._app_id
+
+    @app_id.setter
+    def app_id(self, value: bytes | bytearray | str) -> None:
+        validate_type("app_id", value, bytes | bytearray | str)
+        if isinstance(value, str):
+            try:
+                value = bytes.fromhex(value)
+            except ValueError as e:
+                raise ValueError(
+                    "`app_id` must be a valid hexadecimal string."
+                ) from e
+        if len(value) != 4:
+            raise ValueError("A binary `app_id` must have length 4.")
+        self._app_id = value
+
+    @property
+    def app_data(self) -> bytes | bytearray:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Application data.
+        """
+        return self._app_data
+
+    @app_data.setter
+    def app_data(self, value: bytes | bytearray) -> None:
+        validate_type("app_data", value, bytes | bytearray)
+        self._app_data = value
 
     def serialize(self) -> bytes:
         """
@@ -599,21 +628,21 @@ class FLACApplication(FLACMetadataBlock):
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`APPLICATION` metadata block
+            Bytestream containing the :code:`APPLICATION` metadata block
             data.
         """
-        return self.app_id + self.app_data
+        return self._app_id + self._app_data
 
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACSeekTable(FLACMetadataBlock):
     """
-    FLAC :code:`SEEKTABLE` metadata block data.
+    FLAC :code:`SEEKTABLE` metadata block.
 
     Parameters
     ----------
-    seek_points : OrderedCollection[minim.media.flac.FLACSeekPoint, ...]; \
-    keyword-only
+    seek_points : \
+    OrderedCollection[minim.media.flac.FLACSeekPoint, ...]; keyword-only
         Seek points.
 
     Raises
@@ -629,7 +658,7 @@ class FLACSeekTable(FLACMetadataBlock):
 
     _block_type: ClassVar[int] = 3
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Seek points.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Seek points.
     seek_points: tuple[FLACSeekPoint, ...]
 
     def __post_init__(self) -> None:
@@ -663,8 +692,8 @@ class FLACSeekTable(FLACMetadataBlock):
 
         Returns
         -------
-        app : minim.media.flac.FLACSeekTable
-            :code:`SEEKTABLE` metadata block data.
+        seek_table : minim.media.flac.FLACSeekTable
+            :code:`SEEKTABLE` metadata block.
 
         Raises
         ------
@@ -726,8 +755,8 @@ class FLACSeekTable(FLACMetadataBlock):
             objects.
 
         ValueError
-            If `seek_points` contain :class:`FLACSeekPoint` objects with 
-            duplicate sample numbers or are out of order.
+            If `seek_points` contain :class:`FLACSeekPoint` objects that
+            have duplicate sample numbers or are out of order.
         """
         if strict:
             if custom:
@@ -764,9 +793,9 @@ class FLACSeekTable(FLACMetadataBlock):
                 )
 
     @property
-    def _block_length(self) -> int:
+    def _block_data_length(self) -> int:
         """
-        Length of encoded :code:`SEEKTABLE` metadata block data in
+        Length of encoded :code:`SEEKTABLE` metadata block data, in
         bytes.
         """
         return 18 * len(self.seek_points)
@@ -779,7 +808,8 @@ class FLACSeekTable(FLACMetadataBlock):
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`SEEKTABLE` metadata block data.
+            Bytestream containing the :code:`SEEKTABLE` metadata block
+            data.
         """
         return b"".join(
             seek_point.serialize() for seek_point in self.seek_points
@@ -821,14 +851,14 @@ class FLACSeekPoint(
 
     __slots__ = ()
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[0]` –
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` :code:`self[0]` –
     #: Sample number of the first sample in the target frame.
     sample_number: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[1]` –
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` :code:`self[1]` –
     #: Byte offset of the target frame header relative to the first
     #: frame header.
     byte_offset: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[2]` –
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` :code:`self[2]` –
     #: Number of samples in the target frame.
     num_samples: int
 
@@ -884,7 +914,7 @@ class FLACSeekPoint(
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`SEEKPOINT` data.
+            Bytestream containing the :code:`SEEKPOINT` data.
         """
         return self._STRUCT.pack(*self)
 
@@ -892,7 +922,7 @@ class FLACSeekPoint(
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class FLACCueSheet(FLACMetadataBlock):
     """
-    FLAC :code:`CUESHEET` metadata block data.
+    FLAC :code:`CUESHEET` metadata block.
 
     Parameters
     ----------
@@ -905,7 +935,8 @@ class FLACCueSheet(FLACMetadataBlock):
     is_cd : bool; keyword-only
         Whether the cue sheet is for CD-DA.
 
-    tracks : OrderedCollection[minim.media.flac.FLACCueSheetTrack, ...]; \
+    tracks : \
+    OrderedCollection[minim.media.flac.FLACCueSheetTrack, ...]; \
     keyword-only
         Tracks.
 
@@ -923,16 +954,16 @@ class FLACCueSheet(FLACMetadataBlock):
 
     _block_type: ClassVar[int] = 5
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Media catalog
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Media catalog
     #: number.
     media_catalog_number: str
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Number of lead-in
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Number of lead-in
     #: samples for CD-DA cue sheets.
     num_lead_in_samples: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Whether the cue
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Whether the cue
     #: sheet is for CD-DA.
     is_cd: bool
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Tracks.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Tracks.
     tracks: tuple[FLACCueSheetTrack, ...]
 
     def __post_init__(self) -> None:
@@ -994,8 +1025,8 @@ class FLACCueSheet(FLACMetadataBlock):
 
         Returns
         -------
-        track : minim.media.flac.FLACCueSheetTrack
-            :code:`CUESHEET` metadata block data.
+        cue_sheet : minim.media.flac.FLACCueSheet
+            :code:`CUESHEET` metadata block.
 
         Raises
         ------
@@ -1176,20 +1207,23 @@ class FLACCueSheet(FLACMetadataBlock):
                 validate_type(f"tracks[{track_idx}]", track, FLACCueSheetTrack)
 
     @property
-    def _block_length(self) -> int:
+    def _block_data_length(self) -> int:
         """
-        Length of encoded :code:`CUESHEET` metadata block data in bytes.
+        Length of encoded :code:`CUESHEET` metadata block data, in
+        bytes.
         """
         return 396 + sum(track._length for track in self.tracks)
 
     def serialize(self) -> bytes:
         """
-        Serialize :code:`CUESHEET` metadata block data to a bytestream.
+        Serialize the :code:`CUESHEET` metadata block data to a
+        bytestream.
 
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`CUESHEET` metadata block data.
+            Bytestream containing the :code:`CUESHEET` metadata block
+            data.
         """
         return self._STRUCT.pack(
             self.media_catalog_number.encode(encoding="utf-8"),
@@ -1223,7 +1257,8 @@ class FLACCueSheetTrack:
     has_pre_emphasis : bool; keyword-only
         Whether the track has pre-emphasis.
 
-    tracks : OrderedCollection[minim.media.flac.FLACCueSheetTrackIndex]; \
+    tracks : \
+    OrderedCollection[minim.media.flac.FLACCueSheetTrackIndex]; \
     keyword-only
         Track indices.
 
@@ -1239,21 +1274,21 @@ class FLACCueSheetTrack:
 
     _STRUCT: ClassVar[struct.Struct] = struct.Struct(">QB12sB13sB")
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Sample offset of
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Sample offset of
     #: the track relative to the beginning of the FLAC audio stream.
     sample_offset: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Track number.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Track number.
     number: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` International
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` International
     #: Standard Recording Code (ISRC).
     isrc: str
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Whether the track
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Whether the track
     #: contains audio data.
     is_audio: bool
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Whether the track
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Whether the track
     #: has pre-emphasis.
     has_pre_emphasis: bool
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Track indices.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Track indices.
     indices: tuple[FLACCueSheetTrackIndex, ...]
 
     def __post_init__(self) -> None:
@@ -1355,7 +1390,7 @@ class FLACCueSheetTrack:
     ) -> None:
         """
         Validate track indices (:code:`CUESHEET_TRACK_INDEX`) in a
-        :code:`CUESHEET_TRACK`.
+        cue sheet track (:code:`CUESHEET_TRACK`).
 
         Parameters
         ----------
@@ -1406,18 +1441,18 @@ class FLACCueSheetTrack:
     @property
     def _length(self) -> int:
         """
-        Length of encoded :code:`CUESHEET_TRACK` data in bytes.
+        Length of the encoded :code:`CUESHEET_TRACK` data, in bytes.
         """
         return 36 + 12 * len(self.indices)
 
     def serialize(self) -> bytes:
         """
-        Serialize :code:`CUESHEET_TRACK` data to a bytestream.
+        Serialize the :code:`CUESHEET_TRACK` data to a bytestream.
 
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`CUESHEET_TRACK` data.
+            Bytestream containing the :code:`CUESHEET_TRACK` data.
         """
         return self._STRUCT.pack(
             self.sample_offset,
@@ -1459,10 +1494,10 @@ class FLACCueSheetTrackIndex(
 
     __slots__ = ()
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[0]` –
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` :code:`self[0]` –
     #: Sample offset of the index point relative to the track offset.
     sample_offset: int
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` :code:`self[1]` –
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` :code:`self[1]` –
     #: Track index number.
     number: int
 
@@ -1555,7 +1590,7 @@ class FLACCueSheetTrackIndex(
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`CUESHEET_TRACK_INDEX` data.
+            Bytestream containing the :code:`CUESHEET_TRACK_INDEX` data.
         """
         return self._STRUCT.pack(*self, 3 * b"\x00")
 
@@ -1563,7 +1598,7 @@ class FLACCueSheetTrackIndex(
 @dataclass(frozen=True, init=False, repr=False, slots=True)
 class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
     """
-    FLAC :code:`PICTURE` metadata block data.
+    FLAC :code:`PICTURE` metadata block.
     """
 
     _STRUCT_II: ClassVar[struct.Struct] = struct.Struct(">II")
@@ -1571,16 +1606,16 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
     _frame_ids: ClassVar[dict[int, bytes]] = {}
     _block_type: ClassVar[int] = 6
 
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Image width in
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Image width in
     #: pixels.
     width: int = 0
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Image height in
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Image height in
     #: pixels.
     height: int = 0
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Color depth in
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Color depth in
     #: bits per pixel.
     color_depth: int = 0
-    #: :bdg-primary:`read` :bdg-secondary-line:`write` Number of indexed
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Number of indexed
     #: colors.
     num_indexed_colors: int = 0
 
@@ -1715,6 +1750,19 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         validate_number("num_indexed_colors", num_indexed_colors, int, 0)
         set_obj_attr(self, "num_indexed_colors", num_indexed_colors)
 
+    def __repr__(self) -> str:
+        return (
+            f"FLACPicture(picture_type={self._picture_type!r}, "
+            f"mime_type={self._mime_type!r}, "
+            f"picture_data=<{len(self._picture_data)} bytes>, "
+            f"description={self._description!r}, "
+            f"text_encoding={self._text_encoding!r}, "
+            f"flags={self._flags!r}, group_id={self._group_id}, "
+            f"width={self.width}, height={self.height}, "
+            f"color_depth={self.color_depth}, "
+            f"num_indexed_colors={self.num_indexed_colors})"
+        )
+
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> FLACPicture:
         """
@@ -1730,7 +1778,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         Returns
         -------
         picture : minim.media.flac.FLACPicture
-            FLAC :code:`PICTURE` metadata block data.
+            FLAC :code:`PICTURE` metadata block.
 
         Raises
         ------
@@ -1769,7 +1817,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
             stream[offset : offset + data_length].tobytes(),
         )
         set_obj_attr(obj, "_description", description)
-        set_obj_attr(obj, "_text_encoding", 3)
+        set_obj_attr(obj, "_text_encoding", "utf-16")
         set_obj_attr(obj, "_flags", ID3v2FrameFlags())
         set_obj_attr(obj, "_group_id", None)
         set_obj_attr(obj, "width", width)
@@ -1779,9 +1827,10 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         return obj
 
     @property
-    def _block_length(self) -> int:
+    def _block_data_length(self) -> int:
         """
-        Length of encoded :code:`PICTURE` metadata block data in bytes.
+        Length of the encoded :code:`PICTURE` metadata block data, in
+        bytes.
         """
         return (
             32
@@ -1798,7 +1847,8 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         Returns
         -------
         stream : bytes
-            Bytestream containing :code:`PICTURE` metadata block data.
+            Bytestream containing the :code:`PICTURE` metadata block
+            data.
         """
         mime_type = self._mime_type.encode(encoding="ascii")
         description = self._description.encode(encoding="utf-8")
@@ -1809,10 +1859,10 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
                 len(description).to_bytes(length=4, byteorder="big"),
                 description,
                 self._STRUCT_IIIII.pack(
-                    self._width,
-                    self._height,
-                    self._color_depth,
-                    self._num_indexed_colors,
+                    self.width,
+                    self.height,
+                    self.color_depth,
+                    self.num_indexed_colors,
                     len(self._picture_data),
                 ),
                 self._picture_data,
@@ -1822,7 +1872,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
 class UnknownFLACMetadataBlock(FLACMetadataBlock):
     """
-    Unknown FLAC metadata block data.
+    Unknown FLAC metadata block.
     """
 
     __slots__ = ("_block_data", "_block_type")
@@ -1853,6 +1903,12 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
         validate_type("block_data", block_data, bytes | bytearray)
         set_obj_attr(self, "_block_data", bytes(block_data))
 
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}(block_type={self._block_type}, "
+            f"block_data=<{len(self._block_data)} bytes>)"
+        )
+
     def __setattr__(self, name: str, value: Any) -> None:
         raise FrozenInstanceError(f"Cannot assign to field {name!r}.")
 
@@ -1880,7 +1936,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
         Returns
         -------
         block : minim.media.flac.UnknownFLACMetadataBlock
-            Metadata block data object.
+            Metadata block.
 
         Raises
         ------
@@ -1899,16 +1955,16 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
         return obj
 
     @property
-    def _block_length(self) -> int:
+    def _block_data_length(self) -> int:
         """
-        Length of the encoded metadata block data in bytes.
+        Length of the encoded metadata block data, in bytes.
         """
         return len(self._block_data)
 
     @property
     def block_data(self) -> bytes:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Metadata block data.
         """
         return self._block_data
@@ -1920,7 +1976,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
         Returns
         -------
         stream : bytes
-            Bytestream containing metadata block data.
+            Bytestream containing the metadata block data.
         """
         return self._block_data
 
@@ -1972,13 +2028,19 @@ class FLACMetadataView:
         else:
             self._type_index = type_index
 
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}"
+            f"(blocks=<{len(self._blocks)} metadata blocks>)"
+        )
+
     def __getitem__(self, index: int, /) -> FLACMetadataBlock | VorbisComment:
         return self._blocks[index]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[FLACMetadataBlock | VorbisComment]:
         return iter(self._blocks)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._blocks)
 
     def get(
@@ -1997,14 +2059,16 @@ class FLACMetadataView:
         .. important::
 
            It is *not* guaranteed that the metadata blocks are in the
-           same order as they are found in the FLAC audio file.
+           same order as they are found in the FLAC audio file, 
+           especially after metadata blocks have been added, moved, or
+           removed.
 
         Parameters
         ----------
         block_types : int, type[FLACMetadataBlock | VorbisComment], or \
         Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
         positional-only
-            Types of metadata blocks to move.
+            Metadata block types.
 
             **Valid values**:
 
@@ -2045,28 +2109,22 @@ class FLACAudio(Audio):
     @property
     def metadata(self) -> FLACMetadataView:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
-        Metadata structures and ancillary information stored in the
-        FLAC audio file.
-
-        .. tip::
-
-           :class:`FLACMetadataView` is a read-only view of the FLAC
-           metadata blocks.
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Metadata blocks.
         """
         return self._metadata_view
 
     def _merge_adjacent_padding(self) -> None:
         """
-        Merge adjacent :code:`PADDING` blocks, reclaiming redundant
-        four-byte headers.
+        Merge adjacent :code:`PADDING` metadata blocks, reclaiming
+        redundant four-byte headers.
         """
         blocks = self._metadata[:1]
         type_index = self._type_index
         for block in self._metadata[1:]:
             prev_block = blocks[-1]
             if prev_block._block_type == block._block_type == 1:
-                prev_block.adjust_length(4 + block._block_length)
+                prev_block.adjust_length(4 + block._block_data_length)
                 type_index[block._block_type].remove(block)
             else:
                 blocks.append(block)
@@ -2079,9 +2137,9 @@ class FLACAudio(Audio):
         .. note::
 
            If multiple Vorbis comments are found, they are merged into a
-           single Vorbis comment. Multivalued fields are concatenated in
-           container order, while single-valued fields retain the value
-           from the last Vorbis comment in which they occur.
+           single Vorbis comment, with field values concatenated in
+           container order and the vendor name from the last occurrence
+           retained.
         """
         self.open()
         file_path = self._file_path
@@ -2102,12 +2160,12 @@ class FLACAudio(Audio):
             offset += 1
 
             end_offset = offset + 3
-            block_length = int.from_bytes(
+            block_data_length = int.from_bytes(
                 view[offset:end_offset], byteorder="big"
             )
             offset = end_offset
 
-            end_offset = offset + block_length
+            end_offset = offset + block_data_length
             block_data = view[offset:end_offset]
             offset = end_offset
 
@@ -2120,7 +2178,7 @@ class FLACAudio(Audio):
                             f"in '{file_path}'."
                         )
 
-                    if block_length != 34:
+                    if block_data_length != 34:
                         raise RuntimeError(
                             "STREAMINFO block data does not have length 34."
                         )
@@ -2134,7 +2192,7 @@ class FLACAudio(Audio):
                             raise ValueError(
                                 "Non-zero bits found in PADDING block."
                             )
-                        prev_block.adjust_length(4 + block_length)
+                        prev_block.adjust_length(4 + block_data_length)
                         continue
                     else:
                         block = FLACPadding.from_stream(
@@ -2219,17 +2277,16 @@ class FLACAudio(Audio):
 
             .. note::
 
-               :code:`PADDING` blocks are always automatically merged
-               with adjacent metadata blocks of the same type. The
-               four-byte header of the subsumed block is reclaimed as
-               usable space within the resulting contiguous block.
+               Adjacent :code:`PADDING` metadata blocks are always 
+               merged, with the redundant four-byte headers reclaimed.
 
         index : int; keyword-only; optional
             Index at which to insert the new metadata blocks. If
-            :code:`None`, existing :code:`PADDING` blocks of sufficient
-            size are overwritten to avoid file restructuring. If no
-            suitable :code:`PADDING` blocks are available, the new data
-            is appended to the end of the existing metadata blocks.
+            :code:`None`, existing :code:`PADDING` metadata blocks of 
+            sufficient size are overwritten to avoid file restructuring. 
+            If no suitable :code:`PADDING` metadata blocks are 
+            available, the new data is appended to the end of the 
+            existing metadata blocks.
         """
         if not isinstance(metadata, ORDERED_COLLECTION_TYPES):
             metadata = [metadata]
@@ -2268,13 +2325,17 @@ class FLACAudio(Audio):
             if index is None and not is_padding:
                 for idx, block in enumerate(blocks):
                     if block._block_type == 1:
-                        if block._block_length == new_block._block_length:
+                        if (
+                            block._block_data_length
+                            == new_block._block_data_length
+                        ):
                             blocks[idx] = new_block
                             type_index[1].remove(block)
                             placed_idx = idx
                             break
-                        elif block._block_length >= (
-                            new_block_length := 4 + new_block._block_length
+                        elif block._block_data_length >= (
+                            new_block_length := 4
+                            + new_block._block_data_length
                         ):
                             block.adjust_length(-new_block_length)
                             blocks.insert(idx, new_block)
@@ -2298,14 +2359,14 @@ class FLACAudio(Audio):
                     adj_idx
                 ]._block_type == 1:  # right
                     block = blocks.pop(adj_idx)
-                    new_block.adjust_length(4 + block._block_length)
+                    new_block.adjust_length(4 + block._block_data_length)
                     type_index[1].remove(block)
                     num_blocks -= 1
                 if (adj_idx := placed_idx - 1) >= 0 and blocks[
                     adj_idx
                 ]._block_type == 1:  # left
                     block = blocks.pop(adj_idx)
-                    new_block.adjust_length(4 + block._block_length)
+                    new_block.adjust_length(4 + block._block_data_length)
                     type_index[1].remove(block)
                     num_blocks -= 1
                     if index is not None:
@@ -2327,8 +2388,8 @@ class FLACAudio(Audio):
 
         .. note::
 
-           Adjacent :code:`PADDING` blocks are always merged, with the
-           redundant four-byte headers reclaimed.
+           Adjacent :code:`PADDING` metadata blocks are always merged, 
+           with the redundant four-byte headers reclaimed.
 
         .. important::
 
@@ -2347,7 +2408,7 @@ class FLACAudio(Audio):
         block_types : int, type[FLACMetadataBlock | VorbisComment], or \
         Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
         keyword-only; optional
-            Types of metadata blocks to remove.
+            Types of metadata blocks to move.
 
             **Valid values**:
 
@@ -2457,8 +2518,8 @@ class FLACAudio(Audio):
 
     def optimize_padding(self) -> None:
         """
-        Consolidate all :code:`PADDING` blocks into a single block at
-        the end of the FLAC metadata stream, reclaiming redundant
+        Consolidate all :code:`PADDING` metadata blocks into a single
+        one at the end of the FLAC metadata stream, reclaiming redundant
         four-byte headers.
         """
         blocks = []
@@ -2467,7 +2528,7 @@ class FLACAudio(Audio):
 
         for block in self._metadata:
             if block._block_type == 1:
-                padding_length += 4 + block._block_length
+                padding_length += 4 + block._block_data_length
                 has_padding = True
             else:
                 blocks.append(block)
@@ -2495,15 +2556,15 @@ class FLACAudio(Audio):
         .. note::
 
            To minimize disk I/O overhead, removed metadata blocks are
-           transparently replaced with :code:`PADDING` blocks of
-           equivalent length. This preserves the existing file offsets
-           and avoids a full rewrite of the audio stream. To reclaim
-           disk space by stripping all :code:`PADDING` blocks, specify
-           :code:`remove_padding=True` when calling
+           transparently replaced with :code:`PADDING` metadata blocks 
+           of equivalent length. This preserves the existing file 
+           offsets and avoids a full rewrite of the audio stream. To 
+           reclaim disk space by stripping all :code:`PADDING` metadata
+           blocks, specify :code:`remove_padding=True` when invoking
            :meth:`save_metadata`.
 
-           Adjacent :code:`PADDING` blocks are always merged, with the
-           redundant four-byte headers reclaimed.
+           Adjacent :code:`PADDING` metadata blocks are always merged, 
+           with the redundant four-byte headers reclaimed.
 
         .. important::
 
@@ -2552,7 +2613,7 @@ class FLACAudio(Audio):
                     )
 
                 block = blocks[indices]
-                blocks[indices] = FLACPadding(block._block_length)
+                blocks[indices] = FLACPadding(block._block_data_length)
                 type_index[block._block_type].remove(block)
             else:
                 for idx, block_index in enumerate(indices):
@@ -2571,7 +2632,7 @@ class FLACAudio(Audio):
                         )
 
                     block = blocks[block_index]
-                    blocks[block_index] = FLACPadding(block._block_length)
+                    blocks[block_index] = FLACPadding(block._block_data_length)
                     type_index[block._block_type].remove(block)
         else:
             if isinstance(block_types, int):
@@ -2600,7 +2661,7 @@ class FLACAudio(Audio):
 
             for block_index, block in enumerate(blocks):
                 if block._block_type in block_types:
-                    blocks[block_index] = FLACPadding(block._block_length)
+                    blocks[block_index] = FLACPadding(block._block_data_length)
                     type_index[block._block_type].remove(block)
 
         self._merge_adjacent_padding()
@@ -2622,25 +2683,25 @@ class FLACAudio(Audio):
             changes are written back to the source file.
 
         include_padding : bool; keyword-only; default: :code:`True`
-            Whether to keep all :code:`PADDING` blocks.
+            Whether to keep all :code:`PADDING` metadata blocks.
         """
-        metadata_blocks = (
+        blocks = (
             self._metadata
             if include_padding
             else [block for block in self._metadata if block._block_type != 1]
         )
         metadata_length = 4 + sum(
-            4 + block._block_length for block in metadata_blocks
+            4 + block._block_data_length for block in blocks
         )
 
-        last_block_index = len(metadata_blocks) - 1
+        last_block_index = len(blocks) - 1
         serialized_blocks = (
             (
                 ((block_index == last_block_index) << 7) | block._block_type
             ).to_bytes(1, byteorder="big")
-            + block._block_length.to_bytes(length=3, byteorder="big")
+            + block._block_data_length.to_bytes(length=3, byteorder="big")
             + block.serialize()
-            for block_index, block in enumerate(metadata_blocks)
+            for block_index, block in enumerate(blocks)
         )
         if file_path is None and metadata_length == self._audio_offset:
             with open(self._file_path, "r+b") as f:

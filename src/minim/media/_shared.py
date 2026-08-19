@@ -67,10 +67,24 @@ class Audio(ABC):
         self._file = self._mmap = self._view = None
         self.load_metadata()
 
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}(file_path={self._file_path!r}, "
+            f"strict={self._strict})"
+        )
+
     @abstractmethod
     def add_metadata(self, *args: Any, **kwargs: Any) -> None:
         """
         Add metadata structures and ancillary information.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
         """
         ...
 
@@ -85,7 +99,15 @@ class Audio(ABC):
     @abstractmethod
     def remove_metadata(self, *args: Any, **kwargs: Any) -> None:
         """
-        Remove metadata structures and/or ancillary information.
+        Remove metadata structures and ancillary information.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Positional arguments to accept in implementations.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to accept in implementations.
         """
         ...
 
@@ -107,25 +129,24 @@ class Audio(ABC):
     @property
     def metadata(self) -> Any:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
-        Metadata structures and/or ancillary information stored in the
-        audio file.
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Format-specific metadata and ancillary information.
         """
         return self._metadata
 
     @property
     def stream_info(self) -> AudioStreamInfo | None:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
-        Technical properties of the decoded audio stream.
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Technical properties of the audio stream.
         """
         return self._stream_info
 
     @property
     def tags(self) -> AudioTags:
         """
-        :bdg-primary:`read` :bdg-secondary-line:`write`
-        Metadata fields associated with the audio.
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Metadata describing the audio track.
         """
         return self._tags
 
