@@ -352,14 +352,13 @@ class FLACPadding(FLACMetadataBlock):
 
     This class implements the following special methods:
 
-    * :code:`__add__` – Merge two :code:`PADDING` metadata
-      blocks.
+    * :code:`__add__` – Merge two :code:`PADDING` metadata blocks.
 
     * :code:`__iadd__` – Merge another :code:`PADDING` metadata block
       into the current one in-place.
 
-    * :code:`__len__` – Return the length of the :code:`PADDING` metadata
-      block.
+    * :code:`__len__` – Return the length of the :code:`PADDING`
+      metadata block.
     """
 
     _block_type: ClassVar[int] = 1
@@ -409,7 +408,7 @@ class FLACPadding(FLACMetadataBlock):
     @property
     def _block_data_length(self) -> int:
         """
-        :code:`PADDING` metadata block length, in bytes.
+        Padding length, in bytes.
         """
         return self._length
 
@@ -417,7 +416,7 @@ class FLACPadding(FLACMetadataBlock):
     def block_data_length(self) -> int:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
-        :code:`PADDING` metadata block length, in bytes.
+        Padding length, in bytes.
         """
         return self._length
 
