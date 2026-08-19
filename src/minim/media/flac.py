@@ -389,7 +389,7 @@ class FLACPadding(FLACMetadataBlock):
     def __add__(self, other: FLACPadding) -> Self:
         if not isinstance(other, FLACPadding):
             raise TypeError(
-                "Unsupported operand type(s) for +: "
+                "Unsupported operand types for +: "
                 f"'FLACPadding' and {type(other).__name__!r}."
             )
         return type(self)(self._length + other._length)
@@ -397,7 +397,7 @@ class FLACPadding(FLACMetadataBlock):
     def __iadd__(self, other: FLACPadding) -> Self:
         if not isinstance(other, FLACPadding):
             raise TypeError(
-                "Unsupported operand type(s) for +=: "
+                "Unsupported operand types for +=: "
                 f"'FLACPadding' and {type(other).__name__!r}."
             )
         self._length += other._length
@@ -672,6 +672,12 @@ class FLACSeekTable(FLACMetadataBlock):
             seek_points = self.seek_points = tuple(seek_points)
         self._validate_seek_points(seek_points)
 
+    def __repr__(self) -> str:
+        return (
+            type(self).__name__
+            + f"(seek_points=<{len(self.seek_points)} seek points>)"
+        )
+
     @classmethod
     def from_stream(
         cls, stream: BytesLike, /, *, strict: bool = True
@@ -870,6 +876,13 @@ class FLACSeekPoint(
         validate_number("num_samples", num_samples, int, 0)
         return tuple.__new__(cls, (sample_number, byte_offset, num_samples))
 
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}(sample_number={self.sample_number}, "
+            f"byte_offset={self.byte_offset}, "
+            f"num_samples={self.num_samples})"
+        )
+
     @classmethod
     def _from_unpack(cls, data: tuple[int, int, int], /) -> FLACSeekPoint:
         """
@@ -1005,6 +1018,9 @@ class FLACCueSheet(FLACMetadataBlock):
 
         self._validate_tracks(tracks, is_cd=is_cd)
 
+    def __repr__(self) -> str:
+        return type(self).__name__ + f"(tracks=<{len(self.tracks)} tracks>)"
+
     @classmethod
     def from_stream(
         cls, stream: BytesLike, /, *, strict: bool = True
@@ -1087,8 +1103,7 @@ class FLACCueSheet(FLACMetadataBlock):
             track = FLACCueSheetTrack.from_stream(
                 stream[offset:], strict=strict
             )
-            num_track_indices = track.num_indices
-            offset += 36 + 12 * num_track_indices
+            offset += 36 + 12 * len(track.indices)
             tracks.append(track)
         tracks = tuple(tracks)
         cls._validate_tracks(tracks, is_cd=is_cd, custom=False, strict=strict)
@@ -1166,7 +1181,7 @@ class FLACCueSheet(FLACMetadataBlock):
                     )
                 seen_track_numbers.add(track_number)
 
-                num_track_indices = track.num_indices
+                num_track_indices = len(track.indices)
                 if (
                     is_lead_out := (
                         is_cd
@@ -1309,6 +1324,15 @@ class FLACCueSheetTrack:
             indices = self.indices = tuple(indices)
 
         self._validate_indices(indices)
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}(sample_offset={self.sample_offset}, "
+            f"number={self.number}, isrc={self.isrc!r}, "
+            f"is_audio={self.is_audio}, "
+            f"has_pre_emphasis={self.has_pre_emphasis}, "
+            f"indices=<{len(self.indices)} indices>)"
+        )
 
     @classmethod
     def from_stream(
@@ -1505,6 +1529,12 @@ class FLACCueSheetTrackIndex(
         validate_number("sample_offset", sample_offset, int, 0)
         validate_number("number", number, int, 0)
         return tuple.__new__(cls, (sample_offset, number))
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}(sample_offset={self.sample_offset}, "
+            f"number={self.number})"
+        )
 
     @classmethod
     def _from_unpack(

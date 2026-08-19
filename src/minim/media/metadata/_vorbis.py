@@ -142,7 +142,7 @@ class VorbisComment(AudioTags):
         type_ = type(self)
         if not isinstance(other, type_):
             raise TypeError(
-                "Unsupported operand type(s) for |: "
+                "Unsupported operand types for |: "
                 f"{type_.__name__!r} and {type(other).__name__!r}."
             )
 
@@ -161,7 +161,7 @@ class VorbisComment(AudioTags):
         type_ = type(self)
         if not isinstance(other, type_):
             raise TypeError(
-                "Unsupported operand type(s) for |: "
+                "Unsupported operand types for |: "
                 f"{type_.__name__!r} and {type(other).__name__!r}."
             )
 
