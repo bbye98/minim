@@ -131,8 +131,10 @@ class VorbisComment(AudioTags):
 
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}(fields=<{len(self._fields)} fields>, "
-            f"vendor={self._vendor!r})"
+            f"{type(self).__name__}(fields=<{len(self._fields)} fields>"
+            + f", vendor={self._vendor!r})"
+            if self._vendor
+            else ")"
         )
 
     def __len__(self) -> int:

@@ -58,17 +58,19 @@ class MPEGStreamInfo(AudioStreamInfo):
 
     bit_depth: None = field(default=None, init=False)
 
-    #: Bitrate, in kilobits per second.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Bitrate, in kilobits
+    #: per second.
     bitrate: int
-    #: MPEG version.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` MPEG version.
     mpeg_version: int | float
-    #: Layer.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Layer.
     layer: int
-    #: Bitrate mode.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Bitrate mode.
     bitrate_mode: str
-    #: Type of frame the stream information is sourced from.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Type of frame the
+    #: stream information is sourced from.
     source: str | None = None
-    #: Encoder.
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Encoder.
     encoder: str | None = None
 
     def __post_init__(self) -> None:
@@ -338,7 +340,7 @@ class MPEGAudio(Audio):
             Bytes-like object containing the MPEG audio stream.
 
         offset : int; default: :code:`0`
-            MPEG audio offset at which the MPEG audio stream begins.
+            Byte offset in `stream` where the MPEG audio stream begins.
 
         num_consecutive_frames : int; default: :code:`2`
             Number of consecutive frames to check to be confident that
@@ -347,7 +349,8 @@ class MPEGAudio(Audio):
         Return
         ------
         offset : int or None
-            MPEG audio offset of the first MPEG audio frame.
+           Byte offset of the first MPEG audio frame. If :code:`None`,
+           the MPEG audio stream could not be synchronized.
         """
         max_length = len(stream) - 4
         while offset < max_length:
@@ -399,8 +402,8 @@ class MPEGAudio(Audio):
         sample_rate: int,
     ) -> tuple[int, int, str]:
         """
-        Scan consistent audio frame headers and report the total number
-        of samples, the average bitrate, and the bitrate mode.
+        Scan audio frame headers and report the total number of samples,
+        the average bitrate, and the bitrate mode.
 
         Parameters
         ----------
@@ -408,7 +411,7 @@ class MPEGAudio(Audio):
             Bytes-like object containing the MPEG audio stream.
 
         offset : int
-            MPEG audio offset at which the MPEG audio stream begins.
+            Byte offset in `stream` where the MPEG audio stream begins.
 
         raw_mpeg_version : int; keyword-only
             Raw frame header bits indicating MPEG version.
@@ -417,10 +420,10 @@ class MPEGAudio(Audio):
             Raw frame header bits indicating layer.
 
         num_channels : int; keyword-only
-            Number of channels from frame header.
+            Number of channels.
 
         sample_rate : int; keyword-only
-            Sample rate, in hertz, from frame header.
+            Sample rate, in hertz.
 
         Returns
         -------
@@ -519,13 +522,14 @@ class MPEGAudio(Audio):
             Raw frame header bits indicating layer.
 
         num_channels : int; keyword-only
-            Number of channels from frame header.
+            Number of channels.
 
         sample_rate : int; keyword-only
-            Sample rate, in hertz, from frame header.
+            Sample rate, in hertz.
 
         vbri_offset : int; keyword-only
-            MPEG audio offset after the VBR Info header signature.
+            Byte offset in `stream` where the VBR Info header signature
+            ends.
 
         Returns
         -------
@@ -580,8 +584,8 @@ class MPEGAudio(Audio):
             Bytes-like object containing the Xing header.
 
         offset : int; keyword-only
-            MPEG audio offset at which the MPEG audio frame containing
-            the Xing header begins.
+            Byte offset in `stream` where the MPEG audio frame
+            containing the Xing header begins.
 
         raw_mpeg_version : int; keyword-only
             Raw frame header bits indicating MPEG version.
@@ -590,19 +594,20 @@ class MPEGAudio(Audio):
             Raw frame header bits indicating layer.
 
         num_channels : int; keyword-only
-            Number of channels from frame header.
+            Number of channels.
 
         sample_rate : int; keyword-only
-            Sample rate, in hertz, from frame header.
+            Sample rate, in hertz.
 
         frame_length : int; keyword-only
-            MPEG audio frame length from frame header.
+            MPEG audio frame length.
 
         signature : bytes; keyword-only
             Xing header signature.
 
         xing_offset : int; keyword-only
-            MPEG audio offset after the Xing header signature.
+            Byte offset in `stream` where the Xing header signature
+            ends.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the MPEG
@@ -740,8 +745,8 @@ class MPEGAudio(Audio):
         Returns
         -------
         stream_info : minim.media.mpeg.MPEGStreamInfo or None
-            MPEG audio stream information. If no audio frames are found,
-            :code:`None` is returned.
+            MPEG audio stream information. If :code:`None`, no audio
+            frames were found.
         """
         # Sync and read first audio frame header
         offset = MPEGAudio._sync_audio_frames(stream)

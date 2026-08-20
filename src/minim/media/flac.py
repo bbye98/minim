@@ -23,7 +23,7 @@ from .._utility import (
     validate_range,
     validate_type,
 )
-from ._shared import Audio
+from ._shared import Audio, NULPadding
 from .metadata._shared import AudioStreamInfo
 from .metadata._vorbis import VorbisComment
 from .metadata.id3._frames import ID3v2APICFrame, ID3v2FrameFlags
@@ -346,64 +346,14 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         )
 
 
-class FLACPadding(FLACMetadataBlock):
+class FLACPadding(NULPadding, FLACMetadataBlock):
     """
     FLAC :code:`PADDING` metadata block.
-
-    This class implements the following special methods:
-
-    * :code:`__add__` – Merge two :code:`PADDING` metadata blocks.
-
-    * :code:`__iadd__` – Merge another :code:`PADDING` metadata block
-      into the current one in-place.
-
-    * :code:`__len__` – Return the length of the :code:`PADDING`
-      metadata block.
     """
 
     _block_type: ClassVar[int] = 1
 
-    __slots__ = ("_length",)
-
-    def __init__(self, length: int) -> None:
-        """
-        Parameters
-        ----------
-        length : int
-            Padding length, in bytes.
-
-        Raises
-        ------
-        TypeError
-            If `length` is not an integer.
-
-        ValueError
-            If `length` is not zero or positive.
-        """
-        self.block_data_length = length
-
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}(length={self._length})"
-
-    def __add__(self, other: FLACPadding) -> Self:
-        if not isinstance(other, FLACPadding):
-            raise TypeError(
-                "Unsupported operand types for +: "
-                f"'FLACPadding' and {type(other).__name__!r}."
-            )
-        return type(self)(self._length + other._length)
-
-    def __iadd__(self, other: FLACPadding) -> Self:
-        if not isinstance(other, FLACPadding):
-            raise TypeError(
-                "Unsupported operand types for +=: "
-                f"'FLACPadding' and {type(other).__name__!r}."
-            )
-        self._length += other._length
-        return self
-
-    def __len__(self) -> int:
-        return self._length
+    __slots__ = ()
 
     @property
     def _block_data_length(self) -> int:
@@ -424,86 +374,6 @@ class FLACPadding(FLACMetadataBlock):
     def block_data_length(self, length: int, /) -> None:
         validate_number("length", length, int, 0)
         self._length = length
-
-    def adjust_length(self, change: int, /) -> None:
-        """
-        Adjust the padding length.
-
-        Parameters
-        ----------
-        change : int; positional-only
-            Change to the padding length, in bytes.
-
-        Raises
-        ------
-        TypeError
-            If `change` is not an integer.
-        """
-        validate_type("change", change, int)
-        self._length += change
-
-    def set_length(self, length: int, /) -> None:
-        """
-        Set the padding length.
-
-        Parameters
-        ----------
-        length : int; positional-only
-            Padding length, in bytes.
-
-        Raises
-        ------
-        TypeError
-            If `length` is not an integer.
-
-        ValueError
-            If `length` is not zero or positive.
-        """
-        self.block_data_length = length
-
-    @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> FLACPadding:
-        """
-        Instantiate a :class:`FLACPadding` object from a bytes-like
-        object.
-
-        Parameters
-        ----------
-        stream : BytesLike; positional-only; optional
-            Bytes-like object containing :code:`PADDING` metadata block
-            data.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the FLAC
-            format specifications.
-
-        Returns
-        -------
-        padding : minim.media.flac.FLACPadding
-            :code:`PADDING` metadata block.
-        """
-        stream = as_buffer(stream)
-        if strict and any(stream):
-            raise ValueError("Non-zero bits found in PADDING block.")
-
-        obj = cls.__new__(cls)
-        obj._length = len(stream)
-        return obj
-
-    def serialize(self) -> bytes:
-        """
-        Serialize the :code:`PADDING` metadata block data to a
-        bytestream.
-
-        Returns
-        -------
-        stream : bytes
-            Bytestream containing the :code:`PADDING` metadata block
-            data.
-        """
-        return self._length * b"\x00"
 
 
 class FLACApplication(FLACMetadataBlock):
@@ -1780,16 +1650,25 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         set_obj_attr(self, "num_indexed_colors", num_indexed_colors)
 
     def __repr__(self) -> str:
+        optional_kwargs = []
+        if self.width:
+            optional_kwargs.append(f"width={self.width}")
+        if self.height:
+            optional_kwargs.append(f"height={self.height}")
+        if self.color_depth:
+            optional_kwargs.append(f"color_depth={self.color_depth}")
+        if self.num_indexed_colors:
+            optional_kwargs.append(
+                f"num_indexed_colors={self.num_indexed_colors}"
+            )
         return (
             f"FLACPicture(picture_type={self._picture_type!r}, "
             f"mime_type={self._mime_type!r}, "
             f"picture_data=<{len(self._picture_data)} bytes>, "
             f"description={self._description!r}, "
             f"text_encoding={self._text_encoding!r}, "
-            f"flags={self._flags!r}, group_id={self._group_id}, "
-            f"width={self.width}, height={self.height}, "
-            f"color_depth={self.color_depth}, "
-            f"num_indexed_colors={self.num_indexed_colors})"
+            f"flags={self._flags!r}, group_id={self._group_id}"
+            f"{', '.join(optional_kwargs)})"
         )
 
     @classmethod
@@ -2105,9 +1984,20 @@ class FLACMetadataView:
             * :code:`1` or :class:`FLACPadding` – :code:`PADDING`.
             * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
             * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
-            * :code:`4` or :class:`VorbisComment` – :code:`VORBIS_COMMENT`.
+            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` – 
+              :code:`VORBIS_COMMENT`.
             * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
             * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
+
+        Returns
+        -------
+        blocks : list[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment] or dict[int, \
+        list[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment]]
+            Metadata blocks. If `block_types` is a collection, a 
+            dictionary mapping the metadata block types to the metadata
+            blocks is returned.
         """
         if isinstance(block_types, int):
             block_types = {block_types}
@@ -2444,7 +2334,8 @@ class FLACAudio(Audio):
             * :code:`1` or :class:`FLACPadding` – :code:`PADDING`.
             * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
             * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
-            * :code:`4` or :class:`VorbisComment` – :code:`VORBIS_COMMENT`.
+            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` – 
+              :code:`VORBIS_COMMENT`.
             * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
             * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
         """
@@ -2613,7 +2504,8 @@ class FLACAudio(Audio):
 
             * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
             * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
-            * :code:`4` or :class:`VorbisComment` – :code:`VORBIS_COMMENT`.
+            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` – 
+              :code:`VORBIS_COMMENT`.
             * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
             * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
         """

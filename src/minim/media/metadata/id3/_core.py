@@ -15,6 +15,7 @@ from ...._utility import (
     validate_numeric,
     validate_type,
 )
+from ..._shared import NULPadding
 from .._shared import AudioTags
 from ._frames import (
     ID3v2DateTimeFrame,
@@ -49,6 +50,16 @@ class ID3v1:
 
     _STRUCT_1_0: ClassVar[struct.Struct] = struct.Struct("3s30s30s30s4s30sB")
     _STRUCT_1_1: ClassVar[struct.Struct] = struct.Struct("3s30s30s30s4s28sBBB")
+
+    __slots__ = (
+        "_album",
+        "_artist",
+        "_comment",
+        "_genre",
+        "_title",
+        "_track_number",
+        "_year",
+    )
 
     def __init__(
         self,
@@ -92,25 +103,26 @@ class ID3v1:
         self.album = album
         self.year = year
         self.genre = genre
-        if track_number is None:
-            if comment is not None:
-                validate_type("comment", comment, str)
-                if len(comment) > 30:
-                    raise ValueError("`comment` cannot exceed 30 characters.")
-                validate_iso_8859_1_string("comment", comment)
-        else:
-            validate_numeric("track_number", track_number, int, 1, 255)
-            track_number = str(track_number)
-            if comment is not None:
-                validate_type("comment", comment, str)
-                if len(comment) > 28:
-                    raise ValueError(
-                        "`comment` cannot exceed 28 characters when "
-                        "`track_number` is set."
-                    )
-                validate_iso_8859_1_string("comment", comment)
-        self._comment = comment
-        self._track_number = track_number
+        self.track_number = track_number
+        self.comment = comment
+
+    def __repr__(self) -> str:
+        optional_kwargs = []
+        if self._title:
+            optional_kwargs.append(f"title={self._title!r}")
+        if self._artist:
+            optional_kwargs.append(f"artist={self._artist!r}")
+        if self._album:
+            optional_kwargs.append(f"album={self._album!r}")
+        if self._year:
+            optional_kwargs.append(f"year={self._year}")
+        if self._comment:
+            optional_kwargs.append(f"comment={self._comment!r}")
+        if self._track_number:
+            optional_kwargs.append(f"track_number={self._track_number}")
+        if self._genre:
+            optional_kwargs.append(f"genre={self._genre!r}")
+        return f"{type(self).__name__}({', '.join(optional_kwargs)})"
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> ID3v1:
@@ -168,6 +180,7 @@ class ID3v1:
     @property
     def album(self) -> str | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Title of the album or collection.
         """
         return self._album
@@ -184,6 +197,7 @@ class ID3v1:
     @property
     def artist(self) -> str | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Main artists of the recording (e.g., the performing band or singers
         in popular music, the composers for classical music, or the
         authors of the original text in audiobooks).
@@ -202,6 +216,7 @@ class ID3v1:
     @property
     def comment(self) -> str | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Free-form comment.
         """
         return self._comment
@@ -222,11 +237,11 @@ class ID3v1:
         self._comment = value
 
     @property
-    def genre(self) -> str | None:
+    def genre(self) -> int | str | None:
         """
-        Musical genre.
+        :bdg-primary:`get` :bdg-secondary:`set` Musical genre.
         """
-        return ID3V1_GENRES.get(self._genre, str(self._genre))
+        return ID3V1_GENRES.get(self._genre, self._genre)
 
     @genre.setter
     def genre(self, value: int | str | None, /) -> None:
@@ -246,6 +261,7 @@ class ID3v1:
     @property
     def title(self) -> str | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Title of the recording.
         """
         return self._title
@@ -262,6 +278,7 @@ class ID3v1:
     @property
     def track_number(self) -> int | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Track number within the album or collection.
         """
         return self._track_number
@@ -279,8 +296,9 @@ class ID3v1:
         self._track_number = value
 
     @property
-    def year(self) -> str | None:
+    def year(self) -> int | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Recording or release year.
         """
         return self._year
@@ -289,7 +307,7 @@ class ID3v1:
     def year(self, value: int | str | None, /) -> None:
         if value is not None:
             validate_numeric("year", value, int, 0, 9_999)
-            value = str(value)
+            value = int(value)
         self._year = value
 
     def serialize(self, tag_version: str | tuple[int, int]) -> bytes:
@@ -307,18 +325,23 @@ class ID3v1:
         Returns
         -------
         stream : bytes
-            Bytestream containing the serialized ID3v1 tag.
+            Bytestream containing the ID3v1 tag.
         """
+        encoded_year = (
+            f"{self._year:04d}".encode(encoding="iso-8859-1")
+            if self._year
+            else 4 * b"\x00"
+        )
         match normalize_id3v1_tag_version(tag_version):
             case (1, 0):
-                return self._STRUCT_1_1.pack(
+                return self._STRUCT_1_0.pack(
                     b"TAG",
                     (self._title or "").encode(encoding="iso-8859-1"),
                     (self._artist or "").encode(encoding="iso-8859-1"),
                     (self._album or "").encode(encoding="iso-8859-1"),
-                    (self._year or "").encode(encoding="iso-8859-1"),
+                    encoded_year,
                     (self._comment or "").encode(encoding="iso-8859-1"),
-                    self._genre or 255,
+                    255 if self._genre is None else self._genre,
                 )
             case (1, 1):
                 if self._comment is not None and len(self._comment) > 28:
@@ -331,17 +354,17 @@ class ID3v1:
                     (self._title or "").encode(encoding="iso-8859-1"),
                     (self._artist or "").encode(encoding="iso-8859-1"),
                     (self._album or "").encode(encoding="iso-8859-1"),
-                    (self._year or "").encode(encoding="iso-8859-1"),
+                    encoded_year,
                     (self._comment or "").encode(encoding="iso-8859-1"),
-                    0,
+                    b"\x00",
                     self._track_number or 0,
-                    self._genre or 255,
+                    255 if self._genre is None else self._genre,
                 )
 
 
 class ID3v2Flags:
     """
-    Flags and extended header for ID3v2 tags.
+    Flags for an ID3v2 metadata container.
     """
 
     __slots__ = (
@@ -366,11 +389,12 @@ class ID3v2Flags:
         ----------
         is_unsynchronized : bool; keyword-only; default: :code:`False`
             Whether the current tag has had unsynchronization applied to
-            avoid false MPEG frame sync patterns in the metadata.
+            avoid false MPEG frame synchronization patterns in the
+            metadata.
 
         has_extended_header : bool; keyword-only; default: :code:`False`
-            Whether the current tag contains an extended header
-            immediately after the main ID3v2 header.
+            Whether the current tag has an extended header after the
+            main header.
 
         is_experimental : bool; keyword-only; default: :code:`False`
             Whether the current tag is marked as experimental by the
@@ -381,13 +405,23 @@ class ID3v2Flags:
             the tag data.
 
         is_compressed : bool; keyword-only; default: :code:`False`
-            Whether the current tag has compressed data.
+            Whether the current tag contains compressed data.
         """
         self.is_unsynchronized = is_unsynchronized
         self.has_extended_header = has_extended_header
         self.is_experimental = is_experimental
         self.has_footer = has_footer
         self.is_compressed = is_compressed
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}"
+            f"(is_unsynchronized={self._is_unsynchronized}, "
+            f"has_extended_header={self._has_extended_header}, "
+            f"is_experimental={self._is_experimental}, "
+            f"has_footer={self._has_footer}, "
+            f"is_compressed={self._is_compressed})"
+        )
 
     @classmethod
     def _from_byte_2_2(
@@ -408,8 +442,8 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2Flags
-            Flags for ID3v2 tags.
+        flags : minim.media.metadata.id3.ID3v2Flags
+            Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0x3F:
             raise ValueError("Reserved bits set in ID3v2.2 flags byte.")
@@ -441,8 +475,8 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2Flags
-            Flags for ID3v2 tags.
+        flags : minim.media.metadata.id3.ID3v2Flags
+            Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0x1F:
             raise ValueError("Reserved bits set in ID3v2.3 flags byte.")
@@ -473,8 +507,8 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2Flags
-            Flags for ID3v2 tags.
+        flags : minim.media.metadata.id3.ID3v2Flags
+            Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0xF:
             raise ValueError("Reserved bits set in ID3v2.4 flags byte.")
@@ -497,12 +531,13 @@ class ID3v2Flags:
         strict: bool = True,
     ) -> ID3v2Flags:
         """
-        Instantiate an :class:`ID3v2Flags` object from a byte.
+        Instantiate an :class:`ID3v2Flags` object from a ID3v2 tag flags
+        byte.
 
         Parameters
         ----------
         byte_ : int; positional-only
-            Flags byte.
+            ID3v2 tag flags byte.
 
         tag_version : str or tuple[int, int, int]
             ID3v2 tag version.
@@ -517,8 +552,8 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2Flags
-            Flags for ID3v2 tags.
+        flags : minim.media.metadata.id3.ID3v2Flags
+            Flags for an ID3v2 tag.
         """
         validate_number("byte_", byte_, int, 0)
         match normalize_id3v2_tag_version(tag_version):
@@ -537,8 +572,9 @@ class ID3v2Flags:
     @property
     def is_unsynchronized(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current tag has had unsynchronization applied to
-        avoid false MPEG frame sync patterns in the metadata.
+        avoid false MPEG frame synchronization patterns in the metadata.
         """
         return self._is_unsynchronized
 
@@ -550,8 +586,9 @@ class ID3v2Flags:
     @property
     def has_extended_header(self) -> bool:
         """
-        Whether the current tag contains an extended header immediately
-        after the main ID3v2 header.
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Whether the current tag has an extended header after the main
+        header.
         """
         return self._has_extended_header
 
@@ -563,6 +600,7 @@ class ID3v2Flags:
     @property
     def is_experimental(self) -> None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current tag is marked as experimental by the
         encoder.
         """
@@ -576,6 +614,7 @@ class ID3v2Flags:
     @property
     def has_footer(self) -> None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current tag includes a 10-byte footer following the
         tag data.
         """
@@ -589,7 +628,8 @@ class ID3v2Flags:
     @property
     def is_compressed(self) -> bool:
         """
-        Whether the current tag has compressed data.
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Whether the current tag contains compressed data.
         """
         return self._is_compressed
 
@@ -600,7 +640,7 @@ class ID3v2Flags:
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Serialize the ID3v2 flags to a bytestream.
+        Serialize the ID3v2 flags to bytes.
 
         Parameters
         ----------
@@ -613,8 +653,8 @@ class ID3v2Flags:
 
         Returns
         -------
-        stream : bytes
-            Bytestream containing the ID3v2 flags.
+        bytes_ : bytes
+            Bytes containing the ID3v2 flags.
         """
         match normalize_id3v2_tag_version(tag_version):
             case (2, 4, _):
@@ -643,26 +683,18 @@ class ID3v2Flags:
                 )
 
 
-class ID3v2Padding:
+class ID3v2Padding(NULPadding):
     """
     ID3v2 padding.
     """
 
-    __slots__ = ("_length",)
-
-    def __init__(self, length: int, /) -> None:
-        """
-        Parameters
-        ----------
-        length : int; positional-only
-            Padding length in bytes.
-        """
-        self.length = length
+    __slots__ = ()
 
     @property
     def length(self) -> int:
         """
-        Padding length in bytes.
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Padding length, in bytes.
         """
         return self._length
 
@@ -670,77 +702,6 @@ class ID3v2Padding:
     def length(self, length: int, /) -> None:
         validate_number("length", length, int, 0)
         self._length = length
-
-    def adjust_length(self, change: int, /) -> None:
-        """
-        Adjust the padding length.
-
-        Parameters
-        ----------
-        change : int; positional-only
-            Change to the padding length in bytes.
-        """
-        self.length += change
-
-    def set_length(self, block_length: int, /) -> None:
-        """
-        Resize padding.
-
-        Parameters
-        ----------
-        length : int; positional-only
-            New padding length in bytes.
-        """
-        self.length = block_length
-
-    @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> ID3v2Padding:
-        """
-        Instantiate an :class:`ID3v2Padding` object from a bytes-like
-        object.
-
-        Parameters
-        ----------
-        stream : BytesLike; positional-only; optional
-            Bytes-like object containing padding.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        padding : minim.media.metadata.ID3v2Padding
-            Padding.
-        """
-        stream = as_buffer(stream)
-        if strict and any(stream):
-            raise ValueError("Non-zero bits found in ID3v2 padding bytes.")
-
-        obj = cls.__new__(cls)
-        obj._length = len(stream)
-        return obj
-
-    def serialize(self, *args: Any, **kwargs: Any) -> bytes:
-        """
-        Serialize the padding to a bytestream.
-
-        Parameters
-        ----------
-        *args : tuple[Any, ...]
-            Additional (ignored) positional arguments.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
-
-        Returns
-        -------
-        stream : bytes
-            Bytestream containing the padding bytes.
-        """
-        return self._length * b"\x00"
 
 
 class ID3v2(AudioTags):
