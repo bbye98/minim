@@ -1650,7 +1650,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         set_obj_attr(self, "num_indexed_colors", num_indexed_colors)
 
     def __repr__(self) -> str:
-        optional_kwargs = []
+        optional_kwargs = [""]
         if self.width:
             optional_kwargs.append(f"width={self.width}")
         if self.height:
