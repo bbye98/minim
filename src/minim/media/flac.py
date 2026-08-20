@@ -1651,6 +1651,8 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
     def __repr__(self) -> str:
         optional_kwargs = [""]
+        if self._group_id is not None:
+            optional_kwargs.append(f"group_id={self._group_id}")
         if self.width:
             optional_kwargs.append(f"width={self.width}")
         if self.height:
@@ -1667,8 +1669,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
             f"picture_data=<{len(self._picture_data)} bytes>, "
             f"description={self._description!r}, "
             f"text_encoding={self._text_encoding!r}, "
-            f"flags={self._flags!r}, group_id={self._group_id}"
-            f"{', '.join(optional_kwargs)})"
+            f"flags={self._flags!r}{', '.join(optional_kwargs)})"
         )
 
     @classmethod
