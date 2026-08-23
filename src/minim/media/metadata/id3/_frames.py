@@ -738,7 +738,7 @@ class ID3v2FrameFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2FrameFlags
+        flags : minim.media.metadata.id3.ID3v2FrameFlags
             Flags for the ID3v2.4 frame.
         """
         if strict:
@@ -779,7 +779,7 @@ class ID3v2FrameFlags:
         tag_version: str | tuple[int, int, int],
         *,
         strict: bool = True,
-    ) -> ID3v2FrameFlags:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2FrameFlags` object from ID3v2 frame
         flags bytes.
@@ -1026,9 +1026,9 @@ class ID3v2Frame(ABC):
         """
         Parameters
         ----------
-        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
-        optional
-            Flags for the ID3v2 frame.
+        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        keyword-only; optional
+            Flags.
 
         group_id : int; keyword-only; optional
             Group identifier.
@@ -1060,7 +1060,7 @@ class ID3v2Frame(ABC):
                     cls._REGISTRY[frame_id] = cls
 
     @classmethod
-    def _get_class(cls, frame_id: bytes, /) -> ID3v2Frame:
+    def _get_class(cls, frame_id: bytes, /) -> Self:
         """
         Get the class corresponding to an ID3v2 frame ID.
 
@@ -1071,7 +1071,7 @@ class ID3v2Frame(ABC):
 
         Returns
         -------
-        cls : ID3v2Frame
+        cls : minim.media.metadata.id3.ID3v2Frame
             ID3v2 frame class.
         """
         return cls._REGISTRY.get(frame_id, UnknownID3v2Frame)
@@ -1080,7 +1080,7 @@ class ID3v2Frame(ABC):
     @abstractmethod
     def _from_stream_2_2(
         cls, stream: memoryview, /, *, strict: bool = True
-    ) -> ID3v2Frame:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2Frame` object from an ID3v2.2 frame
         bytestream.
@@ -1096,7 +1096,7 @@ class ID3v2Frame(ABC):
 
         Returns
         -------
-        frame : minim.media.metadata.ID3v2Frame
+        frame : minim.media.metadata.id3.ID3v2Frame
             ID3v2 frame.
         """
         if strict and len(stream) < 7:
@@ -1114,7 +1114,7 @@ class ID3v2Frame(ABC):
     @abstractmethod
     def _from_stream_2_3(
         cls, stream: memoryview, /, *, strict: bool = True
-    ) -> ID3v2Frame:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2Frame` object from an ID3v2.3 frame
         bytestream.
@@ -1130,7 +1130,7 @@ class ID3v2Frame(ABC):
 
         Returns
         -------
-        frame : minim.media.metadata.ID3v2Frame
+        frame : minim.media.metadata.id3.ID3v2Frame
             ID3v2 frame.
         """
         if strict and len(stream) < 11:
@@ -1157,7 +1157,7 @@ class ID3v2Frame(ABC):
     @abstractmethod
     def _from_stream_2_4(
         cls, stream: memoryview, /, *, strict: bool = True
-    ) -> ID3v2Frame:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2Frame` object from an ID3v2.4 frame
         bytestream.
@@ -1173,7 +1173,7 @@ class ID3v2Frame(ABC):
 
         Returns
         -------
-        frame : minim.media.metadata.ID3v2Frame
+        frame : minim.media.metadata.id3.ID3v2Frame
             ID3v2 frame.
         """
         if strict and len(stream) < 11:
@@ -1204,7 +1204,7 @@ class ID3v2Frame(ABC):
         tag_version: str | tuple[int, int, int],
         *,
         strict: bool = True,
-    ) -> ID3v2Frame:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2Frame` object from a bytes-like
         object.
@@ -1227,7 +1227,7 @@ class ID3v2Frame(ABC):
 
         Returns
         -------
-        frame : minim.media.metadata.ID3v2Frame
+        frame : minim.media.metadata.id3.ID3v2Frame
             ID3v2 frame.
         """
         stream = as_buffer(stream)
@@ -1256,7 +1256,7 @@ class ID3v2Frame(ABC):
         cls, tag_version: str | tuple[int, int, int]
     ) -> bytes | list[bytes] | None:
         """
-        Get the ID3v2 frame IDs.
+        Get the frame ID for an ID3v2 tag version.
 
         Parameters
         ----------
@@ -1270,7 +1270,7 @@ class ID3v2Frame(ABC):
         Returns
         -------
         frame_id : bytes, list[bytes], or None
-            ID3v2 frame IDs. If no native frame is available for the
+            ID3v2 frame ID. If no native frame is available for the
             specified ID3v2 tag version, :code:`None` is returned.
         """
         match normalize_id3v2_tag_version(tag_version):
@@ -1402,7 +1402,7 @@ class ID3v2Frame(ABC):
     @property
     def _key(self) -> str:
         """
-        Unique key.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
         """
         if not self._allow_multiple:
             raise AttributeError(
@@ -1414,14 +1414,14 @@ class ID3v2Frame(ABC):
     @property
     def flags(self) -> ID3v2FrameFlags:
         """
-        Flags for the ID3v2 frame.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Flags.
         """
         return self._flags
 
     @property
     def group_id(self) -> int | None:
         """
-        Grouping identifier.
+        :bdg-primary:`get` :bdg-secondary:`set` Group identifier.
         """
         return self._group_id
 
