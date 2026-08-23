@@ -10,6 +10,8 @@ from .metadata.id3._core import ID3v1, ID3v2
 from .metadata.id3._shared import decode_synchsafe_int
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from .._types import PathLike
 
 
@@ -124,7 +126,7 @@ class MPEGStreamInfo(AudioStreamInfo):
         bitrate_mode: str,
         source: str | None = None,
         encoder: str | None = None,
-    ) -> MPEGStreamInfo:
+    ) -> Self:
         """
         Instantiate a :class:`MPEGStreamInfo` object directly from data.
 
@@ -506,7 +508,7 @@ class MPEGAudio(Audio):
         num_channels: int,
         sample_rate: int,
         vbri_offset: int,
-    ) -> MPEGStreamInfo:
+    ) -> Self:
         """
         Parse a VBR Info header.
 
@@ -574,7 +576,7 @@ class MPEGAudio(Audio):
         signature: bytes,
         xing_offset: int,
         strict: bool,
-    ) -> MPEGStreamInfo:
+    ) -> Self:
         """
         Parse a Xing header.
 
@@ -729,7 +731,7 @@ class MPEGAudio(Audio):
     @staticmethod
     def _get_stream_info(
         stream: memoryview, /, *, strict: bool = True
-    ) -> MPEGStreamInfo | None:
+    ) -> Self | None:
         """
         Get MPEG audio stream information.
 

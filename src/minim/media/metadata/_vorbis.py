@@ -176,7 +176,7 @@ class VorbisComment(AudioTags):
         self._vendor = other._vendor or self._vendor
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /) -> VorbisComment:
+    def from_stream(cls, stream: BytesLike, /) -> Self:
         """
         Instantiate a :class:`VorbisComment` object from a bytes-like
         object.

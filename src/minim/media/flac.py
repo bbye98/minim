@@ -60,7 +60,7 @@ class FLACMetadataBlock(ABC):
 
     @classmethod
     @abstractmethod
-    def from_stream(cls, stream: BytesLike, /) -> FLACMetadataBlock:
+    def from_stream(cls, stream: BytesLike, /) -> Self:
         """
         Create an instance of a :class:`FLACMetadataBlock` subclass from
         a bytes-like object.
@@ -233,9 +233,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
             )
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> FLACStreamInfo:
+    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
         Instantiate a :class:`FLACStreamInfo` object from a bytes-like
         object.
@@ -392,14 +390,14 @@ class FLACApplication(FLACMetadataBlock):
         Parameters
         ----------
         app_id : bytes, bytearray, or str; keyword-only
-            Four-character binary or eight-character hexadecimal 
+            Four-character binary or eight-character hexadecimal
             application ID.
 
             .. seealso::
 
                `FLAC Application Metadata Block IDs
                <https://www.iana.org/assignments/flac/flac.xhtml>`_ –
-               Registry of eight-character hexadecimal IDs for 
+               Registry of eight-character hexadecimal IDs for
                third-party applications.
 
         app_data : bytes or bytearray; keyword-only; \
@@ -424,7 +422,7 @@ class FLACApplication(FLACMetadataBlock):
         )
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /) -> FLACApplication:
+    def from_stream(cls, stream: BytesLike, /) -> Self:
         """
         Instantiate a :class:`FLACApplication` object from a bytes-like
         object.
@@ -517,7 +515,7 @@ class FLACSeekTable(FLACMetadataBlock):
     Raises
     ------
     TypeError
-        If `seek_points` is not a tuple or list of 
+        If `seek_points` is not a tuple or list of
         :class:`FLACSeekPoint` objects.
 
     ValueError
@@ -548,9 +546,7 @@ class FLACSeekTable(FLACMetadataBlock):
         )
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> FLACSeekTable:
+    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
         Instantiate a :class:`FLACSeekTable` object from a bytes-like
         object.
@@ -626,7 +622,7 @@ class FLACSeekTable(FLACMetadataBlock):
         Raises
         ------
         TypeError
-            If any of `seek_points` are not :class:`FLACSeekPoint` 
+            If any of `seek_points` are not :class:`FLACSeekPoint`
             objects.
 
         ValueError
@@ -753,7 +749,7 @@ class FLACSeekPoint(
         )
 
     @classmethod
-    def _from_unpack(cls, data: tuple[int, int, int], /) -> FLACSeekPoint:
+    def _from_unpack(cls, data: tuple[int, int, int], /) -> Self:
         """
         Instantiate a :class:`FLACSeekPoint` object using data unpacked
         from a bytes-like object.
@@ -771,7 +767,7 @@ class FLACSeekPoint(
         return tuple.__new__(cls, data)
 
     @classmethod
-    def from_stream(cls, stream: bytes, /) -> FLACSeekPoint:
+    def from_stream(cls, stream: bytes, /) -> Self:
         """
         Instantiate a :class:`FLACSeekPoint` object from a bytes-like
         object.
@@ -891,9 +887,7 @@ class FLACCueSheet(FLACMetadataBlock):
         return type(self).__name__ + f"(tracks=<{len(self.tracks)} tracks>)"
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> FLACCueSheet:
+    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
         Instantiate a :class:`FLACCueSheet` object from a bytes-like
         object.
@@ -1017,7 +1011,7 @@ class FLACCueSheet(FLACMetadataBlock):
         Raises
         ------
         TypeError
-            If any of `tracks` are not :class:`FLACCueSheetTrack` 
+            If any of `tracks` are not :class:`FLACCueSheetTrack`
             objects.
 
         ValueError
@@ -1204,9 +1198,7 @@ class FLACCueSheetTrack:
         )
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> FLACCueSheetTrack:
+    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
         Instantiate a :class:`FLACCueSheetTrack` object from a
         bytes-like object.
@@ -1302,11 +1294,11 @@ class FLACCueSheetTrack:
         Raises
         ------
         TypeError
-            If any of `indices` are not :class:`FLACCueSheetTrackIndex` 
+            If any of `indices` are not :class:`FLACCueSheetTrackIndex`
             objects.
 
         ValueError
-            If `tracks` contain :class:`FLACCueSheetTrackIndex` objects 
+            If `tracks` contain :class:`FLACCueSheetTrackIndex` objects
             with indices that are non-sequential or out of order.
         """
         if strict:
@@ -1408,7 +1400,7 @@ class FLACCueSheetTrackIndex(
     @classmethod
     def _from_unpack(
         cls, data: tuple[int, int, bytes], /, *, strict: bool = True
-    ) -> FLACCueSheetTrackIndex:
+    ) -> Self:
         """
         Instantiate a :class:`FLACCueSheetTrackIndex` object using data
         unpacked from a bytes-like object.
@@ -1442,9 +1434,7 @@ class FLACCueSheetTrackIndex(
         return tuple.__new__(cls, data[:2])
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> FLACCueSheetTrackIndex:
+    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
         Instantiate a :class:`FLACCueSheetTrackIndex` object from a
         bytes-like object.
@@ -1673,7 +1663,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         )
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /) -> FLACPicture:
+    def from_stream(cls, stream: BytesLike, /) -> Self:
         """
         Instantiate an :class:`FLACPicture` object from a bytes-like
         object.
@@ -1926,7 +1916,7 @@ class FLACMetadataView:
 
         type_index : dict[int, list[FLACMetadataBlock | VorbisComment]]; \
         keyword-only; optional
-            Mapping of FLAC metadata block types to lists of the 
+            Mapping of FLAC metadata block types to lists of the
             corresponding metadata blocks.
         """
         self._blocks = blocks
@@ -1968,7 +1958,7 @@ class FLACMetadataView:
         .. important::
 
            It is *not* guaranteed that the metadata blocks are in the
-           same order as they are found in the FLAC audio file, 
+           same order as they are found in the FLAC audio file,
            especially after metadata blocks have been added, moved, or
            removed.
 
@@ -1985,7 +1975,7 @@ class FLACMetadataView:
             * :code:`1` or :class:`FLACPadding` – :code:`PADDING`.
             * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
             * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
-            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` – 
+            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` –
               :code:`VORBIS_COMMENT`.
             * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
             * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
@@ -1996,7 +1986,7 @@ class FLACMetadataView:
         | minim.media.metadata.VorbisComment] or dict[int, \
         list[minim.media.flac.FLACMetadataBlock \
         | minim.media.metadata.VorbisComment]]
-            Metadata blocks. If `block_types` is a collection, a 
+            Metadata blocks. If `block_types` is a collection, a
             dictionary mapping the metadata block types to the metadata
             blocks is returned.
         """
@@ -2197,15 +2187,15 @@ class FLACAudio(Audio):
 
             .. note::
 
-               Adjacent :code:`PADDING` metadata blocks are always 
+               Adjacent :code:`PADDING` metadata blocks are always
                merged, with the redundant four-byte headers reclaimed.
 
         index : int; keyword-only; optional
             Index at which to insert the new metadata blocks. If
-            :code:`None`, existing :code:`PADDING` metadata blocks of 
-            sufficient size are overwritten to avoid file restructuring. 
-            If no suitable :code:`PADDING` metadata blocks are 
-            available, the new data is appended to the end of the 
+            :code:`None`, existing :code:`PADDING` metadata blocks of
+            sufficient size are overwritten to avoid file restructuring.
+            If no suitable :code:`PADDING` metadata blocks are
+            available, the new data is appended to the end of the
             existing metadata blocks.
         """
         if not isinstance(metadata, ORDERED_COLLECTION_TYPES):
@@ -2308,7 +2298,7 @@ class FLACAudio(Audio):
 
         .. note::
 
-           Adjacent :code:`PADDING` metadata blocks are always merged, 
+           Adjacent :code:`PADDING` metadata blocks are always merged,
            with the redundant four-byte headers reclaimed.
 
         .. important::
@@ -2335,7 +2325,7 @@ class FLACAudio(Audio):
             * :code:`1` or :class:`FLACPadding` – :code:`PADDING`.
             * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
             * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
-            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` – 
+            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` –
               :code:`VORBIS_COMMENT`.
             * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
             * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
@@ -2477,14 +2467,14 @@ class FLACAudio(Audio):
         .. note::
 
            To minimize disk I/O overhead, removed metadata blocks are
-           transparently replaced with :code:`PADDING` metadata blocks 
-           of equivalent length. This preserves the existing file 
-           offsets and avoids a full rewrite of the audio stream. To 
+           transparently replaced with :code:`PADDING` metadata blocks
+           of equivalent length. This preserves the existing file
+           offsets and avoids a full rewrite of the audio stream. To
            reclaim disk space by stripping all :code:`PADDING` metadata
            blocks, specify :code:`remove_padding=True` when invoking
            :meth:`save_metadata`.
 
-           Adjacent :code:`PADDING` metadata blocks are always merged, 
+           Adjacent :code:`PADDING` metadata blocks are always merged,
            with the redundant four-byte headers reclaimed.
 
         .. important::
@@ -2505,7 +2495,7 @@ class FLACAudio(Audio):
 
             * :code:`2` or :class:`FLACApplication` – :code:`APPLICATION`.
             * :code:`3` or :class:`FLACSeekTable` – :code:`SEEKTABLE`.
-            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` – 
+            * :code:`4` or :class:`~minim.media.metadata.VorbisComment` –
               :code:`VORBIS_COMMENT`.
             * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
             * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.

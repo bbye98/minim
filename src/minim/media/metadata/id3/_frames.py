@@ -36,10 +36,19 @@ if TYPE_CHECKING:
 class DateTime:
     """
     Datetime with optional components and free-form extras.
+
+    This class implements the following special methods:
+
+    * :code:`__or__` – Merge two datetimes, preferring components from
+      the right-hand operator.
+
+    * :code:`__ior__` – Merge another datetime into the current one
+      in-place, preferring components from the right-hand operator.
     """
 
     _DATETIME_RE: ClassVar[re.Pattern[str]] = re.compile(
-        r"^(\d{4})?(?:-(\d{2})(?:-(\d{2})(?:T(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?)?)?(.*)$"
+        r"^(\d{4})?(?:-(\d{2})(?:-(\d{2})(?:"
+        r"T(\d{2})(?::(\d{2})(?::(\d{2}))?)?)?)?)?(.*)$"
     )
 
     __slots__ = (
@@ -70,23 +79,37 @@ class DateTime:
         year : int; optional
             Year.
 
+            **Valid values**: :code:`0` to :code:`9_999`.
+
         month : int; optional
             Month.
+
+            **Valid values**: :code:`1` to :code:`12`.
 
         day : int; optional
             Day.
 
+            **Valid values**: :code:`1` to :code:`31`.
+
         hour : int; optional
             Hour.
+
+            **Valid values**: :code:`0` to :code:`23`.
 
         minute : int; optional
             Minute.
 
+            **Valid values**: :code:`0` to :code:`59`.
+
         second : int; optional
             Second.
 
+            **Valid values**: :code:`0` to :code:`59`.
+
         extra : str; optional
             Extra information, such as timezone or fractional seconds.
+
+            **Examples**: :code:`"Z"`, :code:`"-5:00"`.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the audio
@@ -121,6 +144,24 @@ class DateTime:
                 validate_range("second", second, 0, 59)
             if extra is not None:
                 validate_type("extra", extra, str)
+
+    def __repr__(self) -> str:
+        dt = []
+        if self._year is not None:
+            dt.append(f"year={self._year}")
+        if self._month is not None:
+            dt.append(f"month={self._month}")
+        if self._day is not None:
+            dt.append(f"day={self._day}")
+        if self._hour is not None:
+            dt.append(f"hour={self._hour}")
+        if self._minute is not None:
+            dt.append(f"minute={self._minute}")
+        if self._second is not None:
+            dt.append(f"second={self._second}")
+        if self._extra is not None:
+            dt.append(f"extra={self._extra!r}")
+        return f"{type(self).__name__}({', '.join(dt)})"
 
     def __or__(self, other: Self) -> Self:
         type_ = type(self)
@@ -164,7 +205,7 @@ class DateTime:
         return self
 
     @classmethod
-    def from_string(cls, dt: str, /, *, strict: bool = True) -> DateTime:
+    def from_string(cls, dt: str, /, *, strict: bool = True) -> Self:
         """
         Instantiate a :cls:`DateTime` object from a datetime string in
         ISO-8601 format.
@@ -174,13 +215,16 @@ class DateTime:
         dt : str; positional-only
             Datetime, in ISO-8601 format.
 
+            **Examples**: :code:`2024-02-29T12:34:56Z`,
+            :code:`2024-02-29`.
+
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the audio
             format specifications.
 
         Returns
         -------
-        dt : minim.metadata.id3.DateTime
+        dt : minim.metadata.id3._frames.DateTime
             Datetime.
         """
         match = cls._DATETIME_RE.match(dt.upper())
@@ -197,7 +241,7 @@ class DateTime:
     @classmethod
     def from_tuple(
         cls, dt: tuple[int | str | None, ...], /, *, strict: bool = True
-    ) -> DateTime:
+    ) -> Self:
         """
         Instantiate a :cls:`DateTime` object from a tuple of datetime
         components.
@@ -210,13 +254,16 @@ class DateTime:
             represented as :code:`None` or omitted only if there are no
             more components after them.
 
+            **Examples**: :code:`(2024, 2, 29, 12, 34, 56, "Z")`,
+            :code:`(2024, 2, 29)`.
+
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the audio
             format specifications.
 
         Returns
         -------
-        dt : minim.metadata.id3.DateTime
+        dt : minim.metadata.id3._frame.DateTime
             Datetime.
         """
         if not 1 <= len(dt) <= 7:
@@ -240,8 +287,12 @@ class DateTime:
         month : int; positional-only
             Month.
 
-        year : int; positional-only
+            **Valid values**: :code:`1` to :code:`12`.
+
+        year : int
             Year.
+
+            **Valid values**: :code:`0` to :code:`9_999`.
 
         Returns
         -------
@@ -261,7 +312,7 @@ class DateTime:
     @property
     def year(self) -> int | None:
         """
-        Year.
+        :bdg-primary:`get` :bdg-secondary:`set` Year.
         """
         return self._year
 
@@ -281,7 +332,7 @@ class DateTime:
     @property
     def month(self) -> int | None:
         """
-        Month.
+        :bdg-primary:`get` :bdg-secondary:`set` Month.
         """
         return self._month
 
@@ -301,7 +352,7 @@ class DateTime:
     @property
     def day(self) -> int | None:
         """
-        Day.
+        :bdg-primary:`get` :bdg-secondary:`set` Day.
         """
         return self._day
 
@@ -321,7 +372,7 @@ class DateTime:
     @property
     def hour(self) -> int | None:
         """
-        Hour.
+        :bdg-primary:`get` :bdg-secondary:`set` Hour.
         """
         return self._hour
 
@@ -334,7 +385,7 @@ class DateTime:
     @property
     def minute(self) -> int | None:
         """
-        Minute.
+        :bdg-primary:`get` :bdg-secondary:`set` Minute.
         """
         return self._minute
 
@@ -347,7 +398,7 @@ class DateTime:
     @property
     def second(self) -> int | None:
         """
-        Second.
+        :bdg-primary:`get` :bdg-secondary:`set` Second.
         """
         return self._second
 
@@ -360,6 +411,7 @@ class DateTime:
     @property
     def extra(self) -> str | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Extra information, such as timezone or fractional seconds.
         """
         return self._extra
@@ -385,43 +437,45 @@ class DateTime:
         dt : str
             Datetime, in ISO-8601 format.
         """
+        validate_type("use_placeholders", use_placeholders, bool)
         if use_placeholders:
-            dt = "YYYY" if self._year is None else f"{self._year:04}"
-            dt += "-MM" if self._month is None else f"-{self._month:02}"
-            dt += "-DD" if self._day is None else f"-{self._day:02}"
-            dt += "Thh" if self._hour is None else f"T{self._hour:02}"
-            dt += ":mm" if self._minute is None else f":{self._minute:02}"
-            dt += ":ss" if self._second is None else f":{self._second:02}"
+            dt = ["YYYY" if self._year is None else f"{self._year:04}"]
+            dt.append("-MM" if self._month is None else f"-{self._month:02}")
+            dt.append("-DD" if self._day is None else f"-{self._day:02}")
+            dt.append("Thh" if self._hour is None else f"T{self._hour:02}")
+            dt.append(":mm" if self._minute is None else f":{self._minute:02}")
+            dt.append(":ss" if self._second is None else f":{self._second:02}")
             if self._extra is not None:
-                dt += str(self._extra)
-        else:
-            if self._year is None:
-                return ""
+                dt.append(self._extra)
+            return "".join(dt)
 
-            dt = f"{self._year:04}"
-            if self._month is None:
-                return dt
+        if self._year is None:
+            return ""
 
-            dt += f"-{self._month:02}"
-            if self._day is None:
-                return dt
+        dt = f"{self._year:04}"
+        if self._month is None:
+            return dt
 
-            dt += f"-{self._day:02}"
-            if self._hour is None:
-                return dt
+        dt = [dt, f"-{self._month:02}"]
+        if self._day is None:
+            return "".join(dt)
 
-            dt += f"T{self._hour:02}"
-            if self._minute is None:
-                return dt
+        dt.append(f"-{self._day:02}")
+        if self._hour is None:
+            return "".join(dt)
 
-            dt += f":{self._minute:02}"
-            if self._second is None:
-                return dt
+        dt.append(f"T{self._hour:02}")
+        if self._minute is None:
+            return "".join(dt)
 
-            dt += f":{self._second:02}"
-            if self._extra is not None:
-                dt += str(self._extra)
-        return dt
+        dt.append(f":{self._minute:02}")
+        if self._second is None:
+            return "".join(dt)
+
+        dt.append(f":{self._second:02}")
+        if self._extra is not None:
+            dt.append(self._extra)
+        return "".join(dt)
 
 
 class Position(NamedTuple):
@@ -429,23 +483,20 @@ class Position(NamedTuple):
     Position within a set.
     """
 
-    number: int
-    total: int | None = None
+    number: int | str
+    total: int | str | None = None
 
     @classmethod
-    def from_string(
-        cls, position: str, /, *, name: str = "position", strict: bool = True
-    ) -> Position:
+    def from_string(cls, position: str, /, *, strict: bool = True) -> Self:
         """
         Instantiate a :cls:`Position` object from a string.
 
         Parameters
         ----------
         position : str; positional-only
-            Position within a set.
+            String containing the position within a set.
 
-        name : str; keyword-only; default: :code:`"position"`
-            Type of position.
+            **Examples**: :code:`1/2`, :code:`1`
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the audio
@@ -453,45 +504,43 @@ class Position(NamedTuple):
 
         Returns
         -------
-        position : minim.metadata.id3.Position
+        position : minim.metadata.id3._frames.Position
             Position within a set.
         """
         num_slashes = position.count("/")
         if num_slashes > 1:
-            raise ValueError(f"Invalid {name} number {position!r}.")
+            raise ValueError(f"Invalid position number {position!r}.")
+
+        lower_bound = 1 if strict else None
         if num_slashes:
             position = position.split("/", maxsplit=1)
-            if strict:
-                validate_numeric(f"{name}[0]", position[0], int, 1)
+            validate_numeric("position[0]", position[0], int, lower_bound)
             if position[1]:
-                if strict:
-                    validate_numeric(f"{name}[1]", position[1], int, 1)
+                validate_numeric("position[1]", position[1], int, lower_bound)
                 return cls(int(position[0]), int(position[1]))
             return cls(int(position[0]), None)
         else:
-            if strict:
-                validate_numeric(name, position, int, 1)
+            validate_numeric(position, position, int, lower_bound)
             return cls(int(position), None)
 
     @classmethod
     def from_tuple(
         cls,
-        position: tuple[int, int | None],
+        position: tuple[int | str, int | str | None],
         /,
         *,
-        name: str = "position",
         strict: bool = True,
-    ) -> Position:
+    ) -> Self:
         """
         Instantiate a :cls:`Position` object from a tuple.
 
         Parameters
         ----------
-        position : tuple[int, int | None]; positional-only
-            Position within a set.
+        position : tuple[int | str, int | str | None]; positional-only
+            Tuple containing the position within a set.
 
-        name : str; keyword-only; default: :code:`"position"`
-            Type of position.
+            **Examples**: :code:`(1, 2)`, :code:`("1", "2")`,
+            :code:`(1, None)`.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the audio
@@ -499,14 +548,13 @@ class Position(NamedTuple):
 
         Returns
         -------
-        position : minim.metadata.id3.Position
+        position : minim.metadata.id3._frames.Position
             Position within a set.
         """
-        if strict:
-            validate_numeric(f"{name}[0]", position[0], int, 1)
+        lower_bound = 1 if strict else None
+        validate_numeric("position[0]", position[0], int, lower_bound)
         if position[1]:
-            if strict:
-                validate_numeric(f"{name}[1]", position[1], int, 1)
+            validate_numeric("position[1]", position[1], int, lower_bound)
             return cls(int(position[0]), int(position[1]))
         return cls(int(position[0]), None)
 
@@ -585,7 +633,7 @@ class ID3v2FrameFlags:
         has_data_length_indicator : bool; keyword-only; \
         default: :code:`False`
             Whether the current frame has an extra synchsafe integer
-            preceding the payload.
+            preceding the payload denoting its raw length.
         """
         self.discard_on_tag_alter = discard_on_tag_alter
         self.discard_on_file_alter = discard_on_file_alter
@@ -601,10 +649,30 @@ class ID3v2FrameFlags:
         self.is_unsynchronized = is_unsynchronized
         self.has_data_length_indicator = has_data_length_indicator
 
+    def __repr__(self) -> str:
+        kwargs = []
+        if self._discard_on_tag_alter:
+            kwargs.append("discard_on_tag_alter=True")
+        if self._discard_on_file_alter:
+            kwargs.append("discard_on_file_alter=True")
+        if self._is_read_only:
+            kwargs.append("is_read_only=True")
+        if self._has_group_id:
+            kwargs.append("has_group_id=True")
+        if self._is_compressed:
+            kwargs.append("is_compressed=True")
+        if self._is_encrypted:
+            kwargs.append("is_encrypted=True")
+        if self._is_unsynchronized:
+            kwargs.append("is_unsynchronized=True")
+        if self._has_data_length_indicator:
+            kwargs.append("has_data_length_indicator=True")
+        return f"{type(self).__name__}({', '.join(kwargs)})"
+
     @classmethod
     def _from_bytes_2_3(
         cls, status_flags: int, format_flags: int, /, *, strict: bool = True
-    ) -> ID3v2FrameFlags:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2FrameFlags` object from ID3v2.3
         frame flags bytes.
@@ -623,8 +691,8 @@ class ID3v2FrameFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2FrameFlags
-            Flags for the ID3v2 frame.
+        flags : minim.media.metadata.id3.ID3v2FrameFlags
+            Flags for the ID3v2.3 frame.
         """
         if strict:
             if status_flags & 0x1F:
@@ -651,10 +719,10 @@ class ID3v2FrameFlags:
     @classmethod
     def _from_bytes_2_4(
         cls, status_flags: int, format_flags: int, /, *, strict: bool = True
-    ) -> ID3v2FrameFlags:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2FrameFlags` object from ID3v2.4
-        frame status flags byte.
+        frame flags bytes.
 
         Parameters
         ----------
@@ -671,7 +739,7 @@ class ID3v2FrameFlags:
         Returns
         -------
         flags : minim.media.metadata.ID3v2FrameFlags
-            Flags for the ID3v2 frame.
+            Flags for the ID3v2.4 frame.
         """
         if strict:
             if status_flags & 0x8F:
@@ -714,7 +782,7 @@ class ID3v2FrameFlags:
     ) -> ID3v2FrameFlags:
         """
         Instantiate an :class:`ID3v2FrameFlags` object from ID3v2 frame
-        status flags bytes.
+        flags bytes.
 
         Parameters
         ----------
@@ -736,7 +804,7 @@ class ID3v2FrameFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2FrameFlags
+        flags : minim.media.metadata.id3.ID3v2FrameFlags
             Flags for the ID3v2 frame.
         """
         validate_number("status_flags", status_flags, int, 0)
@@ -761,6 +829,7 @@ class ID3v2FrameFlags:
     @property
     def discard_on_tag_alter(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether to discard the current frame if it is unknown and the
         ID3 tag it belongs to is edited.
         """
@@ -774,6 +843,7 @@ class ID3v2FrameFlags:
     @property
     def discard_on_file_alter(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether to discard the current frame if it is unknown and the
         MPEG file it belongs to is edited.
         """
@@ -787,6 +857,7 @@ class ID3v2FrameFlags:
     @property
     def is_read_only(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current frame is read-only.
         """
         return self._is_read_only
@@ -799,6 +870,7 @@ class ID3v2FrameFlags:
     @property
     def has_group_id(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current frame has a grouping identifier.
         """
         return self._has_group_id
@@ -811,6 +883,7 @@ class ID3v2FrameFlags:
     @property
     def is_compressed(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current frame is compressed.
         """
         return self._is_compressed
@@ -825,6 +898,7 @@ class ID3v2FrameFlags:
     @property
     def is_encrypted(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current frame is encrypted.
         """
         return self._is_encrypted
@@ -837,6 +911,7 @@ class ID3v2FrameFlags:
     @property
     def is_unsynchronized(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current frame is unsynchronized.
         """
         return self._is_unsynchronized
@@ -849,8 +924,9 @@ class ID3v2FrameFlags:
     @property
     def has_data_length_indicator(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current frame has an extra synchsafe integer
-        preceding the payload.
+        preceding the payload denoting its raw length.
         """
         return self._has_data_length_indicator
 
@@ -866,7 +942,7 @@ class ID3v2FrameFlags:
 
     def serialize(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Serialize the ID3v2 frame flags to a bytestream.
+        Serialize the ID3v2 frame flags to bytes.
 
         Parameters
         ----------
@@ -878,8 +954,8 @@ class ID3v2FrameFlags:
 
         Returns
         -------
-        stream : bytes
-            Bytestream containing the ID3v2 frame flags.
+        bytes_ : bytes
+            Bytes containing the ID3v2 frame flags.
         """
         match tag_version := normalize_id3v2_tag_version(tag_version):
             case (2, 4, _):
@@ -953,7 +1029,7 @@ class ID3v2Frame(ABC):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
-        
+
         group_id : int; keyword-only; optional
             Group identifier.
 
@@ -1522,6 +1598,11 @@ class ID3v2Frame(ABC):
             Encoded frame.
         """
         flags = self._flags
+        if flags._is_encrypted:
+            raise RuntimeError(
+                "Cannot serialize an encrypted "
+                f"{frame_id.decode(encoding='iso-8859-1')} frame."
+            )
         frame_length = len(frame_data)
 
         extra_info = bytearray()
@@ -1564,6 +1645,11 @@ class ID3v2Frame(ABC):
             Encoded frame.
         """
         flags = self._flags
+        if flags._is_encrypted:
+            raise RuntimeError(
+                "Cannot serialize an encrypted "
+                f"{frame_id.decode(encoding='iso-8859-1')} frame."
+            )
 
         extra_info = bytearray()
         if flags._has_group_id:
@@ -4693,9 +4779,9 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             case int():
                 return Position(discs)
             case str():
-                return Position.from_string(discs, name="discs", strict=strict)
+                return Position.from_string(discs, strict=strict)
             case tuple() if len(discs) == 2:
-                return Position.from_tuple(discs, name="discs", strict=strict)
+                return Position.from_tuple(discs, strict=strict)
             case list():
                 return [
                     ID3v2TPOSFrame._parse_discs(disc, strict=strict)
@@ -4967,13 +5053,9 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             case int():
                 return Position(tracks)
             case str():
-                return Position.from_string(
-                    tracks, name="tracks", strict=strict
-                )
+                return Position.from_string(tracks, strict=strict)
             case tuple() if len(tracks) == 2:
-                return Position.from_tuple(
-                    tracks, name="tracks", strict=strict
-                )
+                return Position.from_tuple(tracks, strict=strict)
             case list():
                 return [
                     ID3v2TRCKFrame._parse_tracks(track, strict=strict)
@@ -5516,7 +5598,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
         optional
             Flags for the ID3v2 frame.
-        
+
         group_id : int; keyword-only; optional
             Group identifier.
 

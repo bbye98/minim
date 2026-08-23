@@ -767,7 +767,7 @@ class ID3v2(AudioTags):
 
             .. note::
 
-               Currently, tag restrictions are not enforced when 
+               Currently, tag restrictions are not enforced when
                serializing ID3v2 tags.
         """
         if not isinstance(frames, ORDERED_COLLECTION_TYPES):
