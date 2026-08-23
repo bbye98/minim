@@ -634,7 +634,7 @@ class VorbisComment(AudioTags):
     def version(self, value: str | OrderedCollection[str], /) -> None:
         self.set(VERSION=value)
 
-    def append(self, **kwargs: Any) -> None:
+    def append(self, fields: dict[str, Any], **kwargs: Any) -> None:
         """
         Append track metadata.
 
@@ -666,14 +666,21 @@ class VorbisComment(AudioTags):
             :code:`{"ARTIST": "Galantis", "TITLE": "Runaway (U & I)"}`.
 
         **kwargs : dict[str, Any]
-            Key–value pairs of track metadata.
+            Additional key–value pairs of track metadata.
 
         Raises
         ------
         TypeError
             If any key or value cannot be stringified.
+
+        ValueError
+            If any value is outside the allowed range for its field.
         """
-        for key, value in kwargs.items():
+        if fields is None:
+            fields = {}
+        else:
+            validate_type("fields", fields, dict)
+        for key, value in (fields | kwargs).items():
             key = self._normalize_field_name(key)
             if key in self._fields:
                 values = self._fields[key]
