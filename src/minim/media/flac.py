@@ -418,7 +418,7 @@ class FLACApplication(FLACMetadataBlock):
     def __repr__(self) -> str:
         return (
             f"{type(self).__name__}(app_id={self._app_id!r}, "
-            f"app_data=<{len(self._app_data)} bytes>)"
+            f"app_data=<{len(self._app_data)} byte(s)>)"
         )
 
     @classmethod
@@ -541,8 +541,8 @@ class FLACSeekTable(FLACMetadataBlock):
 
     def __repr__(self) -> str:
         return (
-            type(self).__name__
-            + f"(seek_points=<{len(self.seek_points)} seek points>)"
+            f"{type(self).__name__}("
+            f"seek_points=<{len(self.seek_points)} seek point(s)>)"
         )
 
     @classmethod
@@ -884,7 +884,12 @@ class FLACCueSheet(FLACMetadataBlock):
         self._validate_tracks(tracks, is_cd=is_cd)
 
     def __repr__(self) -> str:
-        return type(self).__name__ + f"(tracks=<{len(self.tracks)} tracks>)"
+        return (
+            f"{type(self).__name__}("
+            f"media_catalog_number={self.media_catalog_number!r}, "
+            f"num_lead_in_samples={self.num_lead_in_samples}, "
+            f"is_cd={self.is_cd}, tracks=<{len(self.tracks)} track(s)>)"
+        )
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
@@ -1194,7 +1199,7 @@ class FLACCueSheetTrack:
             f"number={self.number}, isrc={self.isrc!r}, "
             f"is_audio={self.is_audio}, "
             f"has_pre_emphasis={self.has_pre_emphasis}, "
-            f"indices=<{len(self.indices)} indices>)"
+            f"indices=<{len(self.indices)} index(es)>)"
         )
 
     @classmethod
@@ -1641,8 +1646,6 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
     def __repr__(self) -> str:
         optional_kwargs = [""]
-        if self._group_id is not None:
-            optional_kwargs.append(f"group_id={self._group_id}")
         if self.width:
             optional_kwargs.append(f"width={self.width}")
         if self.height:
@@ -1654,12 +1657,13 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
                 f"num_indexed_colors={self.num_indexed_colors}"
             )
         return (
-            f"FLACPicture(picture_type={self._picture_type!r}, "
+            f"{type(self).__name__}(picture_type={self._picture_type!r}, "
             f"mime_type={self._mime_type!r}, "
-            f"picture_data=<{len(self._picture_data)} bytes>, "
+            f"picture_data=<{len(self._picture_data)} byte(s)>, "
             f"description={self._description!r}, "
             f"text_encoding={self._text_encoding!r}, "
-            f"flags={self._flags!r}{', '.join(optional_kwargs)})"
+            f"flags={self._flags!r}, group_id={self._group_id}"
+            f"{', '.join(optional_kwargs)})"
         )
 
     @classmethod
@@ -1805,7 +1809,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
     def __repr__(self) -> str:
         return (
             f"{type(self).__name__}(block_type={self._block_type}, "
-            f"block_data=<{len(self._block_data)} bytes>)"
+            f"block_data=<{len(self._block_data)} byte(s)>)"
         )
 
     def __setattr__(self, name: str, value: Any) -> None:
@@ -1929,8 +1933,7 @@ class FLACMetadataView:
 
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}"
-            f"(blocks=<{len(self._blocks)} metadata blocks>)"
+            f"{type(self).__name__}(<{len(self._blocks)} metadata block(s)>)"
         )
 
     def __getitem__(self, index: int, /) -> FLACMetadataBlock | VorbisComment:

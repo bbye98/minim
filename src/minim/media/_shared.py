@@ -69,7 +69,7 @@ class Audio(ABC):
 
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}(file_path={self._file_path!r}, "
+            f"{type(self).__name__}({self._file_path!r}, "
             f"strict={self._strict})"
         )
 

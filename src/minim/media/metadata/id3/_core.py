@@ -107,22 +107,12 @@ class ID3v1:
         self.comment = comment
 
     def __repr__(self) -> str:
-        optional_kwargs = []
-        if self._title:
-            optional_kwargs.append(f"title={self._title!r}")
-        if self._artist:
-            optional_kwargs.append(f"artist={self._artist!r}")
-        if self._album:
-            optional_kwargs.append(f"album={self._album!r}")
-        if self._year:
-            optional_kwargs.append(f"year={self._year}")
-        if self._comment:
-            optional_kwargs.append(f"comment={self._comment!r}")
-        if self._track_number:
-            optional_kwargs.append(f"track_number={self._track_number}")
-        if self._genre:
-            optional_kwargs.append(f"genre={self._genre!r}")
-        return f"{type(self).__name__}({', '.join(optional_kwargs)})"
+        return (
+            f"{type(self).__name__}(title={self._title!r}, "
+            f"artist={self._artist!r}, album={self._album!r}, "
+            f"year={self._year}, comment={self._comment!r}, "
+            f"track_number={self._track_number}, genre={self._genre!r})"
+        )
 
     @classmethod
     def from_stream(cls, stream: BytesLike, /) -> ID3v1:
@@ -415,8 +405,8 @@ class ID3v2Flags:
 
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}"
-            f"(is_unsynchronized={self._is_unsynchronized}, "
+            f"{type(self).__name__}("
+            f"is_unsynchronized={self._is_unsynchronized}, "
             f"has_extended_header={self._has_extended_header}, "
             f"is_experimental={self._is_experimental}, "
             f"has_footer={self._has_footer}, "

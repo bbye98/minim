@@ -23,7 +23,7 @@ set_obj_attr = object.__setattr__
 
 def as_buffer(stream: BytesLike, /) -> memoryview:
     """
-    Return a :cls:`memoryview` of a bytes-like object.
+    Return a :class:`memoryview` of a bytes-like object.
 
     Parameters
     ----------
@@ -163,7 +163,7 @@ def prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
     Raises
     ------
     TypeError
-        If `dt` is neither a string nor a :cls:`datetime.datetime`
+        If `dt` is neither a string nor a :class:`datetime.datetime`
         object.
 
     ValueError
