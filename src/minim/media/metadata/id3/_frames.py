@@ -1059,6 +1059,9 @@ class ID3v2Frame(ABC):
                 for frame_id in frame_ids:
                     cls._REGISTRY[frame_id] = cls
 
+    # @abstractmethod
+    # def __repr__(self) -> str: ...  # TODO
+
     @classmethod
     def _get_class(cls, frame_id: bytes, /) -> Self:
         """
@@ -1433,39 +1436,6 @@ class ID3v2Frame(ABC):
             validate_number("group_id", value, int, 0, 255)
         self._group_id = value
 
-    @abstractmethod
-    def serialize(
-        self,
-        tag_version: str | tuple[int, int, int],
-        *,
-        text_encoding: str | None = None,
-    ) -> bytes:
-        """
-        Serialize the ID3v2 frame to a bytestream.
-
-        Parameters
-        ----------
-        tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
-
-            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
-            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
-            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
-
-        text_encoding : str; keyword-only; optional
-            Text encoding. If :code:`None`, the text encoding already
-            associated with the frame is used.
-
-            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
-            :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        Returns
-        -------
-        stream : bytes
-            Bytestream containing the ID3v2 frame.
-        """
-        ...
-
     def _decode_2_3(
         self, stream: memoryview, /, frame_length: int, *, strict: bool = True
     ) -> tuple[memoryview, int, int]:
@@ -1722,6 +1692,39 @@ class ID3v2Frame(ABC):
             if tag_version[:2] != (2, 4):
                 text_encoding = TEXT_ENCODINGS[min(text_encoding_byte, 1)]
         return text_encoding
+
+    @abstractmethod
+    def serialize(
+        self,
+        tag_version: str | tuple[int, int, int],
+        *,
+        text_encoding: str | None = None,
+    ) -> bytes:
+        """
+        Serialize the ID3v2 frame to a bytestream.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            ID3v2 tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        text_encoding : str; keyword-only; optional
+            Text encoding. If :code:`None`, the text encoding already
+            associated with the frame is used.
+
+            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
+            :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        Returns
+        -------
+        stream : bytes
+            Bytestream containing the ID3v2 frame.
+        """
+        ...
 
 
 class ID3v2TextInfoFrame(ID3v2Frame):
