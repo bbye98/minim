@@ -1,56 +1,18 @@
 from ._core import ID3v2Flags, ID3v2Padding
-from ._frames import (
-    ID3v2APICFrame,
-    ID3v2COMMFrame,
-    ID3v2FrameFlags,
-    ID3v2TALBFrame,
-    ID3v2TBPMFrame,
-    ID3v2TCMPFrame,
-    ID3v2TCOMFrame,
-    ID3v2TCONFrame,
-    ID3v2TCOPFrame,
-    ID3v2TDRCFrame,
-    ID3v2TIT1Frame,
-    ID3v2TIT2Frame,
-    ID3v2TIT3Frame,
-    ID3v2TPE1Frame,
-    ID3v2TPE2Frame,
-    ID3v2TPE3Frame,
-    ID3v2TPOSFrame,
-    ID3v2TPUBFrame,
-    ID3v2TRCKFrame,
-    ID3v2TSRCFrame,
-    ID3v2TSSEFrame,
-    ID3v2TXXXFrame,
-    ID3v2USLTFrame,
-    UnknownID3v2Frame,
-)
+from ._frames import ID3v2Frame, ID3v2FrameFlags, UnknownID3v2Frame
 
-__all__ = [  # noqa: RUF022
+_id3v2_frames = {
+    cls.__name__: cls
+    for cls in sorted(
+        set(ID3v2Frame._REGISTRY.values()), key=lambda cls: cls.__name__
+    )
+}
+globals().update(_id3v2_frames)
+
+__all__ = [  # noqa: PLE0604
     "ID3v2Flags",
     "ID3v2Padding",
     "ID3v2FrameFlags",
-    "ID3v2APICFrame",
-    "ID3v2COMMFrame",
-    "ID3v2USLTFrame",
-    "ID3v2TALBFrame",
-    "ID3v2TBPMFrame",
-    "ID3v2TCMPFrame",
-    "ID3v2TCOMFrame",
-    "ID3v2TCONFrame",
-    "ID3v2TCOPFrame",
-    "ID3v2TDRCFrame",
-    "ID3v2TIT1Frame",
-    "ID3v2TIT2Frame",
-    "ID3v2TIT3Frame",
-    "ID3v2TPE1Frame",
-    "ID3v2TPE2Frame",
-    "ID3v2TPE3Frame",
-    "ID3v2TPOSFrame",
-    "ID3v2TPUBFrame",
-    "ID3v2TRCKFrame",
-    "ID3v2TSRCFrame",
-    "ID3v2TSSEFrame",
-    "ID3v2TXXXFrame",
+    *_id3v2_frames,
     "UnknownID3v2Frame",
 ]
