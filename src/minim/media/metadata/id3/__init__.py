@@ -1,3 +1,7 @@
+"""
+ID3v2 flags managers, frames, and padding.
+"""
+
 from ._core import ID3v2Flags, ID3v2Padding
 from ._frames import ID3v2Frame, ID3v2FrameFlags, UnknownID3v2Frame
 

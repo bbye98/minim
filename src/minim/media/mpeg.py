@@ -1,3 +1,8 @@
+"""
+Moving Picture Experts Group (MPEG) audio file handler and stream
+information reporter.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,7 +26,7 @@ __all__ = ["MPEGAudio", "MPEGStreamInfo"]
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class MPEGStreamInfo(AudioStreamInfo):
     """
-    Moving Pictures Expert Group (MPEG) audio stream information.
+    MPEG audio stream information.
 
     Parameters
     ----------
@@ -182,7 +187,7 @@ class MPEGStreamInfo(AudioStreamInfo):
 
 class MPEGAudio(Audio):
     """
-    Moving Picture Experts Group (MPEG) audio file.
+    MPEG audio file.
     """
 
     _BITRATES: ClassVar[dict[tuple[int, int], tuple[int, ...]]] = {

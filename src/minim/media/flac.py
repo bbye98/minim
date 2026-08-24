@@ -1,5 +1,5 @@
 """
-FLAC audio file handler and metadata blocks.
+Free Lossless Audio Codec (FLAC) audio file handler and metadata blocks.
 """
 
 from __future__ import annotations

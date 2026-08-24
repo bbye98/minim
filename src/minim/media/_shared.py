@@ -227,9 +227,7 @@ class NULPadding:
         return self._length
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> NULPadding:
+    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
         Instantiate a NUL-bytes padding object from a bytes-like object.
 

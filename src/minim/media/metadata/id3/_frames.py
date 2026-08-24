@@ -565,7 +565,7 @@ class Position(NamedTuple):
 
 class ID3v2FrameFlags:
     """
-    Flags for the ID3v2 frame.
+    Flags for an ID3v2 frame.
     """
 
     __slots__ = (
