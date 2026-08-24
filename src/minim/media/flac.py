@@ -461,7 +461,7 @@ class FLACApplication(FLACMetadataBlock):
         return self._app_id
 
     @app_id.setter
-    def app_id(self, value: bytes | bytearray | str) -> None:
+    def app_id(self, value: bytes | bytearray | str, /) -> None:
         validate_type("app_id", value, bytes | bytearray | str)
         if isinstance(value, str):
             try:
@@ -483,7 +483,7 @@ class FLACApplication(FLACMetadataBlock):
         return self._app_data
 
     @app_data.setter
-    def app_data(self, value: bytes | bytearray) -> None:
+    def app_data(self, value: bytes | bytearray, /) -> None:
         validate_type("app_data", value, bytes | bytearray)
         self._app_data = value
 

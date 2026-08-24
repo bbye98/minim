@@ -306,7 +306,7 @@ class DateTime:
         return self._year
 
     @year.setter
-    def year(self, value: int | None) -> None:
+    def year(self, value: int | None, /) -> None:
         if value is not None:
             validate_range("year", value, MINYEAR, MAXYEAR)
             if self._month is not None and self._day is not None:
@@ -326,7 +326,7 @@ class DateTime:
         return self._month
 
     @month.setter
-    def month(self, value: int | None) -> None:
+    def month(self, value: int | None, /) -> None:
         if value is not None:
             validate_range("month", value, 1, 12)
             if self._year is not None and self._day is not None:
@@ -346,7 +346,7 @@ class DateTime:
         return self._day
 
     @day.setter
-    def day(self, value: int | None) -> None:
+    def day(self, value: int | None, /) -> None:
         if value is not None:
             validate_range(
                 "day",
@@ -366,7 +366,7 @@ class DateTime:
         return self._hour
 
     @hour.setter
-    def hour(self, value: int | None) -> None:
+    def hour(self, value: int | None, /) -> None:
         if value is not None:
             validate_range("hour", value, 0, 23)
         self._hour = value
@@ -379,7 +379,7 @@ class DateTime:
         return self._minute
 
     @minute.setter
-    def minute(self, value: int | None) -> None:
+    def minute(self, value: int | None, /) -> None:
         if value is not None:
             validate_range("minute", value, 0, 59)
         self._minute = value
@@ -392,7 +392,7 @@ class DateTime:
         return self._second
 
     @second.setter
-    def second(self, value: int | None) -> None:
+    def second(self, value: int | None, /) -> None:
         if value is not None:
             validate_range("second", value, 0, 59)
         self._second = value
@@ -406,7 +406,7 @@ class DateTime:
         return self._extra
 
     @extra.setter
-    def extra(self, value: str | None) -> None:
+    def extra(self, value: str | None, /) -> None:
         if value is not None:
             validate_type("extra", value, str)
         self._extra = value
@@ -639,17 +639,24 @@ class ID3v2FrameFlags:
         self.has_data_length_indicator = has_data_length_indicator
 
     def __repr__(self) -> str:
-        return (
-            f"{type(self).__name__}("
-            f"discard_on_tag_alter={self._discard_on_tag_alter}, "
-            f"discard_on_file_alter={self._discard_on_file_alter}, "
-            f"is_read_only={self._is_read_only}, "
-            f"has_group_id={self._has_group_id}, "
-            f"is_compressed={self._is_compressed}, "
-            f"is_encrypted={self._is_encrypted}, "
-            f"is_unsynchronized={self._is_unsynchronized}, "
-            f"has_data_length_indicator={self._has_data_length_indicator})"
-        )
+        flags = []
+        if self._discard_on_tag_alter:
+            flags.append("discard_on_tag_alter=True")
+        if self._discard_on_file_alter:
+            flags.append("discard_on_file_alter=True")
+        if self._is_read_only:
+            flags.append("is_read_only=True")
+        if self._has_group_id:
+            flags.append("has_group_id=True")
+        if self._is_compressed:
+            flags.append("is_compressed=True")
+        if self._is_encrypted:
+            flags.append("is_encrypted=True")
+        if self._is_unsynchronized:
+            flags.append("is_unsynchronized=True")
+        if self._has_data_length_indicator:
+            flags.append("has_data_length_indicator=True")
+        return f"{type(self).__name__}({', '.join(flags)})"
 
     @classmethod
     def _from_bytes_2_3(
@@ -1183,6 +1190,43 @@ class ID3v2Frame(ABC):
         return obj
 
     @classmethod
+    def _prepare_text_encoding(cls, text_encoding: int | str, /) -> None:
+        """
+        Validate and normalize a text encoding.
+
+        Parameters
+        ----------
+        text_encoding : int or str; positional-only
+            Text encoding.
+
+        Returns
+        -------
+        text_encoding : str
+            Normalized text encoding.
+        """
+        validate_type("text_encoding", text_encoding, int | str)
+        text_encodings = cls._TEXT_ENCODINGS
+        if isinstance(text_encoding, str):
+            text_encoding = text_encoding.lower()
+        if text_encoding not in text_encodings:
+            text_encodings = tuple(text_encodings)
+            num_encodings = len(text_encodings) // 2
+            text_encodings = ", ".join(
+                f"{s!r} (or {n})"
+                for n, s in zip(
+                    text_encodings[:num_encodings],
+                    text_encodings[num_encodings:],
+                )
+            )
+            raise ValueError(
+                f"Invalid text encoding {text_encoding!r}. "
+                f"Valid values: {text_encodings}."
+            )
+        if isinstance(text_encoding, int):
+            text_encoding = text_encodings[text_encoding]
+        return text_encoding
+
+    @classmethod
     def from_stream(
         cls,
         stream: BytesLike,
@@ -1376,6 +1420,31 @@ class ID3v2Frame(ABC):
                     f"Invalid or unsupported text encoding {encoding!r}."
                 )
 
+    @staticmethod
+    def _ensure_iso88591_encode(name: str, values: str | list[str], /) -> None:
+        """
+        Ensure that all values can be encoded using ISO-8859-1.
+
+        Parameters
+        ----------
+        name : str; positional-only
+            Parameter name.
+
+        values : str or list[str]; positional-only
+            Values to encode.
+        """
+        try:
+            if isinstance(values, str):
+                values.encode(encoding="iso-8859-1")
+            else:
+                for value in values:
+                    value.encode(encoding="iso-8859-1")
+            is_utf = False
+        except UnicodeEncodeError:
+            is_utf = True
+        if is_utf:
+            raise ValueError(f"`{name}` cannot be encoded using ISO-8859-1.")
+
     @property
     @abstractmethod
     def _frame_ids(self) -> dict[int, bytes]:
@@ -1412,7 +1481,7 @@ class ID3v2Frame(ABC):
         return self._group_id
 
     @group_id.setter
-    def group_id(self, value: int | None) -> None:
+    def group_id(self, value: int | None, /) -> None:
         if value is None:
             self._flags._has_group_id = False
         else:
@@ -1661,17 +1730,9 @@ class ID3v2Frame(ABC):
                 ]
             )
         else:
-            text_encoding_byte = TEXT_ENCODINGS.get(text_encoding)
-            if text_encoding_byte is None:
-                valid_text_encodings = join_values(
-                    (
-                        te for te in TEXT_ENCODINGS if isinstance(te, str)
-                    ).values()
-                )
-                raise ValueError(
-                    f"Invalid text encoding {text_encoding!r}. Valid "
-                    f"values: {valid_text_encodings}."
-                )
+            text_encoding_byte = TEXT_ENCODINGS[
+                self._prepare_text_encoding(text_encoding)
+            ]
             if tag_version[:2] != (2, 4):
                 text_encoding = TEXT_ENCODINGS[min(text_encoding_byte, 1)]
         return text_encoding
@@ -1722,7 +1783,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
     def __init__(
         self,
-        text_info: str | OrderedCollection[str],
+        text_info: Any | OrderedCollection[Any],
         /,
         *,
         text_encoding: str = "utf-16",
@@ -1741,7 +1802,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         Parameters
         ----------
-        text_info : str or OrderedCollection[str]; positional-only
+        text_info : Any or OrderedCollection[Any]; positional-only
             Text information.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
@@ -1760,39 +1821,8 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             **Valid range**: :code:`0` to :code:`255`.
         """
         super().__init__(flags=flags, group_id=group_id)
-
-        if isinstance(text_info, str):
-            self._text_info = [text_info]
-        elif isinstance(text_info, ORDERED_COLLECTION_TYPES):
-            self._text_info = _text_info = []
-            for ti_idx, ti in enumerate(text_info):
-                validate_type(f"text_info[{ti_idx}]", ti, str)
-                _text_info.append(ti)
-        else:
-            raise TypeError(
-                "`text_info` must be a string or an ordered collection "
-                "of strings."
-            )
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        if text_encoding == "iso-8859-1":
-            try:
-                for ti in text_info:
-                    ti.encode(encoding=text_encoding)
-                is_utf = False
-            except UnicodeEncodeError:
-                is_utf = True
-            if is_utf:
-                raise ValueError(
-                    "`text_info` cannot be encoded using ISO-8859-1."
-                )
-        self._text_encoding = text_encoding
+        self.text_info = text_info
+        self.text_encoding = text_encoding
 
     def __repr__(self) -> str:
         return (
@@ -1960,16 +1990,48 @@ class ID3v2TextInfoFrame(ID3v2Frame):
     @property
     def text_info(self) -> list[str]:
         """
-        Text information.
+        :bdg-primary:`get` :bdg-secondary:`set` Text information.
         """
         return self._text_info.copy()
+
+    @text_info.setter
+    def text_info(self, value: str | list[str], /) -> None:
+        is_iso88591 = getattr(self, "_text_encoding", None) == "iso-8859-1"
+        if isinstance(value, str):
+            if is_iso88591:
+                self._ensure_iso88591_encode("text_info", value)
+            self._text_info = [value]
+        elif isinstance(value, ORDERED_COLLECTION_TYPES):
+            self._text_info = _text_info = []
+            if is_iso88591:
+                for ti_idx, ti in enumerate(value):
+                    param_name = f"text_info[{ti_idx}]"
+                    validate_type(param_name, ti, str)
+                    self._ensure_iso88591_encode(param_name, ti)
+                    _text_info.append(ti)
+            else:
+                for ti_idx, ti in enumerate(value):
+                    validate_type(f"text_info[{ti_idx}]", ti, str)
+                    _text_info.append(ti)
+        else:
+            raise TypeError(
+                "`text_info` must be a string or an ordered collection "
+                "of strings."
+            )
 
     @property
     def text_encoding(self) -> str:
         """
-        Text encoding.
+        :bdg-primary:`get` :bdg-secondary:`set` Text encoding.
         """
         return self._text_encoding
+
+    @text_encoding.setter
+    def text_encoding(self, value: int | str, /) -> None:
+        value = self._prepare_text_encoding(value)
+        if value == "iso-8859-1":
+            self._ensure_iso88591_encode("text_info", self._text_info)
+        self._text_encoding = value
 
     def serialize(
         self,
@@ -2056,61 +2118,10 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
 
     __slots__ = ("_datetimes",)
 
-    def __init__(
-        self,
-        datetimes: str
-        | datetime
-        | tuple[int | str, ...]
-        | list[str | datetime | tuple[int | str, ...]],
-        /,
-        *,
-        text_encoding: str = "utf-16",
-        flags: ID3v2FrameFlags | None = None,
-        group_id: int | None = None,
-    ) -> None:
-        """
-        Parameters
-        ----------
-        datetimes : str, datetime.datetime, tuple[int | str, ...], or \
-        list[str | datetime | tuple[int | str, ...]]; positional-only
-            Datetime, in ISO-8601 format.
-
-        text_encoding : str; keyword-only; default: :code:`"utf-16"`
-            Text encoding.
-
-            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
-            :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
-        keyword-only; optional
-            Flags.
-
-        group_id : int; keyword-only; optional
-            Group identifier.
-
-            **Valid range**: :code:`0` to :code:`255`.
-        """
-        super(ID3v2TextInfoFrame, self).__init__(
-            flags=flags, group_id=group_id
-        )
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        self._text_encoding = text_encoding
-        datetimes = self._parse_datetimes(datetimes)
-        if not isinstance(datetimes, list):
-            datetimes = [datetimes]
-        self._datetimes = datetimes
-
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}(<{len(self._datetimes)} datetime(s)>, "
-            f"text_encoding={self._text_encoding}, "
+            f"{type(self).__name__}(<{len(self._datetimes)} value(s)>, "
+            f"text_encoding={self._text_encoding!r}, "
             f"flags={self._flags!r}, group_id={self._group_id})"
         )
 
@@ -2258,7 +2269,8 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         datetimes: str
         | datetime
         | tuple[int | str, ...]
-        | Iterable[str | datetime | tuple[int | str, ...]],
+        | DateTime
+        | Iterable[str | datetime | tuple[int | str, ...] | DateTime],
         /,
         *,
         strict: bool = True,
@@ -2298,6 +2310,8 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 )
             case tuple():
                 return DateTime.from_tuple(datetimes, strict=strict)
+            case DateTime():
+                return datetimes
             case _ if isinstance(datetimes, Iterable):
                 return [
                     ID3v2DateTimeFrame._parse_datetimes(dt, strict=strict)
@@ -2306,7 +2320,8 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
             case _:
                 raise TypeError(
                     "`datetimes` must be one or more strings, "
-                    "datetime.datetime objects, or tuples of integers."
+                    "datetime.datetime objects, tuples of integers, or "
+                    "DateTime objects."
                 )
 
     @property
@@ -2315,6 +2330,32 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         Text information.
         """
         return [dt.to_string() for dt in self._datetimes]
+
+    @property
+    def text_info(self) -> list[str]:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Text information (datetimes).
+        """
+        return self._text_info
+
+    @text_info.setter
+    def text_info(
+        self,
+        value: str
+        | datetime
+        | tuple[int | str, ...]
+        | DateTime
+        | list[str | datetime | tuple[int | str, ...] | DateTime],
+        /,
+    ) -> None:
+        value = self._parse_datetimes(value)
+        if not isinstance(value, list):
+            value = [value]
+        if getattr(self, "_text_encoding", None) == "iso-8859-1":
+            for dt_idx, dt in enumerate(value):
+                self._ensure_iso88591_encode(f"text_info[{dt_idx}]", dt._extra)
+        self._datetimes = value
 
     def serialize(
         self,
@@ -2464,8 +2505,7 @@ class ID3v2APICFrame(ID3v2Frame):
         """
         super().__init__(flags=flags, group_id=group_id)
 
-        validate_number("picture_type", picture_type, int, 0, 20)
-        self._picture_type = picture_type
+        self.picture_type = picture_type
 
         validate_type("mime_type", mime_type, str)
         mime_type = mime_type.lower()
@@ -2479,27 +2519,8 @@ class ID3v2APICFrame(ID3v2Frame):
         validate_type("picture_data", picture_data, bytes)
         self._picture_data = picture_data
 
-        validate_type("description", description, str)
-        self._description = description
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        if text_encoding == "iso-8859-1":
-            try:
-                description.encode(encoding=text_encoding)
-                is_utf = False
-            except UnicodeEncodeError:
-                is_utf = True
-            if is_utf:
-                raise ValueError(
-                    "`picture_description` cannot be encoded using ISO-8859-1."
-                )
-        self._text_encoding = text_encoding
+        self.description = description
+        self.text_encoding = text_encoding
 
     def __repr__(self) -> str:
         return (
@@ -2667,6 +2688,61 @@ class ID3v2APICFrame(ID3v2Frame):
         if self._picture_type in {1, 2}:
             return str(self._picture_type)
         return self._description
+
+    @property
+    def picture_type(self) -> int:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Picture type.
+        """
+        return self._picture_type
+
+    @picture_type.setter
+    def picture_type(self, value: int, /) -> None:
+        validate_number("picture_type", value, int, 0, 20)
+        self._picture_type = value
+
+    @property
+    def mime_type(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary-line:`set` MIME type.
+        """
+        return self._mime_type
+
+    @property
+    def picture_data(self) -> bytes:
+        """
+        :bdg-primary:`get` :bdg-secondary-line:`set` Picture data.
+        """
+        return self._picture_data
+
+    @property
+    def description(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Picture description.
+        """
+        return self._description
+
+    @description.setter
+    def description(self, value: str, /) -> None:
+        validate_type("description", value, str)
+        if getattr(self, "_text_encoding", None) == "iso-8859-1":
+            self._ensure_iso88591_encode("description", value)
+        self._description = value
+
+    @property
+    def text_encoding(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Text encoding.
+        """
+        return self._text_encoding
+
+    @text_encoding.setter
+    def text_encoding(self, value: int | str, /) -> None:
+        value = self._prepare_text_encoding(value)
+        if value == "iso-8859-1":
+            self._ensure_iso88591_encode("description", self._description)
+            self._ensure_iso88591_encode("text_info", self._text_info)
+        self._text_encoding = value
 
     def serialize(
         self,
@@ -2843,43 +2919,16 @@ class ID3v2COMMFrame(ID3v2Frame):
         """
         super().__init__(flags=flags, group_id=group_id)
 
-        validate_type("description", description, str)
-        self._description = description
-
-        validate_type("comment", comment, str)
-        self._comment = comment
-
-        validate_type("language", language, str)
-        if len(language) != 3:
-            raise ValueError(f"Invalid ISO 639-2 code {language!r}.")
-        self._language = language
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        if text_encoding == "iso-8859-1":
-            try:
-                description.encode(encoding=text_encoding)
-                comment.encode(encoding=text_encoding)
-                is_utf = False
-            except UnicodeEncodeError:
-                is_utf = True
-            if is_utf:
-                raise ValueError(
-                    "`description` or `comment` cannot be encoded "
-                    "using ISO-8859-1."
-                )
-        self._text_encoding = text_encoding
+        self.description = description
+        self.comment = comment
+        self.language = language
+        self.text_encoding = text_encoding
 
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}(description={self._description}, "
-            f"comment={self._comment}, langauge={self._language}, "
-            f"text_encoding={self._text_encoding}, "
+            f"{type(self).__name__}(description={self._description!r}, "
+            f"comment={self._comment!r}, langauge={self._language!r}, "
+            f"text_encoding={self._text_encoding!r}, "
             f"flags={self._flags!r}, group_id={self._group_id})"
         )
 
@@ -3007,6 +3056,65 @@ class ID3v2COMMFrame(ID3v2Frame):
         """
         return f"{self._language}{self._description}"
 
+    @property
+    def description(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Short content description.
+        """
+        return self._description
+
+    @description.setter
+    def description(self, value: str, /) -> None:
+        validate_type("description", value, str)
+        if getattr(self, "_text_encoding", None) == "iso-8859-1":
+            self._ensure_iso88591_encode("description", value)
+        self._description = value
+
+    @property
+    def comment(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Comment.
+        """
+        return self._comment
+
+    @comment.setter
+    def comment(self, value: str, /) -> None:
+        validate_type("comment", value, str)
+        if getattr(self, "_text_encoding", None) == "iso-8859-1":
+            self._ensure_iso88591_encode("comment", value)
+        self._comment = value
+
+    @property
+    def language(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        ISO 639-2 code for the language.
+        """
+        return self._language
+
+    @language.setter
+    def language(self, value: str, /) -> None:
+        validate_type("language", value, str)
+        if len(value) != 3:
+            raise ValueError(f"Invalid ISO 639-2 code {value!r}.")
+        self._language = value
+
+    @property
+    def text_encoding(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Text encoding.
+        """
+        return self._text_encoding
+
+    @text_encoding.setter
+    def text_encoding(self, value: int | str, /) -> None:
+        value = self._prepare_text_encoding(value)
+        if value == "iso-8859-1":
+            self._ensure_iso88591_encode("description", self._description)
+            self._ensure_iso88591_encode("comment", self._comment)
+        self._text_encoding = value
+
     def serialize(
         self,
         tag_version: str | tuple[int, int, int],
@@ -3061,7 +3169,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
 class ID3v2USLTFrame(ID3v2Frame):
     """
-    "Unsynchronized lyric/text transcription" frame.
+    "Unsynchronized lyrics/text transcription" frame.
 
     .. seealso::
 
@@ -3100,7 +3208,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         Parameters
         ----------
         lyrics : str; positional-only
-            Lyrics.
+            Unsynchronized lyrics.
 
         description : str; keyword-only; default: :code:`""`
             Short content description.
@@ -3124,45 +3232,18 @@ class ID3v2USLTFrame(ID3v2Frame):
             **Valid range**: :code:`0` to :code:`255`.
         """
         super().__init__(flags=flags, group_id=group_id)
-
-        validate_type("description", description, str)
-        self._description = description
-
-        validate_type("lyrics", lyrics, str)
-        self._lyrics = lyrics
-
-        validate_type("language", language, str)
-        if len(language) != 3:
-            raise ValueError(f"Invalid ISO 639-2 code {language!r}.")
-        self._language = language
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        if text_encoding == "iso-8859-1":
-            try:
-                lyrics.encode(encoding=text_encoding)
-                description.encode(encoding=text_encoding)
-                is_utf = False
-            except UnicodeEncodeError:
-                is_utf = True
-            if is_utf:
-                raise ValueError(
-                    "`description` or `lyrics` cannot be encoded "
-                    "using ISO-8859-1."
-                )
+        self.lyrics = lyrics
+        self.description = description
+        self.language = language
+        self.text_encoding = text_encoding
 
     def __repr__(self) -> str:
         return (
             f"{type(self).__name__}("
             f"<lyrics with {len(self._lyrics)} character(s)>, "
-            f"description={self._description}, "
-            f"language={self._language}, "
-            f"text_encoding={self._text_encoding}, "
+            f"description={self._description!r}, "
+            f"language={self._language!r}, "
+            f"text_encoding={self._text_encoding!r}, "
             f"flags={self._flags!r}, group_id={self._group_id})"
         )
 
@@ -3287,6 +3368,63 @@ class ID3v2USLTFrame(ID3v2Frame):
         """
         return f"{self._language}{self._description}"
 
+    @property
+    def description(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Short content description.
+        """
+        return self._description
+
+    @description.setter
+    def description(self, value: str, /) -> None:
+        validate_type("description", value, str)
+        if getattr(self, "_text_encoding", None) == "iso-8859-1":
+            self._ensure_iso88591_encode("description", value)
+        self._description = value
+
+    @property
+    def language(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        ISO 639-2 code for the language.
+        """
+        return self._language
+
+    @language.setter
+    def language(self, value: str, /) -> None:
+        validate_type("language", value, str)
+        if len(value) != 3:
+            raise ValueError(f"Invalid ISO 639-2 code {value!r}.")
+        self._language = value
+
+    @property
+    def lyrics(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Unsynchronized lyrics.
+        """
+        return self._lyrics
+
+    @lyrics.setter
+    def lyrics(self, value: str, /) -> None:
+        validate_type("lyrics", value, str)
+        self._lyrics = value
+
+    @property
+    def text_encoding(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Text encoding.
+        """
+        return self._text_encoding
+
+    @text_encoding.setter
+    def text_encoding(self, value: int | str, /) -> None:
+        value = self._prepare_text_encoding(value)
+        if value == "iso-8859-1":
+            self._ensure_iso88591_encode("description", self._description)
+            self._ensure_iso88591_encode("lyrics", self._lyrics)
+        self._text_encoding = value
+
     def serialize(
         self,
         tag_version: str | tuple[int, int, int],
@@ -3385,15 +3523,6 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
        `ID3v2.4.0 Native Frames: 4.2.3. Derived and subjective
        properties frames <https://id3.org/id3v2.4.0-frames>`_.
-
-    This class implements the following special methods:
-
-    * :code:`__add__` – Concatenate two text information frames,
-      appending values from the right-hand operand.
-
-    * :code:`__iadd__` – Concatenate another text information frame with
-      the current one in-place, appending values from the right-hand
-      operand.
     """
 
     _frame_ids: ClassVar[dict[int, bytes]] = {
@@ -3403,63 +3532,6 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
     }
 
     __slots__ = ()
-
-    def __init__(
-        self,
-        bpm: float | str | OrderedCollection[int | float | str],
-        /,
-        *,
-        text_encoding: str = "utf-16",
-        flags: ID3v2FrameFlags | None = None,
-        group_id: int | None = None,
-    ) -> None:
-        """
-        Parameters
-        ----------
-        bpm : int, float, str, or \
-        OrderedCollection[int | float | str]; positional-only
-            Tempo, in beats per minute (BPM).
-
-        text_encoding : str; keyword-only; default: :code:`"utf-16"`
-            Text encoding.
-
-            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
-            :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
-        keyword-only; optional
-            Flags.
-
-        group_id : int; keyword-only; optional
-            Group identifier.
-
-            **Valid range**: :code:`0` to :code:`255`.
-        """
-        super(ID3v2TextInfoFrame, self).__init__(
-            flags=flags, group_id=group_id
-        )
-
-        if isinstance(bpm, (int, float, str)):
-            self._text_info = [str(round(float(bpm)))]
-        elif isinstance(bpm, ORDERED_COLLECTION_TYPES):
-            self._text_info = _text_info = []
-            for idx, bpm_ in enumerate(bpm):
-                validate_numeric(f"bpm[{idx}]", bpm, float, 0)
-                _text_info.append(str(round(float(bpm_))))
-        else:
-            raise TypeError(
-                "`bpm` must be a number, a string, or an ordered "
-                "collection of numbers and/or strings."
-            )
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        self._text_encoding = text_encoding
 
     @classmethod
     def _from_stream_2_2(cls, stream: memoryview, /, *, strict=True) -> Self:
@@ -3572,6 +3644,23 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
         obj._text_info = bpms
         return obj
 
+    @ID3v2TextInfoFrame.text_info.setter
+    def text_info(
+        self, value: float | str | OrderedCollection[int | float | str], /
+    ) -> None:
+        if isinstance(value, (int, float, str)):
+            self._text_info = [str(round(float(value)))]
+        elif isinstance(value, ORDERED_COLLECTION_TYPES):
+            self._text_info = _text_info = []
+            for idx, bpm in enumerate(value):
+                validate_numeric(f"text_info[{idx}]", bpm, int | float, 0)
+                _text_info.append(str(round(float(bpm))))
+        else:
+            raise TypeError(
+                "`text_info` must be a number, a string, or an ordered "
+                "collection of numbers and/or strings."
+            )
+
 
 class ID3v2TCMPFrame(ID3v2TextInfoFrame):
     """
@@ -3581,15 +3670,6 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
        `TCMP - iTunes Compilation Flag (class 4)
        <https://id3.org/iTunes%20Compilation%20Flag>`_.
-
-    This class implements the following special methods:
-
-    * :code:`__add__` – Concatenate two text information frames,
-      appending values from the right-hand operand.
-
-    * :code:`__iadd__` – Concatenate another text information frame with
-      the current one in-place, appending values from the right-hand
-      operand.
     """
 
     _frame_ids: ClassVar[dict[int, bytes]] = {
@@ -3599,69 +3679,6 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
     }
 
     __slots__ = ()
-
-    def __init__(
-        self,
-        compilation_flag: bool
-        | int
-        | str
-        | OrderedCollection[bool | int | str],
-        /,
-        *,
-        text_encoding: str = "utf-16",
-        flags: ID3v2FrameFlags | None = None,
-        group_id: int | None = None,
-    ) -> None:
-        """
-        Parameters
-        ----------
-        compilation_flag : bool, int, str, or \
-        OrderedCollection[bool | int | str]; positional-only
-            Whether the recording is part of a compilation.
-
-            **Examples**: :code:`True`, :code:`1`, :code:`"1"`.
-
-        text_encoding : str; keyword-only; default: :code:`"utf-16"`
-            Text encoding.
-
-            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
-            :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
-        keyword-only; optional
-            Flags.
-
-        group_id : int; keyword-only; optional
-            Group identifier.
-
-            **Valid range**: :code:`0` to :code:`255`.
-        """
-        super(ID3v2TextInfoFrame, self).__init__(
-            flags=flags, group_id=group_id
-        )
-
-        if isinstance(compilation_flag, bool | int | str):
-            self._text_info = [str(int(compilation_flag))]
-        elif isinstance(compilation_flag, ORDERED_COLLECTION_TYPES):
-            self._text_info = _text_info = []
-            for idx, flag in enumerate(compilation_flag):
-                validate_numeric(f"compilation_flags[{idx}]", flag, int, 0, 1)
-                _text_info.append(str(int(compilation_flag)))
-        else:
-            raise TypeError(
-                "`compilation_flags` must be a boolean, a number, a "
-                "string, or an ordered collection of booleans, "
-                "numbers, and/or strings."
-            )
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        self._text_encoding = text_encoding
 
     @classmethod
     def _from_stream_2_2(cls, stream: memoryview, /, *, strict=True) -> Self:
@@ -3774,6 +3791,24 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
                 validate_numeric(f"compilation_flags[{idx}]", flag, int, 0, 1)
         obj._text_info = compilation_flags
         return obj
+
+    @ID3v2TextInfoFrame.text_info.setter
+    def text_info(
+        self, value: bool | int | str | OrderedCollection[bool | int | str], /
+    ) -> None:
+        if isinstance(value, bool | int | str):
+            self._text_info = [str(int(value))]
+        elif isinstance(value, ORDERED_COLLECTION_TYPES):
+            self._text_info = _text_info = []
+            for idx, flag in enumerate(value):
+                validate_numeric(f"text_info[{idx}]", flag, int, 0, 1)
+                _text_info.append(str(int(flag)))
+        else:
+            raise TypeError(
+                "`text_info` must be a boolean, a number, a string, or "
+                "an ordered collection of booleans, numbers, and/or "
+                "strings."
+            )
 
 
 class ID3v2TCOMFrame(ID3v2TextInfoFrame):
@@ -4117,6 +4152,22 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
+
+    @ID3v2TextInfoFrame.text_info.setter
+    def text_info(self, value: str | OrderedCollection[str], /) -> None:
+        if isinstance(value, str):
+            self._text_info, self._refinements = (
+                self._deserialize_content_types([value])
+            )
+        elif isinstance(value, ORDERED_COLLECTION_TYPES):
+            self._text_info, self._refinements = (
+                self._deserialize_content_types(value)
+            )
+        else:
+            raise TypeError(
+                "`text_info` must be a string or an ordered collection "
+                "of strings."
+            )
 
 
 class ID3v2TCOPFrame(ID3v2TextInfoFrame):
@@ -4628,15 +4679,6 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
        `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
        <https://id3.org/id3v2.4.0-frames>`_.
-
-    This class implements the following special methods:
-
-    * :code:`__add__` – Concatenate two text information frames,
-      appending values from the right-hand operand.
-
-    * :code:`__iadd__` – Concatenate another text information frame with
-      the current one in-place, appending values from the right-hand
-      operand.
     """
 
     _frame_ids: ClassVar[dict[int, bytes]] = {
@@ -4645,55 +4687,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         4: b"TPOS",
     }
 
-    __slots__ = ("_disc",)
-
-    def __init__(
-        self,
-        disc: int
-        | str
-        | tuple[int | str, int | str | None]
-        | list[int | str | tuple[int | str, int | str | None]],
-        /,
-        *,
-        text_encoding: str = "utf-16",
-        flags: ID3v2FrameFlags | None = None,
-    ) -> None:
-        """
-        Parameters
-        ----------
-        disc : int, str, tuple[int | str, int | str | None], or \
-        list[int | str | tuple[int | str, int | str | None]]; \
-        positional-only
-            Disc number and, optionally, the total number of discs.
-
-            **Examples**: :code:`1`, :code:`"1"`, :code:`(1, None)`,
-            :code:`(1, 1)`, :code:`"1/1"`.
-
-        text_encoding : str; keyword-only; default: :code:`"utf-16"`
-            Text encoding.
-
-            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
-            :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
-        keyword-only; optional
-            Flags.
-        """
-        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
-
-        disc = self._parse_discs(disc)
-        if not isinstance(disc, list):
-            disc = [disc]
-        self._disc = disc
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        self._text_encoding = text_encoding
+    __slots__ = ("_discs",)
 
     @classmethod
     def _from_stream_2_2(
@@ -4721,7 +4715,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-        obj._disc = cls._parse_discs(
+        obj._discs = cls._parse_discs(
             cls._split_bytestream(
                 stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
                 encoding=obj._text_encoding,
@@ -4763,7 +4757,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        obj._disc = cls._parse_discs(
+        obj._discs = cls._parse_discs(
             cls._split_bytestream(
                 stream[offset + 1 : offset + frame_length],
                 encoding=obj._text_encoding,
@@ -4806,7 +4800,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        obj._disc = cls._parse_discs(
+        obj._discs = cls._parse_discs(
             cls._split_bytestream(
                 stream[offset + 1 : offset + frame_length],
                 encoding=obj._text_encoding,
@@ -4870,7 +4864,29 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         """
         Text information.
         """
-        return [disc.to_string() for disc in self._disc]
+        return [disc.to_string() for disc in self._discs]
+
+    @property
+    def text_info(self) -> list[str]:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Text information (disc numbers and positions in set).
+        """
+        return self._text_info
+
+    @text_info.setter
+    def text_info(
+        self,
+        value: int
+        | str
+        | tuple[int | str, int | str | None]
+        | list[int | str | tuple[int | str, int | str | None]],
+        /,
+    ) -> None:
+        value = self._parse_discs(value)
+        if not isinstance(value, list):
+            value = [value]
+        self._discs = value
 
 
 class ID3v2TPUBFrame(ID3v2TextInfoFrame):
@@ -4912,15 +4928,6 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
        `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
        <https://id3.org/id3v2.4.0-frames>`_.
-
-    This class implements the following special methods:
-
-    * :code:`__add__` – Concatenate two text information frames,
-      appending values from the right-hand operand.
-
-    * :code:`__iadd__` – Concatenate another text information frame with
-      the current one in-place, appending values from the right-hand
-      operand.
     """
 
     _frame_ids: ClassVar[dict[int, bytes]] = {
@@ -4929,55 +4936,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         4: b"TRCK",
     }
 
-    __slots__ = ("_track",)
-
-    def __init__(
-        self,
-        track: int
-        | str
-        | tuple[int | str, int | str | None]
-        | list[int | str | tuple[int | str, int | str | None]],
-        /,
-        *,
-        text_encoding: str = "utf-16",
-        flags: ID3v2FrameFlags | None = None,
-    ) -> None:
-        """
-        Parameters
-        ----------
-        track : int, str, tuple[int | str, int | str | None], or \
-        list[int | str | tuple[int | str, int | str | None]]; \
-        positional-only
-            Track number and optionally, the total number of tracks.
-
-            **Examples**: :code:`1`, :code:`"2"`, :code:`(3, None)`,
-            :code:`(4, 5)`, :code:`"6/7"`.
-
-        text_encoding : str; keyword-only; default: :code:`"utf-16"`
-            Text encoding.
-
-            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
-            :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
-        keyword-only; optional
-            Flags.
-        """
-        super(ID3v2TextInfoFrame, self).__init__(flags=flags)
-
-        track = self._parse_tracks(track)
-        if not isinstance(track, list):
-            track = [track]
-        self._track = track
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        self._text_encoding = text_encoding
+    __slots__ = ("_tracks",)
 
     @classmethod
     def _from_stream_2_2(
@@ -5005,7 +4964,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-        obj._track = cls._parse_tracks(
+        obj._tracks = cls._parse_tracks(
             cls._split_bytestream(
                 stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
                 encoding=obj._text_encoding,
@@ -5047,7 +5006,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        obj._track = cls._parse_tracks(
+        obj._tracks = cls._parse_tracks(
             cls._split_bytestream(
                 stream[offset + 1 : offset + frame_length],
                 encoding=obj._text_encoding,
@@ -5090,7 +5049,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        obj._track = cls._parse_tracks(
+        obj._tracks = cls._parse_tracks(
             cls._split_bytestream(
                 stream[offset + 1 : offset + frame_length],
                 encoding=obj._text_encoding,
@@ -5150,11 +5109,33 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
                 )
 
     @property
-    def _text_info(self) -> str:
+    def _text_info(self) -> list[str]:
         """
         Text information.
         """
-        return [track.to_string() for track in self._track]
+        return [track.to_string() for track in self._tracks]
+
+    @property
+    def text_info(self) -> list[str]:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Text information (track numbers and positions in set).
+        """
+        return self._text_info
+
+    @text_info.setter
+    def text_info(
+        self,
+        value: int
+        | str
+        | tuple[int | str, int | str | None]
+        | list[int | str | tuple[int | str, int | str | None]],
+        /,
+    ) -> None:
+        value = self._parse_tracks(value)
+        if not isinstance(value, list):
+            value = [value]
+        self._tracks = value
 
 
 class ID3v2TSRCFrame(ID3v2TextInfoFrame):
@@ -5171,15 +5152,6 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
        `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
        <https://id3.org/id3v2.4.0-frames>`_.
-
-    This class implements the following special methods:
-
-    * :code:`__add__` – Concatenate two text information frames,
-      appending values from the right-hand operand.
-
-    * :code:`__iadd__` – Concatenate another text information frame with
-      the current one in-place, appending values from the right-hand
-      operand.
     """
 
     _frame_ids: ClassVar[dict[int, bytes]] = {
@@ -5189,53 +5161,6 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
     }
 
     __slots__ = ()
-
-    def __init__(
-        self,
-        isrcs: str | OrderedCollection[str],
-        /,
-        *,
-        text_encoding: str = "utf-16",
-        flags: ID3v2FrameFlags | None = None,
-        group_id: int | None = None,
-    ) -> None:
-        """
-        Parameters
-        ----------
-        isrcs : str or OrderedCollection[str]; positional-only
-            ISRCs (International Standard Recording Codes).
-
-        text_encoding : str; keyword-only; default: :code:`"utf-16"`
-            Text encoding.
-
-            **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
-            :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
-        keyword-only; optional
-            Flags.
-
-        group_id : int; keyword-only; optional
-            Group identifier.
-
-            **Valid range**: :code:`0` to :code:`255`.
-        """
-        super(ID3v2TextInfoFrame, self).__init__(
-            flags=flags, group_id=group_id
-        )
-
-        if isinstance(isrcs, str):
-            isrcs = [isrcs]
-        self._text_info = [prepare_isrc(isrc) for isrc in isrcs]
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        self._text_encoding = text_encoding
 
     @classmethod
     def _from_stream_2_2(
@@ -5357,6 +5282,12 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         ]
         return obj
 
+    @ID3v2TextInfoFrame.text_info.setter
+    def text_info(self, value: str | OrderedCollection[str], /) -> None:
+        if isinstance(value, str):
+            value = [value]
+        self._text_info = [prepare_isrc(isrc) for isrc in value]
+
 
 class ID3v2TSSEFrame(ID3v2TextInfoFrame):
     """
@@ -5412,7 +5343,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
     def __init__(
         self,
         description: str,
-        value: str,
+        text_info: str,
         *,
         text_encoding: str = "utf-16",
         flags: ID3v2FrameFlags | None = None,
@@ -5422,10 +5353,10 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         description : str
-            Description.
+            Text information description.
 
-        value : str
-            Value.
+        text_info : str
+            Text information.
 
         text_encoding : str; keyword-only; default: :code:`"utf-16"`
             Text encoding.
@@ -5442,41 +5373,19 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
             **Valid range**: :code:`0` to :code:`255`.
         """
-        super(ID3v2TextInfoFrame, self).__init__(
-            flags=flags, group_id=group_id
+        self.description = description
+        super().__init__(
+            text_info,
+            text_encoding=text_encoding,
+            flags=flags,
+            group_id=group_id,
         )
-
-        validate_type("description", description, str)
-        self._description = description
-
-        validate_type("value", value, str)
-        self._text_info = value
-
-        validate_type("text_encoding", text_encoding, str)
-        text_encoding = text_encoding.lower()
-        if text_encoding not in self._TEXT_ENCODINGS.values():
-            raise ValueError(
-                f"Invalid text encoding {text_encoding!r}. Valid "
-                f"values: {join_values(self._TEXT_ENCODINGS.values())}."
-            )
-        if text_encoding == "iso-8859-1":
-            try:
-                description.encode(encoding=text_encoding)
-                value.encode(encoding=text_encoding)
-                is_utf = False
-            except UnicodeEncodeError:
-                is_utf = True
-            if is_utf:
-                raise ValueError(
-                    "`description` or `value` cannot be encoded using "
-                    "ISO-8859-1."
-                )
-        self._text_encoding = text_encoding
 
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}(description={self._description}, "
-            f"value={self._value}, text_encoding={self._text_encoding!r}, "
+            f"{type(self).__name__}(description={self._description!r}, "
+            f"text_info={self._text_info!r}, "
+            f"text_encoding={self._text_encoding!r}, "
             f"flags={self._flags!r}, group_id={self._group_id})"
         )
 
@@ -5613,9 +5522,36 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
     @property
     def description(self) -> str:
         """
-        Description.
+        :bdg-primary:`get` :bdg-secondary:`set`
+        Text information description.
         """
         return self._description
+
+    @description.setter
+    def description(self, value: str, /) -> None:
+        validate_type("description", value, str)
+        if getattr(self, "_text_encoding", None) == "iso-8859-1":
+            self._ensure_iso88591_encode("description", value)
+        self._description = value
+
+    @property
+    def text_info(self) -> str:
+        return self._text_info
+
+    @text_info.setter
+    def text_info(self, value: str, /) -> None:
+        validate_type("text_info", value, str)
+        if getattr(self, "_text_encoding", None) == "iso-8859-1":
+            self._ensure_iso88591_encode("text_info", value)
+        self._text_info = value
+
+    @ID3v2TextInfoFrame.text_encoding.setter
+    def text_encoding(self, value: int | str, /) -> None:
+        value = self._prepare_text_encoding(value)
+        if value == "iso-8859-1":
+            self._ensure_iso88591_encode("description", self._description)
+            self._ensure_iso88591_encode("text_info", self._text_info)
+        self._text_encoding = value
 
     def serialize(
         self,
@@ -5825,27 +5761,28 @@ class UnknownID3v2Frame(ID3v2Frame):
     @property
     def frame_id(self) -> bytes:
         """
-        Frame ID.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Frame ID.
         """
         return self._frame_id
 
     @property
     def frame_data(self) -> bytes:
         """
-        Raw frame data.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Raw frame data.
         """
         return self._frame_data
 
     @property
     def frame_length(self) -> int:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Frame length, in bytes.
         """
         return len(self._frame_data)
 
     def get_frame_id(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Get the ID3v2 frame ID.
+        Get the frame ID for an ID3v2 tag version.
 
         Parameters
         ----------

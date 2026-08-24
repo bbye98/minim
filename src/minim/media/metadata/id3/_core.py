@@ -34,7 +34,7 @@ from ._shared import (
 )
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Self
 
     from ...._types import BytesLike, Collection, OrderedCollection
 
@@ -115,7 +115,7 @@ class ID3v1:
         )
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /) -> ID3v1:
+    def from_stream(cls, stream: BytesLike, /) -> Self:
         """
         Instantiate an :class:`ID3v1` object from a bytestream.
 
@@ -404,19 +404,21 @@ class ID3v2Flags:
         self.is_compressed = is_compressed
 
     def __repr__(self) -> str:
-        return (
-            f"{type(self).__name__}("
-            f"is_unsynchronized={self._is_unsynchronized}, "
-            f"has_extended_header={self._has_extended_header}, "
-            f"is_experimental={self._is_experimental}, "
-            f"has_footer={self._has_footer}, "
-            f"is_compressed={self._is_compressed})"
-        )
+        flags = []
+        if self._is_unsynchronized:
+            flags.append("is_unsynchronized=True")
+        if self._has_extended_header:
+            flags.append("has_extended_header=True")
+        if self._is_experimental:
+            flags.append("is_experimental=True")
+        if self._has_footer:
+            flags.append("has_footer=True")
+        if self._is_compressed:
+            flags.append("is_compressed=True")
+        return f"{type(self).__name__}({', '.join(flags)})"
 
     @classmethod
-    def _from_byte_2_2(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2Flags:
+    def _from_byte_2_2(cls, byte_: int, /, *, strict: bool = True) -> Self:
         """
         Instantiate an :class:`ID3v2Flags` object from an ID3v2.2 tag
         flags byte.
@@ -447,9 +449,7 @@ class ID3v2Flags:
         return obj
 
     @classmethod
-    def _from_byte_2_3(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2Flags:
+    def _from_byte_2_3(cls, byte_: int, /, *, strict: bool = True) -> Self:
         """
         Instantiate an :class:`ID3v2Flags` object from an ID3v2.3 tag
         flags byte.
@@ -479,9 +479,7 @@ class ID3v2Flags:
         return obj
 
     @classmethod
-    def _from_byte_2_4(
-        cls, byte_: int, /, *, strict: bool = True
-    ) -> ID3v2Flags:
+    def _from_byte_2_4(cls, byte_: int, /, *, strict: bool = True) -> Self:
         """
         Instantiate an :class:`ID3v2Flags` object from an ID3v2.4 tag
         flags byte.
@@ -519,7 +517,7 @@ class ID3v2Flags:
         tag_version: str | tuple[int, int, int],
         *,
         strict: bool = True,
-    ) -> ID3v2Flags:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2Flags` object from a ID3v2 tag flags
         byte.
@@ -783,7 +781,7 @@ class ID3v2(AudioTags):
     @classmethod
     def _from_stream_2_2(
         cls, stream: memoryview, /, flags: bytes, *, strict: bool = True
-    ) -> ID3v2:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2` object from an ID3v2.2 tag
         bytestream.
@@ -861,7 +859,7 @@ class ID3v2(AudioTags):
     @classmethod
     def _from_stream_2_3(
         cls, stream: memoryview, /, flags: bytes, *, strict: bool = True
-    ) -> ID3v2:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2` object from an ID3v2.3 tag
         bytestream.
@@ -947,7 +945,7 @@ class ID3v2(AudioTags):
     @classmethod
     def _from_stream_2_4(
         cls, stream: memoryview, /, flags: bytes, *, strict: bool = True
-    ) -> ID3v2:
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2` object from an ID3v2.4 tag
         bytestream.
@@ -1034,9 +1032,7 @@ class ID3v2(AudioTags):
         return obj
 
     @classmethod
-    def from_stream(
-        cls, stream: BytesLike, /, *, strict: bool = True
-    ) -> ID3v2:
+    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
         Instantiate an :class:`ID3v2` object from a bytestream.
 
@@ -1302,7 +1298,7 @@ class ID3v2(AudioTags):
         :code:`TPA`/:code:`TPOS` – Disc number within a multi-disc set.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
-            return [str(disc.number) for disc in frames[-1]._disc]
+            return [str(disc.number) for disc in frames[-1]._discs]
 
     @disc_number.setter
     def disc_number(
@@ -1315,7 +1311,7 @@ class ID3v2(AudioTags):
         :code:`TPA`/:code:`TPOS` – Total number of discs.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
-            return [str(disc.total) for disc in frames[-1]._disc]
+            return [str(disc.total) for disc in frames[-1]._discs]
 
     @disc_total.setter
     def disc_total(
@@ -1481,7 +1477,7 @@ class ID3v2(AudioTags):
         collection.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
-            return [str(track.number) for track in frames[-1]._track]
+            return [str(track.number) for track in frames[-1]._tracks]
 
     @track_number.setter
     def track_number(
@@ -1494,7 +1490,7 @@ class ID3v2(AudioTags):
         :code:`TRK`/:code:`TRCK` – Total number of tracks.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
-            return [str(track.total) for track in frames[-1]._track]
+            return [str(track.total) for track in frames[-1]._tracks]
 
     @track_total.setter
     def track_total(
