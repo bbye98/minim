@@ -1742,6 +1742,13 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
             + len(self._picture_data)
         )
 
+    @property
+    def text_encoding(self) -> str:
+        """
+        :bdg-primary:`get` :bdg-secondary-line:`set` Text encoding.
+        """
+        return self._text_encoding
+
     def serialize(self) -> bytes:
         """
         Serialize the :code:`PICTURE` metadata block data to a
@@ -1915,11 +1922,12 @@ class FLACMetadataView:
         """
         Parameters
         ----------
-        blocks : list[FLACMetadataBlock | VorbisComment]
+        blocks : list[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment]
             FLAC metadata blocks.
 
-        type_index : dict[int, list[FLACMetadataBlock | VorbisComment]]; \
-        keyword-only; optional
+        type_index : dict[int, list[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment]]; keyword-only; optional
             Mapping of FLAC metadata block types to lists of the
             corresponding metadata blocks.
         """
@@ -1967,9 +1975,10 @@ class FLACMetadataView:
 
         Parameters
         ----------
-        block_types : int, type[FLACMetadataBlock | VorbisComment], or \
-        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
-        positional-only
+        block_types : int, type[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment], or Collection[int \
+        | type[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment]]; positional-only
             Metadata block types.
 
             **Valid values**:
@@ -2022,8 +2031,7 @@ class FLACAudio(Audio):
     @property
     def metadata(self) -> FLACMetadataView:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
-        Metadata blocks.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Metadata blocks.
         """
         return self._metadata_view
 
@@ -2318,9 +2326,10 @@ class FLACAudio(Audio):
         indices : int or Collection[int]; keyword-only; optional
             Indices of metadata blocks to move.
 
-        block_types : int, type[FLACMetadataBlock | VorbisComment], or \
-        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
-        keyword-only; optional
+        block_types : int, type[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment], or Collection[int \
+        | type[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment]]; keyword-only; optional
             Types of metadata blocks to move.
 
             **Valid values**:
@@ -2489,9 +2498,10 @@ class FLACAudio(Audio):
         indices : int or Collection[int]; keyword-only; optional
             Indices of metadata blocks to remove.
 
-        block_types : int, type[FLACMetadataBlock | VorbisComment], or \
-        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
-        keyword-only; optional
+        block_types : int, type[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment], or Collection[int \
+        | type[minim.media.flac.FLACMetadataBlock \
+        | minim.media.metadata.VorbisComment]]; keyword-only; optional
             Types of metadata blocks to remove.
 
             **Valid values**:
