@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from typing import Any, Self
 
     from ...._types import BytesLike, OrderedCollection
+    from ._frames import *
 
 
 class ID3v1:
@@ -779,6 +780,21 @@ class ID3v2(AudioTags):
         self.has_crc = has_crc
         self.tag_restrictions = tag_restrictions
 
+    def __repr__(self) -> str:
+        optional_kwargs = [""]
+        if self._is_update:
+            optional_kwargs.append("is_update=True")
+        if self._has_crc:
+            optional_kwargs.append("has_crc=True")
+        if self._tag_restrictions:
+            optional_kwargs.append(
+                f"tag_restrictions={self._tag_restrictions}"
+            )
+        return (
+            f"{type(self).__name__}(<{len(self._frames)} frame(s)>, "
+            f"flags={self._flags!r}{', '.join(optional_kwargs)})"
+        )
+
     @classmethod
     def _from_stream_2_2(
         cls, stream: memoryview, /, flags: bytes, *, strict: bool = True
@@ -1136,7 +1152,11 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TALB")
 
     @album.setter
-    def album(self, value: str | OrderedCollection[str], /) -> None:
+    def album(
+        self,
+        value: str | ID3v2TALBFrame | OrderedCollection[str],
+        /,
+    ) -> None:
         self._set_text_info(b"TALB", value)
 
     @property
@@ -1149,7 +1169,11 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TPE2")
 
     @album_artist.setter
-    def album_artist(self, value: str | OrderedCollection[str], /) -> None:
+    def album_artist(
+        self,
+        value: str | ID3v2TPE2Frame | OrderedCollection[str],
+        /,
+    ) -> None:
         self._set_text_info(b"TPE2", value)
 
     @property
@@ -1164,7 +1188,11 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TPE1")
 
     @artist.setter
-    def artist(self, value: str | OrderedCollection[str], /) -> None:
+    def artist(
+        self,
+        value: str | ID3v2TPE1Frame | OrderedCollection[str],
+        /,
+    ) -> None:
         self._set_text_info(b"TPE1", value)
 
     @property
@@ -1178,7 +1206,10 @@ class ID3v2(AudioTags):
     @bpm.setter
     def bpm(
         self,
-        value: float | str | OrderedCollection[int | float | str],
+        value: float
+        | str
+        | ID3v2TBPMFrame
+        | OrderedCollection[int | float | str],
         /,
     ) -> None:
         self._set_text_info(b"TBPM", value)
@@ -1206,7 +1237,13 @@ class ID3v2(AudioTags):
 
     @compilation.setter
     def compilation(
-        self, value: bool | int | str | OrderedCollection[bool | int | str], /
+        self,
+        value: bool
+        | int
+        | str
+        | ID3v2TCMPFrame
+        | OrderedCollection[bool | int | str],
+        /,
     ) -> None:
         self._set_text_info(b"TCMP", value)
 
@@ -1219,7 +1256,11 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TCOM")
 
     @composer.setter
-    def composer(self, value: str | OrderedCollection[str], /) -> None:
+    def composer(
+        self,
+        value: str | ID3v2TCOMFrame | OrderedCollection[str],
+        /,
+    ) -> None:
         self._set_text_info(b"TCOM", value)
 
     @property
@@ -1340,7 +1381,11 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TSSE")
 
     @encoder.setter
-    def encoder(self, value: str | OrderedCollection[str], /) -> None:
+    def encoder(
+        self,
+        value: str | ID3v2TSSEFrame | OrderedCollection[str],
+        /,
+    ) -> None:
         self._set_text_info(b"TSSE", value)
 
     @property
@@ -1352,7 +1397,11 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TCON")
 
     @genre.setter
-    def genre(self, value: str | OrderedCollection[str], /) -> None:
+    def genre(
+        self,
+        value: str | ID3v2TCONFrame | OrderedCollection[str],
+        /,
+    ) -> None:
         self._set_text_info(b"TCON", value)
 
     @property
@@ -1364,7 +1413,11 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TIT1")
 
     @grouping.setter
-    def grouping(self, value: str | OrderedCollection[str], /) -> None:
+    def grouping(
+        self,
+        value: str | ID3v2TIT1Frame | OrderedCollection[str],
+        /,
+    ) -> None:
         self._set_text_info(b"TIT1", value)
 
     @property
@@ -1377,7 +1430,11 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TSRC")
 
     @isrc.setter
-    def isrc(self, value: str | OrderedCollection[str], /) -> None:
+    def isrc(
+        self,
+        value: str | ID3v2TSRCFrame | OrderedCollection[str],
+        /,
+    ) -> None:
         self._set_text_info(b"TSRC", value)
 
     @property
@@ -1389,8 +1446,12 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TPUB")
 
     @label.setter
-    def label(self, value: str | OrderedCollection[str], /) -> None:
-        self._set_text_info(b"TPUB")
+    def label(
+        self,
+        value: str | ID3v2TPUBFrame | OrderedCollection[str],
+        /,
+    ) -> None:
+        self._set_text_info(b"TPUB", value)
 
     @property
     def license(self) -> list[str] | None:
@@ -1464,8 +1525,12 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TPE3")
 
     @performer.setter
-    def performer(self, value: str | OrderedCollection[str], /) -> None:
-        self._set_text_info(b"TPE3")
+    def performer(
+        self,
+        value: str | ID3v2TPE3Frame | OrderedCollection[str],
+        /,
+    ) -> None:
+        self._set_text_info(b"TPE3", value)
 
     @property
     def title(self) -> list[str] | None:
@@ -1476,8 +1541,12 @@ class ID3v2(AudioTags):
         return self._get_text_info(b"TIT2")
 
     @title.setter
-    def title(self, value: str | OrderedCollection[str], /) -> None:
-        self._set_text_info(b"TIT2")
+    def title(
+        self,
+        value: str | ID3v2TIT2Frame | OrderedCollection[str],
+        /,
+    ) -> None:
+        self._set_text_info(b"TIT2", value)
 
     @property
     def track_number(self) -> list[str] | None:
@@ -1522,8 +1591,12 @@ class ID3v2(AudioTags):
         return self._set_text_info(b"TIT3")
 
     @version.setter
-    def version(self, value: str | OrderedCollection[str], /) -> None:
-        self._set_text_info(b"TIT2")
+    def version(
+        self,
+        value: str | ID3v2TIT3Frame | OrderedCollection[str],
+        /,
+    ) -> None:
+        self._set_text_info(b"TIT3", value)
 
     def _add_frame(
         self,
@@ -1642,8 +1715,8 @@ class ID3v2(AudioTags):
         value : Any or Collection[Any]
             Text information.
         """
-        cls = ID3v2Frame._get_class(frame_id)
-        if frames := self._class_index.get(cls):
+        frame_cls = ID3v2Frame._get_class(frame_id)
+        if frames := self._class_index.get(frame_cls):
             if isinstance(
                 frame := next(
                     (
@@ -1655,7 +1728,8 @@ class ID3v2(AudioTags):
                 ),
                 EncryptedID3v2Frame,
             ):
-                new_frame = cls(value)
+                if not isinstance(value, frame_cls):
+                    value = frame_cls(value)
                 self._frames = [
                     frame
                     for frame in self._frames
@@ -1664,14 +1738,28 @@ class ID3v2(AudioTags):
                         and frame._frame_id == frame_id
                     )
                 ]
-                self._frames.append(new_frame)
-                self._class_index[frame_id] = [new_frame]
+                self._frames.append(value)
+                self._class_index[frame_cls] = [value]
             else:
-                frame.text_info = value
+                if isinstance(value, frame_cls):
+                    self._frames = [
+                        frame
+                        for frame in self._frames
+                        if not (
+                            isinstance(frame, frame_cls)
+                            or isinstance(frame, EncryptedID3v2Frame)
+                            and frame._frame_id == frame_id
+                        )
+                    ]
+                    self._frames.append(value)
+                    self._class_index[frame_cls] = [value]
+                else:
+                    frame.text_info = value
         else:
-            new_frame = cls(value)
-            self._frames.append(new_frame)
-            frames.append(new_frame)
+            if not isinstance(value, frame_cls):
+                value = frame_cls(value)
+            self._frames.append(value)
+            frames.append(value)
 
     def get(self) -> None: ...
 
