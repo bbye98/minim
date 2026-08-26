@@ -3,7 +3,12 @@ ID3v2 flags managers, frames, and padding.
 """
 
 from ._core import ID3v2Flags, ID3v2Padding
-from ._frames import ID3v2Frame, ID3v2FrameFlags, UnknownID3v2Frame
+from ._frames import (
+    EncryptedID3v2Frame,
+    ID3v2Frame,
+    ID3v2FrameFlags,
+    UnknownID3v2Frame,
+)
 
 _id3v2_frames = {
     cls.__name__: cls
@@ -19,4 +24,5 @@ __all__ = [  # noqa: PLE0604
     "ID3v2FrameFlags",
     *_id3v2_frames,
     "UnknownID3v2Frame",
+    "EncryptedID3v2Frame",
 ]

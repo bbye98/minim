@@ -18,6 +18,7 @@ from ...._utility import (
 from ..._shared import NULPadding
 from .._shared import AudioTags
 from ._frames import (
+    EncryptedID3v2Frame,
     ID3v2DateTimeFrame,
     ID3v2Frame,
     ID3v2TXXXFrame,
@@ -36,7 +37,7 @@ from ._shared import (
 if TYPE_CHECKING:
     from typing import Any, Self
 
-    from ...._types import BytesLike, Collection, OrderedCollection
+    from ...._types import BytesLike, OrderedCollection
 
 
 class ID3v1:
@@ -1083,6 +1084,7 @@ class ID3v2(AudioTags):
     @property
     def is_update(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current tag is an updated version of an earlier
         tag.
         """
@@ -1096,6 +1098,7 @@ class ID3v2(AudioTags):
     @property
     def has_crc(self) -> bool:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Whether the current tag has an extended header with CRC
         data.
         """
@@ -1109,12 +1112,13 @@ class ID3v2(AudioTags):
     @property
     def tag_restrictions(self) -> int:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         Tag restrictions byte.
 
         .. note::
 
-           Currently, tag restrictions are not enforced when serializing
-           ID3v2 tags.
+           Tag restrictions are not enforced when serializing ID3v2
+           tags.
         """
         return self._tag_restrictions
 
@@ -1126,390 +1130,400 @@ class ID3v2(AudioTags):
     @property
     def album(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TAL`/:code:`TALB` – Title of the album or collection.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TALB")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TALB")
 
     @album.setter
-    def album(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def album(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TALB", value)
 
     @property
     def album_artist(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TP2`/:code:`TPE2` – Main artists credited for the entire
         album or collection.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TPE2")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TPE2")
 
     @album_artist.setter
-    def album_artist(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def album_artist(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TPE2", value)
 
     @property
     def artist(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TP1`/:code:`TPE1` – Main artists of the recording (e.g.,
         the performing band or singers in popular music, the composers
         for classical music, or the authors of the original text in
         audiobooks).
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TPE1")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TPE1")
 
     @artist.setter
-    def artist(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def artist(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TPE1", value)
 
     @property
     def bpm(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TBP`/:code:`TBPM` – Tempo in beats per minute (BPM).
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TBPM")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TBPM")
 
     @bpm.setter
     def bpm(
         self,
         value: float | str | OrderedCollection[int | float | str],
         /,
-    ) -> None: ...  # TODO
+    ) -> None:
+        self._set_text_info(b"TBPM", value)
 
     @property
     def comment(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`COM`/:code:`COMM` – Free-form comments.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"COMM")):
-            return [frame._comment for frame in frames]
+        raise NotImplementedError  # TODO
 
     @comment.setter
-    def comment(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def comment(self, value: str | OrderedCollection[str], /) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def compilation(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TCP`/:code:`TCMP` – Whether the recording is part of a
         compilation.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TCMP")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TCMP")
 
     @compilation.setter
     def compilation(
         self, value: bool | int | str | OrderedCollection[bool | int | str], /
-    ) -> None: ...  # TODO
+    ) -> None:
+        self._set_text_info(b"TCMP", value)
 
     @property
     def composer(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TCM`/:code:`TCOM` – Composers or songwriters.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TCOM")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TCOM")
 
     @composer.setter
-    def composer(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def composer(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TCOM", value)
 
     @property
     def contact(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TXX:CONTACT`/:code:`TXXX:CONTACT` – Contact information
         for the creators or distributors.
         """
-        if frame := next(
-            (
-                self._key_index.get(ID3v2TXXXFrame, {}).get(key)
-                for key in ["CONTACT", "contact", "Contact"]
-            ),
-            None,
-        ):
-            return frame._text_info.copy()
+        # if frame := next(
+        #     (
+        #         self._key_index.get(ID3v2TXXXFrame, {}).get(key)
+        #         for key in ["CONTACT", "contact", "Contact"]
+        #     ),
+        #     None,
+        # ):
+        #     return frame._text_info.copy()
+        raise NotImplementedError  # TODO
 
     @contact.setter
-    def contact(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def contact(self, value: str | OrderedCollection[str], /) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def copyright(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TCR`/:code:`TCOP` – Copyright attribution.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TCOP")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TCOP")
 
     @copyright.setter
-    def copyright(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def copyright(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TCOP", value)
 
     @property
     def date(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TYE` + :code:`TDA` + :code:`TIM`/:code:`TYER` +
         :code:`TDAT` + :code:`TIME`/:code:`TDRC`/:code:`TDRL` –
         Recording or release date.
         """
-        if frames := (
-            self._class_index.get(ID3v2Frame._get_class(b"TDRC"))
-            or self._class_index.get(ID3v2Frame._get_class(b"TDRL"))
-        ):
-            return frames[-1]._text_info.copy()
+        # if frames := (
+        #     self._class_index.get(ID3v2Frame._get_class(b"TDRC"))
+        #     or self._class_index.get(ID3v2Frame._get_class(b"TDRL"))
+        # ):
+        #     return frames[-1]._text_info.copy()
+        raise NotImplementedError  # TODO
 
     @date.setter
     def date(
         self, value: str | datetime | OrderedCollection[str | datetime], /
-    ) -> None: ...  # TODO
+    ) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def description(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TXX:DESCRIPTION`/:code:`TXXX:DESCRIPTION` – General
         description.
         """
-        if frame := next(
-            (
-                self._key_index.get(ID3v2TXXXFrame, {}).get(key)
-                for key in ["DESCRIPTION", "description", "Description"]
-            ),
-            None,
-        ):
-            return frame._text_info.copy()
+        # if frame := next(
+        #     (
+        #         self._key_index.get(ID3v2TXXXFrame, {}).get(key)
+        #         for key in ["DESCRIPTION", "description", "Description"]
+        #     ),
+        #     None,
+        # ):
+        #     return frame._text_info.copy()
+        raise NotImplementedError  # TODO
 
     @description.setter
-    def description(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def description(self, value: str | OrderedCollection[str], /) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def disc_number(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TPA`/:code:`TPOS` – Disc number within a multi-disc set.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
-            return [str(disc.number) for disc in frames[-1]._discs]
+        # if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
+        #     return [str(disc.number) for disc in frames[-1]._discs]
+        raise NotImplementedError  # TODO
 
     @disc_number.setter
     def disc_number(
         self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...  # TODO
+    ) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def disc_total(self) -> list[str | None] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TPA`/:code:`TPOS` – Total number of discs.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
-            return [str(disc.total) for disc in frames[-1]._discs]
+        # if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
+        #     return [str(disc.total) for disc in frames[-1]._discs]
+        raise NotImplementedError  # TODO
 
     @disc_total.setter
     def disc_total(
         self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...  # TODO
+    ) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def encoder(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TSS`/:code:`TSSE` – Software or hardware used for
         encoding, or the person or organization that encoded the audio
         file.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TSSE")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TSSE")
 
     @encoder.setter
-    def encoder(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def encoder(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TSSE", value)
 
     @property
     def genre(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TCO`/:code:`TCON` –  Musical genres.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TCON")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TCON")
 
     @genre.setter
-    def genre(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def genre(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TCON", value)
 
     @property
     def grouping(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TT1`/:code:`TIT1` – Content group description.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TIT1")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TIT1")
 
     @grouping.setter
-    def grouping(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def grouping(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TIT1", value)
 
     @property
     def isrc(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TRC`/:code:`TSRC` – International Standard Recording Code
         (ISRC).
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TSRC")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TSRC")
 
     @isrc.setter
-    def isrc(self, value: str | OrderedCollection[str], /) -> None: ...  # TODO
+    def isrc(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TSRC", value)
 
     @property
     def label(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TPB`/:code:`TPUB` – Publishers or record labels.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TPUB")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TPUB")
 
     @label.setter
-    def label(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def label(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TPUB")
 
     @property
     def license(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TXX:LICENSE`/:code:`TXXX:LICENSE` - License information.
         """
-        if frame := next(
-            (
-                self._key_index.get(ID3v2TXXXFrame, {}).get(key)
-                for key in ["LICENSE", "license", "License"]
-            ),
-            None,
-        ):
-            return frame._text_info.copy()
+        # if frame := next(
+        #     (
+        #         self._key_index.get(ID3v2TXXXFrame, {}).get(key)
+        #         for key in ["LICENSE", "license", "License"]
+        #     ),
+        #     None,
+        # ):
+        #     return frame._text_info.copy()
+        raise NotImplementedError  # TODO
 
     @license.setter
-    def license(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def license(self, value: str | OrderedCollection[str], /) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def location(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TXX:LOCATION`/:code:`TXXX:LOCATION` – Recording
         locations.
         """
-        if frame := next(
-            (
-                self._key_index.get(ID3v2TXXXFrame, {}).get(key)
-                for key in ["LOCATION", "location", "Location"]
-            ),
-            None,
-        ):
-            return frame._text_info.copy()
+        # if frame := next(
+        #     (
+        #         self._key_index.get(ID3v2TXXXFrame, {}).get(key)
+        #         for key in ["LOCATION", "location", "Location"]
+        #     ),
+        #     None,
+        # ):
+        #     return frame._text_info.copy()
+        raise NotImplementedError  # TODO
 
     @location.setter
-    def location(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def location(self, value: str | OrderedCollection[str], /) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def lyrics(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`SLT`/:code:`SYLT` (synchronized) or
         :code:`ULT`/:code:`USLT` (unsynchronized) – Lyrics or
         transcription.
         """
-        lyrics = []
+        # lyrics = []
         # if frames := self._class_index.get(ID3v2Frame._get_class(b"SYLT")):
         #     lyrics.extend(frame._lyrics for frame in frames)
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"USLT")):
-            lyrics.extend(frame._lyrics for frame in frames)
-        return lyrics or None
+        # if frames := self._class_index.get(ID3v2Frame._get_class(b"USLT")):
+        #     lyrics.extend(frame._lyrics for frame in frames)
+        # return lyrics or None
+        raise NotImplementedError  # TODO
 
     @lyrics.setter
-    def lyrics(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def lyrics(self, value: str | OrderedCollection[str], /) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def performer(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TP3`/:code:`TPE3` – Performers (e.g., the conductor,
         orchestra, and/or soloists in classical music, or the narrator
         in audiobooks).
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TPE3")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TPE3")
 
     @performer.setter
-    def performer(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def performer(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TPE3")
 
     @property
     def title(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TT2`/:code:`TIT2` – Title of the recording.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TIT2")):
-            return frames[-1]._text_info.copy()
+        return self._get_text_info(b"TIT2")
 
     @title.setter
-    def title(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def title(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TIT2")
 
     @property
     def track_number(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TRK`/:code:`TRCK` – Track number within the album or
         collection.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
-            return [str(track.number) for track in frames[-1]._tracks]
+        # if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
+        #     return [str(track.number) for track in frames[-1]._tracks]
+        raise NotImplementedError  # TODO
 
     @track_number.setter
     def track_number(
         self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...  # TODO
+    ) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def track_total(self) -> list[str | None] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TRK`/:code:`TRCK` – Total number of tracks.
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
-            return [str(track.total) for track in frames[-1]._tracks]
+        # if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
+        #     return [str(track.total) for track in frames[-1]._tracks]
+        raise NotImplementedError  # TODO
 
     @track_total.setter
     def track_total(
         self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...  # TODO
+    ) -> None:
+        raise NotImplementedError  # TODO
 
     @property
     def version(self) -> list[str] | None:
         """
+        :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TT3`/:code:`TIT3` – Version of the recording (e.g., remix
         information).
         """
-        if frames := self._class_index.get(ID3v2Frame._get_class(b"TIT3")):
-            return frames[-1]._text_info.copy()
+        return self._set_text_info(b"TIT3")
 
     @version.setter
-    def version(
-        self, value: str | OrderedCollection[str], /
-    ) -> None: ...  # TODO
+    def version(self, value: str | OrderedCollection[str], /) -> None:
+        self._set_text_info(b"TIT2")
 
     def _add_frame(
         self,
@@ -1531,7 +1545,12 @@ class ID3v2(AudioTags):
             specifications.
         """
         frame_cls = type(frame)
-        if frame_cls is UnknownID3v2Frame:
+        is_encrypted = frame_cls is EncryptedID3v2Frame
+        if (
+            frame_cls is UnknownID3v2Frame
+            or is_encrypted
+            and not frame._frame_ids
+        ):
             self._frames.append(frame)
             self._class_index[frame_cls].append(frame)
             self._unknown_index[frame._frame_id].append(frame)
@@ -1545,6 +1564,7 @@ class ID3v2(AudioTags):
                     f"Duplicate {frame._frame_id.decode(encoding='ascii')} "
                     "frame found."
                 )
+
             self._frames.append(frame)
             self._class_index[frame_cls].append(frame)
             if frame._key:
@@ -1555,51 +1575,107 @@ class ID3v2(AudioTags):
                     f"Duplicate {frame._frame_id.decode(encoding='ascii')} "
                     "frame found."
                 )
-            if issubclass(frame_cls, ID3v2DateTimeFrame):
-                existing_frames[-1] |= frame
+
+            if is_encrypted or isinstance(
+                existing_frame := next(
+                    (
+                        frame
+                        for frame in existing_frames
+                        if not isinstance(frame, EncryptedID3v2Frame)
+                    ),
+                    existing_frames[-1],
+                ),
+                EncryptedID3v2Frame,
+            ):
+                self._frames.append(frame)
+                self._class_index[frame_cls].append(frame)
             else:
-                existing_frames[-1] += frame
+                if issubclass(frame_cls, ID3v2DateTimeFrame):
+                    existing_frame |= frame
+                else:
+                    existing_frame += frame
         else:
             self._frames.append(frame)
             self._class_index[frame_cls].append(frame)
 
-    def get(
-        self,
-        frame_types: bytes
-        | str
-        | ID3v2Frame
-        | Collection[bytes | str | ID3v2Frame],
-        /,
-    ) -> Any | dict[str, Any]:
+    def _get_text_info(self, frame_id: bytes) -> list[str] | None:
         """
-        Get track attributes.
+        Get text information by frame ID.
 
         Parameters
         ----------
-        frame_types : bytes, str, minim.media.metadata.id3.ID3v2Frame, \
-        or Collection[bytes | str | minim.media.metadata.id3.ID3v2Frame]; \
-        positional-only
-            Frame IDs or classes.
+        frame_id : bytes
+            Frame ID.
 
         Returns
         -------
-        attributes : Any or dict[str, Any]
-            Track attributes. If `frame_types` is a collection, a
-            dictionary mapping frame IDs to their corresponding values
-            is returned.
+        text_info : list[str] or None
+            Text information. If no matching frames are found or the
+            matching frames are encrypted, :code:`None` is returned.
         """
-        raise NotImplementedError  # TODO
+        if (
+            frames := self._class_index.get(ID3v2Frame._get_class(frame_id))
+        ) and not isinstance(
+            frame := next(
+                (
+                    frame
+                    for frame in frames
+                    if not isinstance(frame, EncryptedID3v2Frame)
+                ),
+                frames[-1],
+            ),
+            EncryptedID3v2Frame,
+        ):
+            return frame._text_info.copy()
 
-    def set(self, **kwargs: dict[bytes | str, Any]) -> None:
+    def _set_text_info(
+        self, frame_id: bytes, value: Any | OrderedCollection[Any]
+    ) -> None:
         """
-        Set track attributes.
+        Set text information by frame ID.
 
         Parameters
         ----------
-        **kwargs : dict[str, Any]
-            Key–value pairs of track attributes.
+        frame_id : bytes
+            Frame ID.
+
+        value : Any or Collection[Any]
+            Text information.
         """
-        raise NotImplementedError  # TODO
+        cls = ID3v2Frame._get_class(frame_id)
+        if frames := self._class_index.get(cls):
+            if isinstance(
+                frame := next(
+                    (
+                        frame
+                        for frame in frames
+                        if not isinstance(frame, EncryptedID3v2Frame)
+                    ),
+                    frames[-1],
+                ),
+                EncryptedID3v2Frame,
+            ):
+                new_frame = cls(value)
+                self._frames = [
+                    frame
+                    for frame in self._frames
+                    if not (
+                        isinstance(frame, EncryptedID3v2Frame)
+                        and frame._frame_id == frame_id
+                    )
+                ]
+                self._frames.append(new_frame)
+                self._class_index[frame_id] = [new_frame]
+            else:
+                frame.text_info = value
+        else:
+            new_frame = cls(value)
+            self._frames.append(new_frame)
+            frames.append(new_frame)
+
+    def get(self) -> None: ...
+
+    def set(self) -> None: ...
 
     def serialize(
         self,

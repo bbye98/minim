@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import re
 import zlib
 from abc import ABC, abstractmethod
@@ -782,7 +783,7 @@ class ID3v2FrameFlags:
             ID3v2 frame format flags byte.
 
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
@@ -936,7 +937,7 @@ class ID3v2FrameFlags:
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
@@ -1055,12 +1056,12 @@ class ID3v2Frame(ABC):
     @classmethod
     def _get_class(cls, frame_id: bytes, /) -> Self:
         """
-        Get the class corresponding to an ID3v2 frame ID.
+        Get the class corresponding to an Frame ID.
 
         Parameters
         ----------
         frame_id : bytes; positional-only
-            ID3v2 frame ID.
+            Frame ID.
 
         Returns
         -------
@@ -1136,7 +1137,7 @@ class ID3v2Frame(ABC):
             stream[8], stream[9], strict=strict
         )
         if flags._is_encrypted:
-            obj = UnknownID3v2Frame.__new__(UnknownID3v2Frame)
+            obj = EncryptedID3v2Frame.__new__(EncryptedID3v2Frame)
             obj._frame_id = stream[:4].tobytes()
             obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
@@ -1179,7 +1180,7 @@ class ID3v2Frame(ABC):
             stream[8], stream[9], strict=strict
         )
         if flags._is_encrypted:
-            obj = UnknownID3v2Frame.__new__(UnknownID3v2Frame)
+            obj = EncryptedID3v2Frame.__new__(EncryptedID3v2Frame)
             obj._frame_id = stream[:4].tobytes()
             obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
@@ -1245,7 +1246,7 @@ class ID3v2Frame(ABC):
             Bytes-like object containing an ID3v2 frame.
 
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -1286,12 +1287,12 @@ class ID3v2Frame(ABC):
         cls, tag_version: str | tuple[int, int, int]
     ) -> bytes | list[bytes] | None:
         """
-        Get the frame ID for an ID3v2 tag version.
+        Get the frame ID for a given tag version.
 
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -1300,7 +1301,7 @@ class ID3v2Frame(ABC):
         Returns
         -------
         frame_id : bytes, list[bytes], or None
-            ID3v2 frame ID. If no native frame is available for the
+            Frame ID. If no native frame is available for the
             specified ID3v2 tag version, :code:`None` is returned.
         """
         match normalize_id3v2_tag_version(tag_version):
@@ -1710,7 +1711,7 @@ class ID3v2Frame(ABC):
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
         tag_version : tuple[int, int, int]; positional-only
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`(2, 2, 0)`, :code:`(2, 3, 0)`,
             :code:`(2, 4, 0)`.
@@ -1750,7 +1751,7 @@ class ID3v2Frame(ABC):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -2045,7 +2046,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -2369,7 +2370,7 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -2756,7 +2757,7 @@ class ID3v2APICFrame(ID3v2Frame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -3127,7 +3128,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -3437,7 +3438,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -4086,7 +4087,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -4394,7 +4395,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -5140,7 +5141,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
 class ID3v2TSRCFrame(ID3v2TextInfoFrame):
     """
-    "ISRC (International Standard Recording Code)" frame.
+    "International Standard Recording Code (ISRC)" frame.
 
     .. seealso::
 
@@ -5565,7 +5566,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -5633,10 +5634,10 @@ class UnknownID3v2Frame(ID3v2Frame):
         Parameters
         ----------
         frame_id : bytes or bytearray
-            ID3v2 frame ID.
+            Frame ID.
 
         frame_data : bytes or bytearray
-            ID3v2 frame data.
+            Frame data.
 
         flags : minim.media.metadata.id3.ID3v2FrameFlags; \
         keyword-only; optional
@@ -5670,8 +5671,8 @@ class UnknownID3v2Frame(ID3v2Frame):
         cls, stream: memoryview, /, *, strict: bool = True
     ) -> Self:
         """
-        Instantiate a :class:`UnknownID3v2Frame` object from an ID3v2.2
-        frame bytestream.
+        Instantiate an unknown ID3v2 frame object from an ID3v2.2 frame
+        bytestream.
 
         Parameters
         ----------
@@ -5698,8 +5699,8 @@ class UnknownID3v2Frame(ID3v2Frame):
         cls, stream: memoryview, /, *, strict: bool = True
     ) -> Self:
         """
-        Instantiate a :class:`UnknownID3v2Frame` object from an ID3v2.3
-        frame bytestream.
+        Instantiate an unknown ID3v2 frame object from an ID3v2.3 frame
+        bytestream.
 
         Parameters
         ----------
@@ -5727,8 +5728,8 @@ class UnknownID3v2Frame(ID3v2Frame):
         cls, stream: memoryview, /, *, strict: bool = True
     ) -> Self:
         """
-        Instantiate a :class:`UnknownID3v2Frame` object from an ID3v2.4
-        frame bytestream.
+        Instantiate an unknown ID3v2 frame object from an ID3v2.4 frame
+        bytestream.
 
         Parameters
         ----------
@@ -5756,7 +5757,10 @@ class UnknownID3v2Frame(ID3v2Frame):
         """
         Unique key.
         """
-        return self._frame_id.decode(encoding="ascii")
+        return (
+            self._frame_id.decode(encoding="ascii")
+            + hashlib.md5(self._frame_data).hexdigest
+        )()
 
     @property
     def frame_id(self) -> bytes:
@@ -5782,12 +5786,12 @@ class UnknownID3v2Frame(ID3v2Frame):
 
     def get_frame_id(self, tag_version: str | tuple[int, int, int]) -> bytes:
         """
-        Get the frame ID for an ID3v2 tag version.
+        Get the frame ID for a given tag version.
 
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -5826,7 +5830,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         Parameters
         ----------
         tag_version : str or tuple[int, int, int]
-            ID3v2 tag version.
+            Tag version.
 
             **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
@@ -5894,3 +5898,67 @@ class UnknownID3v2Frame(ID3v2Frame):
                     f"Invalid ID3v2 tag version {tag_version!r}. "
                     f"Valid values: {join_values(ID3V2_TAG_VERSIONS)}."
                 )
+
+
+class EncryptedID3v2Frame(UnknownID3v2Frame):
+    """
+    Encrypted ID3v2 frame.
+    """
+
+    def __init__(
+        self,
+        frame_id: bytes | bytearray,
+        frame_data: bytes | bytearray,
+        *,
+        flags: ID3v2FrameFlags | None = None,
+        group_id: int | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        frame_id : bytes or bytearray
+            Frame ID.
+
+        frame_data : bytes or bytearray
+            Frame data.
+
+        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        keyword-only; optional
+            Flags.
+
+        group_id : int; keyword-only; optional
+            Group identifier.
+
+            **Valid range**: :code:`0` to :code:`255`.
+        """
+        super().__init__(
+            frame_id=frame_id,
+            frame_data=frame_data,
+            flags=flags,
+            group_id=group_id,
+        )
+        if cls := self._get_class(frame_id):
+            self._allow_multiple = cls._allow_multiple
+            self._frame_ids = cls._frame_ids
+
+    def get_frame_id(self, tag_version: str | tuple[int, int, int]) -> bytes:
+        """
+        Get the frame ID for a given tag version.
+
+        Parameters
+        ----------
+        tag_version : str or tuple[int, int, int]
+            Tag version.
+
+            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
+            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
+            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
+
+        Returns
+        -------
+        frame_id : bytes
+            Frame ID.
+        """
+        if self._frame_ids:
+            return ID3v2Frame.get_frame_id(self, tag_version=tag_version)
+        return super().get_frame_id(tag_version=tag_version)

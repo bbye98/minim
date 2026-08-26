@@ -202,7 +202,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
     md5: str
 
     def __post_init__(self) -> None:
-        super(FLACStreamInfo, self).__post_init__()
+        super().__post_init__()
         validate_number("min_block_size", self.min_block_size, int, 16, 65_535)
         validate_number("max_block_size", self.max_block_size, int, 16, 65_535)
         if self.min_block_size > self.max_block_size:
