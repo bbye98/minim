@@ -1544,7 +1544,7 @@ class ID3v2(AudioTags):
         :code:`TT3`/:code:`TIT3` – Version of the recording (e.g., remix
         information).
         """
-        return self._set_text_info(b"TIT3")
+        return self._get_text_info(b"TIT3")
 
     @version.setter
     def version(

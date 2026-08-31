@@ -66,7 +66,6 @@ class AudioStreamInfo:
     @abstractmethod
     def bitrate(self) -> int:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Bitrate, in kilobits per second.
         """
         return self.sample_rate * self.num_channels * self.bit_depth / 1_000
@@ -74,7 +73,6 @@ class AudioStreamInfo:
     @property
     def duration(self) -> float:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Duration, in seconds.
         """
         return self.num_samples / self.sample_rate
@@ -119,307 +117,181 @@ class AudioTags(ABC):
     @abstractmethod
     def album(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Title of the album or collection.
         """
         ...
-
-    @album.setter
-    @abstractmethod
-    def album(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def album_artist(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Main artists credited for the entire album or collection.
         """
         ...
-
-    @album_artist.setter
-    @abstractmethod
-    def album_artist(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def artist(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Main artists of the recording (e.g., the performing band or
         singers in popular music, the composers for classical music, or
         the authors of the original text in audiobooks).
         """
         ...
 
-    @artist.setter
-    @abstractmethod
-    def artist(self, value: str | OrderedCollection[str], /) -> None: ...
-
     @property
     @abstractmethod
     def bpm(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Tempo, in beats per minute (BPM).
         """
         ...
-
-    @bpm.setter
-    @abstractmethod
-    def bpm(
-        self,
-        value: float | str | OrderedCollection[int | float | str],
-        /,
-    ) -> None: ...
 
     @property
     @abstractmethod
     def comment(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Free-form comments.
         """
         ...
-
-    @comment.setter
-    @abstractmethod
-    def comment(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def compilation(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Whether the recording is part of a compilation.
         """
         ...
-
-    @compilation.setter
-    @abstractmethod
-    def compilation(
-        self, value: bool | int | str | OrderedCollection[bool | int | str], /
-    ) -> None: ...
 
     @property
     @abstractmethod
     def composer(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Composers or songwriters.
         """
         ...
-
-    @composer.setter
-    @abstractmethod
-    def composer(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def copyright(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Copyright attribution.
         """
         ...
-
-    @copyright.setter
-    @abstractmethod
-    def copyright(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def date(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Release date.
         """
         ...
-
-    @date.setter
-    @abstractmethod
-    def date(
-        self, value: str | datetime | OrderedCollection[str | datetime], /
-    ) -> None: ...
 
     @property
     @abstractmethod
     def disc_number(self) -> str | list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Disc number within a multi-disc set.
         """
         ...
-
-    @disc_number.setter
-    @abstractmethod
-    def disc_number(
-        self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...
 
     @property
     @abstractmethod
     def disc_total(self) -> str | list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Total number of discs.
         """
         ...
-
-    @disc_total.setter
-    @abstractmethod
-    def disc_total(
-        self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...
 
     @property
     @abstractmethod
     def encoder(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Software or hardware used for encoding, or the person or
         organization that encoded the audio file.
         """
         ...
 
-    @encoder.setter
-    @abstractmethod
-    def encoder(self, value: str | OrderedCollection[str], /) -> None: ...
-
     @property
     @abstractmethod
     def genre(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Musical genres.
         """
         ...
-
-    @genre.setter
-    @abstractmethod
-    def genre(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def grouping(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Content group description.
         """
         ...
-
-    @grouping.setter
-    @abstractmethod
-    def grouping(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def isrc(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         International Standard Recording Code (ISRC).
         """
         ...
-
-    @isrc.setter
-    @abstractmethod
-    def isrc(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def label(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Publisher or record label.
         """
         ...
-
-    @label.setter
-    @abstractmethod
-    def label(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def lyrics(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Lyrics or transcription.
         """
         ...
-
-    @lyrics.setter
-    @abstractmethod
-    def lyrics(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def performer(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Performers (e.g., the conductor, orchestra, and/or soloists in
         classical music, or the narrator in audiobooks).
         """
         ...
 
-    @performer.setter
-    @abstractmethod
-    def performer(self, value: str | OrderedCollection[str], /) -> None: ...
-
     @property
     @abstractmethod
     def title(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Title of the recording.
         """
         ...
-
-    @title.setter
-    @abstractmethod
-    def title(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
     def track_number(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Track number within the album or collection.
         """
         ...
-
-    @track_number.setter
-    @abstractmethod
-    def track_number(
-        self, value: int | str | OrderedCollection[int | str], /
-    ) -> None: ...
 
     @property
     @abstractmethod
     def track_total(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Total number of tracks.
         """
         ...
-
-    @track_total.setter
-    @abstractmethod
-    def track_total(
-        self, value: str | OrderedCollection[int | str], /
-    ) -> None: ...
 
     @property
     @abstractmethod
     def version(self) -> list[str] | None:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
         Version of the recording (e.g., remix information).
         """
         ...
-
-    @version.setter
-    @abstractmethod
-    def version(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @abstractmethod
     def get(self, *args: Any, **kwargs: Any) -> Any:
