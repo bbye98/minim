@@ -1353,9 +1353,8 @@ class ID3v2(AudioTags):
         :bdg-primary:`get` :bdg-secondary:`set`
         :code:`TPA`/:code:`TPOS` – Disc number within a multi-disc set.
         """
-        # if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
-        #     return [str(disc.number) for disc in frames[-1]._discs]
-        raise NotImplementedError  # TODO
+        if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
+            return [str(disc.number) for disc in frames[-1]._discs]
 
     @disc_number.setter
     def disc_number(
@@ -1369,9 +1368,8 @@ class ID3v2(AudioTags):
         :bdg-primary:`get` :bdg-secondary-line:`set`
         :code:`TPA`/:code:`TPOS` – Total number of discs.
         """
-        # if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
-        #     return [str(disc.total) for disc in frames[-1]._discs]
-        raise NotImplementedError  # TODO
+        if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
+            return [str(disc.total) for disc in frames[-1]._discs]
 
     @property
     def encoder(self) -> list[str] | None:
@@ -1517,9 +1515,8 @@ class ID3v2(AudioTags):
         :code:`TRK`/:code:`TRCK` – Track number within the album or
         collection.
         """
-        # if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
-        #     return [str(track.number) for track in frames[-1]._tracks]
-        raise NotImplementedError  # TODO
+        if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
+            return [str(track.number) for track in frames[-1]._tracks]
 
     @track_number.setter
     def track_number(
@@ -1533,9 +1530,8 @@ class ID3v2(AudioTags):
         :bdg-primary:`get` :bdg-secondary-line:`set`
         :code:`TRK`/:code:`TRCK` – Total number of tracks.
         """
-        # if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
-        #     return [str(track.total) for track in frames[-1]._tracks]
-        raise NotImplementedError  # TODO
+        if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
+            return [str(track.total) for track in frames[-1]._tracks]
 
     @property
     def version(self) -> list[str] | None:

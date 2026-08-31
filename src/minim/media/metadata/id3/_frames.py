@@ -5426,9 +5426,10 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             stream, strict=strict
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-        obj._description, *obj._text_info = cls._split_bytestream(
+        obj._description, obj._text_info = cls._split_bytestream(
             stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
             encoding=obj._text_encoding,
+            max_splits=1,
         )
         return obj
 
@@ -5465,9 +5466,10 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        obj._description, *obj._text_info = cls._split_bytestream(
+        obj._description, obj._text_info = cls._split_bytestream(
             stream[offset + 1 : offset + frame_length],
             encoding=obj._text_encoding,
+            max_splits=1,
         )
         return obj
 
@@ -5505,9 +5507,10 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        obj._description, *obj._text_info = cls._split_bytestream(
+        obj._description, obj._text_info = cls._split_bytestream(
             stream[offset + 1 : offset + frame_length],
             encoding=obj._text_encoding,
+            max_splits=1,
         )
         return obj
 
@@ -5584,16 +5587,11 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         """
         tag_version = normalize_id3v2_tag_version(tag_version)
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
-        null_char = (
-            b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
-        )
         frame_data = b"".join(
             (
                 self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
                 self._description.encode(encoding=text_encoding),
-                null_char.join(
-                    ti.encode(encoding=text_encoding) for ti in self._text_info
-                ),
+                self._text_info.encode(encoding=text_encoding),
             )
         )
         match tag_version:
