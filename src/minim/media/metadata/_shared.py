@@ -216,19 +216,6 @@ class AudioTags(ABC):
 
     @property
     @abstractmethod
-    def contact(self) -> list[str] | None:
-        """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
-        Contact information for the creators or distributors.
-        """
-        ...
-
-    @contact.setter
-    @abstractmethod
-    def contact(self, value: str | OrderedCollection[str], /) -> None: ...
-
-    @property
-    @abstractmethod
     def copyright(self) -> list[str] | None:
         """
         :bdg-primary:`get` :bdg-secondary-line:`set`
@@ -254,19 +241,6 @@ class AudioTags(ABC):
     def date(
         self, value: str | datetime | OrderedCollection[str | datetime], /
     ) -> None: ...
-
-    @property
-    @abstractmethod
-    def description(self) -> list[str] | None:
-        """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
-        General description.
-        """
-        ...
-
-    @description.setter
-    @abstractmethod
-    def description(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod
@@ -363,32 +337,6 @@ class AudioTags(ABC):
     @label.setter
     @abstractmethod
     def label(self, value: str | OrderedCollection[str], /) -> None: ...
-
-    @property
-    @abstractmethod
-    def license(self) -> list[str] | None:
-        """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
-        License information.
-        """
-        ...
-
-    @license.setter
-    @abstractmethod
-    def license(self, value: str | OrderedCollection[str], /) -> None: ...
-
-    @property
-    @abstractmethod
-    def location(self) -> list[str] | None:
-        """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
-        Recording locations.
-        """
-        ...
-
-    @location.setter
-    @abstractmethod
-    def location(self, value: str | OrderedCollection[str], /) -> None: ...
 
     @property
     @abstractmethod

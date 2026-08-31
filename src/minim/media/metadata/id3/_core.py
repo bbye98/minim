@@ -21,7 +21,6 @@ from ._frames import (
     EncryptedID3v2Frame,
     ID3v2DateTimeFrame,
     ID3v2Frame,
-    ID3v2TXXXFrame,
     UnknownID3v2Frame,
 )
 from ._shared import (
@@ -1220,11 +1219,63 @@ class ID3v2(AudioTags):
         :bdg-primary:`get` :bdg-secondary:`set`
         :code:`COM`/:code:`COMM` – Free-form comments.
         """
-        raise NotImplementedError  # TODO
+        if frames := self._class_index.get(ID3v2Frame._get_class(b"COMM")):
+            return [frame._comment for frame in frames]
 
     @comment.setter
-    def comment(self, value: str | OrderedCollection[str], /) -> None:
-        raise NotImplementedError  # TODO
+    def comment(
+        self,
+        value: str
+        | tuple[str, str]
+        | ID3v2COMMFrame
+        | list[tuple[str, str] | ID3v2COMMFrame],
+        /,
+    ) -> None:
+        frame_cls = ID3v2Frame._get_class(b"COMM")
+        frame_name = frame_cls.__name__
+        match value:
+            case list():
+                value_ = []
+                for val in value:
+                    if isinstance(val, frame_cls):
+                        value_.append(val)
+                    elif isinstance(val, tuple):
+                        if len(val) != 2 or not all(
+                            isinstance(v, str) for v in val
+                        ):
+                            raise ValueError(
+                                "When `comment` is a tuple, it must "
+                                "have length 2 and contain only "
+                                "strings: (description, comment)."
+                            )
+                        value_.append(frame_cls(*val))
+                    else:
+                        raise TypeError(
+                            "When `comment` is a list, it must contain "
+                            "only tuples of two strings (description, "
+                            f"comment) and {frame_name} objects."
+                        )
+                value = value_
+            case str():
+                value = [frame_cls(description="", comment=value)]
+            case tuple():
+                if len(value) != 2 or not all(
+                    isinstance(val, str) for val in value
+                ):
+                    raise ValueError(
+                        "When `comment` is a tuple, it must have length 2 "
+                        "and contain only strings: (description, comment)."
+                    )
+                value = [frame_cls(*value)]
+            case frame_cls():
+                value = [value]
+            case _:
+                raise TypeError(
+                    "`comment` must be a string (comment), a tuple of "
+                    "two strings (description, comment), an "
+                    f"{frame_name} object, or a list containing them."
+                )
+        self._set_known_frames(value)
 
     @property
     def compilation(self) -> list[str] | None:
@@ -1264,27 +1315,6 @@ class ID3v2(AudioTags):
         self._set_text_info(b"TCOM", value)
 
     @property
-    def contact(self) -> list[str] | None:
-        """
-        :bdg-primary:`get` :bdg-secondary:`set`
-        :code:`TXX:CONTACT`/:code:`TXXX:CONTACT` – Contact information
-        for the creators or distributors.
-        """
-        # if frame := next(
-        #     (
-        #         self._key_index.get(ID3v2TXXXFrame, {}).get(key)
-        #         for key in ["CONTACT", "contact", "Contact"]
-        #     ),
-        #     None,
-        # ):
-        #     return frame._text_info.copy()
-        raise NotImplementedError  # TODO
-
-    @contact.setter
-    def contact(self, value: str | OrderedCollection[str], /) -> None:
-        raise NotImplementedError  # TODO
-
-    @property
     def copyright(self) -> list[str] | None:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
@@ -1318,27 +1348,6 @@ class ID3v2(AudioTags):
         raise NotImplementedError  # TODO
 
     @property
-    def description(self) -> list[str] | None:
-        """
-        :bdg-primary:`get` :bdg-secondary:`set`
-        :code:`TXX:DESCRIPTION`/:code:`TXXX:DESCRIPTION` – General
-        description.
-        """
-        # if frame := next(
-        #     (
-        #         self._key_index.get(ID3v2TXXXFrame, {}).get(key)
-        #         for key in ["DESCRIPTION", "description", "Description"]
-        #     ),
-        #     None,
-        # ):
-        #     return frame._text_info.copy()
-        raise NotImplementedError  # TODO
-
-    @description.setter
-    def description(self, value: str | OrderedCollection[str], /) -> None:
-        raise NotImplementedError  # TODO
-
-    @property
     def disc_number(self) -> list[str] | None:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
@@ -1357,17 +1366,11 @@ class ID3v2(AudioTags):
     @property
     def disc_total(self) -> list[str | None] | None:
         """
-        :bdg-primary:`get` :bdg-secondary:`set`
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         :code:`TPA`/:code:`TPOS` – Total number of discs.
         """
         # if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
         #     return [str(disc.total) for disc in frames[-1]._discs]
-        raise NotImplementedError  # TODO
-
-    @disc_total.setter
-    def disc_total(
-        self, value: int | str | OrderedCollection[int | str], /
-    ) -> None:
         raise NotImplementedError  # TODO
 
     @property
@@ -1454,47 +1457,6 @@ class ID3v2(AudioTags):
         self._set_text_info(b"TPUB", value)
 
     @property
-    def license(self) -> list[str] | None:
-        """
-        :bdg-primary:`get` :bdg-secondary:`set`
-        :code:`TXX:LICENSE`/:code:`TXXX:LICENSE` - License information.
-        """
-        # if frame := next(
-        #     (
-        #         self._key_index.get(ID3v2TXXXFrame, {}).get(key)
-        #         for key in ["LICENSE", "license", "License"]
-        #     ),
-        #     None,
-        # ):
-        #     return frame._text_info.copy()
-        raise NotImplementedError  # TODO
-
-    @license.setter
-    def license(self, value: str | OrderedCollection[str], /) -> None:
-        raise NotImplementedError  # TODO
-
-    @property
-    def location(self) -> list[str] | None:
-        """
-        :bdg-primary:`get` :bdg-secondary:`set`
-        :code:`TXX:LOCATION`/:code:`TXXX:LOCATION` – Recording
-        locations.
-        """
-        # if frame := next(
-        #     (
-        #         self._key_index.get(ID3v2TXXXFrame, {}).get(key)
-        #         for key in ["LOCATION", "location", "Location"]
-        #     ),
-        #     None,
-        # ):
-        #     return frame._text_info.copy()
-        raise NotImplementedError  # TODO
-
-    @location.setter
-    def location(self, value: str | OrderedCollection[str], /) -> None:
-        raise NotImplementedError  # TODO
-
-    @property
     def lyrics(self) -> list[str] | None:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
@@ -1568,17 +1530,11 @@ class ID3v2(AudioTags):
     @property
     def track_total(self) -> list[str | None] | None:
         """
-        :bdg-primary:`get` :bdg-secondary:`set`
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         :code:`TRK`/:code:`TRCK` – Total number of tracks.
         """
         # if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
         #     return [str(track.total) for track in frames[-1]._tracks]
-        raise NotImplementedError  # TODO
-
-    @track_total.setter
-    def track_total(
-        self, value: int | str | OrderedCollection[int | str], /
-    ) -> None:
         raise NotImplementedError  # TODO
 
     @property
@@ -1618,12 +1574,22 @@ class ID3v2(AudioTags):
             specifications.
         """
         frame_cls = type(frame)
-        is_encrypted = frame_cls is EncryptedID3v2Frame
-        if (
-            frame_cls is UnknownID3v2Frame
-            or is_encrypted
-            and not frame._frame_ids
-        ):
+        if frame_cls is EncryptedID3v2Frame:
+            actual_cls = frame._class or UnknownID3v2Frame
+            if (
+                strict
+                and not self._allow_multiple
+                and self._class_index.get(actual_cls)
+            ):
+                raise ValueError(
+                    f"Multiple {frame._frame_id.decode(encoding='ascii')} "
+                    "frames found."
+                )
+            self._frames.append(frame)
+            self._class_index[frame_cls].append(frame)
+            if actual_cls is UnknownID3v2Frame:
+                self._unknown_index[frame._frame_id].append(frame)
+        elif frame_cls is UnknownID3v2Frame:
             self._frames.append(frame)
             self._class_index[frame_cls].append(frame)
             self._unknown_index[frame._frame_id].append(frame)
@@ -1642,34 +1608,28 @@ class ID3v2(AudioTags):
             self._class_index[frame_cls].append(frame)
             if frame._key:
                 self._key_index[frame_cls][frame._key] = frame
-        elif existing_frames := self._class_index.get(frame_cls):
-            if strict:
-                raise ValueError(
-                    f"Duplicate {frame._frame_id.decode(encoding='ascii')} "
-                    "frame found."
-                )
+        else:
+            existing_frames = self._class_index.get(frame_cls)
+            if existing_frames:
+                if strict:
+                    raise ValueError(
+                        f"Multiple {frame._frame_id.decode(encoding='ascii')} "
+                        "frames found."
+                    )
 
-            if is_encrypted or isinstance(
-                existing_frame := next(
-                    (
-                        frame
-                        for frame in existing_frames
-                        if not isinstance(frame, EncryptedID3v2Frame)
-                    ),
-                    existing_frames[-1],
-                ),
-                EncryptedID3v2Frame,
-            ):
-                self._frames.append(frame)
-                self._class_index[frame_cls].append(frame)
-            else:
+                existing_frame = existing_frames[-1]
                 if issubclass(frame_cls, ID3v2DateTimeFrame):
                     existing_frame |= frame
                 else:
                     existing_frame += frame
-        else:
-            self._frames.append(frame)
-            self._class_index[frame_cls].append(frame)
+            else:
+                if strict and self._unknown_index.get(frame_cls):
+                    raise ValueError(
+                        f"Multiple {frame._frame_id.decode(encoding='ascii')} "
+                        "frames found."
+                    )
+                self._frames.append(frame)
+                self._class_index[frame_cls].append(frame)
 
     def _get_text_info(self, frame_id: bytes) -> list[str] | None:
         """
@@ -1686,20 +1646,8 @@ class ID3v2(AudioTags):
             Text information. If no matching frames are found or the
             matching frames are encrypted, :code:`None` is returned.
         """
-        if (
-            frames := self._class_index.get(ID3v2Frame._get_class(frame_id))
-        ) and not isinstance(
-            frame := next(
-                (
-                    frame
-                    for frame in frames
-                    if not isinstance(frame, EncryptedID3v2Frame)
-                ),
-                frames[-1],
-            ),
-            EncryptedID3v2Frame,
-        ):
-            return frame._text_info.copy()
+        if frames := self._class_index.get(ID3v2Frame._get_class(frame_id)):
+            return frames[-1]._text_info.copy()
 
     def _set_text_info(
         self, frame_id: bytes, value: Any | OrderedCollection[Any]
@@ -1716,50 +1664,40 @@ class ID3v2(AudioTags):
             Text information.
         """
         frame_cls = ID3v2Frame._get_class(frame_id)
-        if frames := self._class_index.get(frame_cls):
-            if isinstance(
-                frame := next(
-                    (
-                        frame
-                        for frame in frames
-                        if not isinstance(frame, EncryptedID3v2Frame)
-                    ),
-                    frames[-1],
-                ),
-                EncryptedID3v2Frame,
-            ):
-                if not isinstance(value, frame_cls):
-                    value = frame_cls(value)
-                self._frames = [
-                    frame
-                    for frame in self._frames
-                    if not (
-                        isinstance(frame, EncryptedID3v2Frame)
-                        and frame._frame_id == frame_id
-                    )
-                ]
-                self._frames.append(value)
-                self._class_index[frame_cls] = [value]
-            else:
-                if isinstance(value, frame_cls):
-                    self._frames = [
-                        frame
-                        for frame in self._frames
-                        if not (
-                            isinstance(frame, frame_cls)
-                            or isinstance(frame, EncryptedID3v2Frame)
-                            and frame._frame_id == frame_id
-                        )
-                    ]
-                    self._frames.append(value)
-                    self._class_index[frame_cls] = [value]
-                else:
-                    frame.text_info = value
-        else:
-            if not isinstance(value, frame_cls):
-                value = frame_cls(value)
-            self._frames.append(value)
-            frames.append(value)
+        self._set_known_frame(
+            [frame_cls(val) for val in value]
+            if isinstance(value, ORDERED_COLLECTION_TYPES)
+            else [value if isinstance(value, frame_cls) else frame_cls(value)]
+        )
+
+    def _set_known_frames(self, value: list[ID3v2Frame], /) -> None:
+        """
+        Remove existing frames with the same frame ID and add the new
+        frames.
+
+        Parameters
+        ----------
+        value : list[minim.media.metadata.id3.ID3v2Frame]; \
+        positional-only
+            Frames.
+        """
+        frame_cls = type(value[0])
+        self._frames = [
+            frame
+            for frame in self._frames
+            if not (
+                isinstance(frame, frame_cls)
+                or isinstance(frame, EncryptedID3v2Frame)
+                and frame._class is frame_cls
+            )
+        ]
+        self._frames.extend(value)
+        self._class_index[frame_cls] = value
+        self._class_index[EncryptedID3v2Frame] = [
+            frame
+            for frame in self._class_index[EncryptedID3v2Frame]
+            if frame._class is not frame_cls
+        ]
 
     def get(self) -> None: ...
 

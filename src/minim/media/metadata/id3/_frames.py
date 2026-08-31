@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import re
 import zlib
 from abc import ABC, abstractmethod
@@ -1456,7 +1455,7 @@ class ID3v2Frame(ABC):
         ...
 
     @property
-    def _key(self) -> str:
+    def _key(self) -> Any:
         """
         :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
         """
@@ -2682,12 +2681,12 @@ class ID3v2APICFrame(ID3v2Frame):
         return obj
 
     @property
-    def _key(self) -> str:
+    def _key(self) -> int | str:
         """
-        Unique key.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
         """
         if self._picture_type in {1, 2}:
-            return str(self._picture_type)
+            return self._picture_type
         return self._description
 
     @property
@@ -2919,7 +2918,6 @@ class ID3v2COMMFrame(ID3v2Frame):
             **Valid range**: :code:`0` to :code:`255`.
         """
         super().__init__(flags=flags, group_id=group_id)
-
         self.description = description
         self.comment = comment
         self.language = language
@@ -3051,11 +3049,11 @@ class ID3v2COMMFrame(ID3v2Frame):
         return obj
 
     @property
-    def _key(self) -> str:
+    def _key(self) -> tuple[str, str]:
         """
-        Unique key.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
         """
-        return f"{self._language}{self._description}"
+        return self._language, self._description
 
     @property
     def description(self) -> str:
@@ -3363,11 +3361,11 @@ class ID3v2USLTFrame(ID3v2Frame):
         return obj
 
     @property
-    def _key(self) -> str:
+    def _key(self) -> tuple[str, str]:
         """
-        Unique key.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
         """
-        return f"{self._language}{self._description}"
+        return self._language, self._description
 
     @property
     def description(self) -> str:
@@ -5516,7 +5514,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
     @property
     def _key(self) -> str:
         """
-        Unique key.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
         """
         return self._description
 
@@ -5753,16 +5751,6 @@ class UnknownID3v2Frame(ID3v2Frame):
         return obj
 
     @property
-    def _key(self) -> None:
-        """
-        Unique key.
-        """
-        return (
-            self._frame_id.decode(encoding="ascii")
-            + hashlib.md5(self._frame_data).hexdigest
-        )()
-
-    @property
     def frame_id(self) -> bytes:
         """
         :bdg-primary:`get` :bdg-secondary-line:`set` Frame ID.
@@ -5905,6 +5893,8 @@ class EncryptedID3v2Frame(UnknownID3v2Frame):
     Encrypted ID3v2 frame.
     """
 
+    __slots__ = ("_class",)
+
     def __init__(
         self,
         frame_id: bytes | bytearray,
@@ -5937,7 +5927,10 @@ class EncryptedID3v2Frame(UnknownID3v2Frame):
             flags=flags,
             group_id=group_id,
         )
-        if cls := self._get_class(frame_id):
+        if (cls := self._get_class(frame_id)) is UnknownID3v2Frame:
+            self._class = None
+        else:
+            self._class = cls
             self._allow_multiple = cls._allow_multiple
             self._frame_ids = cls._frame_ids
 
