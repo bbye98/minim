@@ -4813,7 +4813,8 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         discs: int
         | str
         | tuple[int | str, int | str | None]
-        | list[int | str | tuple[int | str, int | str | None]],
+        | Position
+        | list[int | str | tuple[int | str, int | str | None] | Position],
         /,
         *,
         strict: bool = True,
@@ -4823,9 +4824,10 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        discs : int, str, tuple[int | str, int | str | None], or \
-        list[int | str | tuple[int | str, int | str | None]]; \
-        positional-only
+        discs : int, str, tuple[int | str, int | str | None], \
+        minim.media.metadata.id3.Position, or list[int | str \
+        | tuple[int | str, int | str | None] \
+        | minim.media.metadata.id3.Position]; positional-only
             Disc numbers and, optionally, the total number of discs.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -4850,12 +4852,13 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
                     ID3v2TPOSFrame._parse_discs(disc, strict=strict)
                     for disc in discs
                 ]
+            case Position():
+                return discs
             case _:
                 raise TypeError(
-                    "`disc` must be an integer, a string, a tuple of "
-                    "two integers and/or strings, or a list of "
-                    "integers, strings, and/or tuples of two integers "
-                    "and/or strings."
+                    "`disc` must be one or more integers, strings, "
+                    "tuples of two integers and/or strings, or "
+                    "Position objects."
                 )
 
     @property
@@ -5062,7 +5065,8 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         tracks: int
         | str
         | tuple[int | str, int | str | None]
-        | list[int | str | tuple[int | str, int | str | None]],
+        | Position
+        | list[int | str | tuple[int | str, int | str | None] | Position],
         /,
         *,
         strict: bool = True,
@@ -5072,9 +5076,10 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Parameters
         ----------
-        tracks : int, str, tuple[int | str, int | str | None], or \
-        list[int | str | tuple[int | str, int | str | None]]; \
-        positional-only
+        tracks : int, str, tuple[int | str, int | str | None], \
+        minim.media.metadata.id3.Position, or list[int | str \
+        | tuple[int | str, int | str | None] \
+        | minim.media.metadata.id3.Position]; positional-only
             Track numbers and, optionally, the total number of tracks.
 
         strict : bool; keyword-only; default: :code:`True`
@@ -5099,12 +5104,13 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
                     ID3v2TRCKFrame._parse_tracks(track, strict=strict)
                     for track in tracks
                 ]
+            case Position():
+                return tracks
             case _:
                 raise TypeError(
-                    "`tracks` must be an integer, a string, a tuple of "
-                    "two integers and/or strings, or a list of "
-                    "integers, strings, and/or tuples of two integers "
-                    "and/or strings."
+                    "`tracks` must be one or more integers, strings, "
+                    "tuples of two integers and/or strings, or "
+                    "Position objects."
                 )
 
     @property

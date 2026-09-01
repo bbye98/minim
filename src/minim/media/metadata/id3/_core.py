@@ -1330,22 +1330,24 @@ class ID3v2(AudioTags):
     def date(self) -> list[str] | None:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
-        :code:`TYE` + :code:`TDA` + :code:`TIM`/:code:`TYER` +
-        :code:`TDAT` + :code:`TIME`/:code:`TDRC`/:code:`TDRL` –
-        Recording or release date.
+        (:code:`TYE` + :code:`TDA` + :code:`TIM`)/(:code:`TYER` +
+        :code:`TDAT` + :code:`TIME`)/:code:`TDRC` – Recording or release
+        date.
         """
-        # if frames := (
-        #     self._class_index.get(ID3v2Frame._get_class(b"TDRC"))
-        #     or self._class_index.get(ID3v2Frame._get_class(b"TDRL"))
-        # ):
-        #     return frames[-1]._text_info.copy()
-        raise NotImplementedError  # TODO
+        return self._get_text_info(b"TDRC", copy=False)
 
     @date.setter
     def date(
-        self, value: str | datetime | OrderedCollection[str | datetime], /
+        self,
+        value: str
+        | datetime
+        | tuple[int | str, ...]
+        | DateTime
+        | ID3v2TDRCFrame
+        | list[str | datetime | tuple[int | str, ...] | DateTime],
+        /,
     ) -> None:
-        raise NotImplementedError  # TODO
+        self._set_text_info(b"TDRC", value)
 
     @property
     def disc_number(self) -> list[str] | None:
@@ -1358,9 +1360,15 @@ class ID3v2(AudioTags):
 
     @disc_number.setter
     def disc_number(
-        self, value: int | str | OrderedCollection[int | str], /
+        self,
+        value: int
+        | str
+        | tuple[int | str, int | str | None]
+        | Position
+        | list[int | str | tuple[int | str, int | str | None] | Position],
+        /,
     ) -> None:
-        raise NotImplementedError  # TODO
+        self._set_text_info(b"TPOS", value)
 
     @property
     def disc_total(self) -> list[str | None] | None:
@@ -1520,9 +1528,15 @@ class ID3v2(AudioTags):
 
     @track_number.setter
     def track_number(
-        self, value: int | str | OrderedCollection[int | str], /
+        self,
+        value: int
+        | str
+        | tuple[int | str, int | str | None]
+        | Position
+        | list[int | str | tuple[int | str, int | str | None] | Position],
+        /,
     ) -> None:
-        raise NotImplementedError  # TODO
+        self._set_text_info(b"TRCK", value)
 
     @property
     def track_total(self) -> list[str | None] | None:
@@ -1627,14 +1641,20 @@ class ID3v2(AudioTags):
                 self._frames.append(frame)
                 self._class_index[frame_cls].append(frame)
 
-    def _get_text_info(self, frame_id: bytes) -> list[str] | None:
+    def _get_text_info(
+        self, frame_id: bytes, /, *, copy: bool = True
+    ) -> list[str] | None:
         """
         Get text information by frame ID.
 
         Parameters
         ----------
-        frame_id : bytes
+        frame_id : bytes; positional-only
             Frame ID.
+
+        copy : bool; keyword-only; default: :code:`True`
+            Whether to create a shallow copy of the text information
+            before returning it.
 
         Returns
         -------
@@ -1643,7 +1663,9 @@ class ID3v2(AudioTags):
             matching frames are encrypted, :code:`None` is returned.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(frame_id)):
-            return frames[-1]._text_info.copy()
+            if copy:
+                return frames[-1]._text_info.copy()
+            return frames[-1]._text_info
 
     def _set_text_info(
         self, frame_id: bytes, value: Any | OrderedCollection[Any]
@@ -1660,24 +1682,21 @@ class ID3v2(AudioTags):
             Text information.
         """
         frame_cls = ID3v2Frame._get_class(frame_id)
-        self._set_known_frame(
-            [frame_cls(val) for val in value]
-            if isinstance(value, ORDERED_COLLECTION_TYPES)
-            else [value if isinstance(value, frame_cls) else frame_cls(value)]
+        self._set_known_frames(
+            value if isinstance(value, frame_cls) else frame_cls(value)
         )
 
-    def _set_known_frames(self, value: list[ID3v2Frame], /) -> None:
+    def _set_known_frames(self, value: ID3v2Frame, /) -> None:
         """
         Remove existing frames with the same frame ID and add the new
         frames.
 
         Parameters
         ----------
-        value : list[minim.media.metadata.id3.ID3v2Frame]; \
-        positional-only
-            Frames.
+        value : minim.media.metadata.id3.ID3v2Frame; positional-only
+            Frame.
         """
-        frame_cls = type(value[0])
+        frame_cls = type(value)
         self._frames = [
             frame
             for frame in self._frames
@@ -1687,8 +1706,8 @@ class ID3v2(AudioTags):
                 and frame._class is frame_cls
             )
         ]
-        self._frames.extend(value)
-        self._class_index[frame_cls] = value
+        self._frames.append(value)
+        self._class_index[frame_cls] = [value]
         self._class_index[EncryptedID3v2Frame] = [
             frame
             for frame in self._class_index[EncryptedID3v2Frame]
