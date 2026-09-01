@@ -1225,55 +1225,22 @@ class ID3v2(AudioTags):
     @comment.setter
     def comment(
         self,
-        value: str
-        | tuple[str, str]
-        | ID3v2COMMFrame
-        | list[tuple[str, str] | ID3v2COMMFrame],
+        value: str | ID3v2COMMFrame | OrderedCollection[ID3v2COMMFrame],
         /,
     ) -> None:
         frame_cls = ID3v2Frame._get_class(b"COMM")
-        frame_name = frame_cls.__name__
         match value:
-            case list():
-                value_ = []
-                for val in value:
-                    if isinstance(val, frame_cls):
-                        value_.append(val)
-                    elif isinstance(val, tuple):
-                        if len(val) != 2 or not all(
-                            isinstance(v, str) for v in val
-                        ):
-                            raise ValueError(
-                                "When `comment` is a tuple, it must "
-                                "have length 2 and contain only "
-                                "strings: (description, comment)."
-                            )
-                        value_.append(frame_cls(*val))
-                    else:
-                        raise TypeError(
-                            "When `comment` is a list, it must contain "
-                            "only tuples of two strings (description, "
-                            f"comment) and {frame_name} objects."
-                        )
-                value = value_
+            case list() | tuple():
+                for idx, val in enumerate(value):
+                    validate_type(f"comment[{idx}]", val, frame_cls)
             case str():
-                value = [frame_cls(description="", comment=value)]
-            case tuple():
-                if len(value) != 2 or not all(
-                    isinstance(val, str) for val in value
-                ):
-                    raise ValueError(
-                        "When `comment` is a tuple, it must have length 2 "
-                        "and contain only strings: (description, comment)."
-                    )
-                value = [frame_cls(*value)]
+                value = [frame_cls(value)]
             case frame_cls():
                 value = [value]
             case _:
                 raise TypeError(
-                    "`comment` must be a string (comment), a tuple of "
-                    "two strings (description, comment), an "
-                    f"{frame_name} object, or a list containing them."
+                    "`comment` must be a string or one or more "
+                    f"{frame_cls.__name__} objects."
                 )
         self._set_known_frames(value)
 
@@ -1377,7 +1344,10 @@ class ID3v2(AudioTags):
         :code:`TPA`/:code:`TPOS` – Total number of discs.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
-            return [str(disc.total) for disc in frames[-1]._discs]
+            return [
+                str(total) if (total := disc.total) else total
+                for disc in frames[-1]._discs
+            ]
 
     @property
     def encoder(self) -> list[str] | None:
@@ -1466,21 +1436,32 @@ class ID3v2(AudioTags):
     def lyrics(self) -> list[str] | None:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
-        :code:`SLT`/:code:`SYLT` (synchronized) or
-        :code:`ULT`/:code:`USLT` (unsynchronized) – Lyrics or
-        transcription.
+        :code:`ULT`/:code:`USLT` – Lyrics or transcription.
         """
-        # lyrics = []
-        # if frames := self._class_index.get(ID3v2Frame._get_class(b"SYLT")):
-        #     lyrics.extend(frame._lyrics for frame in frames)
-        # if frames := self._class_index.get(ID3v2Frame._get_class(b"USLT")):
-        #     lyrics.extend(frame._lyrics for frame in frames)
-        # return lyrics or None
-        raise NotImplementedError  # TODO
+        if frames := self._class_index.get(ID3v2Frame._get_class(b"USLT")):
+            return [frame._lyrics for frame in frames]
 
     @lyrics.setter
-    def lyrics(self, value: str | OrderedCollection[str], /) -> None:
-        raise NotImplementedError  # TODO
+    def lyrics(
+        self,
+        value: str | ID3v2USLTFrame | OrderedCollection[ID3v2USLTFrame],
+        /,
+    ) -> None:
+        frame_cls = ID3v2Frame._get_class(b"USLT")
+        match value:
+            case list() | tuple():
+                for idx, val in enumerate(value):
+                    validate_type(f"lyrics[{idx}]", val, frame_cls)
+            case str():
+                value = [frame_cls(value)]
+            case frame_cls():
+                value = [value]
+            case _:
+                raise TypeError(
+                    "`lyrics` must be a string or one or more "
+                    f"{frame_cls.__name__} objects."
+                )
+        self._set_known_frames(value)
 
     @property
     def performer(self) -> list[str] | None:
@@ -1545,7 +1526,10 @@ class ID3v2(AudioTags):
         :code:`TRK`/:code:`TRCK` – Total number of tracks.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
-            return [str(track.total) for track in frames[-1]._tracks]
+            return [
+                str(total) if (total := track.total) else total
+                for track in frames[-1]._tracks
+            ]
 
     @property
     def version(self) -> list[str] | None:
@@ -1683,20 +1667,21 @@ class ID3v2(AudioTags):
         """
         frame_cls = ID3v2Frame._get_class(frame_id)
         self._set_known_frames(
-            value if isinstance(value, frame_cls) else frame_cls(value)
+            [value if isinstance(value, frame_cls) else frame_cls(value)]
         )
 
-    def _set_known_frames(self, value: ID3v2Frame, /) -> None:
+    def _set_known_frames(self, value: list[ID3v2Frame], /) -> None:
         """
         Remove existing frames with the same frame ID and add the new
         frames.
 
         Parameters
         ----------
-        value : minim.media.metadata.id3.ID3v2Frame; positional-only
+        value : list[minim.media.metadata.id3.ID3v2Frame]; \
+        positional-only
             Frame.
         """
-        frame_cls = type(value)
+        frame_cls = type(value[0])
         self._frames = [
             frame
             for frame in self._frames
@@ -1706,17 +1691,19 @@ class ID3v2(AudioTags):
                 and frame._class is frame_cls
             )
         ]
-        self._frames.append(value)
-        self._class_index[frame_cls] = [value]
+        self._frames.extend(value)
+        self._class_index[frame_cls] = value
         self._class_index[EncryptedID3v2Frame] = [
             frame
             for frame in self._class_index[EncryptedID3v2Frame]
             if frame._class is not frame_cls
         ]
 
-    def get(self) -> None: ...
+    def get(self) -> None:
+        raise NotImplementedError  # TODO
 
-    def set(self) -> None: ...
+    def set(self) -> None:
+        raise NotImplementedError  # TODO
 
     def serialize(
         self,
