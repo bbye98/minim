@@ -5,6 +5,7 @@ import zlib
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from datetime import MAXYEAR, MINYEAR, datetime
+from itertools import zip_longest
 from typing import TYPE_CHECKING, ClassVar, NamedTuple
 
 from ...._types import ORDERED_COLLECTION_TYPES
@@ -2180,7 +2181,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
         obj = type_.__new__(type_)
         obj._datetimes = [
             self_dt | other_dt
-            for self_dt, other_dt in zip(self._datetimes, other._datetimes)
+            for self_dt, other_dt in zip_longest(
+                self._datetimes, other._datetimes, fillvalue=DateTime()
+            )
         ]
         obj._flags = other._flags
         obj._group_id = (
@@ -2207,7 +2210,9 @@ class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
                 "different numbers of datetimes."
             )
 
-        for self_dt, other_dt in zip(self._datetimes, other._datetimes):
+        for self_dt, other_dt in zip_longest(
+            self._datetimes, other._datetimes, fillvalue=DateTime()
+        ):
             self_dt |= other_dt
         if other._group_id is not None:
             self._group_id = other._group_id

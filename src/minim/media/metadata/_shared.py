@@ -294,6 +294,13 @@ class AudioTags(ABC):
         ...
 
     @abstractmethod
+    def clear(self) -> None:
+        """
+        Clear all track metadata.
+        """
+        ...
+
+    @abstractmethod
     def get(self, *args: Any, **kwargs: Any) -> Any:
         """
         Get track metadata.

@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import datetime
 from typing import TYPE_CHECKING, ClassVar
 
-from ...._types import ORDERED_COLLECTION_TYPES
+from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ...._utility import (
     as_buffer,
     join_values,
@@ -36,7 +36,7 @@ from ._shared import (
 if TYPE_CHECKING:
     from typing import Any, Self
 
-    from ...._types import BytesLike, OrderedCollection
+    from ...._types import BytesLike, Collection, OrderedCollection
     from ._frames import *
 
 
@@ -863,6 +863,7 @@ class ID3v2(AudioTags):
                 ID3v2Frame._get_class(frame_id)._from_stream_2_2(
                     stream[offset:end_offset], strict=strict
                 ),
+                merge_datetime_frames=True,
                 strict=strict,
             )
             offset = end_offset
@@ -949,6 +950,7 @@ class ID3v2(AudioTags):
                 ID3v2Frame._get_class(frame_id)._from_stream_2_3(
                     stream[offset:end_offset], strict=strict
                 ),
+                merge_datetime_frames=True,
                 strict=strict,
             )
             offset = end_offset
@@ -1234,9 +1236,9 @@ class ID3v2(AudioTags):
                 for idx, val in enumerate(value):
                     validate_type(f"comment[{idx}]", val, frame_cls)
             case str():
-                value = [frame_cls(value)]
+                value = frame_cls(value)
             case frame_cls():
-                value = [value]
+                pass
             case _:
                 raise TypeError(
                     "`comment` must be a string or one or more "
@@ -1453,9 +1455,9 @@ class ID3v2(AudioTags):
                 for idx, val in enumerate(value):
                     validate_type(f"lyrics[{idx}]", val, frame_cls)
             case str():
-                value = [frame_cls(value)]
+                value = frame_cls(value)
             case frame_cls():
-                value = [value]
+                pass
             case _:
                 raise TypeError(
                     "`lyrics` must be a string or one or more "
@@ -1553,6 +1555,7 @@ class ID3v2(AudioTags):
         frame: ID3v2Frame,
         /,
         *,
+        merge_datetime_frames: bool = False,
         strict: bool = True,
     ) -> None:
         """
@@ -1562,6 +1565,11 @@ class ID3v2(AudioTags):
         ----------
         frame : minim.media.metadata.id3.ID3v2Frame; positional-only
             ID3v2 frame.
+
+        merge_datetime_frames : bool; keyword-only; \
+        default: :code:`False`
+            Whether to merge datetime frames instead of concatenating
+            them.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -1579,6 +1587,7 @@ class ID3v2(AudioTags):
                     f"Multiple {frame._frame_id.decode(encoding='ascii')} "
                     "frames found."
                 )
+
             self._frames.append(frame)
             self._class_index[frame_cls].append(frame)
             if actual_cls is UnknownID3v2Frame:
@@ -1593,35 +1602,27 @@ class ID3v2(AudioTags):
                 and (existing_frame_keys := self._key_index.get(frame_cls))
                 and frame._key in existing_frame_keys
             ):
-                raise ValueError(
-                    f"Duplicate {frame._frame_id.decode(encoding='ascii')} "
-                    "frame found."
-                )
+                raise ValueError(f"Duplicate {frame_cls.__name__} found.")
 
             self._frames.append(frame)
             self._class_index[frame_cls].append(frame)
             if frame._key:
                 self._key_index[frame_cls][frame._key] = frame
         else:
-            existing_frames = self._class_index.get(frame_cls)
-            if existing_frames:
-                if strict:
-                    raise ValueError(
-                        f"Multiple {frame._frame_id.decode(encoding='ascii')} "
-                        "frames found."
-                    )
+            if existing_frames := self._class_index.get(frame_cls):
+                if strict and not (
+                    merge_datetime_frames
+                    and issubclass(frame_cls, ID3v2DateTimeFrame)
+                ):
+                    raise ValueError(f"Multiple {frame_cls.__name__}s found.")
 
-                existing_frame = existing_frames[-1]
-                if issubclass(frame_cls, ID3v2DateTimeFrame):
-                    existing_frame |= frame
+                if merge_datetime_frames and issubclass(
+                    frame_cls, ID3v2DateTimeFrame
+                ):
+                    existing_frames[-1] |= frame
                 else:
-                    existing_frame += frame
+                    existing_frames[-1] += frame
             else:
-                if strict and self._unknown_index.get(frame_cls):
-                    raise ValueError(
-                        f"Multiple {frame._frame_id.decode(encoding='ascii')} "
-                        "frames found."
-                    )
                 self._frames.append(frame)
                 self._class_index[frame_cls].append(frame)
 
@@ -1667,21 +1668,27 @@ class ID3v2(AudioTags):
         """
         frame_cls = ID3v2Frame._get_class(frame_id)
         self._set_known_frames(
-            [value if isinstance(value, frame_cls) else frame_cls(value)]
+            value if isinstance(value, frame_cls) else frame_cls(value)
         )
 
-    def _set_known_frames(self, value: list[ID3v2Frame], /) -> None:
+    def _set_known_frames(
+        self, frames: ID3v2Frame | list[ID3v2Frame], /
+    ) -> None:
         """
         Remove existing frames with the same frame ID and add the new
         frames.
 
         Parameters
         ----------
-        value : list[minim.media.metadata.id3.ID3v2Frame]; \
-        positional-only
-            Frame.
+        frames : minim.media.metadata.id3.ID3v2Frame or \
+        list[minim.media.metadata.id3.ID3v2Frame]; positional-only
+            Frames.
         """
-        frame_cls = type(value[0])
+        if isinstance(frames, ID3v2Frame):
+            frame_cls = type(frames)
+            frames = [frames]
+        else:
+            frame_cls = type(frames[0])
         self._frames = [
             frame
             for frame in self._frames
@@ -1691,19 +1698,101 @@ class ID3v2(AudioTags):
                 and frame._class is frame_cls
             )
         ]
-        self._frames.extend(value)
-        self._class_index[frame_cls] = value
+        self._frames.extend(frames)
+        self._class_index[frame_cls] = frames
         self._class_index[EncryptedID3v2Frame] = [
             frame
             for frame in self._class_index[EncryptedID3v2Frame]
             if frame._class is not frame_cls
         ]
 
-    def get(self) -> None:
+    # def append(self) -> None:
+    #     raise NotImplementedError  # TODO
+
+    def clear(self) -> None:
+        """
+        Clear all track metadata.
+        """
+        self._frames.clear()
+        self._class_index.clear()
+        self._key_index.clear()
+        self._unknown_index.clear()
+
+    def get(
+        self,
+        frame_types: bytes
+        | type[ID3v2Frame]
+        | Collection[bytes | type[ID3v2Frame]],
+        /,
+    ) -> (
+        list[ID3v2Frame]
+        | dict[bytes | type[ID3v2Frame], list[ID3v2Frame] | None]
+        | None
+    ):
+        """
+        Get track metadata.
+
+        Parameters
+        ----------
+        frame_types : bytes or \
+        type[minim.media.metadata.id3.ID3v2Frame]; positional-only
+            Frame IDs and/or classes.
+
+        Returns
+        -------
+        metadata : list[minim.media.metadata.id3.ID3v2Frame], \
+        dict[bytes | type[minim.media.metadata.id3.ID3v2Frame, \
+        list[minim.media.metadata.id3.ID3v2Frame] | None], or None
+            Track metadata. If `field_names` is a collection of frame 
+            IDs and/or classes, a dictionary mapping them to their 
+            corresponding frame objects is returned.
+        """
         raise NotImplementedError  # TODO
 
-    def set(self) -> None:
+    # def remove(self) -> None:
+    #     raise NotImplementedError  # TODO
+
+    def set(
+        self, frames: ID3v2Frame | OrderedCollection[ID3v2Frame], /
+    ) -> None:
+        """
+        Set track metadata.
+
+        Parameters
+        ----------
+        frames : minim.media.metadata.id3.ID3v2Frame or \
+        OrderedCollection[minim.media.metadata.id3.ID3v2Frame]; \
+        positional-only
+            Frames.
+        """
         raise NotImplementedError  # TODO
+
+        # if isinstance(frames, ID3v2Frame):
+        #     self._set_known_frames(frames)
+        #     return
+
+        # if not isinstance(frames, ORDERED_COLLECTION_TYPES):
+        #     raise TypeError(
+        #         "`frames` must be one or more ID3v2 frame objects."
+        #     )
+
+        # frames_by_type = defaultdict(list)
+        # for frame in frames:
+        #     if not isinstance(frame, ID3v2Frame):
+        #         raise TypeError(
+        #             "`frames` must be one or more ID3v2 frame objects."
+        #         )
+
+        #     # TODO: Handle unknown ID3v2 frames
+
+        #     frame_cls = type(frame)
+        #     if not frame_cls._allow_multiple and frame_cls in frames_by_type:
+        #         raise ValueError(f"Multiple {frame_cls.__name__}s found.")
+
+        #     frames_by_type[frame_cls].append(frame)
+
+        # for frames_ in frames_by_type.values():
+        #     self._set_known_frames(frames_)
 
     def serialize(
         self,
@@ -1740,6 +1829,9 @@ class ID3v2(AudioTags):
         stream : bytes
             Bytestream containing the serialized ID3v2 tag.
         """
+        if not self._frames:
+            raise ValueError("ID3v2 tag contains no frames.")
+
         tag_version = normalize_id3v2_tag_version(tag_version)
         if tag_version not in ID3V2_TAG_VERSIONS:
             raise ValueError(

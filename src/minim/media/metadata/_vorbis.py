@@ -634,7 +634,7 @@ class VorbisComment(AudioTags):
     def version(self, value: str | OrderedCollection[str], /) -> None:
         self.set(VERSION=value)
 
-    def append(self, fields: dict[str, Any], **kwargs: Any) -> None:
+    def append(self, fields: dict[str, Any], /, **kwargs: Any) -> None:
         """
         Append track metadata.
 
@@ -659,7 +659,7 @@ class VorbisComment(AudioTags):
 
         Parameters
         ----------
-        fields : dict[str, Any]; optional
+        fields : dict[str, Any]; positional-only; optional
             Key–value pairs of track metadata.
 
             **Example**: \
@@ -709,6 +709,12 @@ class VorbisComment(AudioTags):
                     f"The value {value!r} for field '{key}' has "
                     f"unsupported type {type(value).__name__}."
                 )
+
+    def clear(self) -> None:
+        """
+        Clear all track metadata.
+        """
+        self._fields.clear()
 
     def get(
         self, field_names: str | Collection[str], /
@@ -825,7 +831,7 @@ class VorbisComment(AudioTags):
         for field_name in field_names:
             self.remove(field_name)
 
-    def set(self, fields: dict[str, Any], **kwargs: Any) -> None:
+    def set(self, fields: dict[str, Any], /, **kwargs: Any) -> None:
         """
         Set track metadata.
 
@@ -850,7 +856,7 @@ class VorbisComment(AudioTags):
 
         Parameters
         ----------
-        fields : dict[str, Any]; optional
+        fields : dict[str, Any]; positional-only; optional
             Key–value pairs of track metadata.
 
             **Example**: \
