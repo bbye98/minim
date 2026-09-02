@@ -1,18 +1,25 @@
 from __future__ import annotations
+
 import base64
-from typing import TYPE_CHECKING
-import xml.etree.ElementTree as ET
-
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-import httpx
 import json
+import xml.etree.ElementTree as ET
+from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+import httpx
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_string,
+    validate_type,
+)
+from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -28,7 +35,13 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES", "HI_RES_LOSSLESS"}
+    _AUDIO_QUALITIES: ClassVar[set[str]] = {
+        "LOW",
+        "HIGH",
+        "LOSSLESS",
+        "HI_RES",
+        "HI_RES_LOSSLESS",
+    }
 
     __slots__ = ()
 
@@ -51,7 +64,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         stream : bytes
             Audio stream data.
         """
-        self._validate_type("manifest", manifest, bytes | str)
+        validate_type("manifest", manifest, bytes | str)
         if isinstance(manifest, str):
             manifest = base64.b64decode(manifest)
 
@@ -655,21 +668,21 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._validate_tidal_ids(track_id, recursive=False)
-        quality = self._prepare_string("quality", quality).upper()
+        quality = prepare_string("quality", quality).upper()
         if quality not in self._AUDIO_QUALITIES:
             raise ValueError(
                 f"Invalid audio quality {quality!r}. Valid values: "
-                f"{self._join_values(self._AUDIO_QUALITIES)}."
+                f"{join_values(self._AUDIO_QUALITIES)}."
             )
 
-        intent = self._prepare_string("intent", intent).upper()
+        intent = prepare_string("intent", intent).upper()
         if intent not in self._PLAYBACK_MODES:
             raise ValueError(
                 f"Invalid playback mode {intent!r}. Valid values: "
-                f"{self._join_values(self._PLAYBACK_MODES)}."
+                f"{join_values(self._PLAYBACK_MODES)}."
             )
 
-        self._validate_type("preview", preview, bool)
+        validate_type("preview", preview, bool)
         return self._client._request(
             "GET",
             f"v1/tracks/{track_id}/playbackinfo",
@@ -680,7 +693,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             },
         ).json()
 
-    @_copy_docstring(PrivateUsersAPI.get_user_saved_tracks)
+    @copy_docstring(PrivateUsersAPI.get_user_saved_tracks)
     def get_user_saved_tracks(
         self,
         user_id: int | str | None = None,
@@ -701,7 +714,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.save_tracks)
+    @copy_docstring(PrivateUsersAPI.save_tracks)
     def save_tracks(
         self,
         track_ids: int | str | Collection[int | str],
@@ -718,7 +731,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             on_missing=on_missing,
         )
 
-    @_copy_docstring(PrivateUsersAPI.remove_saved_tracks)
+    @copy_docstring(PrivateUsersAPI.remove_saved_tracks)
     def remove_saved_tracks(
         self,
         track_ids: int | str | Collection[int | str],
@@ -727,7 +740,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
     ) -> None:
         self._client.users.remove_saved_tracks(track_ids, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.get_user_blocked_tracks)
+    @copy_docstring(PrivateUsersAPI.get_user_blocked_tracks)
     def get_user_blocked_tracks(
         self,
         user_id: int | str | None = None,
@@ -740,13 +753,13 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.block_track)
+    @copy_docstring(PrivateUsersAPI.block_track)
     def block_track(
         self, track_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.block_track(track_id, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.unblock_track)
+    @copy_docstring(PrivateUsersAPI.unblock_track)
     def unblock_track(
         self, track_id: int | str, /, user_id: int | str | None = None
     ) -> None:

@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
@@ -137,13 +139,13 @@ class PodcastsAPI(DeezerResourceAPI):
             offset=offset,
         )
 
-    @_copy_docstring(ChartsAPI.get_top_podcasts)
+    @copy_docstring(ChartsAPI.get_top_podcasts)
     def get_top_podcasts(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.charts.get_top_podcasts(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_user_followed_podcasts)
+    @copy_docstring(UsersAPI.get_user_followed_podcasts)
     def get_user_followed_podcasts(
         self,
         user_id: int | str = "me",
@@ -156,13 +158,13 @@ class PodcastsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.follow_podcast)
+    @copy_docstring(UsersAPI.follow_podcast)
     def follow_podcast(
         self, podcast_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         return self._client.users.follow_podcast(podcast_id, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.unfollow_podcast)
+    @copy_docstring(UsersAPI.unfollow_podcast)
     def unfollow_podcast(
         self,
         podcast_id: int | str,

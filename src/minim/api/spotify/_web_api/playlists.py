@@ -1,8 +1,17 @@
 from __future__ import annotations
+
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._types import PathLike
+from ...._utility import (
+    copy_docstring,
+    prepare_string,
+    validate_locale,
+    validate_number,
+    validate_type,
+)
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
@@ -424,16 +433,16 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._validate_spotify_id(playlist_id)
         payload = {}
         if name is not None:
-            payload["name"] = self._prepare_string("name", name)
+            payload["name"] = prepare_string("name", name)
         if description is not None:
-            payload["description"] = self._prepare_string(
+            payload["description"] = prepare_string(
                 "description", description, allow_blank=True
             )
         if public is not None:
-            self._validate_type("public", public, bool)
+            validate_type("public", public, bool)
             payload["public"] = public
         if collaborative is not None:
-            self._validate_type("collaborative", collaborative, bool)
+            validate_type("collaborative", collaborative, bool)
             if collaborative:
                 if public is None:
                     payload["public"] = False
@@ -858,7 +867,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._validate_spotify_id(playlist_id)
         params = {}
         if to_index is not None:
-            self._validate_number("to_index", to_index, int, 0)
+            validate_number("to_index", to_index, int, 0)
             params["position"] = to_index
         return self._client._request(
             "POST",
@@ -954,16 +963,14 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "playlists.reorder_playlist_items"
         )
         self._validate_spotify_id(playlist_id)
-        self._validate_number("from_index", from_index, int, 0)
-        self._validate_number("to_index", to_index, int, 0)
+        validate_number("from_index", from_index, int, 0)
+        validate_number("to_index", to_index, int, 0)
         payload = {"insert_before": to_index, "range_start": from_index}
         if from_count is not None:
-            self._validate_number("from_count", from_count, int, 1)
+            validate_number("from_count", from_count, int, 1)
             payload["range_length"] = from_count
         if snapshot_id is not None:
-            payload["snapshot_id"] = self._prepare_string(
-                "snapshot_id", snapshot_id
-            )
+            payload["snapshot_id"] = prepare_string("snapshot_id", snapshot_id)
         return self._client._request(
             "PUT", f"playlists/{playlist_id}/items", json=payload
         ).json()
@@ -1126,20 +1133,18 @@ class PlaylistsAPI(SpotifyResourceAPI):
             )
         }
         if snapshot_id is not None:
-            payload["snapshot_id"] = self._prepare_string(
-                "snapshot_id", snapshot_id
-            )
+            payload["snapshot_id"] = prepare_string("snapshot_id", snapshot_id)
         return self._client._request(
             "DELETE", f"playlists/{playlist_id}/items", json=payload
         ).json()
 
-    @_copy_docstring(UsersAPI.get_my_playlists)
+    @copy_docstring(UsersAPI.get_my_playlists)
     def get_my_playlists(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.users.get_my_playlists(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_user_playlists)
+    @copy_docstring(UsersAPI.get_user_playlists)
     def get_user_playlists(
         self,
         user_id: str | None = None,
@@ -1265,20 +1270,20 @@ class PlaylistsAPI(SpotifyResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        payload = {"name": self._prepare_string("name", name)}
+        payload = {"name": prepare_string("name", name)}
         if description is not None:
-            payload["description"] = self._prepare_string(
+            payload["description"] = prepare_string(
                 "description", description, allow_blank=True
             )
         if public is not None:
-            self._validate_type("public", public, bool)
+            validate_type("public", public, bool)
             self._client._require_scopes(
                 "playlists.create_playlist",
                 f"playlist-modify-{'public' if public else 'private'}",
             )
             payload["public"] = public
         if collaborative is not None:
-            self._validate_type("collaborative", collaborative, bool)
+            validate_type("collaborative", collaborative, bool)
             if collaborative:
                 if public is None:
                     payload["public"] = False
@@ -1411,13 +1416,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if locale:
-            self._validate_locale(locale)
+            validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", "browse/featured-playlists", params=params
@@ -1539,10 +1544,10 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"browse/categories/{category_id}/playlists", params=params
@@ -1587,7 +1592,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         ).json()
 
     def add_playlist_cover_image(
-        self, playlist_id: str, /, image: bytes | str | Path
+        self, playlist_id: str, /, image: bytes | PathLike
     ) -> None:
         """
         `Playlists > Add Custom Playlist Cover Image
@@ -1626,7 +1631,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        image : bytes, str, or pathlib.Path
+        image : bytes or PathLike
             Base64-encoded JPEG image data, provided as a bytes object
             or a file path.
 
@@ -1637,8 +1642,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "playlists.add_playlist_cover_image", "ugc-image-upload"
         )
         self._validate_spotify_id(playlist_id)
-        if isinstance(image, str | Path):
-            image = Path(image).expanduser().resolve(True)
+        if isinstance(image, PathLike):
+            image = Path(image).expanduser().resolve(strict=True)
             with open(image, "rb") as f:
                 image = f.read()
         if not isinstance(image, bytes) or not (
@@ -1659,16 +1664,16 @@ class PlaylistsAPI(SpotifyResourceAPI):
             headers={"content-type": "image/jpeg"},
         )
 
-    @_copy_docstring(UsersAPI.follow_playlist)
+    @copy_docstring(UsersAPI.follow_playlist)
     def follow_playlist(
         self, playlist_id: str, /, *, public: bool | None = None
     ) -> None:
         self._client.users.follow_playlist(playlist_id, public=public)
 
-    @_copy_docstring(UsersAPI.unfollow_playlist)
+    @copy_docstring(UsersAPI.unfollow_playlist)
     def unfollow_playlist(self, playlist_id: str, /) -> None:
         self._client.users.unfollow_playlist(playlist_id)
 
-    @_copy_docstring(UsersAPI.is_following_playlist)
+    @copy_docstring(UsersAPI.is_following_playlist)
     def is_following_playlist(self, playlist_id: str, /) -> bool:
         return self._client.users.is_following_playlist(playlist_id)

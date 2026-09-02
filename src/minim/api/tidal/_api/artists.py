@@ -1,14 +1,16 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring, prepare_string
+from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -23,7 +25,7 @@ class ArtistsAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RELATIONSHIPS = {
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "biography",
         "followers",
@@ -141,9 +143,9 @@ class ArtistsAPI(TIDALResourceAPI):
 
         .. important::
 
-           Exactly one of `artist_ids`, `handles`, or `owner_ids` must 
-           be provided. When `handles` or `owner_ids` is specified, the 
-           request will always be sent to the endpoint for multiple 
+           Exactly one of `artist_ids`, `handles`, or `owner_ids` must
+           be provided. When `handles` or `owner_ids` is specified, the
+           request will always be sent to the endpoint for multiple
            artists.
 
         Parameters
@@ -1007,7 +1009,7 @@ class ArtistsAPI(TIDALResourceAPI):
         if handles is not None:
             if isinstance(handles, COLLECTION_TYPES):
                 handles = [
-                    self._prepare_string(f"handles[{idx}]", handle)
+                    prepare_string(f"handles[{idx}]", handle)
                     for idx, handle in enumerate(handles)
                 ]
             elif not isinstance(handles, str):
@@ -2116,7 +2118,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(SearchAPI.search_artists)
+    @copy_docstring(SearchAPI.search_artists)
     def search_artists(
         self,
         query: str,
@@ -2135,7 +2137,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_artist_collection)
+    @copy_docstring(UsersAPI.get_artist_collection)
     def get_artist_collection(
         self,
         collection_id: str | None = None,
@@ -2152,7 +2154,7 @@ class ArtistsAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    @_copy_docstring(UsersAPI.get_user_followed_artists)
+    @copy_docstring(UsersAPI.get_user_followed_artists)
     def get_user_followed_artists(
         self,
         *,
@@ -2176,7 +2178,7 @@ class ArtistsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.follow_artists)
+    @copy_docstring(UsersAPI.follow_artists)
     def follow_artists(
         self,
         artist_ids: int
@@ -2196,7 +2198,7 @@ class ArtistsAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    @_copy_docstring(UsersAPI.unfollow_artists)
+    @copy_docstring(UsersAPI.unfollow_artists)
     def unfollow_artists(
         self,
         artist_ids: int

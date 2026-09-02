@@ -1,16 +1,18 @@
 from __future__ import annotations
-from datetime import datetime, timedelta
+
 import json
 import os
 import secrets
 import time
+import warnings
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 from urllib.parse import parse_qsl, urlencode, urlparse
-import warnings
 
 import httpx
 
-from .._shared import TokenDatabase, TTLCache, APIClient, OAuth2APIClient
+from ..._utility import join_values
+from .._shared import APIClient, OAuth2APIClient, TokenDatabase, TTLCache
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.charts import ChartsAPI
@@ -25,7 +27,7 @@ from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ..._types import Collection
 
@@ -35,12 +37,12 @@ class DeezerAPIClient(OAuth2APIClient):
     Deezer API client.
     """
 
-    AUTH_URL = "https://connect.deezer.com/oauth/auth.php"
-    BASE_URL = "https://api.deezer.com"
-    TOKEN_URL = "https://connect.deezer.com/oauth/access_token.php"
-
-    _ALLOWED_AUTH_FLOWS = {None, "auth_code", "implicit"}
-    _ALLOWED_PERMISSIONS = {
+    _ALLOWED_AUTH_FLOWS: ClassVar[set[str | None]] = {
+        None,
+        "auth_code",
+        "implicit",
+    }
+    _ALLOWED_PERMISSIONS: ClassVar[set[str]] = {
         "basic_access",
         "email",
         "offline_access",
@@ -49,12 +51,18 @@ class DeezerAPIClient(OAuth2APIClient):
         "delete_library",
         "listening_history",
     }
-    _ENV_VAR_PREFIX = "DEEZER_API"
-    _OPTIONAL_AUTH = True
-    _PROVIDER = "Deezer"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _ENV_VAR_PREFIX: ClassVar[str] = "DEEZER_API"
+    _OPTIONAL_AUTH: ClassVar[bool] = True
+    _PROVIDER: ClassVar[str] = "Deezer"
+    _QUAL_NAME: ClassVar[str] = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
 
-    _rate_limit_per_second = 10.0
+    AUTH_URL: ClassVar[str] = "https://connect.deezer.com/oauth/auth.php"
+    BASE_URL: ClassVar[str] = "https://api.deezer.com"
+    TOKEN_URL: ClassVar[str] = (
+        "https://connect.deezer.com/oauth/access_token.php"
+    )
+
+    _rate_limit_per_second: ClassVar[float] = 10.0
 
     __slots__ = (
         "_access_token",
@@ -253,7 +261,7 @@ class DeezerAPIClient(OAuth2APIClient):
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
-                    self.__class__.__name__,
+                    type(self).__name__,
                     auth_flow=auth_flow,
                     client_id=app_id,
                     user_identifier=user_identifier,
@@ -477,7 +485,7 @@ class DeezerAPIClient(OAuth2APIClient):
 
         self.set_access_token(
             resp_json.pop("access_token"),
-            expires_at=(datetime.now() + timedelta(seconds=expires))
+            expires_at=(datetime.now(UTC) + timedelta(seconds=expires))
             if (expires := int(resp_json.pop("expires")))
             else None,
         )
@@ -486,7 +494,7 @@ class DeezerAPIClient(OAuth2APIClient):
             self._user_identifier = self._resolve_user_identifier()
         if self._store_tokens:
             TokenDatabase.add_token(
-                self.__class__.__name__,
+                type(self).__name__,
                 auth_flow=self._auth_flow,
                 client_id=self._app_id,
                 client_secret=self._app_secret,
@@ -508,8 +516,8 @@ class DeezerAPIClient(OAuth2APIClient):
         *,
         retry: bool = True,
         params: dict[str, Any] | None = None,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to a Deezer API endpoint.
 
@@ -536,7 +544,7 @@ class DeezerAPIClient(OAuth2APIClient):
         if (rate_limiter := self._rate_limiter) is not None:
             rate_limiter.throttle()
 
-        if self._expires_at and datetime.now() > self._expires_at:
+        if self._expires_at and datetime.now(UTC) > self._expires_at:
             self._obtain_access_token()
 
         if self._access_token:
@@ -725,7 +733,9 @@ class DeezerAPIClient(OAuth2APIClient):
         self._access_token = access_token
         self._refresh_token = None
         self._expires_at = (
-            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ")
+            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ").replace(
+                tzinfo=UTC
+            )
             if expires_at and isinstance(expires_at, str)
             else expires_at
         )
@@ -849,7 +859,7 @@ class DeezerAPIClient(OAuth2APIClient):
         if auth_flow not in self._ALLOWED_AUTH_FLOWS:
             raise ValueError(
                 f"Invalid authorization flow {auth_flow!r}. "
-                f"Valid values: {self._join_values(self._ALLOWED_AUTH_FLOWS)}."
+                f"Valid values: {join_values(self._ALLOWED_AUTH_FLOWS)}."
             )
         self._auth_flow = auth_flow
 
@@ -912,7 +922,7 @@ class DeezerAPIClient(OAuth2APIClient):
             self._redirect_uri = redirect_uri
             if redirect_handler is not None:
                 if redirect_handler not in self._REDIRECT_HANDLERS:
-                    handlers_str = self._join_values(self._REDIRECT_HANDLERS)
+                    handlers_str = join_values(self._REDIRECT_HANDLERS)
                     if handlers_str:
                         handlers_str = f", '{handlers_str}'"
                     raise ValueError(

@@ -1,13 +1,16 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._types import ORDERED_COLLECTION_TYPES
+from ...._utility import copy_docstring, prepare_isrc
+from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -22,7 +25,7 @@ class VideosAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RELATIONSHIPS = {
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "artists",
         "credits",
@@ -95,9 +98,9 @@ class VideosAPI(TIDALResourceAPI):
             Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"credits"`, :code:`"providers"`, 
-            :code:`"replacement"`, :code:`"similarVideos"`, 
-            :code:`"suggestedVideos"`, :code:`"thumbnailArt"`, 
+            :code:`"credits"`, :code:`"providers"`,
+            :code:`"replacement"`, :code:`"similarVideos"`,
+            :code:`"suggestedVideos"`, :code:`"thumbnailArt"`,
             :code:`"usageRules"`.
 
             **Examples**: :code:`"thumbnailArt"`,
@@ -648,9 +651,9 @@ class VideosAPI(TIDALResourceAPI):
         params = {}
         if isrcs is not None:
             if isinstance(isrcs, str):
-                isrcs = self._prepare_isrc(isrcs)
-            elif isinstance(isrcs, list | tuple):
-                isrcs = [self._prepare_isrc(isrc) for isrc in isrcs]
+                isrcs = prepare_isrc(isrcs)
+            elif isinstance(isrcs, ORDERED_COLLECTION_TYPES):
+                isrcs = [prepare_isrc(isrc) for isrc in isrcs]
             else:
                 raise ValueError(
                     "`isrcs` must be a string or a list of strings."
@@ -1209,7 +1212,7 @@ class VideosAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @_copy_docstring(SearchAPI.search_videos)
+    @copy_docstring(SearchAPI.search_videos)
     def search_videos(
         self,
         query: str,
@@ -1228,7 +1231,7 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_user_saved_videos)
+    @copy_docstring(UsersAPI.get_user_saved_videos)
     def get_user_saved_videos(
         self,
         *,
@@ -1252,7 +1255,7 @@ class VideosAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.save_videos)
+    @copy_docstring(UsersAPI.save_videos)
     def save_videos(
         self,
         video_ids: str
@@ -1271,7 +1274,7 @@ class VideosAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_videos)
+    @copy_docstring(UsersAPI.remove_saved_videos)
     def remove_saved_videos(
         self,
         video_ids: str

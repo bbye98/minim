@@ -1,11 +1,20 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from ...._utility import (
+    join_values,
+    prepare_string,
+    validate_country_code,
+    validate_number,
+    validate_type,
+    validate_uuids,
+)
 from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -21,7 +30,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _SORT_FIELDS = {"DATE", "NAME"}
+    _SORT_FIELDS: ClassVar[set[str]] = {"DATE", "NAME"}
 
     __slots__ = ()
 
@@ -105,10 +114,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user_id = self._client._resolve_user_identifier()
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"v1/users/{user_id}/blocks/{resource_type}", params=params
@@ -234,20 +243,20 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid values: "
-                    f"{self._join_values(self._SORT_FIELDS)}."
+                    f"{join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["orderDirection"] = "DESC" if descending else "ASC"
         return self._client._request(
             "GET",
@@ -301,14 +310,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         if country_code is None:
             country_code = self._client._my_country_code
         else:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
         data = {
             f"{resource_type[:-1]}Ids": self._prepare_tidal_ids(
                 item_ids, limit=1_000
             )
         }
         if on_missing is not None:
-            on_missing = self._prepare_string("on_missing", on_missing).upper()
+            on_missing = prepare_string("on_missing", on_missing).upper()
             if on_missing not in {"FAIL", "SKIP"}:
                 raise ValueError(
                     f"Invalid behavior {on_missing!r} for missing "
@@ -396,9 +405,9 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user_id = self._client._resolve_user_identifier()
         params = {}
         if cursor is not None:
-            params["cursor"] = self._prepare_string("cursor", cursor)
+            params["cursor"] = prepare_string("cursor", cursor)
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         return self._client._request(
             f"v2/{resource_type}/{user_id}/{relationship}", params=params
@@ -477,13 +486,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Page of TIDAL metadata for the playlist folders and/or
             playlists in the current user's collection.
         """
-        self._validate_number("limit", limit, int, 1, 50)
+        validate_number("limit", limit, int, 1, 50)
         if params is None:
             params = {"limit": limit}
         else:
             params["limit"] = limit
         if cursor is not None:
-            params["cursor"] = self._prepare_string("cursor", cursor)
+            params["cursor"] = prepare_string("cursor", cursor)
         if playlist_types is not None:
             self._client.playlists._validate_types(playlist_types)
             params["includeOnly"] = playlist_types
@@ -491,11 +500,11 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid values: "
-                    f"{self._join_values(self._SORT_FIELDS)}."
+                    f"{join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["orderDirection"] = "DESC" if descending else "ASC"
         return self._client._request(
             "GET", f"v2/my-collection/{subresource}", params=params
@@ -574,20 +583,20 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid values: "
-                    f"{self._join_values(self._SORT_FIELDS)}."
+                    f"{join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["orderDirection"] = "DESC" if descending else "ASC"
         return self._client._request(
             "GET", f"v1/users/{user_id}/{subresource}", params=params
@@ -1672,19 +1681,19 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._require_authentication("users.get_my_followed_mixes")
-        self._validate_number("limit", limit, int, 1, 50)
+        validate_number("limit", limit, int, 1, 50)
         params = {"limit": limit}
         if cursor is not None:
-            params["cursor"] = self._prepare_string("cursor", cursor)
+            params["cursor"] = prepare_string("cursor", cursor)
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid values: "
-                    f"{self._join_values(self._SORT_FIELDS)}."
+                    f"{join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["orderDirection"] = "DESC" if descending else "ASC"
         return self._client._request(
             "GET", "v2/favorites/mixes", params=params
@@ -1726,10 +1735,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             :code:`{"content": <list[str]>, "cursor": <str>}`
         """
         self._client._require_authentication("users.get_my_followed_mix_ids")
-        self._validate_number("limit", limit, int, 1, 50)
+        validate_number("limit", limit, int, 1, 50)
         params = {"limit": limit}
         if cursor is not None:
-            params["cursor"] = self._prepare_string("cursor", cursor)
+            params["cursor"] = prepare_string("cursor", cursor)
         return self._client._request(
             "GET", "v2/favorites/mixes/ids", params=params
         ).json()
@@ -1775,7 +1784,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication("users.follow_mixes")
         data = {"mixIds": self._prepare_mix_ids(mix_ids)}
         if on_missing is not None:
-            on_missing = self._prepare_string("on_missing", on_missing).upper()
+            on_missing = prepare_string("on_missing", on_missing).upper()
             if on_missing not in {"FAIL", "SKIP"}:
                 raise ValueError(
                     f"Invalid behavior {on_missing!r} for missing "
@@ -2015,14 +2024,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         """
         self._client._require_authentication("users.follow_playlists")
         params = {"uuids": self._prepare_uuids("playlist", playlist_uuids)}
-        self._validate_number("api_version", api_version, int, 1, 2)
+        validate_number("api_version", api_version, int, 1, 2)
         if api_version == 1:
             if user_id is None:
                 user_id = self._client._resolve_user_identifier()
             if country_code is None:
                 country_code = self._client._my_country_code
             else:
-                self._validate_country_code(country_code)
+                validate_country_code(country_code)
             self._client._request(
                 "POST",
                 f"v1/users/{user_id}/favorites/playlists",
@@ -2032,7 +2041,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         else:
             if folder_uuid is not None:
                 if folder_uuid != "root":
-                    self._validate_uuids(folder_uuid)
+                    validate_uuids(folder_uuid)
                 params["folderId"] = folder_uuid
             self._client._request(
                 "PUT",
@@ -2092,7 +2101,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
               endpoint.
         """
         self._client._require_authentication("users.unfollow_playlists")
-        self._validate_number("api_version", api_version, int, 1, 2)
+        validate_number("api_version", api_version, int, 1, 2)
         if api_version == 1:
             if user_id is None:
                 user_id = self._client._resolve_user_identifier()
@@ -2446,7 +2455,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         params = {}
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._validate_uuids(folder_uuid)
+                validate_uuids(folder_uuid)
             params["folderId"] = folder_uuid
         return self._get_my_playlists(
             "playlists/folders",
@@ -3268,10 +3277,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication("playlists.get_my_blocked_users")
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "v2/profiles/blocked-profiles", params=params

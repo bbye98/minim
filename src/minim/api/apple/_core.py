@@ -1,13 +1,22 @@
 from __future__ import annotations
-from json.decoder import JSONDecodeError
-import time
-from typing import TYPE_CHECKING
-import warnings
 
-from .._shared import TTLCache, APIClient, ResourceAPI
+import time
+import warnings
+from json.decoder import JSONDecodeError
+from typing import TYPE_CHECKING
+
+from ..._utility import (
+    join_values,
+    prepare_string,
+    validate_country_code,
+    validate_locale,
+    validate_number,
+    validate_type,
+)
+from .._shared import APIClient, ResourceAPI, TTLCache
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     import httpx
 
@@ -19,10 +28,8 @@ class iTunesSearchAPIClient(APIClient):
     iTunes Search API client.
     """
 
-    BASE_URL = "https://itunes.apple.com"
-
-    _LOCALES = {"en_us", "ja_jp"}
-    _MEDIA_TYPES = {
+    _LOCALES: ClassVar[set[str]] = {"en_us", "ja_jp"}
+    _MEDIA_TYPES: ClassVar[dict[str, dict[str, set[str]]]] = {
         "all": {
             "entities": {
                 "album",
@@ -160,10 +167,12 @@ class iTunesSearchAPIClient(APIClient):
             },
         },
     }
-    _PROVIDER = "Apple"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _PROVIDER: ClassVar[str] = "Apple"
+    _QUAL_NAME: ClassVar[str] = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
 
-    _rate_limit_per_second = 1 / 3
+    BASE_URL: ClassVar[str] = "https://itunes.apple.com"
+
+    _rate_limit_per_second: ClassVar[float] = 1 / 3
 
     __slots__ = ()
 
@@ -201,8 +210,8 @@ class iTunesSearchAPIClient(APIClient):
         endpoint: str,
         /,
         retry: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to an iTunes Search API endpoint.
 
@@ -630,7 +639,7 @@ class iTunesSearchAPIClient(APIClient):
                     [arg] if isinstance(arg, int | str) else arg
                 ):
                     _validate(f"{arg_name}[{idx}]", val, dtype)
-                params[param_name] = self._join_values(
+                params[param_name] = join_values(
                     arg, fmt=str, whitespace=False
                 )
         if not len(params):
@@ -642,14 +651,14 @@ class iTunesSearchAPIClient(APIClient):
             ):
                 raise ValueError(
                     f"Invalid item type {item_type!r}. "
-                    f"Valid values: {self._join_values(entities)}."
+                    f"Valid values: {join_values(entities)}."
                 )
             params["entity"] = item_type
         if limit is not None:
-            ResourceAPI._validate_number("limit", limit, int, 1, 200)
+            validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
         if order is not None:
-            order = ResourceAPI._prepare_string("order", order)
+            order = prepare_string("order", order)
             if order != "recent":
                 raise ValueError(
                     f"Invalid ordering mode {order!r}. Valid value: 'recent'."
@@ -1035,9 +1044,9 @@ class iTunesSearchAPIClient(APIClient):
                           ]
                         }
         """
-        ResourceAPI._validate_country_code(country_code)
+        validate_country_code(country_code)
         params = {
-            "term": ResourceAPI._prepare_string("query", query),
+            "term": prepare_string("query", query),
             "country": country_code,
         }
         if media_type is None:
@@ -1046,7 +1055,7 @@ class iTunesSearchAPIClient(APIClient):
             if media_type not in self._MEDIA_TYPES:
                 raise ValueError(
                     f"Invalid media type {media_type!r}. "
-                    f"Valid values: {self._join_values(self._MEDIA_TYPES)}."
+                    f"Valid values: {join_values(self._MEDIA_TYPES)}."
                 )
             params["media"] = media_type
             emsg_suffix = f" for media type {media_type!r}"
@@ -1056,7 +1065,7 @@ class iTunesSearchAPIClient(APIClient):
             ):
                 raise ValueError(
                     f"Invalid item type {item_type!r}{emsg_suffix}."
-                    f"Valid values: {self._join_values(entities)}."
+                    f"Valid values: {join_values(entities)}."
                 )
             params["entity"] = item_type
         if search_field is not None:
@@ -1067,31 +1076,29 @@ class iTunesSearchAPIClient(APIClient):
             ):
                 raise ValueError(
                     f"Invalid search field {search_field!r}{emsg_suffix}. "
-                    f"Valid values: {self._join_values(attributes)}."
+                    f"Valid values: {join_values(attributes)}."
                 )
             params["attribute"] = search_field
         if limit is not None:
-            ResourceAPI._validate_number("limit", limit, int, 1, 200)
+            validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
         if locale is not None:
-            ResourceAPI._validate_locale(locale)
+            validate_locale(locale)
             if locale.lower() not in self._LOCALES:
                 raise ValueError(
                     f"Invalid language tag {locale!r}. "
-                    f"Valid values: {self._join_values(self._LOCALES)}."
+                    f"Valid values: {join_values(self._LOCALES)}."
                 )
             params["lang"] = locale
         if api_version is not None:
-            ResourceAPI._validate_number("api_version", api_version, int, 1, 2)
+            validate_number("api_version", api_version, int, 1, 2)
             params["version"] = api_version
         if include_explicit is not None:
-            ResourceAPI._validate_type(
-                "include_explicit", include_explicit, bool | str
-            )
+            validate_type("include_explicit", include_explicit, bool | str)
             if isinstance(include_explicit, bool):
                 params["explicit"] = "Yes" if include_explicit else "No"
             elif (
-                include_explicit := ResourceAPI._prepare_string(
+                include_explicit := prepare_string(
                     "include_explicit", include_explicit
                 )
             ) in {"yes", "no"}:

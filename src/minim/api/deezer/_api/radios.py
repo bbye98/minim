@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring, validate_number
+from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
@@ -257,22 +259,22 @@ class RadiosAPI(DeezerResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1)
+            validate_number("limit", limit, int, 1)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["index"] = offset
         return self._client._request(
             "GET", "radio/lists", params=params
         ).json()
 
-    @_copy_docstring(ChartsAPI.get_top_radios)
+    @copy_docstring(ChartsAPI.get_top_radios)
     def get_top_radios(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.charts.get_top_radios(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_user_followed_radios)
+    @copy_docstring(UsersAPI.get_user_followed_radios)
     def get_user_followed_radios(
         self,
         user_id: int | str = "me",
@@ -285,19 +287,19 @@ class RadiosAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.save_radio)
+    @copy_docstring(UsersAPI.save_radio)
     def save_radio(
         self, radio_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         return self._client.users.save_radio(radio_id, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.remove_saved_radio)
+    @copy_docstring(UsersAPI.remove_saved_radio)
     def remove_saved_radio(
         self, radio_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         return self._client.users.remove_saved_radio(radio_id, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.get_user_radio_recommendations)
+    @copy_docstring(UsersAPI.get_user_radio_recommendations)
     def get_user_radio_recommendations(
         self,
         user_id: int | str = "me",

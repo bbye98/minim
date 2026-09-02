@@ -1,12 +1,15 @@
 from __future__ import annotations
+
 import base64
-from datetime import datetime, timezone
 import hashlib
 import hmac
 import json
 import re
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
+
+import httpx
 
 from .._shared import APIClient
 from ._lyrics_api.albums import AlbumsAPI
@@ -17,10 +20,8 @@ from ._lyrics_api.matcher import MatcherAPI
 from ._lyrics_api.search import SearchAPI
 from ._lyrics_api.tracks import TracksAPI
 
-import httpx
-
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
 
 class MusixmatchLyricsAPIClient(APIClient):
@@ -28,13 +29,14 @@ class MusixmatchLyricsAPIClient(APIClient):
     Musixmatch Lyrics API client.
     """
 
-    _APP_RE = re.compile(r'http[^"]*/_app[^"]*\.js')
-    _KEY_RE = re.compile(r'from\("(.*?)"')
+    _APP_RE: ClassVar[re.Pattern[str]] = re.compile(r'http[^"]*/_app[^"]*\.js')
+    _KEY_RE: ClassVar[re.Pattern[str]] = re.compile(r'from\("(.*?)"')
 
-    _ENV_VAR_PREFIX = "MUSIXMATCH_LYRICS_API"
-    _PROVIDER = "Musixmatch"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    BASE_URL = "https://www.musixmatch.com/ws/1.1"
+    _ENV_VAR_PREFIX: ClassVar[str] = "MUSIXMATCH_LYRICS_API"
+    _PROVIDER: ClassVar[str] = "Musixmatch"
+    _QUAL_NAME: ClassVar[str] = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+
+    BASE_URL: ClassVar[str] = "https://www.musixmatch.com/ws/1.1"
 
     __slot__ = (
         "_api_key",
@@ -106,8 +108,8 @@ class MusixmatchLyricsAPIClient(APIClient):
         /,
         *,
         params: dict[str, Any] | None = None,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to a Musixmatch Lyrics API endpoint.
 
@@ -145,11 +147,11 @@ class MusixmatchLyricsAPIClient(APIClient):
                         self._client_key,
                         (
                             f"{self.BASE_URL}/{endpoint}?{urlencode(params)}"
-                            f"{datetime.now(timezone.utc).strftime('%Y%m%d')}"
+                            f"{datetime.now(UTC).strftime('%Y%m%d')}"
                         ).encode(),
                         hashlib.sha256,
                     ).digest()
-                ).decode(),
+                ).decode(encoding="utf-8"),
                 "signature_protocol": "sha256",
             }
         else:
@@ -229,6 +231,6 @@ class MusixmatchLyricsAPIClient(APIClient):
         elif isinstance(api_key, bytes):
             self._api_key = api_key
         elif isinstance(api_key, str):
-            self._api_key = api_key.encode()
+            self._api_key = api_key.encode(encoding="utf-8")
         else:
             raise TypeError("`api_key` must be a string.")

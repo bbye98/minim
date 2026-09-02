@@ -1,10 +1,12 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from ...._utility import join_values, validate_number
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
     from .. import SpotifyWebAPIClient
@@ -15,8 +17,9 @@ class SpotifyResourceAPI(ResourceAPI):
     Base class for Spotify Web API resource endpoint groups.
     """
 
-    _AUDIO_TYPES = {"episode", "track"}
-    _client: "SpotifyWebAPIClient"
+    _AUDIO_TYPES: ClassVar[set[str]] = {"episode", "track"}
+
+    _client: SpotifyWebAPIClient
 
     __slots__ = ()
 
@@ -218,7 +221,7 @@ class SpotifyResourceAPI(ResourceAPI):
             if type_ not in allowed_types:
                 raise ValueError(
                     f"Invalid {type_prefix} type {type_!r}. Valid "
-                    f"values: {ResourceAPI._join_values(allowed_types)}."
+                    f"values: {join_values(allowed_types)}."
                 )
             types_.add(type_)
         return ",".join(sorted(types_))
@@ -373,10 +376,10 @@ class SpotifyResourceAPI(ResourceAPI):
             self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"{resource_type}/{resource_id}/{item_type}", params=params

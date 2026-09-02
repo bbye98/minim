@@ -1,13 +1,15 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring, join_values
+from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -23,7 +25,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _ALBUM_TYPES = {"COMPILATIONS", "EPSANDSINGLES"}
+    _ALBUM_TYPES: ClassVar[set[str]] = {"COMPILATIONS", "EPSANDSINGLES"}
 
     __slots__ = ()
 
@@ -205,7 +207,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             if album_type not in self._ALBUM_TYPES:
                 raise ValueError(
                     f"Invalid album type {album_type!r}. Valid values: "
-                    f"{self._join_values(self._ALBUM_TYPES)}."
+                    f"{join_values(self._ALBUM_TYPES)}."
                 )
             params["filter"] = album_type
         return self._get_resource_relationship(
@@ -830,7 +832,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @_copy_docstring(PrivatePagesAPI.get_artist_page)
+    @copy_docstring(PrivatePagesAPI.get_artist_page)
     def get_artist_page(
         self,
         artist_id: int | str,
@@ -844,7 +846,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             artist_id, country_code, device_type=device_type, locale=locale
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_user_blocked_artists)
+    @copy_docstring(PrivateUsersAPI.get_user_blocked_artists)
     def get_user_blocked_artists(
         self,
         user_id: int | str | None = None,
@@ -857,19 +859,19 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.block_artist)
+    @copy_docstring(PrivateUsersAPI.block_artist)
     def block_artist(
         self, artist_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.block_artists(artist_id, user_id)
 
-    @_copy_docstring(PrivateUsersAPI.unblock_artist)
+    @copy_docstring(PrivateUsersAPI.unblock_artist)
     def unblock_artist(
         self, artist_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.unblock_artists(artist_id, user_id)
 
-    @_copy_docstring(PrivateUsersAPI.follow_artists)
+    @copy_docstring(PrivateUsersAPI.follow_artists)
     def get_user_followed_artists(
         self,
         user_id: int | str | None = None,
@@ -890,7 +892,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.follow_artists)
+    @copy_docstring(PrivateUsersAPI.follow_artists)
     def follow_artists(
         self,
         artist_ids: int | str | Collection[int | str],
@@ -907,7 +909,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             missing_ok=missing_ok,
         )
 
-    @_copy_docstring(PrivateUsersAPI.unfollow_artists)
+    @copy_docstring(PrivateUsersAPI.unfollow_artists)
     def unfollow_artists(
         self,
         artist_ids: int | str | Collection[int | str],

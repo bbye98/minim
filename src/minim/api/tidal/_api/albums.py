@@ -1,14 +1,16 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring, prepare_barcode
+from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -23,7 +25,7 @@ class AlbumsAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RELATIONSHIPS = {
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albumStatistics",
         "artists",
         "coverArt",
@@ -38,7 +40,7 @@ class AlbumsAPI(TIDALResourceAPI):
         "suggestedCoverArts",
         "usageRules",
     }
-    _SORT_FIELDS = {"createdAt", "title"}
+    _SORT_FIELDS: ClassVar[set[str]] = {"createdAt", "title"}
 
     __slots__ = ()
 
@@ -125,7 +127,7 @@ class AlbumsAPI(TIDALResourceAPI):
             :code:`["artists", "items"]`.
 
         cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results when retrieving 
+            Cursor for fetching the next page of results when retrieving
             multiple albums.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1057,11 +1059,9 @@ class AlbumsAPI(TIDALResourceAPI):
         params = {}
         if barcodes is not None:
             if isinstance(barcodes, int | str):
-                barcodes = self._prepare_barcode(barcodes)
+                barcodes = prepare_barcode(barcodes)
             elif isinstance(barcodes, COLLECTION_TYPES):
-                barcodes = [
-                    self._prepare_barcode(barcode) for barcode in barcodes
-                ]
+                barcodes = [prepare_barcode(barcode) for barcode in barcodes]
             else:
                 raise ValueError(
                     "`barcodes` must be an integer, a string, or a "
@@ -1951,7 +1951,7 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @_copy_docstring(SearchAPI.search_albums)
+    @copy_docstring(SearchAPI.search_albums)
     def search_albums(
         self,
         query: str,
@@ -1970,7 +1970,7 @@ class AlbumsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_album_collection)
+    @copy_docstring(UsersAPI.get_album_collection)
     def get_album_collection(
         self,
         collection_id: str | None = None,
@@ -1987,7 +1987,7 @@ class AlbumsAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    @_copy_docstring(UsersAPI.get_user_saved_albums)
+    @copy_docstring(UsersAPI.get_user_saved_albums)
     def get_user_saved_albums(
         self,
         *,
@@ -2011,7 +2011,7 @@ class AlbumsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.save_albums)
+    @copy_docstring(UsersAPI.save_albums)
     def save_albums(
         self,
         album_ids: int
@@ -2031,7 +2031,7 @@ class AlbumsAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_albums)
+    @copy_docstring(UsersAPI.remove_saved_albums)
     def remove_saved_albums(
         self,
         album_ids: int

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ...._utility import join_values, validate_type
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
@@ -57,10 +58,10 @@ class GenresAPI(SpotifyResourceAPI):
             if seed_genre not in self.available_seed_genres:
                 raise ValueError(
                     f"Invalid seed genre {seed_genre!r}. Valid values: "
-                    f"{self._join_values(self.available_seed_genres)}."
+                    f"{join_values(self.available_seed_genres)}."
                 )
         else:
-            self._validate_type("seed_genre", seed_genre, str)
+            validate_type("seed_genre", seed_genre, str)
 
     @TTLCache.cached_method(ttl="static")
     def get_seed_genres(self) -> dict[str, list[str]]:

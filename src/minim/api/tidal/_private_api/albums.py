@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
@@ -704,7 +706,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @_copy_docstring(PrivatePagesAPI.get_album_page)
+    @copy_docstring(PrivatePagesAPI.get_album_page)
     def get_album_page(
         self,
         album_id: int | str,
@@ -718,7 +720,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             album_id, country_code, device_type=device_type, locale=locale
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_user_saved_albums)
+    @copy_docstring(PrivateUsersAPI.get_user_saved_albums)
     def get_user_saved_albums(
         self,
         user_id: int | str | None = None,
@@ -739,7 +741,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.save_albums)
+    @copy_docstring(PrivateUsersAPI.save_albums)
     def save_albums(
         self,
         album_ids: int | str | Collection[int | str],
@@ -756,7 +758,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             missing_ok=missing_ok,
         )
 
-    @_copy_docstring(PrivateUsersAPI.remove_saved_albums)
+    @copy_docstring(PrivateUsersAPI.remove_saved_albums)
     def remove_saved_albums(
         self,
         album_ids: int | str | Collection[int | str],

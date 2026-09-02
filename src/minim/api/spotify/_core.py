@@ -1,10 +1,11 @@
 from __future__ import annotations
-from datetime import datetime
-from json.decoder import JSONDecodeError
+
 import time
+import warnings
+from datetime import UTC, datetime
+from json.decoder import JSONDecodeError
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
-import warnings
 
 from .._shared import OAuth2APIClient
 from ._web_api.albums import AlbumsAPI
@@ -24,7 +25,7 @@ from ._web_api.tracks import TracksAPI
 from ._web_api.users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     import httpx
 
@@ -36,8 +37,12 @@ class SpotifyWebAPIClient(OAuth2APIClient):
     Spotify Web API client.
     """
 
-    _ALLOWED_AUTH_FLOWS = {"auth_code", "pkce", "client_credentials"}
-    _ALLOWED_SCOPES = {
+    _ALLOWED_AUTH_FLOWS: ClassVar[set[str]] = {
+        "auth_code",
+        "pkce",
+        "client_credentials",
+    }
+    _ALLOWED_SCOPES: ClassVar[dict[str, set[str]]] = {
         "images": {"ugc-image-upload"},
         "spotify_connect": {
             "user-read-playback-state",
@@ -60,12 +65,13 @@ class SpotifyWebAPIClient(OAuth2APIClient):
         "library": {"user-library-modify", "user-library-read"},
         "users": {"user-read-email", "user-read-private"},
     }
-    _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
-    _PROVIDER = "Spotify"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    AUTH_URL = "https://accounts.spotify.com/authorize"
-    BASE_URL = "https://api.spotify.com/v1"
-    TOKEN_URL = "https://accounts.spotify.com/api/token"
+    _ENV_VAR_PREFIX: ClassVar[str] = "SPOTIFY_WEB_API"
+    _PROVIDER: ClassVar[str] = "Spotify"
+    _QUAL_NAME: ClassVar[str] = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+
+    AUTH_URL: ClassVar[str] = "https://accounts.spotify.com/authorize"
+    BASE_URL: ClassVar[str] = "https://api.spotify.com/v1"
+    TOKEN_URL: ClassVar[str] = "https://accounts.spotify.com/api/token"
 
     __slots__ = (
         "albums",
@@ -386,8 +392,8 @@ class SpotifyWebAPIClient(OAuth2APIClient):
         /,
         *,
         retry: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to a Spotify Web API endpoint.
 
@@ -411,7 +417,7 @@ class SpotifyWebAPIClient(OAuth2APIClient):
         response : httpx.Response
             HTTP response.
         """
-        if self._expires_at and datetime.now() > self._expires_at:
+        if self._expires_at and datetime.now(UTC) > self._expires_at:
             self._refresh_access_token()
 
         resp = self._client.request(method, endpoint, **kwargs)

@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
@@ -413,7 +415,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             "GET", "playlist", playlist_id, "radio"
         )
 
-    @_copy_docstring(ChartsAPI.get_top_playlists)
+    @copy_docstring(ChartsAPI.get_top_playlists)
     def get_top_playlists(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
@@ -421,11 +423,11 @@ class PlaylistsAPI(DeezerResourceAPI):
             limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.create_playlist)
+    @copy_docstring(UsersAPI.create_playlist)
     def create_playlist(self, name: str) -> dict[str, int]:
         return self._client.users.create_playlist(name)
 
-    @_copy_docstring(UsersAPI.update_playlist_details)
+    @copy_docstring(UsersAPI.update_playlist_details)
     def update_playlist_details(
         self,
         playlist_id: int | str,
@@ -444,11 +446,11 @@ class PlaylistsAPI(DeezerResourceAPI):
             collaborative=collaborative,
         )
 
-    @_copy_docstring(UsersAPI.delete_playlist)
+    @copy_docstring(UsersAPI.delete_playlist)
     def delete_playlist(self, playlist_id: int | str, /) -> bool:
         return self._client.users.delete_playlist(playlist_id)
 
-    @_copy_docstring(UsersAPI.add_playlist_tracks)
+    @copy_docstring(UsersAPI.add_playlist_tracks)
     def add_playlist_tracks(
         self,
         playlist_id: int | str,
@@ -459,7 +461,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             playlist_id, track_ids=track_ids
         )
 
-    @_copy_docstring(UsersAPI.reorder_playlist_tracks)
+    @copy_docstring(UsersAPI.reorder_playlist_tracks)
     def reorder_playlist_tracks(
         self,
         playlist_id: int | str,
@@ -470,7 +472,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             playlist_id, track_ids=track_ids
         )
 
-    @_copy_docstring(UsersAPI.get_user_playlists)
+    @copy_docstring(UsersAPI.get_user_playlists)
     def get_user_playlists(
         self,
         user_id: int | str = "me",
@@ -483,7 +485,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.follow_playlists)
+    @copy_docstring(UsersAPI.follow_playlists)
     def follow_playlists(
         self,
         playlist_ids: int | str | Collection[int | str],
@@ -495,7 +497,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             playlist_ids, user_id=user_id
         )
 
-    @_copy_docstring(UsersAPI.unfollow_playlist)
+    @copy_docstring(UsersAPI.unfollow_playlist)
     def unfollow_playlist(
         self,
         playlist_id: int | str,
@@ -507,7 +509,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             playlist_id, user_id=user_id
         )
 
-    @_copy_docstring(UsersAPI.get_user_top_playlists)
+    @copy_docstring(UsersAPI.get_user_top_playlists)
     def get_user_top_playlists(
         self,
         user_id: int | str = "me",
@@ -520,7 +522,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_user_playlist_recommendations)
+    @copy_docstring(UsersAPI.get_user_playlist_recommendations)
     def get_user_playlist_recommendations(
         self,
         user_id: int | str = "me",

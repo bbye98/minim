@@ -2,7 +2,6 @@
 API clients for Deezer services, such as the Deezer API.
 """
 
-from ._core import DeezerAPIClient
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.charts import ChartsAPI
@@ -15,8 +14,9 @@ from ._api.radios import RadiosAPI
 from ._api.search import SearchAPI
 from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
+from ._core import DeezerAPIClient
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "DeezerAPIClient",
     "AlbumsAPI",
     "ArtistsAPI",

@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring, validate_country_code
+from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
@@ -131,14 +133,14 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
         if country_code is None:
             country_code = self._client._my_country_code
         else:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
         return self._client._request(
             "GET",
             f"v1/mixes/{mix_id}/items",
             params={"countryCode": country_code},
         ).json()
 
-    @_copy_docstring(PrivatePagesAPI.get_mix_page)
+    @copy_docstring(PrivatePagesAPI.get_mix_page)
     def get_mix_page(
         self,
         mix_id: str,
@@ -155,7 +157,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
             locale=locale,
         )
 
-    @_copy_docstring(PrivatePagesAPI.get_personalized_mixes_page)
+    @copy_docstring(PrivatePagesAPI.get_personalized_mixes_page)
     def get_personalized_mixes_page(
         self,
         country_code: str | None = None,
@@ -167,7 +169,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
             country_code=country_code, device_type=device_type, locale=locale
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_my_followed_mixes)
+    @copy_docstring(PrivateUsersAPI.get_my_followed_mixes)
     def get_my_followed_mixes(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
@@ -175,7 +177,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
             cursor=cursor, limit=limit
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_my_followed_mix_ids)
+    @copy_docstring(PrivateUsersAPI.get_my_followed_mix_ids)
     def get_my_followed_mix_ids(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
@@ -183,7 +185,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
             cursor=cursor, limit=limit
         )
 
-    @_copy_docstring(PrivateUsersAPI.follow_mixes)
+    @copy_docstring(PrivateUsersAPI.follow_mixes)
     def follow_mixes(
         self,
         mix_ids: str | Collection[str],
@@ -193,6 +195,6 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
     ) -> None:
         return self._client.mixes.follow_mixes(mix_ids, on_missing=on_missing)
 
-    @_copy_docstring(PrivateUsersAPI.unfollow_mixes)
+    @copy_docstring(PrivateUsersAPI.unfollow_mixes)
     def unfollow_mixes(self, mix_ids: str | Collection[str], /) -> None:
         return self._client.mixes.unfollow_mixes(mix_ids)
