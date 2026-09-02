@@ -700,6 +700,10 @@ class ID3v2(AudioTags):
     .. seealso::
 
        `What is ID3v2? <https://id3.org/ID3v2Easy>`_
+
+    This class implements the following special methods:
+
+    * :code:`__len__` – Return the number of fields.
     """
 
     _STRUCT_ID3_HEADER: ClassVar[struct.Struct] = struct.Struct(">3s7B")
@@ -793,6 +797,9 @@ class ID3v2(AudioTags):
             f"{type(self).__name__}(<{len(self._frames)} frame(s)>, "
             f"flags={self._flags!r}{', '.join(optional_kwargs)})"
         )
+
+    def __len__(self) -> int:
+        return len(self._frames)
 
     @classmethod
     def _from_stream_2_2(
@@ -1734,8 +1741,9 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frame_types : bytes or \
-        type[minim.media.metadata.id3.ID3v2Frame]; positional-only
+        frame_types : bytes, \
+        type[minim.media.metadata.id3.ID3v2Frame], or Collection[bytes \
+        | type[minim.media.metadata.id3.ID3v2Frame]]; positional-only
             Frame IDs and/or classes.
 
         Returns

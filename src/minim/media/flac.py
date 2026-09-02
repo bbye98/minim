@@ -1500,13 +1500,13 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
     _frame_ids: ClassVar[dict[int, bytes]] = {}
     _block_type: ClassVar[int] = 6
 
-    #: :bdg-primary:`get` :bdg-secondary-line:`set` Image width in
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Image width, in
     #: pixels.
     width: int = 0
-    #: :bdg-primary:`get` :bdg-secondary-line:`set` Image height in
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Image height, in
     #: pixels.
     height: int = 0
-    #: :bdg-primary:`get` :bdg-secondary-line:`set` Color depth in
+    #: :bdg-primary:`get` :bdg-secondary-line:`set` Color depth, in
     #: bits per pixel.
     color_depth: int = 0
     #: :bdg-primary:`get` :bdg-secondary-line:`set` Number of indexed
@@ -1562,13 +1562,13 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
             **Valid range**: :code:`0` to :code:`255`.
 
         width : int; keyword-only; default: :code:`0`
-            Image width in pixels. Use :code:`0` if unknown.
+            Image width, in pixels. Use :code:`0` if unknown.
 
         height : int; keyword-only; default: :code:`0`
-            Image height in pixels. Use :code:`0` if unknown.
+            Image height, in pixels. Use :code:`0` if unknown.
 
         color_depth : int; keyword-only; default: :code:`0`
-            Color depth in bits per pixel. Use :code:`0` if unknown.
+            Color depth, in bits per pixel. Use :code:`0` if unknown.
 
         num_indexed_colors : int; keyword-only; default: :code:`0`
             Number of indexed colors. Use :code:`0` if unknown or not
