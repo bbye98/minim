@@ -11,8 +11,6 @@ from ..._utility import validate_number
 if TYPE_CHECKING:
     from typing import Any
 
-    from ..._types import OrderedCollection
-
 
 @dataclass(frozen=True, kw_only=True, repr=True, slots=True)
 class AudioStreamInfo:
@@ -80,7 +78,7 @@ class AudioStreamInfo:
 
 class AudioTags(ABC):
     """
-    Abstract base class for track metadata containers.
+    Abstract base class for track metadata caontainers.
     """
 
     __slots__ = ()

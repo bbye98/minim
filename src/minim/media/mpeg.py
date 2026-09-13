@@ -884,11 +884,9 @@ class MPEGAudio(Audio):
         self.close()
 
     def add_metadata(self) -> None:
-        """ """
         raise NotImplementedError  # TODO
 
     def remove_metadata(self) -> None:
-        """ """
         raise NotImplementedError  # TODO
 
     def save(

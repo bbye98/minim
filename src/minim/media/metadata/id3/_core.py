@@ -1751,8 +1751,8 @@ class ID3v2(AudioTags):
         metadata : list[minim.media.metadata.id3.ID3v2Frame], \
         dict[bytes | type[minim.media.metadata.id3.ID3v2Frame, \
         list[minim.media.metadata.id3.ID3v2Frame] | None], or None
-            Track metadata. If `field_names` is a collection of frame 
-            IDs and/or classes, a dictionary mapping them to their 
+            Track metadata. If `field_names` is a collection of frame
+            IDs and/or classes, a dictionary mapping them to their
             corresponding frame objects is returned.
         """
         raise NotImplementedError  # TODO
