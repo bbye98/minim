@@ -5937,10 +5937,8 @@ class EncryptedID3v2Frame(UnknownID3v2Frame):
             flags=flags,
             group_id=group_id,
         )
-        if (cls := self._get_class(frame_id)) is UnknownID3v2Frame:
-            self._class = None
-        else:
-            self._class = cls
+        self._class = cls = self._get_class(frame_id)
+        if cls is not UnknownID3v2Frame:
             self._allow_multiple = cls._allow_multiple
             self._frame_ids = cls._frame_ids
 
