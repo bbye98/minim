@@ -2004,7 +2004,9 @@ class FLACMetadataView:
         """
         if isinstance(block_types, int):
             block_types = {block_types}
-        elif issubclass(block_types, FLACMetadataBlock | VorbisComment):
+        elif isinstance(block_types, type) and issubclass(
+            block_types, FLACMetadataBlock | VorbisComment
+        ):
             block_types = {block_types._block_type}
         elif isinstance(block_types, COLLECTION_TYPES):
             block_types = {
@@ -2013,6 +2015,7 @@ class FLACMetadataView:
                 else block_type._block_type
                 for block_type in block_types
             }
+
         if len(block_types) == 1:
             return self._type_index[block_types.pop()] or None
         return {
@@ -2393,7 +2396,9 @@ class FLACAudio(Audio):
         else:
             if isinstance(block_types, int):
                 block_types = {block_types}
-            elif issubclass(block_types, FLACMetadataBlock | VorbisComment):
+            elif isinstance(block_types, type) and issubclass(
+                block_types, FLACMetadataBlock | VorbisComment
+            ):
                 block_types = {block_types._block_type}
             elif isinstance(block_types, COLLECTION_TYPES):
                 block_types = {
@@ -2562,7 +2567,9 @@ class FLACAudio(Audio):
         else:
             if isinstance(block_types, int):
                 block_types = {block_types}
-            elif issubclass(block_types, FLACMetadataBlock | VorbisComment):
+            elif isinstance(block_types, type) and issubclass(
+                block_types, FLACMetadataBlock | VorbisComment
+            ):
                 block_types = {block_types._block_type}
             elif isinstance(block_types, COLLECTION_TYPES):
                 block_types = {

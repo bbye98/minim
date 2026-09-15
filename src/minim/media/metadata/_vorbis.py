@@ -739,21 +739,16 @@ class VorbisComment(AudioTags):
         TypeError
             If `field_names` is not a string or collection of strings.
         """
+        if isinstance(field_names, str):
+            return self._fields.get(self._normalize_field_name(field_names))
+
         if not (
-            isinstance(field_names, str)
-            or (
-                isinstance(field_names, COLLECTION_TYPES)
-                and all(
-                    isinstance(field_name, str) for field_name in field_names
-                )
-            )
+            isinstance(field_names, COLLECTION_TYPES)
+            and all(isinstance(field_name, str) for field_name in field_names)
         ):
             raise TypeError(
                 "`fields` must be a string or a collection of strings."
             )
-
-        if isinstance(field_names, str):
-            return self._fields.get(self._normalize_field_name(field_names))
 
         return {field_name: self.get(field_name) for field_name in field_names}
 
