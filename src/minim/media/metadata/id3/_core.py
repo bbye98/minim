@@ -1598,12 +1598,10 @@ class ID3v2(AudioTags):
                             "frames found."
                         )
 
-                    self._frames.append(frame)
                     self._class_index[EncryptedID3v2Frame].append(frame)
                     if frame._class is UnknownID3v2Frame:
                         self._unknown_index[frame._frame_id].append(frame)
                 case UnknownID3v2Frame():
-                    self._frames.append(frame)
                     self._class_index[UnknownID3v2Frame].append(frame)
                     self._unknown_index[frame._frame_id].append(frame)
                 case _:
@@ -1621,9 +1619,8 @@ class ID3v2(AudioTags):
                                 f"Duplicate {frame_cls.__name__} found."
                             )
 
-                        self._frames.append(frame)
                         self._class_index[frame_cls].append(frame)
-                        if frame._key:
+                        if frame._key is not None:
                             self._key_index[frame_cls][frame._key] = frame
                     else:
                         if existing_frames := self._class_index.get(frame_cls):
@@ -1641,9 +1638,10 @@ class ID3v2(AudioTags):
                                 existing_frames[-1] |= frame
                             else:
                                 existing_frames[-1] += frame
+                            continue
                         else:
-                            self._frames.append(frame)
                             self._class_index[frame_cls].append(frame)
+            self._frames.append(frame)
 
     def _get_text_info(
         self, frame_id: bytes, /, *, copy: bool = True
@@ -1814,24 +1812,27 @@ class ID3v2(AudioTags):
             IDs and/or classes, a dictionary mapping them to their
             corresponding frame objects is returned.
         """
-        if isinstance(frame_types, bytes):
-            frame_cls = ID3v2Frame._get_class(frame_types)
-            if frame_cls is UnknownID3v2Frame:
-                return self._unknown_index.get(frame_types)
+        if (
+            (is_bytes := isinstance(frame_types, bytes))
+            or isinstance(frame_types, type)
+            and issubclass(frame_types, ID3v2Frame)
+        ):
+            if is_bytes:
+                frame_cls = ID3v2Frame._get_class(frame_types)
+                if frame_cls is UnknownID3v2Frame:
+                    return self._unknown_index.get(frame_types)
 
-            return (
-                self._class_index.get(frame_cls, [])
-                + [
+            else:
+                frame_cls = frame_types
+
+            frames = self._class_index.get(frame_cls, [])
+            if frame_cls is not EncryptedID3v2Frame:
+                frames += [
                     frame
                     for frame in self._class_index.get(EncryptedID3v2Frame, [])
                     if frame._class is frame_cls
                 ]
-            ) or None
-
-        if isinstance(frame_types, type) and issubclass(
-            frame_types, ID3v2Frame
-        ):
-            return self._class_index.get(frame_types)
+            return frames or None
 
         if not (
             isinstance(frame_types, COLLECTION_TYPES)
@@ -1849,29 +1850,73 @@ class ID3v2(AudioTags):
 
     def remove(
         self,
-        frame_types: bytes
+        frames: bytes
         | type[ID3v2Frame]
-        | Collection[bytes | type[ID3v2Frame]],
+        | ID3v2Frame
+        | Collection[bytes | type[ID3v2Frame] | ID3v2Frame],
         /,
-        *,
-        indices: int | Collection[int] | None = None,
     ) -> None:
         """
         Remove track metadata.
 
         Parameters
         ----------
-        frame_types : bytes, \
-        type[minim.media.metadata.id3.ID3v2Frame], or Collection[bytes \
-        | type[minim.media.metadata.id3.ID3v2Frame]]; positional-only
-            Frame IDs and/or classes.
-
-        indices : int or Collection[int]; keyword-only; optional
-            Indices of frames to remove for a given frame ID. Can be
-            provided only when `frame_types` is a single frame ID or
-            class.
+        frame : bytes, type[minim.media.metadata.id3.ID3v2Frame], \
+        minim.media.metadata.id3.ID3v2Frame, or Collection[bytes \
+        | type[minim.media.metadata.id3.ID3v2Frame] \
+        | minim.media.metadata.id3.ID3v2Frame]; positional-only
+            Frame IDs, classes, and/or objects.
         """
-        raise NotImplementedError  # TODO
+        for frame in (
+            frames if isinstance(frames, COLLECTION_TYPES) else [frames]
+        ):
+            if isinstance(frame, ID3v2Frame):
+                try:
+                    self._frames.remove(frame)
+                    match frame:
+                        case EncryptedID3v2Frame():
+                            self._class_index[EncryptedID3v2Frame].remove(
+                                frame
+                            )
+                            if frame._class is UnknownID3v2Frame:
+                                self._unknown_index[frame._frame_id].remove(
+                                    frame
+                                )
+                        case UnknownID3v2Frame():
+                            self._class_index[UnknownID3v2Frame].remove(frame)
+                            self._unknown_index[frame._frame_id].remove(frame)
+                        case _:
+                            frame_cls = type(frame)
+                            self._class_index[frame_cls].remove(frame)
+                            if (
+                                frame_cls._allow_multiple
+                                and frame._key is not None
+                            ):
+                                del self._key_index[frame_cls][frame._key]
+                except ValueError:
+                    pass
+
+            elif (
+                (is_bytes := isinstance(frame, bytes))
+                or isinstance(frame, type)
+                and issubclass(frame, ID3v2Frame)
+            ):
+                if is_bytes:
+                    frame_cls = ID3v2Frame._get_class(frame)
+                    if frame_cls is UnknownID3v2Frame:
+                        for frame_ in self._unknown_index.pop(frame, []):
+                            self._frames.remove(frame_)
+                            self._class_index[UnknownID3v2Frame].remove(frame_)
+                        continue
+                else:
+                    frame_cls = frame
+
+                frames_to_remove = self._class_index.pop(frame_cls, [])
+                for frame_ in frames_to_remove:
+                    self._frames.remove(frame_)
+                if frame_cls is UnknownID3v2Frame:
+                    for frame_ in frames_to_remove:
+                        self._unknown_index.pop(frame_._frame_id, None)
 
     def set(
         self, frames: ID3v2Frame | OrderedCollection[ID3v2Frame], /
