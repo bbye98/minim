@@ -15,9 +15,9 @@ from .metadata.id3._core import ID3v1, ID3v2
 from .metadata.id3._shared import decode_synchsafe_int
 
 if TYPE_CHECKING:
-    from typing import Self
+    from typing import Any, Self
 
-    from .._types import PathLike
+    from .._types import Collection, PathLike
 
 
 __all__ = ["MPEGAudio", "MPEGStreamInfo"]
@@ -847,11 +847,9 @@ class MPEGAudio(Audio):
         Load ID3 tags and MPEG stream information.
         """
         self.open()
-        # file_path = self._file_path
         view = self._view
-
-        self._metadata = metadata = []
         strict = self._strict
+        self._metadata = metadata = []
 
         # Process ID3v2 tags, if any
         if view[:3] == b"ID3":
@@ -862,7 +860,8 @@ class MPEGAudio(Audio):
             self._audio_offset = offset
         else:
             self._audio_offset = 0
-        # TODO: Sync to audio frames for _audio_offset
+
+        # TODO: Handle multiple ID3v2 tags, if any, and process them?
 
         # Process ID3v1 tags, if any
         end_audio_offset = len(view)
@@ -873,7 +872,8 @@ class MPEGAudio(Audio):
                 self._tags = tags
             end_audio_offset -= 128
 
-        # TODO: Process APE and Lyrics3 tags, if any
+        # TODO: Find APE and Lyrics3 tags, if any, using their footers
+        # and then process them
 
         # Process audio data to get stream information
         self._end_audio_offset = end_audio_offset
@@ -883,10 +883,48 @@ class MPEGAudio(Audio):
 
         self.close()
 
-    def add_metadata(self) -> None:
+    def add_metadata(
+        self, metadata: ID3v1 | ID3v2 | Collection[ID3v1 | ID3v2], /
+    ) -> None:
+        """
+        Add MPEG-compatible metadata containers.
+
+        Parameters
+        ----------
+        metadata : minim.media.metadata.id3.ID3v1, \
+        minim.media.metadata.id3.ID3v2, or \
+        Collection[minim.media.metadata.id3.ID3v1 \
+        | minim.media.metadata.id3.ID3v2]; positional-only
+            Metadata containers to add.
+        """
         raise NotImplementedError  # TODO
 
-    def remove_metadata(self) -> None:
+    def remove_metadata(
+        self,
+        *,
+        indices: int | Collection[int] | None = None,
+        types: type[ID3v1 | ID3v2]
+        | Collection[type[ID3v1 | ID3v2]]
+        | None = None,
+    ) -> None:
+        """
+        Remove MPEG-compatible metadata containers.
+
+        .. important::
+
+           Exactly one of `indices` or `types` must be provided.
+
+        Parameters
+        ----------
+        indices : int or Collection[int]; keyword-only; optional
+            Indices of metadata containers to remove.
+
+        types : type[minim.media.metadata.id3.ID3v1 \
+        | minim.media.metadata.id3.ID3v2] or \
+        Collection[type[minim.media.metadata.id3.ID3v1 \
+        | minim.media.metadata.id3.ID3v2]]; keyword-only; optional
+            Types of metadata containers to remove.
+        """
         raise NotImplementedError  # TODO
 
     def save(
@@ -894,7 +932,8 @@ class MPEGAudio(Audio):
         file_path: PathLike | None = None,
         /,
         *,
-        include_padding: bool = True,
+        id3v1: dict[str, Any] | None = None,
+        id3v2: dict[str, Any] | None = None,
     ) -> None:
         """
         Write changes to disk.
@@ -905,7 +944,44 @@ class MPEGAudio(Audio):
             Path to or name of the MPEG audio file. If not specified,
             changes are written back to the source file.
 
-        include_padding : bool; keyword-only; default: :code:`True`
-            Whether to keep padding.
+        id3v1 : dict[str, Any]; keyword-only; optional
+            Save options for ID3v1 tags.
+
+            .. admonition:: Available options
+               :class: tip dropdown
+
+               tag_version : str or tuple[int, int]; \
+               default: :code:`(1, 1)`
+                   ID3v1 tag version.
+
+                   **Valid values**: :code:`"1.0"` or :code:`(1, 0)`,
+                   :code:`"1.1"` or :code:`(1, 1)`.
+
+        id3v2 : dict[str, Any]; keyword-only; optional
+            Save options for ID3v2 tags.
+
+            .. admonition:: Available options
+               :class: tip dropdown
+
+               tag_version : str or tuple[int, int, int]; \
+               default: :code:`(2, 4, 0)`
+                   ID3v2 tag version.
+
+                   **Valid values**: :code:`"2.2.0"` or
+                   :code:`(2, 2, 0)`, :code:`"2.3.0"` or
+                   :code:`(2, 3, 0)`, :code:`"2.4.0"` or
+                   :code:`(2, 4, 0)`.
+
+               text_encoding : str; optional
+                   Text encoding to use for all ID3v2 frames. If
+                   :code:`None`, the text encodings already associated
+                   with the frames are used.
+
+                   **Valid values**: :code:`"iso-8859-1"`,
+                   :code:`"utf-16"`, :code:`"utf-16be"`,
+                   :code:`"utf-8"`.
+
+               include_padding : bool; default: :code:`True`
+                   Whether to keep padding in ID3v2 tags.
         """
         raise NotImplementedError  # TODO

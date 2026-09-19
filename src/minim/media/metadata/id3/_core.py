@@ -4,7 +4,7 @@ import struct
 import zlib
 from collections import defaultdict
 from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, TypedDict
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ...._utility import (
@@ -49,6 +49,7 @@ class ID3v1:
        `What is ID3 (v1)? <https://id3.org/ID3v1>`_
     """
 
+    _MPEG_TAG_PRIORITY: ClassVar[int] = 1
     _STRUCT_1_0: ClassVar[struct.Struct] = struct.Struct("3s30s30s30s4s30sB")
     _STRUCT_1_1: ClassVar[struct.Struct] = struct.Struct("3s30s30s30s4s28sBBB")
 
@@ -706,6 +707,7 @@ class ID3v2(AudioTags):
     * :code:`__len__` – Return the number of fields.
     """
 
+    _MPEG_TAG_PRIORITY: ClassVar[int] = 0
     _STRUCT_ID3_HEADER: ClassVar[struct.Struct] = struct.Struct(">3s7B")
     _STRUCT_PARTIAL_FRAME_HEADER_2_3: ClassVar[struct.Struct] = struct.Struct(
         ">4sI"
@@ -847,7 +849,7 @@ class ID3v2(AudioTags):
         if flags._is_compressed:
             raise NotImplementedError(
                 "Compressed ID3v2.2 tags are not supported."
-            )  # TODO: Store raw data in immutable object
+            )  # TODO: Store raw data in immutable object?
 
         if flags._is_unsynchronized:
             stream = memoryview(stream.tobytes().replace(b"\xff\x00", b"\xff"))
@@ -1747,7 +1749,7 @@ class ID3v2(AudioTags):
         strict: bool = True,
     ) -> None:
         """
-        Append track metadata.
+        Append frames.
 
         Parameters
         ----------
@@ -1775,7 +1777,7 @@ class ID3v2(AudioTags):
 
     def clear(self) -> None:
         """
-        Clear all track metadata.
+        Clear all frames.
         """
         self._frames.clear()
         self._class_index.clear()
@@ -1794,7 +1796,7 @@ class ID3v2(AudioTags):
         | None
     ):
         """
-        Get track metadata.
+        Get frames.
 
         Parameters
         ----------
@@ -1857,7 +1859,7 @@ class ID3v2(AudioTags):
         /,
     ) -> None:
         """
-        Remove track metadata.
+        Remove frames.
 
         Parameters
         ----------
@@ -1867,6 +1869,7 @@ class ID3v2(AudioTags):
         | minim.media.metadata.id3.ID3v2Frame]; positional-only
             Frame IDs, classes, and/or objects.
         """
+        # TODO: Support index-based frame removal
         for frame in (
             frames if isinstance(frames, COLLECTION_TYPES) else [frames]
         ):
@@ -1922,7 +1925,7 @@ class ID3v2(AudioTags):
         self, frames: ID3v2Frame | OrderedCollection[ID3v2Frame], /
     ) -> None:
         """
-        Set track metadata.
+        Set frames.
 
         Parameters
         ----------
