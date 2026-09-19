@@ -735,7 +735,7 @@ class MPEGAudio(Audio):
 
     @staticmethod
     def _get_stream_info(
-        stream: memoryview, /, *, strict: bool = True
+        stream: memoryview, /, *, strict: bool
     ) -> Self | None:
         """
         Get MPEG audio stream information.
@@ -745,7 +745,7 @@ class MPEGAudio(Audio):
         stream : memoryview; positional-only
             Bytes-like object containing the MPEG audio stream.
 
-        strict : bool; keyword-only; default: :code:`True`
+        strict : bool; keyword-only
             Whether to ensure metadata strictly adheres to the MPEG
             format specifications.
 
@@ -903,6 +903,7 @@ class MPEGAudio(Audio):
         self,
         *,
         indices: int | Collection[int] | None = None,
+        metadata: ID3v1 | ID3v2 | Collection[ID3v1 | ID3v2] | None = None,
         types: type[ID3v1 | ID3v2]
         | Collection[type[ID3v1 | ID3v2]]
         | None = None,
@@ -912,12 +913,19 @@ class MPEGAudio(Audio):
 
         .. important::
 
-           Exactly one of `indices` or `types` must be provided.
+           Exactly one of `indices`, `metadata`, or `types` must be
+           provided.
 
         Parameters
         ----------
         indices : int or Collection[int]; keyword-only; optional
             Indices of metadata containers to remove.
+
+        metadata : minim.media.metadata.id3.ID3v1, \
+        minim.media.metadata.id3.ID3v2, or \
+        Collection[minim.media.metadata.id3.ID3v1 \
+        | minim.media.metadata.id3.ID3v2]; keyword-only; optional
+            Metadata containers to remove.
 
         types : type[minim.media.metadata.id3.ID3v1 \
         | minim.media.metadata.id3.ID3v2] or \

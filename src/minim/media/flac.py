@@ -2345,6 +2345,7 @@ class FLACAudio(Audio):
             * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
             * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
         """
+        # TODO: Support instance-based metadata block selection
         has_indices = indices is not None
         has_types = block_types is not None
         if has_indices == has_types:
@@ -2518,6 +2519,7 @@ class FLACAudio(Audio):
             * :code:`5` or :class:`FLACCueSheet` – :code:`CUESHEET`.
             * :code:`6` or :class:`FLACPicture` – :code:`PICTURE`.
         """
+        # TODO: Support instance-based metadata block selection
         has_indices = indices is not None
         has_types = block_types is not None
         if has_indices == has_types:
