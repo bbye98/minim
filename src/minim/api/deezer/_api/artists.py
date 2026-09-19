@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
@@ -565,13 +567,13 @@ class ArtistsAPI(DeezerResourceAPI):
             "GET", "artist", artist_id, "playlists", limit=limit, offset=offset
         )
 
-    @_copy_docstring(ChartsAPI.get_top_artists)
+    @copy_docstring(ChartsAPI.get_top_artists)
     def get_top_artists(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.charts.get_top_artists(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_user_followed_artists)
+    @copy_docstring(UsersAPI.get_user_followed_artists)
     def get_user_followed_artists(
         self,
         user_id: int | str = "me",
@@ -584,7 +586,7 @@ class ArtistsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.follow_artists)
+    @copy_docstring(UsersAPI.follow_artists)
     def follow_artists(
         self,
         artist_ids: int | str | Collection[int | str],
@@ -594,13 +596,13 @@ class ArtistsAPI(DeezerResourceAPI):
     ) -> bool:
         return self._client.users.follow_artists(artist_ids, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.unfollow_artist)
+    @copy_docstring(UsersAPI.unfollow_artist)
     def unfollow_artist(
         self, artist_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         return self._client.users.unfollow_artist(artist_id, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.get_user_top_artists)
+    @copy_docstring(UsersAPI.get_user_top_artists)
     def get_user_top_artists(
         self,
         user_id: int | str = "me",
@@ -613,7 +615,7 @@ class ArtistsAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_user_artist_recommendations)
+    @copy_docstring(UsersAPI.get_user_artist_recommendations)
     def get_user_artist_recommendations(
         self,
         user_id: int | str = "me",

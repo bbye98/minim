@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from ...._utility import validate_locale, validate_number
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
@@ -77,7 +79,7 @@ class CategoriesAPI(SpotifyResourceAPI):
         """
         params = {}
         if locale:
-            self._validate_locale(locale)
+            validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", f"browse/categories/{category_id}", params=params
@@ -165,13 +167,13 @@ class CategoriesAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if locale:
-            self._validate_locale(locale)
+            validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", "browse/categories", params=params

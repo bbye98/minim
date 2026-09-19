@@ -1,36 +1,35 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+
 import base64
-from collections import OrderedDict
-from datetime import datetime, timedelta, timezone
-from functools import wraps
 import hashlib
 import hmac
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import ipaddress
 import json
 import os
-from pathlib import Path
 import secrets
 import ssl
 import threading
 import time
-from typing import TYPE_CHECKING
-from urllib.parse import parse_qsl, quote, urlencode, urlparse
-import uuid
 import warnings
 import webbrowser
+from abc import ABC, abstractmethod
+from collections import OrderedDict
+from datetime import UTC, datetime, timedelta
+from functools import wraps
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import TYPE_CHECKING
+from urllib.parse import parse_qsl, quote, urlencode, urlparse
 
+import httpx
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
-import httpx
 
 from .. import FOUND, MINIM_DIR
 from .._types import COLLECTION_TYPES
-from .._utility import join_values, prepare_datetime
+from .._utility import join_values, prepare_datetime, prepare_string
 from . import db_connection, db_cursor
 
 if FOUND["playwright"]:
@@ -38,35 +37,10 @@ if FOUND["playwright"]:
 
 if TYPE_CHECKING:
     import types
-    from typing import Any, Callable
+    from collections.abc import Callable
+    from typing import Any, ClassVar, Self
 
-    from .._types import Collection
-
-
-def _copy_docstring(
-    source: Callable[..., Any],
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """
-    Return a decorator that copies the docstring from one function to
-    another.
-
-    Parameters
-    ----------
-    source : Callable[..., Any]
-        Function whose docstring should be copied.
-
-    Returns
-    -------
-    decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
-        Decorator that replaces the docstring of the decorated function
-        with that of `source`.
-    """
-
-    def decorator(destination: Callable[..., Any]) -> Callable[..., Any]:
-        destination.__doc__ = source.__doc__
-        return destination
-
-    return decorator
+    from .._types import Collection, PathLike
 
 
 class OAuthRedirectHandler(BaseHTTPRequestHandler):
@@ -108,12 +82,10 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
                     </script>
                 </body>
                 </html>
-                """.encode()
+                """
             )
 
-    def log_message(
-        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> None:
+    def log_message(self, *args: Any, **kwargs: Any) -> None:
         """
         Suppress the HTTP server logging output.
 
@@ -127,7 +99,6 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
             Keyword arguments to pass to
             :meth:`http.server.BaseHTTPRequestHandler.log_message`.
         """
-        pass
 
 
 class TokenDatabase:
@@ -385,7 +356,7 @@ class TokenDatabase:
                 refresh_token,
                 json.dumps(extras) if isinstance(extras, dict) else None,
                 prepare_datetime(
-                    added_at or datetime.now(), "%Y-%m-%dT%H:%M:%SZ"
+                    added_at or datetime.now(UTC), "%Y-%m-%dT%H:%M:%SZ"
                 ),
             ),
         )
@@ -513,7 +484,7 @@ class TTLCache:
     policy.
     """
 
-    _PREDEFINED_TTLS = {
+    _PREDEFINED_TTLS: ClassVar[dict[str, int | float]] = {
         "static": float("inf"),
         "weekly": 604_800,
         "daily": 86_400,
@@ -525,7 +496,7 @@ class TTLCache:
         "user": 60,
     }
 
-    __slots__ = "_store", "_max_size"
+    __slots__ = ("_max_size", "_store")
 
     def __init__(self, *, max_size: int = 1_024) -> None:
         """
@@ -564,7 +535,7 @@ class TTLCache:
 
     @staticmethod
     def cached_method(
-        *, ttl: int | float | str
+        *, ttl: float | str
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         """
         Return a decorator that marks a function for caching.
@@ -596,8 +567,8 @@ class TTLCache:
             @wraps(func)
             def wrapped(
                 self: ResourceAPI,
-                *args: tuple[Any, ...],
-                **kwargs: dict[str, Any],
+                *args: Any,
+                **kwargs: Any,
             ) -> Any:
                 return (
                     func(self, *args, **kwargs)
@@ -668,7 +639,7 @@ class TTLCache:
                 del self._store[key]
 
     def wrapper(
-        self, *, ttl: int | float | str
+        self, *, ttl: float | str
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         """
         Create a decorator that applies TTL- and LRU-based caching using
@@ -702,9 +673,7 @@ class TTLCache:
 
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)
-            def wrapped(
-                *args: tuple[Any, ...], **kwargs: dict[str, Any]
-            ) -> Any:
+            def wrapped(*args: Any, **kwargs: Any) -> Any:
                 key = (
                     func.__name__,
                     tuple(self._make_hashable(a) for a in args[1:]),
@@ -751,9 +720,7 @@ class APIClient(ABC):
 
     _rate_limit_per_second = float("inf")
 
-    __slots__ = "_cache", "_client", "_rate_limiter"
-
-    _join_values = staticmethod(join_values)
+    __slots__ = ("_cache", "_client", "_rate_limiter")
 
     def __init__(
         self,
@@ -785,11 +752,11 @@ class APIClient(ABC):
             else None
         )
         if user_agent is not None:
-            self._client.headers["user-agent"] = ResourceAPI._prepare_string(
+            self._client.headers["user-agent"] = prepare_string(
                 "user_agent", user_agent, allow_blank=True
             )
 
-    def __enter__(self) -> "APIClient":
+    def __enter__(self) -> Self:
         """
         Enter the runtime context and ensure the client is open.
 
@@ -828,7 +795,7 @@ class APIClient(ABC):
 
     @abstractmethod
     def _request(
-        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+        self, method: str, endpoint: str, /, **kwargs: Any
     ) -> httpx.Response:
         """
         Make an HTTP request to an API endpoint.
@@ -910,13 +877,17 @@ class OAuthAPIClient(APIClient):
     """
 
     #: Authorization endpoint.
-    AUTH_URL: str
+    AUTH_URL: ClassVar[str]
 
-    _AUTH_FLOWS: dict[str | None, str]
-    _REDIRECT_FLOWS: set[str]
+    _AUTH_FLOWS: ClassVar[dict[str | None, str]]
+    _REDIRECT_FLOWS: ClassVar[set[str]]
 
-    _OPTIONAL_AUTH: bool = False
-    _REDIRECT_HANDLERS = {None, "http.server", "playwright"}
+    _OPTIONAL_AUTH: ClassVar[bool] = False
+    _REDIRECT_HANDLERS: ClassVar[set[str | None]] = {
+        None,
+        "http.server",
+        "playwright",
+    }
 
     __slots__ = (
         "_auth_flow",
@@ -983,14 +954,14 @@ class OAuthAPIClient(APIClient):
     def set_auth_flow(
         self,
         auth_flow: str | None,
-        *args: tuple[Any, ...],
+        *args: Any,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
         redirect_handler: str | None = None,
         open_browser: bool = False,
         store_tokens: bool = True,
         authenticate: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> None:
         """
         Set or update the authorization flow and related parameters.
@@ -1097,7 +1068,7 @@ class OAuthAPIClient(APIClient):
     @classmethod
     @abstractmethod
     def get_tokens(
-        cls, **kwargs: dict[str, Any]
+        cls, **kwargs: Any
     ) -> list[dict[str, Any]] | None:
         """
         Retrieve specific or all access tokens and their metadata for
@@ -1112,7 +1083,7 @@ class OAuthAPIClient(APIClient):
 
     @classmethod
     @abstractmethod
-    def remove_tokens(cls, **kwargs: dict[str, Any]) -> None:
+    def remove_tokens(cls, **kwargs: Any) -> None:
         """
         Remove specific or all access tokens and their metadata for this
         client from local storage.
@@ -1145,7 +1116,7 @@ class OAuthAPIClient(APIClient):
             .public_key(key.public_key())
             .serial_number(x509.random_serial_number())
             .not_valid_before(
-                (now := datetime.now(timezone.utc)) - timedelta(minutes=5)
+                (now := datetime.now(UTC)) - timedelta(minutes=5)
             )
             .not_valid_after(now + timedelta(days=365))
             .add_extension(
@@ -1182,13 +1153,13 @@ class OAuthAPIClient(APIClient):
             )
 
     @staticmethod
-    def _is_certificate_valid(certificate_file: str | Path, /) -> bool:
+    def _is_certificate_valid(certificate_file: PathLike, /) -> bool:
         """
         Check whether a self-signed certificate is still valid.
 
         Parameters
         ----------
-        certificate_file : str or pathlib.Path; positional-only
+        certificate_file : PathLike; positional-only
             Name of or path to the certificate file.
 
         Returns
@@ -1203,10 +1174,10 @@ class OAuthAPIClient(APIClient):
                 )
             return (
                 certificate.not_valid_before_utc
-                <= datetime.now(timezone.utc)
+                <= datetime.now(UTC)
                 <= certificate.not_valid_after_utc
             )
-        except Exception:
+        except Exception:  # noqa: BLE001
             return False
 
     def _handle_redirect(
@@ -1319,17 +1290,21 @@ class OAuth1APIClient(OAuthAPIClient):
     """
 
     #: Request token endpoint.
-    REQUEST_TOKEN_URL: str
+    REQUEST_TOKEN_URL: ClassVar[str]
     #: Access token endpoint.
-    ACCESS_TOKEN_URL: str
+    ACCESS_TOKEN_URL: ClassVar[str]
 
-    _AUTH_FLOWS = {
+    _AUTH_FLOWS: ClassVar[dict[str | None, str]] = {
         None: "unauthenticated client",
         "three_legged": "Three-Legged Flow",
         "two_legged": "Two-Legged Flow",
     }
-    _REDIRECT_FLOWS = {"three_legged"}
-    _SIGNATURE_METHODS = {"HMAC-SHA1", "RSA-SHA1", "PLAINTEXT"}
+    _REDIRECT_FLOWS: ClassVar[set[str]] = {"three_legged"}
+    _SIGNATURE_METHODS: ClassVar[set[str]] = {
+        "HMAC-SHA1",
+        "RSA-SHA1",
+        "PLAINTEXT",
+    }
 
     __slots__ = (
         "_consumer_key",
@@ -1517,7 +1492,7 @@ class OAuth1APIClient(OAuthAPIClient):
                 and consumer_key is not None
                 and (
                     account := TokenDatabase._get_token(
-                        self.__class__.__name__,
+                        type(self).__name__,
                         auth_flow=auth_flow,
                         client_id=consumer_key,
                         user_identifier=user_identifier,
@@ -1693,7 +1668,7 @@ class OAuth1APIClient(OAuthAPIClient):
 
         if self._store_tokens:
             TokenDatabase.add_token(
-                self.__class__.__name__,
+                type(self).__name__,
                 auth_flow=self._auth_flow,
                 client_id=self._consumer_key,
                 client_secret=self._consumer_secret,
@@ -1744,13 +1719,13 @@ class OAuth1APIClient(OAuthAPIClient):
             case "HMAC-SHA1":
                 oauth["oauth_signature"] = base64.b64encode(
                     hmac.new(
-                        self._signing_key.encode(),
+                        self._signing_key.encode(encoding="utf-8"),
                         self._prepare_base_string(
                             method, endpoint, params=oauth | params | data
-                        ).encode(),
+                        ).encode(encoding="utf-8"),
                         hashlib.sha1,
                     ).digest()
-                ).decode()
+                ).decode(encoding="utf-8")
             case "RSA-SHA1":
                 private_key_file = MINIM_DIR / "private_key.pem"
                 if not private_key_file.exists():
@@ -1763,11 +1738,11 @@ class OAuth1APIClient(OAuthAPIClient):
                     private_key.sign(
                         self._prepare_base_string(
                             method, endpoint, params=oauth | params | data
-                        ).encode(),
+                        ).encode(encoding="utf-8"),
                         padding.PKCS1v15(),
                         hashes.SHA1(),
                     )
-                ).decode()
+                ).decode(encoding="utf-8")
         return "OAuth " + ", ".join(
             f'{key}="{quote(str(value), safe="")}"'
             for key, value in oauth.items()
@@ -1807,7 +1782,7 @@ class OAuth1APIClient(OAuthAPIClient):
         return f"{method}&{quote(f'{self.BASE_URL}/{endpoint}', safe='')}&{encoded_params}"
 
     def _request(
-        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+        self, method: str, endpoint: str, /, **kwargs: Any
     ) -> httpx.Response:
         """
         Make an HTTP request to an API endpoint.
@@ -2078,9 +2053,7 @@ class OAuth1APIClient(OAuthAPIClient):
         self._consumer_key = self._oauth["oauth_consumer_key"] = consumer_key
         self._consumer_secret = consumer_secret
         self._signing_key = f"{consumer_secret}&"
-        signature_method = ResourceAPI._prepare_string(
-            "signature_method", signature_method
-        )
+        signature_method = prepare_string("signature_method", signature_method)
         if signature_method not in self._SIGNATURE_METHODS:
             raise ValueError(
                 f"Invalid OAuth signature method {signature_method!r}. "
@@ -2105,14 +2078,12 @@ class OAuth2APIClient(OAuthAPIClient):
     """
 
     #: Device authorization endpoint.
-    DEVICE_AUTH_URL: str | None = None
+    DEVICE_AUTH_URL: ClassVar[str | None] = None
     #: Token endpoint.
-    TOKEN_URL: str
+    TOKEN_URL: ClassVar[str]
 
-    _ALLOWED_SCOPES: Any
-
-    _IS_TRUSTED_DEVICE: bool = False
-    _AUTH_FLOWS = {
+    _ALLOWED_SCOPES: ClassVar[Any]
+    _AUTH_FLOWS: ClassVar[dict[str | None, str]] = {
         None: "unauthenticated client",
         "auth_code": "Authorization Code Flow",
         "pkce": "Authorization Code Flow with Proof Key for Code Exchange (PKCE)",
@@ -2121,7 +2092,8 @@ class OAuth2APIClient(OAuthAPIClient):
         "implicit": "Implicit Grant Flow",
         # "password": "Resource Owner Password Credentials Flow"
     }
-    _REDIRECT_FLOWS = {"auth_code", "pkce", "implicit"}
+    _IS_TRUSTED_DEVICE: ClassVar[bool] = False
+    _REDIRECT_FLOWS: ClassVar[set[str]] = {"auth_code", "pkce", "implicit"}
 
     __slots__ = (
         "_client_id",
@@ -2309,7 +2281,7 @@ class OAuth2APIClient(OAuthAPIClient):
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
-                    self.__class__.__name__,
+                    type(self).__name__,
                     auth_flow=auth_flow,
                     client_id=client_id,
                     user_identifier=user_identifier,
@@ -2499,7 +2471,7 @@ class OAuth2APIClient(OAuthAPIClient):
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
                         f"{self._client_id}:{self._client_secret}".encode()
-                    ).decode()
+                    ).decode(encoding="utf-8")
                     resp_json = httpx.post(
                         self.TOKEN_URL,
                         data=data,
@@ -2528,7 +2500,7 @@ class OAuth2APIClient(OAuthAPIClient):
             case "client_credentials":
                 b64_client_credentials = base64.urlsafe_b64encode(
                     f"{self._client_id}:{self._client_secret}".encode()
-                ).decode()
+                ).decode(encoding="utf-8")
                 resp_json = httpx.post(
                     self.TOKEN_URL,
                     data={
@@ -2617,9 +2589,11 @@ class OAuth2APIClient(OAuthAPIClient):
                     )
                     data["code"] = self._get_auth_code(
                         code_challenge=base64.urlsafe_b64encode(
-                            hashlib.sha256(code_verifier.encode()).digest()
+                            hashlib.sha256(
+                                code_verifier.encode(encoding="utf-8")
+                            ).digest()
                         )
-                        .decode()
+                        .decode(encoding="utf-8")
                         .rstrip("=")
                     )
                 else:
@@ -2628,7 +2602,7 @@ class OAuth2APIClient(OAuthAPIClient):
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
                         f"{self._client_id}:{self._client_secret}".encode()
-                    ).decode()
+                    ).decode(encoding="utf-8")
                     resp_json = httpx.post(
                         self.TOKEN_URL,
                         data=data,
@@ -2647,7 +2621,7 @@ class OAuth2APIClient(OAuthAPIClient):
             refresh_token=resp_json.pop(
                 "refresh_token", getattr(self, "_refresh_token", None)
             ),
-            expires_at=datetime.now()
+            expires_at=datetime.now(UTC)
             + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )
         self._token_extras = resp_json
@@ -2659,7 +2633,7 @@ class OAuth2APIClient(OAuthAPIClient):
 
         if self._store_tokens:
             TokenDatabase.add_token(
-                self.__class__.__name__,
+                type(self).__name__,
                 auth_flow=self._auth_flow,
                 client_id=self._client_id,
                 client_secret=self._client_secret,
@@ -2790,7 +2764,9 @@ class OAuth2APIClient(OAuthAPIClient):
 
         self._refresh_token = refresh_token
         self._expires_at = (
-            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ")
+            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ").replace(
+                tzinfo=UTC
+            )
             if expires_at and isinstance(expires_at, str)
             else expires_at
         )
@@ -2969,12 +2945,7 @@ class ResourceAPI:
     Base class for API resource endpoint groups.
     """
 
-    _TRANSLATION_TABLES = {"separators": str.maketrans("", "", "-‐-‒–—―−")}
-
     __slots__ = ("_client",)
-
-    _join_values = staticmethod(join_values)
-    _prepare_datetime = staticmethod(prepare_datetime)
 
     def __init__(self, client: APIClient, /) -> None:
         """
@@ -2984,347 +2955,3 @@ class ResourceAPI:
             API client instance used to make HTTP requests.
         """
         self._client = client
-
-    @staticmethod
-    def _prepare_barcode(barcode: int | str, /) -> str:
-        """
-        Validate and normalize a Universal Product Code (UPC) or
-        European Article Number (EAN) barcode.
-
-        Parameters
-        ----------
-        barcode : int or str; positional-only
-            UPC or EAN barcode.
-
-        Returns
-        -------
-        barcode : str
-            Trimmed UPC or EAN barcode without hyphens or spaces.
-        """
-        barcode = (
-            str(barcode)
-            if isinstance(barcode, int)
-            else ResourceAPI._prepare_string(
-                barcode, remove_whitespace=True
-            ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
-        )
-        if not barcode.isdecimal() or len(barcode) not in {12, 13}:
-            raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
-        return barcode
-
-    @staticmethod
-    def _prepare_isrc(isrc: str, /) -> str:
-        """
-        Validate and normalize an International Standard Recording Code
-        (ISRC).
-
-        Parameters
-        ----------
-        isrc : str; positional-only
-            ISRC.
-
-        Returns
-        -------
-        isrc : str
-            Trimmed ISRC string without hyphens or spaces.
-        """
-        isrc = ResourceAPI._prepare_string(
-            "isrc", isrc, remove_whitespace=True
-        ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
-        if len(isrc) != 12 or not (
-            isrc[:2].isalpha() and isrc[2:5].isalnum() and isrc[5:].isdecimal()
-        ):
-            raise ValueError(f"{isrc!r} is not a valid ISRC.")
-        return isrc
-
-    @staticmethod
-    def _prepare_iswc(iswc: str, /) -> str:
-        """
-        Validate and normalize an International Standard Musical Work
-        Code (ISWC).
-
-        Parameters
-        ----------
-        iswc : str; positional-only
-            ISWC.
-
-        Returns
-        -------
-        iswc : str
-            Trimmed ISWC string without hyphens or spaces.
-        """
-        iswc = ResourceAPI._prepare_string(
-            "iswc", iswc, remove_whitespace=True
-        ).translate(ResourceAPI._TRANSLATION_TABLES["separators"])
-        if (
-            len(iswc) != 11
-            or (
-                1
-                + sum(
-                    (index + 1) * int(digit)
-                    for index, digit in enumerate(iswc[1:-1])
-                )
-            )
-            % 10
-        ) != int(iswc[-1]):
-            raise ValueError(f"{iswc!r} is not a valid ISWC.")
-        return iswc
-
-    @staticmethod
-    def _prepare_string(
-        name: str,
-        string: bytes | str,
-        /,
-        *,
-        allow_blank: bool = False,
-        remove_whitespace: bool = False,
-    ) -> bytes | str:
-        """
-        Validate and strip a string.
-
-        Parameters
-        ----------
-        name : str; positional-only.
-            Parameter name for the string.
-
-        string : bytes or str; positional-only
-            String.
-
-        allow_blank : bool; keyword-only; default: :code:`False`
-            Whether to allow empty strings.
-
-        remove_whitespace : bool; keyword-only; default: :code:`False`
-            Whether to remove whitespace throughout the string.
-
-        Returns
-        -------
-        string : bytes or str
-            Stripped string.
-        """
-        ResourceAPI._validate_type(name, string, bytes | str)
-        string = (
-            "".join(string.split()) if remove_whitespace else string.strip()
-        )
-        if not allow_blank and not len(string):
-            raise ValueError(f"`{name}` cannot be blank.")
-        return string
-
-    @staticmethod
-    def _validate_country_code(country_code: str, /) -> None:
-        """
-        Validate an International Organization for Standardization
-        (ISO) 3166-1 alpha-2 country code.
-
-        Parameters
-        ----------
-        country_code : str; positional-only
-            ISO 3166-1 alpha-2 country code.
-        """
-        if (
-            not isinstance(country_code, str)
-            or len(country_code) != 2
-            or not country_code.isalpha()
-        ):
-            raise ValueError(
-                f"{country_code!r} is not a valid ISO 3166-1 alpha-2 "
-                "country code."
-            )
-
-    @staticmethod
-    def _validate_language_code(language_code: str, /) -> None:
-        """
-        Validate an International Organization for Standardization
-        (ISO) 639-1 language code.
-
-        Parameters
-        ----------
-        language_code : str; positional-only
-            ISO 639-1 language code.
-        """
-        if (
-            not isinstance(language_code, str)
-            or len(language_code) != 2
-            or not language_code.isalpha()
-        ):
-            raise ValueError(
-                f"{language_code!r} is not a valid ISO 639-1 language code."
-            )
-
-    @staticmethod
-    def _validate_locale(locale: str, /) -> None:
-        """
-        Validate an Internet Engineering Task Force (IETF) Best Current
-        Practice (BCP) 47 language tag, as defined in Request for
-        Comments (RFC) 1766.
-
-        Parameters
-        ----------
-        locale : str; positional-only
-            IETF BCP 47 language tag.
-        """
-        if (
-            not isinstance(locale, str)
-            or len(locale) != 5
-            or not locale[:2].isalpha()
-            or locale[2] != "_"
-            or not locale[3:].isalpha()
-        ):
-            raise ValueError(
-                f"{locale!r} is not a valid IETF BCP 47 language tag "
-                "consisting of an ISO 639-1 language code and an ISO "
-                "3166-1 alpha-2 country code joined by an underscore."
-            )
-
-    @staticmethod
-    def _validate_number(
-        name: str,
-        value: int | float,
-        data_type: type | types.UnionType,
-        /,
-        lower_bound: int | float | None = None,
-        upper_bound: int | float | None = None,
-    ) -> None:
-        """
-        Validate the value of a variable containing a number.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : int or float; positional-only
-            Variable value.
-
-        data_type : type or types.UnionType; positional-only
-            Allowed numeric data types.
-
-        lower_bound : int or float; optional
-            Lower bound, inclusive.
-
-        upper_bound : int or float; optional
-            Upper bound, inclusive.
-        """
-        has_lower_bound = lower_bound is not None
-        has_upper_bound = upper_bound is not None
-        if has_lower_bound:
-            if has_upper_bound:
-                emsg_suffix = (
-                    f" between {lower_bound} and {upper_bound}, inclusive"
-                )
-            else:
-                emsg_suffix = f" greater than {lower_bound}, inclusive"
-        else:
-            if has_upper_bound:
-                emsg_suffix = f" less than {upper_bound}, inclusive"
-            else:
-                emsg_suffix = ""
-        if (
-            not isinstance(value, data_type)
-            or (has_lower_bound and value < lower_bound)
-            or (has_upper_bound and value > upper_bound)
-        ):
-            data_type_str = (
-                data_type.__name__
-                if isinstance(data_type, type)
-                else str(data_type)
-            )
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type_str}{emsg_suffix}."
-            )
-
-    @staticmethod
-    def _validate_numeric(
-        name: str,
-        value: int | float | str,
-        data_type: type,
-        /,
-        lower_bound: int | float | None = None,
-        upper_bound: int | float | None = None,
-    ) -> None:
-        """
-        Validate the value of a variable containing a numeric value.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : int, float, or str; positional-only
-            Variable value.
-
-        data_type : type; positional-only
-            Allowed numeric data type.
-
-        lower_bound : int or float; optional
-            Lower bound, inclusive.
-
-        upper_bound : int or float; optional
-            Upper bound, inclusive.
-        """
-        try:
-            if isinstance(value, str):
-                value = data_type(value)
-            ResourceAPI._validate_number(
-                name, value, data_type, lower_bound, upper_bound
-            )
-        except ValueError:
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type.__name__} or its "
-                "string representation."
-            )
-
-    @staticmethod
-    def _validate_type(
-        name: str, value: Any, data_type: type | types.UnionType, /
-    ) -> None:
-        """
-        Validate the data type of a variable.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : Any; positional-only
-            Variable value.
-
-        data_type : type or types.UnionTypes; positional-only
-            Allowed data type.
-        """
-        if not isinstance(value, data_type):
-            data_type_str = (
-                data_type.__name__
-                if isinstance(data_type, type)
-                else str(data_type)
-            )
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type_str}, not a(n) "
-                f"{type(value).__name__}."
-            )
-
-    @staticmethod
-    def _validate_uuids(
-        uuids: str | Collection[str], /, *, recursive: bool = True
-    ) -> None:
-        """
-        Validate universally unique identifiers (UUIDs).
-
-        Parameters
-        ----------
-        uuids : str or Collection[str]; positional-only
-            UUIDs.
-        """
-        if isinstance(uuids, str):
-            try:
-                uuid.UUID(uuids)
-            except (TypeError, ValueError):
-                raise ValueError(f"{uuids!r} is not a valid UUID.")
-
-        elif recursive and isinstance(uuids, COLLECTION_TYPES):
-            for uuid_ in uuids:
-                ResourceAPI._validate_uuids(uuid_, recursive=False)
-        else:
-            raise ValueError(
-                "UUIDs must be provided as a string or a collection of "
-                "strings."
-            )

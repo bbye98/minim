@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from ...._utility import prepare_string
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -21,7 +23,7 @@ class SearchAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RELATIONSHIPS = {
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "artists",
         "playlists",
@@ -462,7 +464,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resources(
             "searchSuggestions",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             country_code=country_code,
             include_explicit=include_explicit,
             expand=expand,
@@ -880,7 +882,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resource_relationship(
             "searchSuggestions",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             "directHits",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -1398,7 +1400,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resources(
             "searchResults",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             country_code=country_code,
             include_explicit=include_explicit,
             expand=expand,
@@ -1556,7 +1558,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resource_relationship(
             "searchResults",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             "albums",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -1725,7 +1727,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resource_relationship(
             "searchResults",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             "artists",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -1856,7 +1858,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resource_relationship(
             "searchResults",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             "playlists",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -2289,7 +2291,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resource_relationship(
             "searchResults",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             "topHits",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -2467,7 +2469,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resource_relationship(
             "searchResults",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             "tracks",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -2603,7 +2605,7 @@ class SearchAPI(TIDALResourceAPI):
         """
         return self._get_resource_relationship(
             "searchResults",
-            self._prepare_string("query", query),
+            prepare_string("query", query),
             "videos",
             country_code=country_code,
             include_explicit=include_explicit,

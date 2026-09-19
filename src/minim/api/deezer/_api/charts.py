@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from ...._utility import validate_number
 from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 
@@ -329,10 +331,10 @@ class ChartsAPI(DeezerResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1)
+            validate_number("limit", limit, int, 1)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["index"] = offset
         return self._client._request("GET", "radio/top", params=params)
 

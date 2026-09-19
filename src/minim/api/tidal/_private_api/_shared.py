@@ -1,12 +1,14 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES
+from ...._utility import validate_country_code, validate_number, validate_uuids
 from ..._shared import ResourceAPI
 from .._api._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
     from .. import PrivateTIDALAPIClient
@@ -17,8 +19,9 @@ class PrivateTIDALResourceAPI(ResourceAPI):
     Base class for private TIDAL API resource endpoint groups.
     """
 
-    _PLAYBACK_MODES = {"STREAM", "OFFLINE"}
-    _client: "PrivateTIDALAPIClient"
+    _PLAYBACK_MODES: ClassVar[set[str]] = {"STREAM", "OFFLINE"}
+
+    _client: PrivateTIDALAPIClient
 
     __slots__ = ()
 
@@ -70,7 +73,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
                 if not id_.isdecimal():
                     raise ValueError(f"Invalid TIDAL ID {id_!r}.")
             else:
-                raise ValueError(f"Invalid TIDAL ID {id_!r}.")
+                raise TypeError(f"Invalid TIDAL ID {id_!r}.")
 
         return ",".join(tidal_ids)
 
@@ -120,7 +123,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
                         uuid = uuid[13:]
                     else:
                         resource_uuids[idx] = f"trn:{resource_type}:{uuid}"
-                ResourceAPI._validate_uuids(uuid)
+                validate_uuids(uuid)
         else:
             raise TypeError(
                 f"`{resource_type}_uuids` must be a comma-separated "
@@ -160,7 +163,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         if country_code is None:
             country_code = self._client._my_country_code
         else:
-            self._validate_country_code(country_code)
+            validate_country_code(country_code)
         return self._client._request(
             "GET",
             f"v1/{resource_type}/{resource_id}",
@@ -230,10 +233,10 @@ class PrivateTIDALResourceAPI(ResourceAPI):
             params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET",

@@ -1,12 +1,14 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -22,7 +24,12 @@ class ArtistsAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
-    _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
+    _ALBUM_TYPES: ClassVar[set[str]] = {
+        "album",
+        "single",
+        "appears_on",
+        "compilation",
+    }
 
     __slots__ = ()
 
@@ -587,7 +594,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             "artists", time_range=time_range, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_my_followed_artists)
+    @copy_docstring(UsersAPI.get_my_followed_artists)
     def get_my_followed_artists(
         self, *, cursor: str | None = None, limit: int | None = None
     ) -> dict[str, Any]:
@@ -595,15 +602,15 @@ class ArtistsAPI(SpotifyResourceAPI):
             cursor=cursor, limit=limit
         )
 
-    @_copy_docstring(UsersAPI.follow_artists)
+    @copy_docstring(UsersAPI.follow_artists)
     def follow_artists(self, artist_ids: str | Collection[str], /) -> None:
         self._client.users.follow_artists(artist_ids)
 
-    @_copy_docstring(UsersAPI.unfollow_artists)
+    @copy_docstring(UsersAPI.unfollow_artists)
     def unfollow_artists(self, artist_ids: str | Collection[str], /) -> None:
         self._client.users.unfollow_artists(artist_ids)
 
-    @_copy_docstring(UsersAPI.is_following_artists)
+    @copy_docstring(UsersAPI.is_following_artists)
     def is_following_artists(
         self, artist_ids: str | Collection[str], /
     ) -> list[bool]:
