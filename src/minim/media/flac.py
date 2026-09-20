@@ -2056,7 +2056,9 @@ class FLACAudio(Audio):
 
         self._metadata = blocks = []
         self._type_index = type_index = defaultdict(list)
+        self._metadata_view = FLACMetadataView(blocks, type_index=type_index)
         self._tags = None
+
         strict = self._strict
         seen_vorbis_comment = False
         block_header = 0x7F
@@ -2156,7 +2158,6 @@ class FLACAudio(Audio):
             )
 
         self._audio_offset = offset
-        self._metadata_view = FLACMetadataView(blocks, type_index=type_index)
 
     def add_metadata(
         self,

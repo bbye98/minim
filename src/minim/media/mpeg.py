@@ -934,6 +934,7 @@ class MPEGAudio(Audio):
         strict = self._strict
         self._metadata = metadata = []
         self._type_index = type_index = defaultdict(list)
+        self._metadata_view = MPEGMetadataView(metadata, type_index=type_index)
 
         # Process ID3v2 tags, if any
         offset = end_offset = 0
@@ -977,8 +978,6 @@ class MPEGAudio(Audio):
         )
 
         self.close()
-
-        self._metadata_view = MPEGMetadataView(metadata, type_index=type_index)
 
     def add_metadata(
         self, metadata: ID3v1 | ID3v2 | Collection[ID3v1 | ID3v2], /
