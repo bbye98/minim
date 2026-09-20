@@ -681,7 +681,7 @@ class ID3v2FrameFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.id3.ID3v2FrameFlags
+        flags : minim.media.metadata.ID3v2FrameFlags
             Flags for the ID3v2.3 frame.
         """
         if strict:
@@ -728,7 +728,7 @@ class ID3v2FrameFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.id3.ID3v2FrameFlags
+        flags : minim.media.metadata.ID3v2FrameFlags
             Flags for the ID3v2.4 frame.
         """
         if strict:
@@ -794,7 +794,7 @@ class ID3v2FrameFlags:
 
         Returns
         -------
-        flags : minim.media.metadata.id3.ID3v2FrameFlags
+        flags : minim.media.metadata.ID3v2FrameFlags
             Flags.
         """
         validate_number("status_flags", status_flags, int, 0)
@@ -1016,7 +1016,7 @@ class ID3v2Frame(ABC):
         """
         Parameters
         ----------
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
             Flags.
 
@@ -1812,7 +1812,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
             Flags.
 
@@ -2499,7 +2499,7 @@ class ID3v2APICFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
             Flags.
 
@@ -2556,7 +2556,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Returns
         -------
-        picture_frame : minim.media.metadata.id3.ID3v2APICFrame
+        picture_frame : minim.media.metadata.ID3v2APICFrame
             :code:`PIC` frame.
         """
         obj = super()._from_stream_2_2(stream, strict=strict)
@@ -2599,7 +2599,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Returns
         -------
-        picture_frame : minim.media.metadata.id3.ID3v2APICFrame
+        picture_frame : minim.media.metadata.ID3v2APICFrame
             :code:`APIC` frame.
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
@@ -2651,7 +2651,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         Returns
         -------
-        picture_frame : minim.media.metadata.id3.ID3v2APICFrame
+        picture_frame : minim.media.metadata.ID3v2APICFrame
             :code:`APIC` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -2914,7 +2914,7 @@ class ID3v2COMMFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
             Flags.
 
@@ -2956,7 +2956,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         Returns
         -------
-        comment_frame : minim.media.metadata.id3.ID3v2COMMFrame
+        comment_frame : minim.media.metadata.ID3v2COMMFrame
             :code:`COM` frame.
         """
         obj = super()._from_stream_2_2(stream, strict=strict)
@@ -2988,7 +2988,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         Returns
         -------
-        comment_frame : minim.media.metadata.id3.ID3v2COMMFrame
+        comment_frame : minim.media.metadata.ID3v2COMMFrame
             :code:`COMM` frame.
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
@@ -3030,7 +3030,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         Returns
         -------
-        comment_frame : minim.media.metadata.id3.ID3v2COMMFrame
+        comment_frame : minim.media.metadata.ID3v2COMMFrame
             :code:`COMM` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -3238,7 +3238,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        bpm_frame : minim.media.metadata.id3.ID3v2TBPMFrame
+        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
             :code:`TBP` frame.
         """
         obj = super()._from_stream_2_2(stream, strict=strict)
@@ -3270,7 +3270,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        bpm_frame : minim.media.metadata.id3.ID3v2TBPMFrame
+        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
             :code:`TBPM` frame.
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
@@ -3309,7 +3309,7 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        bpm_frame : minim.media.metadata.id3.ID3v2TBPMFrame
+        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
             :code:`TBPM` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -3385,7 +3385,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        compilation_flag_frame : minim.media.metadata.id3.ID3v2TCMPFrame
+        compilation_flag_frame : minim.media.metadata.ID3v2TCMPFrame
             :code:`TCP` frame.
         """
         obj = super()._from_stream_2_2(stream, strict=strict)
@@ -3417,7 +3417,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        compilation_flag_frame : minim.media.metadata.id3.ID3v2TCMPFrame
+        compilation_flag_frame : minim.media.metadata.ID3v2TCMPFrame
             :code:`TCMP` frame.
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
@@ -3457,7 +3457,7 @@ class ID3v2TCMPFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        compilation_flag_frame : minim.media.metadata.id3.ID3v2TCMPFrame
+        compilation_flag_frame : minim.media.metadata.ID3v2TCMPFrame
             :code:`TCMP` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -3569,7 +3569,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        content_type_frame : minim.media.metadata.id3.ID3v2TCONFrame
+        content_type_frame : minim.media.metadata.ID3v2TCONFrame
             :code:`TCO` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
@@ -3603,7 +3603,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        content_type_frame : minim.media.metadata.id3.ID3v2TCONFrame
+        content_type_frame : minim.media.metadata.ID3v2TCONFrame
             :code:`TCON` frame.
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
@@ -3643,7 +3643,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        content_type_frame : minim.media.metadata.id3.ID3v2TCONFrame
+        content_type_frame : minim.media.metadata.ID3v2TCONFrame
             :code:`TCON` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -3932,7 +3932,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
         Returns
         -------
-        datetime_frame : minim.media.metadata.id3.ID3v2TDRCFrame
+        datetime_frame : minim.media.metadata.ID3v2TDRCFrame
             Datetime frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
@@ -4005,7 +4005,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
 
         Returns
         -------
-        datetime_frame : minim.media.metadata.id3.ID3v2TDRCFrame
+        datetime_frame : minim.media.metadata.ID3v2TDRCFrame
             Datetime frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
@@ -4396,7 +4396,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        disc_frame : minim.media.metadata.id3.ID3v2TPOSFrame
+        disc_frame : minim.media.metadata.ID3v2TPOSFrame
             :code:`TPA` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
@@ -4431,7 +4431,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        disc_frame : minim.media.metadata.id3.ID3v2TPOSFrame
+        disc_frame : minim.media.metadata.ID3v2TPOSFrame
             :code:`TPOS` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
@@ -4473,7 +4473,7 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        disc_frame : minim.media.metadata.id3.ID3v2TPOSFrame
+        disc_frame : minim.media.metadata.ID3v2TPOSFrame
             :code:`TPOS` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -4648,7 +4648,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        track_frame : minim.media.metadata.id3.ID3v2TRCKFrame
+        track_frame : minim.media.metadata.ID3v2TRCKFrame
             :code:`TRK` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
@@ -4683,7 +4683,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        track_frame : minim.media.metadata.id3.ID3v2TRCKFrame
+        track_frame : minim.media.metadata.ID3v2TRCKFrame
             :code:`TRCK` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
@@ -4725,7 +4725,7 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        track_frame : minim.media.metadata.id3.ID3v2TRCKFrame
+        track_frame : minim.media.metadata.ID3v2TRCKFrame
             :code:`TRCK` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -4875,7 +4875,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        isrc_frame : minim.media.metadata.id3.ID3v2TSRCFrame
+        isrc_frame : minim.media.metadata.ID3v2TSRCFrame
             :code:`TRC` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
@@ -4910,7 +4910,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        isrc_frame : minim.media.metadata.id3.ID3v2TSRCFrame
+        isrc_frame : minim.media.metadata.ID3v2TSRCFrame
             :code:`TSRC` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
@@ -4952,7 +4952,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        isrc_frame : minim.media.metadata.id3.ID3v2TSRCFrame
+        isrc_frame : minim.media.metadata.ID3v2TSRCFrame
             :code:`TSRC` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -5058,7 +5058,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
             Flags.
 
@@ -5114,7 +5114,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        text_info_frame : minim.media.metadata.id3.ID3v2TXXXFrame
+        text_info_frame : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXX` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
@@ -5147,7 +5147,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        text_info_frame : minim.media.metadata.id3.ID3v2TXXXFrame
+        text_info_frame : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXXX` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_3(
@@ -5187,7 +5187,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         Returns
         -------
-        text_info_frame : minim.media.metadata.id3.ID3v2TXXXFrame
+        text_info_frame : minim.media.metadata.ID3v2TXXXFrame
             :code:`TXXX` frame.
         """
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
@@ -5358,7 +5358,7 @@ class ID3v2USLTFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
             Flags.
 
@@ -5402,7 +5402,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         Returns
         -------
-        lyrics_frame : minim.media.metadata.id3.ID3v2USLTFrame
+        lyrics_frame : minim.media.metadata.ID3v2USLTFrame
             :code:`ULT` frame.
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
@@ -5433,7 +5433,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         Returns
         -------
-        lyrics_frame : minim.media.metadata.id3.ID3v2USLTFrame
+        lyrics_frame : minim.media.metadata.ID3v2USLTFrame
             :code:`USLT` frame.
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
@@ -5474,7 +5474,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         Returns
         -------
-        lyrics_frame : minim.media.metadata.id3.ID3v2USLTFrame
+        lyrics_frame : minim.media.metadata.ID3v2USLTFrame
             :code:`USLT` frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
@@ -5647,7 +5647,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         frame_data : bytes or bytearray
             Frame data.
 
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
             Flags.
 
@@ -5922,7 +5922,7 @@ class EncryptedID3v2Frame(UnknownID3v2Frame):
         frame_data : bytes or bytearray
             Frame data.
 
-        flags : minim.media.metadata.id3.ID3v2FrameFlags; \
+        flags : minim.media.metadata.ID3v2FrameFlags; \
         keyword-only; optional
             Flags.
 

@@ -891,10 +891,10 @@ class MPEGAudio(Audio):
 
         Parameters
         ----------
-        metadata : minim.media.metadata.id3.ID3v1, \
-        minim.media.metadata.id3.ID3v2, or \
-        Collection[minim.media.metadata.id3.ID3v1 \
-        | minim.media.metadata.id3.ID3v2]; positional-only
+        metadata : minim.media.metadata.ID3v1, \
+        minim.media.metadata.ID3v2, or \
+        Collection[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2]; positional-only
             Metadata containers to add.
         """
         raise NotImplementedError  # TODO
@@ -902,8 +902,11 @@ class MPEGAudio(Audio):
     def remove_metadata(
         self,
         *,
-        indices: int | Collection[int] | None = None,
-        metadata: ID3v1 | ID3v2 | Collection[ID3v1 | ID3v2] | None = None,
+        metadata: int
+        | ID3v1
+        | ID3v2
+        | Collection[int | ID3v1 | ID3v2]
+        | None = None,
         types: type[ID3v1 | ID3v2]
         | Collection[type[ID3v1 | ID3v2]]
         | None = None,
@@ -918,20 +921,20 @@ class MPEGAudio(Audio):
 
         Parameters
         ----------
-        indices : int or Collection[int]; keyword-only; optional
-            Indices of metadata containers to remove.
+        metadata : minim.media.metadata.ID3v1, \
+        minim.media.metadata.ID3v2, or \
+        Collection[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2]; keyword-only; optional
+            Indices or instances of metadata containers to remove.
 
-        metadata : minim.media.metadata.id3.ID3v1, \
-        minim.media.metadata.id3.ID3v2, or \
-        Collection[minim.media.metadata.id3.ID3v1 \
-        | minim.media.metadata.id3.ID3v2]; keyword-only; optional
-            Metadata containers to remove.
-
-        types : type[minim.media.metadata.id3.ID3v1 \
-        | minim.media.metadata.id3.ID3v2] or \
-        Collection[type[minim.media.metadata.id3.ID3v1 \
-        | minim.media.metadata.id3.ID3v2]]; keyword-only; optional
+        types : type[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2] or \
+        Collection[type[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2]]; keyword-only; optional
             Types of metadata containers to remove.
+
+            **Valid values**: :class:`~minim.media.metadata.ID3v1`,
+            :class:`~minim.media.metadata.ID3v2`.
         """
         raise NotImplementedError  # TODO
 
@@ -956,7 +959,7 @@ class MPEGAudio(Audio):
             Save options for ID3v1 tags.
 
             .. admonition:: Available options
-               :class: tip dropdown
+               :class: response dropdown
 
                tag_version : str or tuple[int, int]; \
                default: :code:`(1, 1)`
@@ -969,7 +972,7 @@ class MPEGAudio(Audio):
             Save options for ID3v2 tags.
 
             .. admonition:: Available options
-               :class: tip dropdown
+               :class: response dropdown
 
                tag_version : str or tuple[int, int, int]; \
                default: :code:`(2, 4, 0)`

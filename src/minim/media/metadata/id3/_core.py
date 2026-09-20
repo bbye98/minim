@@ -436,7 +436,7 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.id3.ID3v2Flags
+        flags : minim.media.metadata.ID3v2Flags
             Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0x3F:
@@ -467,7 +467,7 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.id3.ID3v2Flags
+        flags : minim.media.metadata.ID3v2Flags
             Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0x1F:
@@ -497,7 +497,7 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.id3.ID3v2Flags
+        flags : minim.media.metadata.ID3v2Flags
             Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0xF:
@@ -542,7 +542,7 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.id3.ID3v2Flags
+        flags : minim.media.metadata.ID3v2Flags
             Flags for an ID3v2 tag.
         """
         validate_number("byte_", byte_, int, 0)
@@ -741,11 +741,11 @@ class ID3v2(AudioTags):
         """
         Parameters
         ----------
-        frames : OrderedCollection[minim.media.metadata.id3.ID3v2Frame]; \
+        frames : OrderedCollection[minim.media.metadata.ID3v2Frame]; \
         positional-only
             ID3v2 frames.
 
-        flags : minim.media.metadata.id3.ID3v2Flags; keyword-only; \
+        flags : minim.media.metadata.ID3v2Flags; keyword-only; \
         optional
             Flags and extended header for ID3v2 tags.
 
@@ -1573,8 +1573,8 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.id3.ID3v2Frame or \
-        OrderedCollection[minim.media.metadata.id3.ID3v2Frame]; \
+        frames : minim.media.metadata.ID3v2Frame or \
+        OrderedCollection[minim.media.metadata.ID3v2Frame]; \
         positional-only
             Frames.
 
@@ -1699,8 +1699,8 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.id3.ID3v2Frame or \
-        OrderedCollection[minim.media.metadata.id3.ID3v2Frame]; \
+        frames : minim.media.metadata.ID3v2Frame or \
+        OrderedCollection[minim.media.metadata.ID3v2Frame]; \
         positional-only
             Known frames with the same frame ID.
         """
@@ -1753,8 +1753,8 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.id3.ID3v2Frame or \
-        OrderedCollection[minim.media.metadata.id3.ID3v2Frame]; \
+        frames : minim.media.metadata.ID3v2Frame or \
+        OrderedCollection[minim.media.metadata.ID3v2Frame]; \
         positional-only
             Frames.
 
@@ -1801,15 +1801,15 @@ class ID3v2(AudioTags):
         Parameters
         ----------
         frame_types : bytes, \
-        type[minim.media.metadata.id3.ID3v2Frame], or Collection[bytes \
-        | type[minim.media.metadata.id3.ID3v2Frame]]; positional-only
+        type[minim.media.metadata.ID3v2Frame], or Collection[bytes \
+        | type[minim.media.metadata.ID3v2Frame]]; positional-only
             Frame IDs and/or classes.
 
         Returns
         -------
-        metadata : list[minim.media.metadata.id3.ID3v2Frame], \
-        dict[bytes | type[minim.media.metadata.id3.ID3v2Frame, \
-        list[minim.media.metadata.id3.ID3v2Frame] | None], or None
+        metadata : list[minim.media.metadata.ID3v2Frame], \
+        dict[bytes | type[minim.media.metadata.ID3v2Frame, \
+        list[minim.media.metadata.ID3v2Frame] | None], or None
             Track metadata. If `field_names` is a collection of frame
             IDs and/or classes, a dictionary mapping them to their
             corresponding frame objects is returned.
@@ -1863,10 +1863,10 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frame : bytes, type[minim.media.metadata.id3.ID3v2Frame], \
-        minim.media.metadata.id3.ID3v2Frame, or Collection[bytes \
-        | type[minim.media.metadata.id3.ID3v2Frame] \
-        | minim.media.metadata.id3.ID3v2Frame]; positional-only
+        frame : bytes, type[minim.media.metadata.ID3v2Frame], \
+        minim.media.metadata.ID3v2Frame, or Collection[bytes \
+        | type[minim.media.metadata.ID3v2Frame] \
+        | minim.media.metadata.ID3v2Frame]; positional-only
             Frame IDs, classes, and/or objects.
         """
         # TODO: Support index-based frame removal
@@ -1929,8 +1929,8 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.id3.ID3v2Frame or \
-        OrderedCollection[minim.media.metadata.id3.ID3v2Frame]; \
+        frames : minim.media.metadata.ID3v2Frame or \
+        OrderedCollection[minim.media.metadata.ID3v2Frame]; \
         positional-only
             Frames.
         """
