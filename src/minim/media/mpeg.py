@@ -937,7 +937,7 @@ class MPEGAudio(Audio):
         self._metadata_view = MPEGMetadataView(metadata, type_index=type_index)
 
         # Process ID3v2 tags, if any
-        offset = end_offset = 0
+        offset = 0
         while view[offset : offset + 3] == b"ID3":
             if strict and metadata:
                 raise RuntimeError(
@@ -950,12 +950,12 @@ class MPEGAudio(Audio):
                 + decode_synchsafe_int(*view[offset + 6 : offset + 10])
             )
             tags = ID3v2.from_stream(view[offset:end_offset], strict=strict)
-            offset = end_offset
             metadata.append(tags)
             type_index[ID3v2].append(tags)
             if not hasattr(self, "_tags"):
                 self._tags = tags
-        self._audio_offset = end_offset
+            offset = end_offset
+        self._audio_offset = offset
 
         # Process ID3v1 tags, if any
         end_audio_offset = len(view)
