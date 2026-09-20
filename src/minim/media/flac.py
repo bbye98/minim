@@ -12,8 +12,6 @@ from collections import defaultdict
 from dataclasses import FrozenInstanceError, dataclass
 from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
 
-from minim.media import metadata
-
 from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES, BytesLike
 from .._utility import (
     ASCII_CHARS_REGEX,

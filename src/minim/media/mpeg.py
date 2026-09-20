@@ -852,16 +852,24 @@ class MPEGAudio(Audio):
         self._metadata = metadata = []
 
         # Process ID3v2 tags, if any
-        if view[:3] == b"ID3":
-            offset = 10 + decode_synchsafe_int(*view[6:10])
-            tags = ID3v2.from_stream(view[:offset], strict=strict)
-            metadata.append(tags)
-            self._tags = tags
-            self._audio_offset = offset
-        else:
-            self._audio_offset = 0
+        offset = end_offset = 0
+        while view[offset : offset + 3] == b"ID3":
+            if strict and metadata:
+                raise RuntimeError(
+                    "Multiple ID3v2 tags found in the MPEG audio file."
+                )
 
-        # TODO: Handle multiple ID3v2 tags, if any, and process them?
+            end_offset = (
+                offset
+                + 10
+                + decode_synchsafe_int(*view[offset + 6 : offset + 10])
+            )
+            tags = ID3v2.from_stream(view[offset:end_offset], strict=strict)
+            offset = end_offset
+            metadata.append(tags)
+            if not hasattr(self, "_tags"):
+                self._tags = tags
+        self._audio_offset = end_offset
 
         # Process ID3v1 tags, if any
         end_audio_offset = len(view)
@@ -872,6 +880,7 @@ class MPEGAudio(Audio):
                 self._tags = tags
             end_audio_offset -= 128
 
+        # TODO: Allow for multiple ID3v1 tags when strict=False
         # TODO: Find APE and Lyrics3 tags, if any, using their footers
         # and then process them
 

@@ -4,7 +4,7 @@ import struct
 import zlib
 from collections import defaultdict
 from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar, TypedDict
+from typing import TYPE_CHECKING, ClassVar
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from ...._utility import (
