@@ -5,11 +5,13 @@ information reporter.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
 
+from .._types import COLLECTION_TYPES
 from .._utility import join_values, set_obj_attr, validate_type
-from ._shared import Audio
+from ._shared import Audio, MetadataView
 from .metadata._shared import AudioStreamInfo
 from .metadata.id3._core import ID3v1, ID3v2
 from .metadata.id3._shared import decode_synchsafe_int
@@ -185,6 +187,80 @@ class MPEGStreamInfo(AudioStreamInfo):
         return obj
 
 
+class MPEGMetadataView(MetadataView):
+    """
+    View of MPEG metadata containers.
+
+    .. important::
+
+       This class is managed by :class:`MPEGAudio` and should not be
+       instantiated directly.
+
+    This class implements the following special methods:
+
+    * :code:`__getitem__` – Return the metadata container at an index.
+
+    * :code:`__iter__` – Return an iterator of the metadata containers.
+
+    * :code:`__len__` – Return the number of metadata containers.
+    """
+
+    def get(
+        self,
+        types: type[ID3v1 | ID3v2] | Collection[type[ID3v1 | ID3v2]],
+        /,
+    ) -> list[ID3v1 | ID3v2] | dict[type[ID3v1 | ID3v2], list[ID3v1 | ID3v2]]:
+        """
+        Get MPEG metadata containers by type.
+
+        .. important::
+
+           It is *not* guaranteed that the metadata containers are in
+           the same order as they are found in the MPEG audio file,
+           especially after metadata containers have been added or
+           removed.
+
+        Parameters
+        ----------
+        types : type[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2], or \
+        Collection[type[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2]]; positional-only
+            Types of metadata containers.
+
+            **Valid values**: :class:`~minim.media.metadata.ID3v1`,
+            :class:`~minim.media.metadata.ID3v2`.
+
+        Returns
+        -------
+        blocks : list[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2] or \
+        dict[type[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2], list[minim.media.metadata.ID3v1 \
+        | minim.media.metadata.ID3v2]]
+            Metadata containers. If `types` is a collection, a
+            dictionary mapping the metadata container types to the
+            metadata blocks is returned.
+        """
+        if not isinstance(types, COLLECTION_TYPES):
+            types = {types}
+
+        types_ = set()
+        for type_ in types:
+            if isinstance(type_, type) and type_ in (ID3v1, ID3v2):
+                types_.add(type_)
+            else:
+                raise TypeError(
+                    "`types` must be one or more classes of MPEG "
+                    "metadata containers. "
+                )
+
+        if len(types_) == 1:
+            return self._type_index[types_.pop()] or None
+
+        return {type_: self._type_index[type_] or None for type_ in types_}
+
+
 class MPEGAudio(Audio):
     """
     MPEG audio file.
@@ -328,7 +404,7 @@ class MPEGAudio(Audio):
         9: "ABR",
     }
 
-    __slots__ = ("_audio_offset", "_end_audio_offset")
+    __slots__ = ("_end_audio_offset",)
 
     @staticmethod
     def _sync_audio_frames(
@@ -842,6 +918,13 @@ class MPEGAudio(Audio):
             encoder=None,
         )
 
+    @property
+    def metadata(self) -> MPEGMetadataView:
+        """
+        :bdg-primary:`get` :bdg-secondary-line:`set` Metadata containers.
+        """
+        return self._metadata_view
+
     def load_metadata(self) -> None:
         """
         Load ID3 tags and MPEG stream information.
@@ -850,6 +933,7 @@ class MPEGAudio(Audio):
         view = self._view
         strict = self._strict
         self._metadata = metadata = []
+        self._type_index = type_index = defaultdict(list)
 
         # Process ID3v2 tags, if any
         offset = end_offset = 0
@@ -867,6 +951,7 @@ class MPEGAudio(Audio):
             tags = ID3v2.from_stream(view[offset:end_offset], strict=strict)
             offset = end_offset
             metadata.append(tags)
+            type_index[ID3v2].append(tags)
             if not hasattr(self, "_tags"):
                 self._tags = tags
         self._audio_offset = end_offset
@@ -876,6 +961,7 @@ class MPEGAudio(Audio):
         if view[-128:-125] == b"TAG":
             tags = ID3v1.from_stream(view[-128:])
             metadata.append(tags)
+            type_index[ID3v1].append(tags)
             if not hasattr(self, "_tags"):
                 self._tags = tags
             end_audio_offset -= 128
@@ -892,11 +978,13 @@ class MPEGAudio(Audio):
 
         self.close()
 
+        self._metadata_view = MPEGMetadataView(metadata, type_index=type_index)
+
     def add_metadata(
         self, metadata: ID3v1 | ID3v2 | Collection[ID3v1 | ID3v2], /
     ) -> None:
         """
-        Add MPEG-compatible metadata containers.
+        Add MPEG metadata containers.
 
         Parameters
         ----------
@@ -921,7 +1009,7 @@ class MPEGAudio(Audio):
         | None = None,
     ) -> None:
         """
-        Remove MPEG-compatible metadata containers.
+        Remove MPEG metadata containers.
 
         .. important::
 

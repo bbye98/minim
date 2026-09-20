@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import mmap
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .._utility import as_buffer, validate_number, validate_type
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from typing import Any, Self
 
-    from .._types import BytesLike, PathLike
+    from .._types import BytesLike, Collection, PathLike
     from .metadata._shared import AudioStreamInfo, AudioTags
 
 
@@ -20,13 +22,16 @@ class Audio(ABC):
     """
 
     __slots__ = (
+        "_audio_offset",
         "_file",
         "_file_path",
         "_metadata",
+        "_metadata_view",
         "_mmap",
         "_stream_info",
         "_strict",
         "_tags",
+        "_type_index",
         "_view",
     )
 
@@ -127,12 +132,13 @@ class Audio(ABC):
         ...
 
     @property
+    @abstractmethod
     def metadata(self) -> Any:
         """
         :bdg-primary:`get` :bdg-secondary-line:`set`
         Format-specific metadata and ancillary information.
         """
-        return self._metadata
+        ...
 
     @property
     def stream_info(self) -> AudioStreamInfo | None:
@@ -172,6 +178,90 @@ class Audio(ABC):
         if (file := self._file) is not None and not file.closed:
             file.close()
             self._file = None
+
+
+class MetadataView(ABC):
+    """
+    View of metadata containers.
+
+    .. important::
+
+       This class is managed by :class:`Audio` and should not be
+       instantiated directly.
+
+    This class implements the following special methods:
+
+    * :code:`__getitem__` – Return the metadata container at an index.
+
+    * :code:`__iter__` – Return an iterator of the metadata containers.
+
+    * :code:`__len__` – Return the number of metadata containers.
+    """
+
+    __slots__ = ("_metadata", "_type_index")
+
+    def __init__(
+        self,
+        metadata: list[Any],
+        /,
+        *,
+        type_index: dict[type[Any], list[Any]] | None = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        metadata : list[Any]
+            Metadata containers.
+
+        type_index : dict[type[Any], list[Any]]; keyword-only; optional
+            Mapping of metadata container types to lists of the
+            corresponding metadata containers.
+        """
+        self._metadata = metadata
+        if type_index is None:
+            self._type_index = defaultdict(list)
+            for container in metadata:
+                self._type_index[type(container)].append(container)
+        else:
+            self._type_index = type_index
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}"
+            f"(<{len(self._metadata)} metadata container(s)>)"
+        )
+
+    def __getitem__(self, index: int, /) -> Any:
+        return self._metadata[index]
+
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self._metadata)
+
+    def __len__(self) -> int:
+        return len(self._metadata)
+
+    @abstractmethod
+    def get(
+        self,
+        types: type[Any] | Collection[type[Any]],
+        /,
+    ) -> list[Any] | dict[type[Any], list[Any]]:
+        """
+        Get metadata containers by type.
+
+        Parameters
+        ----------
+        types : type[Any] or Collection[type[Any]]; positional-only
+            Types of metadata containers.
+
+        Returns
+        -------
+        metadata : list[Any] or dict[type[Any], list[Any]]
+            Metadata containers. If `types` is a collection, a
+            dictionary mapping the metadata container types to the
+            metadata containers is returned.
+        """
+        ...
 
 
 class NULPadding:

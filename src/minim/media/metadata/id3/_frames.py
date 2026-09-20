@@ -991,7 +991,7 @@ class ID3v2FrameFlags:
 
 class ID3v2Frame(ABC):
     """
-    ID3v2 frame.
+    Abstract base class for ID3v2 frame.
     """
 
     _TEXT_ENCODINGS: ClassVar[dict[int | str, int | str]] = {
