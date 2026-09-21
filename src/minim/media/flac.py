@@ -2030,7 +2030,7 @@ class FLACAudio(Audio):
             prev_block = blocks[-1]
             if prev_block._block_type == block._block_type == 1:
                 prev_block.adjust_length(4 + block._block_data_length)
-                type_index[block._block_type].remove(block)
+                type_index[type(block)].remove(block)
             else:
                 blocks.append(block)
         self._metadata = self._metadata_view._blocks = blocks
@@ -2147,7 +2147,7 @@ class FLACAudio(Audio):
                         block_data, block_type=block_type
                     )
             blocks.append(block)
-            type_index[block_type].append(block)
+            type_index[type(block)].append(block)
 
         block_data = None
         self.close()
@@ -2194,15 +2194,10 @@ class FLACAudio(Audio):
         """
         if not isinstance(metadata, ORDERED_COLLECTION_TYPES):
             metadata = [metadata]
-
-        for block in metadata:
-            if not isinstance(block, FLACMetadataBlock | VorbisComment):
-                raise TypeError(
-                    "`metadata` must be a FLAC metadata block instance "
-                    "or an ordered collection of FLAC metadata block "
-                    "instances."
-                )
-
+        for idx, block in enumerate(metadata):
+            validate_type(
+                f"metadata[{idx}]", block, FLACMetadataBlock | VorbisComment
+            )
             if not block._block_type:
                 raise ValueError(
                     "STREAMINFO metadata blocks cannot be added, "
@@ -2234,7 +2229,7 @@ class FLACAudio(Audio):
                             == new_block._block_data_length
                         ):
                             blocks[idx] = new_block
-                            type_index[1].remove(block)
+                            type_index[FLACPadding].remove(block)
                             placed_idx = idx
                             break
                         elif block._block_data_length >= (
@@ -2264,18 +2259,18 @@ class FLACAudio(Audio):
                 ]._block_type == 1:  # right
                     block = blocks.pop(adj_idx)
                     new_block.adjust_length(4 + block._block_data_length)
-                    type_index[1].remove(block)
+                    type_index[FLACPadding].remove(block)
                     num_blocks -= 1
                 if (adj_idx := placed_idx - 1) >= 0 and blocks[
                     adj_idx
                 ]._block_type == 1:  # left
                     block = blocks.pop(adj_idx)
                     new_block.adjust_length(4 + block._block_data_length)
-                    type_index[1].remove(block)
+                    type_index[FLACPadding].remove(block)
                     num_blocks -= 1
                     if index is not None:
                         index -= 1
-            type_index[new_block._block_type].append(new_block)
+            type_index[type(new_block)].append(new_block)
 
     def move_metadata(
         self,
@@ -2301,7 +2296,7 @@ class FLACAudio(Audio):
 
         .. important::
 
-           Exactly one of `blocks` or `types` must be provided.
+           Exactly one of `metadata` or `types` must be provided.
 
         Parameters
         ----------
@@ -2314,7 +2309,7 @@ class FLACAudio(Audio):
         minim.media.metadata.VorbisComment, or Collection[int \
         | minim.media.flac.FLACMetadataBlock \
         | minim.media.metadata.VorbisComment]; keyword-only; optional
-            Indices or instances of metadata blocks to move.
+            Indices and/or instances of metadata blocks to move.
 
         types : int, type[minim.media.flac.FLACMetadataBlock \
         | minim.media.metadata.VorbisComment], or Collection[int \
@@ -2342,7 +2337,6 @@ class FLACAudio(Audio):
         blocks = self._metadata
         num_blocks = len(blocks)
         validate_number("to_index", to_index, int, -num_blocks, num_blocks)
-
         max_block_index = num_blocks - 1
         if to_index < num_blocks:
             to_index %= num_blocks
@@ -2353,30 +2347,16 @@ class FLACAudio(Audio):
             )
 
         if has_metadata:
-            validate_type(
-                "metadata",
-                metadata,
-                int
-                | FLACMetadataBlock
-                | VorbisComment
-                | ORDERED_COLLECTION_TYPES,
-            )
-            if isinstance(metadata, ORDERED_COLLECTION_TYPES):
-                for idx, block in enumerate(metadata):
-                    validate_type(
-                        f"metadata[{idx}]",
-                        block,
-                        int | FLACMetadataBlock | VorbisComment,
-                    )
-            else:
-                metadata = [metadata]
-
             block_indices_by_id = {
                 id(block): idx for idx, block in enumerate(blocks)
             }
             seen_block_indices = set()
             block_indices = []
-            for idx, block in enumerate(metadata):
+            for idx, block in enumerate(
+                metadata
+                if isinstance(metadata, ORDERED_COLLECTION_TYPES)
+                else [metadata]
+            ):
                 if isinstance(block, int):
                     validate_number(
                         f"metadata[{idx}]",
@@ -2386,7 +2366,7 @@ class FLACAudio(Audio):
                         max_block_index,
                     )
                     block %= num_blocks
-                else:
+                elif isinstance(block, FLACMetadataBlock | VorbisComment):
                     try:
                         block = block_indices_by_id[id(block)]
                     except KeyError:
@@ -2394,6 +2374,12 @@ class FLACAudio(Audio):
                             f"The metadata block at metadata[{idx}] is "
                             "not present in this FLAC audio file."
                         ) from None
+                else:
+                    raise TypeError(
+                        "`metadata` must be an index and/or instance "
+                        "of a FLAC metadata block or an ordered "
+                        "collection of them."
+                    )
 
                 if not block:
                     raise ValueError(
@@ -2403,7 +2389,8 @@ class FLACAudio(Audio):
 
                 if block in seen_block_indices:
                     raise ValueError(
-                        f"Duplicate metadata block index {block} encountered."
+                        f"Duplicate metadata block with index {block} "
+                        "encountered."
                     )
 
                 seen_block_indices.add(block)
@@ -2482,7 +2469,7 @@ class FLACAudio(Audio):
         padding = FLACPadding(padding_length)
         blocks.append(padding)
         self._metadata = self._metadata_view._blocks = blocks
-        self._type_index[1] = [padding]
+        self._type_index[FLACPadding] = [padding]
 
     def remove_metadata(
         self,
@@ -2490,7 +2477,7 @@ class FLACAudio(Audio):
         metadata: int
         | FLACMetadataBlock
         | VorbisComment
-        | OrderedCollection[int | FLACMetadataBlock | VorbisComment]
+        | Collection[int | FLACMetadataBlock | VorbisComment]
         | None = None,
         types: int
         | type[FLACMetadataBlock | VorbisComment]
@@ -2515,7 +2502,7 @@ class FLACAudio(Audio):
 
         .. important::
 
-           Exactly one of `blocks` or `types` must be provided.
+           Exactly one of `metadata` or `types` must be provided.
 
         Parameters
         ----------
@@ -2523,7 +2510,7 @@ class FLACAudio(Audio):
         minim.media.metadata.VorbisComment, or Collection[int \
         | minim.media.flac.FLACMetadataBlock \
         | minim.media.metadata.VorbisComment]; keyword-only; optional
-            Indices or instances of metadata blocks to remove.
+            Indices and/or instances of metadata blocks to remove.
 
         types : int, type[minim.media.flac.FLACMetadataBlock \
         | minim.media.metadata.VorbisComment], or Collection[int \
@@ -2550,15 +2537,6 @@ class FLACAudio(Audio):
         blocks = self._metadata
         type_index = self._type_index
         if has_metadata:
-            validate_type(
-                "metadata",
-                metadata,
-                int | FLACMetadataBlock | VorbisComment | COLLECTION_TYPES,
-            )
-
-            if isinstance(metadata, int | FLACMetadataBlock | VorbisComment):
-                metadata = [metadata]
-
             num_blocks = len(blocks)
             max_block_index = num_blocks - 1
             block_indices_by_id = {
@@ -2566,7 +2544,11 @@ class FLACAudio(Audio):
             }
             seen_block_indices = set()
             block_indices = []
-            for idx, block in enumerate(metadata):
+            for idx, block in enumerate(
+                metadata
+                if isinstance(metadata, COLLECTION_TYPES)
+                else [metadata]
+            ):
                 if isinstance(block, int):
                     validate_number(
                         f"metadata[{idx}]",
@@ -2576,14 +2558,19 @@ class FLACAudio(Audio):
                         max_block_index,
                     )
                     block %= num_blocks
-                else:
+                elif isinstance(block, FLACMetadataBlock | VorbisComment):
                     try:
                         block = block_indices_by_id[id(block)]
                     except KeyError:
                         raise ValueError(
-                            f"The metadata block at metadata[{idx}] is "
-                            "not present in this FLAC audio file."
+                            f"The metadata block at `metadata[{idx}]` is "
+                            "not in this FLAC audio file."
                         ) from None
+                else:
+                    raise TypeError(
+                        "`metadata` must be one or more indices and/or "
+                        "instances of FLAC metadata blocks."
+                    )
 
                 if not block:
                     raise ValueError(
@@ -2601,7 +2588,7 @@ class FLACAudio(Audio):
                     continue
 
                 blocks[block_index] = FLACPadding(block._block_data_length)
-                type_index[block._block_type].remove(block)
+                type_index[type(block)].remove(block)
         else:
             if isinstance(types, int):
                 types = {types}
@@ -2618,9 +2605,8 @@ class FLACAudio(Audio):
                 }
             else:
                 raise TypeError(
-                    "`types` must be an integer, a subclass of "
-                    "FLACMetadataBlock, or collection of integers and "
-                    "classes."
+                    "`types` must be one or more FLAC metadata block "
+                    "types and/or classes."
                 )
 
             types.discard(1)
@@ -2633,7 +2619,7 @@ class FLACAudio(Audio):
             for idx, block in enumerate(blocks):
                 if block._block_type in types:
                     blocks[idx] = FLACPadding(block._block_data_length)
-                    type_index[block._block_type].remove(block)
+                    type_index[type(block)].remove(block)
 
         self._merge_adjacent_padding()
 

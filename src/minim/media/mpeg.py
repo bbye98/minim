@@ -10,7 +10,12 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
 
 from .._types import COLLECTION_TYPES
-from .._utility import join_values, set_obj_attr, validate_type
+from .._utility import (
+    join_values,
+    set_obj_attr,
+    validate_number,
+    validate_type,
+)
 from ._shared import Audio, MetadataView
 from .metadata._shared import AudioStreamInfo
 from .metadata.id3._core import ID3v1, ID3v2
@@ -1012,16 +1017,15 @@ class MPEGAudio(Audio):
 
         .. important::
 
-           Exactly one of `indices`, `metadata`, or `types` must be
-           provided.
+           Exactly one of `metadata` or `types` must be provided.
 
         Parameters
         ----------
-        metadata : minim.media.metadata.ID3v1, \
+        metadata : int, minim.media.metadata.ID3v1, \
         minim.media.metadata.ID3v2, or \
-        Collection[minim.media.metadata.ID3v1 \
+        Collection[int | minim.media.metadata.ID3v1 \
         | minim.media.metadata.ID3v2]; keyword-only; optional
-            Indices or instances of metadata containers to remove.
+            Indices and/or instances of metadata containers to remove.
 
         types : type[minim.media.metadata.ID3v1 \
         | minim.media.metadata.ID3v2] or \
@@ -1032,7 +1036,83 @@ class MPEGAudio(Audio):
             **Valid values**: :class:`~minim.media.metadata.ID3v1`,
             :class:`~minim.media.metadata.ID3v2`.
         """
-        raise NotImplementedError  # TODO
+        has_metadata = metadata is not None
+        has_types = types is not None
+        if has_metadata == has_types:
+            raise ValueError(
+                "Exactly one of `metadata` or `types` must be specified."
+            )
+
+        containers = self._metadata
+        type_index = self._type_index
+        if has_metadata:
+            num_containers = len(containers)
+            max_container_index = num_containers - 1
+            container_indices_by_id = {
+                id(container): idx for idx, container in enumerate(containers)
+            }
+            seen_container_indices = set()
+            container_indices = []
+            for idx, container in enumerate(
+                metadata
+                if isinstance(metadata, COLLECTION_TYPES)
+                else [metadata]
+            ):
+                if isinstance(container, int):
+                    validate_number(
+                        f"metadata[{idx}]",
+                        container,
+                        int,
+                        -num_containers,
+                        max_container_index,
+                    )
+                    container %= num_containers
+                elif isinstance(container, ID3v1 | ID3v2):
+                    try:
+                        container = container_indices_by_id[id(container)]
+                    except KeyError:
+                        raise ValueError(
+                            f"`metadata[{idx}]` is not a metadata "
+                            "container in this MPEG audio file."
+                        ) from None
+                else:
+                    raise TypeError(
+                        "`metadata` must be one or more indices and/or "
+                        "instances of MPEG metadata containers."
+                    )
+
+                if container not in seen_container_indices:
+                    seen_container_indices.add(container)
+                    container_indices.append(container)
+
+            for container_index in container_indices:
+                container = containers.pop(container_index)
+                type_index[type(container)].remove(container)
+        else:
+            if isinstance(types, type) and issubclass(types, ID3v1 | ID3v2):
+                types = {types}
+            elif isinstance(types, COLLECTION_TYPES):
+                for idx, type_ in enumerate(types):
+                    if not isinstance(type_, type) or not issubclass(
+                        type_, ID3v1 | ID3v2
+                    ):
+                        raise TypeError(
+                            f"`types[{idx}]` must be a MPEG metadata "
+                            "container class."
+                        )
+            else:
+                raise TypeError(
+                    "`types` must be one or more MPEG metadata "
+                    "container classes."
+                )
+
+            containers_ = []
+            for idx, container in enumerate(containers):
+                if type(container) in types:
+                    type_index[type(container)].remove(container)
+                else:
+                    containers_.append(container)
+            self._metadata = containers_
 
     def save(
         self,

@@ -1762,6 +1762,7 @@ class ID3v2(AudioTags):
             Whether to ensure metadata strictly adheres to the ID3 tag
             specifications.
         """
+        # TODO: Shrink padding if possible
         if isinstance(frames, ID3v2Frame):
             self._add_frames(frames, strict=strict)
             return
@@ -1870,6 +1871,7 @@ class ID3v2(AudioTags):
             Frame IDs, classes, and/or objects.
         """
         # TODO: Support index-based frame removal
+        # TODO: Add padding instead of removing frames
         for frame in (
             frames if isinstance(frames, COLLECTION_TYPES) else [frames]
         ):
