@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import _copy_docstring
+from ...._utility import copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .users import PrivateUsersAPI
 
@@ -20,12 +21,12 @@ class PrivatePurchasesAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    @_copy_docstring(PrivateUsersAPI.get_my_purchases)
+    @copy_docstring(PrivateUsersAPI.get_my_purchases)
     def get_my_purchases(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.users.get_my_purchases(limit=limit, offset=offset)
 
-    @_copy_docstring(PrivateUsersAPI.get_my_purchased_item_ids)
+    @copy_docstring(PrivateUsersAPI.get_my_purchased_item_ids)
     def get_my_purchased_item_ids(self) -> dict[str, Any]:
         return self._client.users.get_my_purchased_item_ids()

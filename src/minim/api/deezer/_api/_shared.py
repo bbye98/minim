@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES
+from ...._utility import validate_number
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
@@ -16,7 +18,7 @@ class DeezerResourceAPI(ResourceAPI):
     Base class for Deezer API resource endpoint groups.
     """
 
-    _client: "DeezerAPIClient"
+    _client: DeezerAPIClient
 
     __slot__ = ()
 
@@ -153,10 +155,10 @@ class DeezerResourceAPI(ResourceAPI):
         if params is None:
             params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1)
+            validate_number("limit", limit, int, 1)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["index"] = offset
         endpoint = f"{resource_type}/{resource_id}"
         if relationship is not None:

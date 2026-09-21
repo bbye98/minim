@@ -11,7 +11,7 @@ from ._lyrics_api.matcher import MatcherAPI
 from ._lyrics_api.search import SearchAPI
 from ._lyrics_api.tracks import TracksAPI
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "MusixmatchLyricsAPIClient",
     "AlbumsAPI",
     "ArtistsAPI",

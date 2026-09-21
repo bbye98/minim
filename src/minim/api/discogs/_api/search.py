@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import _copy_docstring
+from ...._utility import copy_docstring
 from ._shared import DiscogsResourceAPI
 from .database import DatabaseAPI
 
@@ -27,7 +28,7 @@ class SearchAPI(DiscogsResourceAPI):
 
     __slots__ = ()
 
-    @_copy_docstring(DatabaseAPI.search)
+    @copy_docstring(DatabaseAPI.search)
     def search(
         self,
         query: str | None = None,
