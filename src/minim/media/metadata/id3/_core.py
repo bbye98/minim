@@ -857,6 +857,12 @@ class ID3v2(AudioTags):
         tag : minim.media.metadata.ID3v2
             ID3v2 tag.
         """
+        flags = ID3v2Flags._from_byte_2_2(flags, strict=strict)
+        if flags._is_compressed:
+            raise NotImplementedError(
+                "Compressed ID3v2.2 tags are not supported."
+            )  # TODO: Store raw data in immutable object?
+
         obj = cls.__new__(cls)
         obj._frames = frames = []
         obj._padding = None
@@ -864,14 +870,9 @@ class ID3v2(AudioTags):
         obj._class_index = defaultdict(list)
         obj._key_index = defaultdict(dict)
         obj._unknown_index = defaultdict(list)
-        obj._flags = flags = ID3v2Flags._from_byte_2_2(flags, strict=strict)
+        obj._flags = flags
         obj._has_crc = obj._is_update = False
         obj._tag_restrictions = 0
-
-        if flags._is_compressed:
-            raise NotImplementedError(
-                "Compressed ID3v2.2 tags are not supported."
-            )  # TODO: Store raw data in immutable object?
 
         if flags._is_unsynchronized:
             stream = memoryview(stream.tobytes().replace(b"\xff\x00", b"\xff"))
