@@ -1013,9 +1013,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     for idx, handle in enumerate(handles)
                 ]
             elif not isinstance(handles, str):
-                raise ValueError(
-                    "`handles` must be a string or a collection of strings."
-                )
+                raise ValueError("`handles` must be one or more strings.")
             params["handle"] = handles
         elif owner_ids is not None:
             self._validate_tidal_ids(owner_ids)

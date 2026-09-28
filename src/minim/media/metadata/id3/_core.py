@@ -53,6 +53,8 @@ class ID3v1:
     _STRUCT_1_0: ClassVar[struct.Struct] = struct.Struct("3s30s30s30s4s30sB")
     _STRUCT_1_1: ClassVar[struct.Struct] = struct.Struct("3s30s30s30s4s28sBBB")
 
+    _mpeg_order: ClassVar[int] = -1
+
     __slots__ = (
         "_album",
         "_artist",
@@ -716,6 +718,8 @@ class ID3v2(AudioTags):
         ">4s4B"
     )
 
+    _mpeg_order: ClassVar[int] = 0
+
     __slots__ = (
         "_class_index",
         "_flags",
@@ -723,6 +727,7 @@ class ID3v2(AudioTags):
         "_has_crc",
         "_is_update",
         "_key_index",
+        "_original_length",
         "_padding",
         "_tag_restrictions",
         "_unknown_index",
@@ -737,6 +742,7 @@ class ID3v2(AudioTags):
         is_update: bool = False,
         has_crc: bool = False,
         tag_restrictions: int = 0,
+        append: bool = False,
     ) -> None:
         """
         Parameters
@@ -764,6 +770,9 @@ class ID3v2(AudioTags):
 
                Currently, tag restrictions are not enforced when
                serializing ID3v2 tags.
+
+        append : bool; keyword-only; default: :code:`False`
+            Whether the ID3v2 tag is appended to the MPEG audio stream.
         """
         if not isinstance(frames, ORDERED_COLLECTION_TYPES):
             frames = [frames]
@@ -771,6 +780,7 @@ class ID3v2(AudioTags):
         self._frames = []
         self._class_index = defaultdict(list)
         self._key_index = defaultdict(dict)
+        self._unknown_index = defaultdict(list)
         for frame_idx, frame in enumerate(frames):
             validate_type(f"frames[{frame_idx}]", frame, ID3v2Frame)
             self._add_frames(frame)
@@ -781,9 +791,20 @@ class ID3v2(AudioTags):
             validate_type("flags", flags, ID3v2Flags)
             self._flags = flags
 
+        if append:
+            if not self._flags._has_footer:
+                raise ValueError(
+                    "Cannot append an ID3v2 tag if it does not have a footer."
+                )
+
+            self._mpeg_order = -4
+
         self.is_update = is_update
         self.has_crc = has_crc
         self.tag_restrictions = tag_restrictions
+
+        self._padding = ID3v2Padding()
+        self._original_length = 0
 
     def __repr__(self) -> str:
         optional_kwargs = [""]
@@ -839,6 +860,7 @@ class ID3v2(AudioTags):
         obj = cls.__new__(cls)
         obj._frames = frames = []
         obj._padding = None
+        obj._original_length = len(stream)
         obj._class_index = defaultdict(list)
         obj._key_index = defaultdict(dict)
         obj._unknown_index = defaultdict(list)
@@ -880,6 +902,8 @@ class ID3v2(AudioTags):
         if strict and not frames:
             raise ValueError("ID3v2 tag contains no frames.")
 
+        if obj._padding is None:
+            obj._padding = ID3v2Padding()
         return obj
 
     @classmethod
@@ -918,6 +942,7 @@ class ID3v2(AudioTags):
         obj = cls.__new__(cls)
         obj._frames = frames = []
         obj._padding = None
+        obj._original_length = len(stream)
         obj._class_index = defaultdict(list)
         obj._key_index = defaultdict(dict)
         obj._unknown_index = defaultdict(list)
@@ -967,11 +992,19 @@ class ID3v2(AudioTags):
         if strict and not frames:
             raise ValueError("ID3v2 tag contains no frames.")
 
+        if obj._padding is None:
+            obj._padding = ID3v2Padding()
         return obj
 
     @classmethod
     def _from_stream_2_4(
-        cls, stream: memoryview, /, flags: bytes, *, strict: bool = True
+        cls,
+        stream: memoryview,
+        /,
+        flags: bytes,
+        *,
+        append: bool = False,
+        strict: bool = True,
     ) -> Self:
         """
         Instantiate an :class:`ID3v2` object from an ID3v2.4 tag
@@ -985,6 +1018,9 @@ class ID3v2(AudioTags):
         flags : bytes
             ID3v2.4 tag flags byte.
 
+        append : bool; keyword-only; default: :code:`False`
+            Whether the ID3v2 tag is appended to the MPEG audio stream.
+
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
             specifications.
@@ -997,10 +1033,13 @@ class ID3v2(AudioTags):
         obj = cls.__new__(cls)
         obj._frames = frames = []
         obj._padding = None
+        obj._original_length = len(stream)
         obj._class_index = defaultdict(list)
         obj._key_index = defaultdict(dict)
         obj._unknown_index = defaultdict(list)
         obj._flags = flags = ID3v2Flags._from_byte_2_4(flags, strict=strict)
+        if append:
+            obj._mpeg_order = -4
 
         offset = 0
         if flags._has_extended_header:
@@ -1056,10 +1095,14 @@ class ID3v2(AudioTags):
         if strict and not frames:
             raise ValueError("ID3v2 tag contains no frames.")
 
+        if obj._padding is None:
+            obj._padding = ID3v2Padding()
         return obj
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
+    def from_stream(
+        cls, stream: BytesLike, /, *, append: bool = False, strict: bool = True
+    ) -> Self:
         """
         Instantiate an :class:`ID3v2` object from a bytestream.
 
@@ -1076,6 +1119,10 @@ class ID3v2(AudioTags):
         ----------
         stream : BytesLike; positional-only; optional
             Bytes-like object containing an ID3v2 tag.
+
+        append : bool; keyword-only; default: :code:`False`
+            Whether the ID3v2 tag is appended to the MPEG audio stream.
+            Only supported for ID3v2.4 tags.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -1096,7 +1143,9 @@ class ID3v2(AudioTags):
         stream = stream[10 : 10 + decode_synchsafe_int(*tag_length)]
         match tag_version := (2, minor, patch):
             case (2, 4, _):
-                return cls._from_stream_2_4(stream, flags=flags, strict=strict)
+                return cls._from_stream_2_4(
+                    stream, flags=flags, append=append, strict=strict
+                )
             case (2, 3, _):
                 return cls._from_stream_2_3(stream, flags=flags, strict=strict)
             case (2, 2, _):
@@ -1762,7 +1811,6 @@ class ID3v2(AudioTags):
             Whether to ensure metadata strictly adheres to the ID3 tag
             specifications.
         """
-        # TODO: Shrink padding if possible
         if isinstance(frames, ID3v2Frame):
             self._add_frames(frames, strict=strict)
             return
@@ -1853,29 +1901,45 @@ class ID3v2(AudioTags):
 
     def remove(
         self,
-        frames: bytes
+        *,
+        frames: ID3v2Frame | Collection[ID3v2Frame] | None = None,
+        types: bytes
         | type[ID3v2Frame]
-        | ID3v2Frame
-        | Collection[bytes | type[ID3v2Frame] | ID3v2Frame],
-        /,
+        | Collection[bytes | type[ID3v2Frame]]
+        | None = None,
     ) -> None:
         """
         Remove frames.
 
+        .. important::
+
+           Exactly one of `frames` or `types` must be provided.
+
         Parameters
         ----------
-        frame : bytes, type[minim.media.metadata.ID3v2Frame], \
-        minim.media.metadata.ID3v2Frame, or Collection[bytes \
-        | type[minim.media.metadata.ID3v2Frame] \
-        | minim.media.metadata.ID3v2Frame]; positional-only
-            Frame IDs, classes, and/or objects.
+        frames : minim.media.metadata.ID3v2Frame; keyword-only; optional
+            Frame objects to remove.
+
+        types : bytes, type[minim.media.metadata.ID3v2Frame], \
+        or Collection[bytes | type[minim.media.metadata.ID3v2Frame]]; \
+        keyword-only; optional
+            Frame IDs and/or classes to remove.
         """
-        # TODO: Support index-based frame removal
-        # TODO: Add padding instead of removing frames
-        for frame in (
-            frames if isinstance(frames, COLLECTION_TYPES) else [frames]
-        ):
-            if isinstance(frame, ID3v2Frame):
+        has_frames = frames is not None
+        has_types = types is not None
+        if has_frames == has_types:
+            raise ValueError(
+                "Exactly one of `frames` or `types` must be specified."
+            )
+
+        if has_frames:
+            if not isinstance(frames, COLLECTION_TYPES):
+                frames = [frames]
+
+            for idx, frame in enumerate(frames):
+                validate_type(f"frames[{idx}]", frame, ID3v2Frame)
+
+            for frame in frames:
                 try:
                     self._frames.remove(frame)
                     match frame:
@@ -1900,28 +1964,38 @@ class ID3v2(AudioTags):
                                 del self._key_index[frame_cls][frame._key]
                 except ValueError:
                     pass
+        else:
+            if not isinstance(types, COLLECTION_TYPES):
+                types = [types]
 
-            elif (
-                (is_bytes := isinstance(frame, bytes))
-                or isinstance(frame, type)
-                and issubclass(frame, ID3v2Frame)
-            ):
-                if is_bytes:
-                    frame_cls = ID3v2Frame._get_class(frame)
+            for idx, type_ in enumerate(types):
+                if not (
+                    isinstance(type_, bytes)
+                    or isinstance(type_, type)
+                    and issubclass(type_, ID3v2Frame)
+                ):
+                    raise TypeError(
+                        f"types[{idx}] must be bytes or a subclass of "
+                        "ID3v2Frame."
+                    )
+
+            for type_ in types:
+                if isinstance(type_, bytes):
+                    frame_cls = ID3v2Frame._get_class(type_)
                     if frame_cls is UnknownID3v2Frame:
-                        for frame_ in self._unknown_index.pop(frame, []):
-                            self._frames.remove(frame_)
-                            self._class_index[UnknownID3v2Frame].remove(frame_)
+                        for frame in self._unknown_index.pop(type_, []):
+                            self._frames.remove(frame)
+                            self._class_index[UnknownID3v2Frame].remove(frame)
                         continue
                 else:
                     frame_cls = frame
 
                 frames_to_remove = self._class_index.pop(frame_cls, [])
-                for frame_ in frames_to_remove:
-                    self._frames.remove(frame_)
+                for frame in frames_to_remove:
+                    self._frames.remove(frame)
                 if frame_cls is UnknownID3v2Frame:
-                    for frame_ in frames_to_remove:
-                        self._unknown_index.pop(frame_._frame_id, None)
+                    for frame in frames_to_remove:
+                        self._unknown_index.pop(frame._frame_id, None)
 
     def set(
         self, frames: ID3v2Frame | OrderedCollection[ID3v2Frame], /
@@ -1970,6 +2044,7 @@ class ID3v2(AudioTags):
         *,
         text_encoding: str | None = None,
         include_padding: bool = True,
+        adjust_padding: bool = True,
     ) -> bytes:
         """
         Serialize the ID3v2 tag to a bytestream.
@@ -1994,6 +2069,12 @@ class ID3v2(AudioTags):
         include_padding : bool; keyword-only; default: :code:`True`
             Whether to keep padding.
 
+        adjust_padding : bool; keyword-only; default: :code:`True`
+            Whether to adjust the padding to fit the serialized frames.
+            If :code:`True`, the padding will be resized only if it can
+            accommodate the serialized frames. If :code:`False`, the
+            padding length will remain unchanged.
+
         Returns
         -------
         stream : bytes
@@ -2016,6 +2097,12 @@ class ID3v2(AudioTags):
         padding = self._padding
         include_padding = include_padding and padding is not None
         if include_padding:
+            if (
+                adjust_padding
+                and (padding_length := self._original_length - len(frames))
+                >= 0
+            ):
+                padding._length = padding_length
             padding_length = padding._length
             padding = self._padding.serialize()
         else:
@@ -2085,9 +2172,7 @@ class ID3v2(AudioTags):
                 if flags._has_extended_header:
                     extended_header = (self._has_crc << 15).to_bytes(
                         2, byteorder="big"
-                    ) + (padding_length if include_padding else 0).to_bytes(
-                        4, byteorder="big"
-                    )
+                    ) + padding_length.to_bytes(4, byteorder="big")
                     if self._has_crc:
                         extended_header += zlib.crc32(frames).to_bytes(
                             4, byteorder="big"

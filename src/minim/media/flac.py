@@ -1935,13 +1935,6 @@ class FLACMetadataView(MetadataView):
         """
         Get FLAC metadata blocks by type.
 
-        .. important::
-
-           It is *not* guaranteed that the metadata blocks are in the
-           same order as they are found in the FLAC audio file,
-           especially after metadata blocks have been added, moved, or
-           removed.
-
         Parameters
         ----------
         types : int, type[minim.media.flac.FLACMetadataBlock \
@@ -2024,16 +2017,38 @@ class FLACAudio(Audio):
         Merge adjacent :code:`PADDING` metadata blocks, reclaiming
         redundant four-byte headers.
         """
+        padding_index = self._type_index[FLACPadding]
+        if len(padding_index) <= 1:
+            return
+
         blocks = self._metadata[:1]
-        type_index = self._type_index
+        prev_block = blocks[-1]
+
         for block in self._metadata[1:]:
-            prev_block = blocks[-1]
             if prev_block._block_type == block._block_type == 1:
                 prev_block.adjust_length(4 + block._block_data_length)
-                type_index[type(block)].remove(block)
+                padding_index.remove(block)
             else:
                 blocks.append(block)
-        self._metadata = self._metadata_view._blocks = blocks
+                prev_block = block
+
+        self._metadata = self._metadata_view._metadata = blocks
+
+    def _set_active_tags(self, tags: VorbisComment, /) -> None:
+        """
+        Set the active tags for the FLAC audio file.
+
+        Parameters
+        ----------
+        tags : VorbisComment; positional-only
+            Tags to set as active.
+        """
+        validate_type("tags", tags, VorbisComment)
+
+        if tags not in self._type_index[VorbisComment]:
+            self.add_metadata(tags)
+
+        self._tags = tags
 
     def load_metadata(self) -> None:
         """
@@ -2060,8 +2075,8 @@ class FLACAudio(Audio):
         self._tags = None
 
         strict = self._strict
-        seen_vorbis_comment = False
         block_header = 0x7F
+
         while not block_header & 0x80:
             block_header = view[offset]
             offset += 1
@@ -2112,18 +2127,14 @@ class FLACAudio(Audio):
                         block_data, strict=strict
                     )
                 case 4:  # VORBIS_COMMENT
-                    if strict and seen_vorbis_comment:
+                    if strict and self._tags:
                         raise RuntimeError(
                             "VORBIS_COMMENT block appears multiple "
                             f"times in '{file_path}'."
                         )
 
                     block = VorbisComment.from_stream(block_data)
-                    if seen_vorbis_comment:
-                        self._tags |= block
-                        continue
-                    else:
-                        seen_vorbis_comment = True
+                    if self._tags is None:
                         self._tags = block
                 case 5:  # CUESHEET
                     block = FLACCueSheet.from_stream(block_data, strict=strict)
@@ -2146,6 +2157,7 @@ class FLACAudio(Audio):
                     block = UnknownFLACMetadataBlock.from_stream(
                         block_data, block_type=block_type
                     )
+
             blocks.append(block)
             type_index[type(block)].append(block)
 
@@ -2194,18 +2206,24 @@ class FLACAudio(Audio):
         """
         if not isinstance(metadata, ORDERED_COLLECTION_TYPES):
             metadata = [metadata]
+
         for idx, block in enumerate(metadata):
             validate_type(
                 f"metadata[{idx}]", block, FLACMetadataBlock | VorbisComment
             )
             if not block._block_type:
                 raise ValueError(
-                    "STREAMINFO metadata blocks cannot be added, "
-                    "moved, or removed."
+                    "STREAMINFO blocks cannot be added, moved, or removed."
+                )
+            elif self._strict and self._tags and block._block_type == 4:
+                raise RuntimeError(
+                    "VORBIS_COMMENT block appears multiple times in "
+                    f"'{self._file_path}'."
                 )
 
         blocks = self._metadata
         num_blocks = len(blocks)
+
         if index is not None:
             if index < 0:
                 index += num_blocks
@@ -2215,62 +2233,81 @@ class FLACAudio(Audio):
                 )
 
         type_index = self._type_index
+        padding_index = type_index[FLACPadding]
+
         for new_block in metadata:
+            new_block_type = new_block._block_type
+            is_padding = new_block_type == 1
             placed_idx = None
-            is_padding = new_block._block_type == 1
 
             # Try to insert new non-PADDING blocks inside existing
             # PADDING blocks if a target index was not specified
             if index is None and not is_padding:
-                for idx, block in enumerate(blocks):
-                    if block._block_type == 1:
-                        if (
-                            block._block_data_length
-                            == new_block._block_data_length
-                        ):
-                            blocks[idx] = new_block
-                            type_index[FLACPadding].remove(block)
-                            placed_idx = idx
-                            break
-                        elif block._block_data_length >= (
-                            new_block_length := 4
-                            + new_block._block_data_length
-                        ):
-                            block.adjust_length(-new_block_length)
-                            blocks.insert(idx, new_block)
-                            placed_idx = idx
-                            num_blocks += 1
-                            break
+                for padding_block in padding_index:
+                    if (
+                        padding_block._block_data_length
+                        == new_block._block_data_length
+                    ):
+                        padding_index.remove(padding_block)
+                        placed_idx = blocks.index(padding_block)
+                        blocks[placed_idx] = new_block
+                        break
+
+                    if padding_block._block_data_length >= (
+                        new_block_length := 4 + new_block._block_data_length
+                    ):
+                        padding_block.adjust_length(-new_block_length)
+                        placed_idx = blocks.index(padding_block)
+                        blocks.insert(placed_idx, new_block)
+                        num_blocks += 1
+                        break
 
             # Add new block at the user-specified index or at the end if
             # no suitable PADDING block was found for it
             if placed_idx is None:
-                placed_idx = num_blocks if index is None else index
+                if index is None:
+                    placed_idx = num_blocks
+                else:
+                    placed_idx = index
+                    index += 1
                 blocks.insert(placed_idx, new_block)
                 num_blocks += 1
-                if index is not None:
-                    index += 1
 
-            # If the new block is PADDING, check adjacent blocks to
-            # merge
+            # Merge adjacent PADDING blocks
             if is_padding:
                 if (adj_idx := placed_idx + 1) < num_blocks and blocks[
                     adj_idx
                 ]._block_type == 1:  # right
                     block = blocks.pop(adj_idx)
                     new_block.adjust_length(4 + block._block_data_length)
-                    type_index[FLACPadding].remove(block)
+                    padding_index.remove(block)
                     num_blocks -= 1
+
                 if (adj_idx := placed_idx - 1) >= 0 and blocks[
                     adj_idx
                 ]._block_type == 1:  # left
                     block = blocks.pop(adj_idx)
                     new_block.adjust_length(4 + block._block_data_length)
-                    type_index[FLACPadding].remove(block)
+                    padding_index.remove(block)
+                    placed_idx -= 1
                     num_blocks -= 1
                     if index is not None:
                         index -= 1
-            type_index[type(new_block)].append(new_block)
+
+            # If the new block is a VORBIS_COMMENT and none currently
+            # exists, set it as the active tags
+            elif new_block_type == 4 and self._tags is None:
+                self._tags = new_block
+
+            # Add the new block to its type index in the same order as
+            # the corresponding blocks occur in the metadata list
+            type_index[type(new_block)].insert(
+                sum(
+                    block._block_type == new_block_type
+                    for block in blocks[:placed_idx]
+                ),
+                new_block,
+            )
 
     def move_metadata(
         self,
@@ -2331,7 +2368,7 @@ class FLACAudio(Audio):
         has_types = types is not None
         if has_metadata == has_types:
             raise ValueError(
-                "Exactly one of `metadata` or `types` must be specified."
+                "Exactly one of `metadata` or `types` must be provided."
             )
 
         blocks = self._metadata
@@ -2350,25 +2387,28 @@ class FLACAudio(Audio):
             block_indices_by_id = {
                 id(block): idx for idx, block in enumerate(blocks)
             }
-            seen_block_indices = set()
-            block_indices = []
-            for idx, block in enumerate(
+            seen_block_indices_to_move = set()
+            block_indices_to_move = []
+
+            for idx, block_to_move in enumerate(
                 metadata
                 if isinstance(metadata, ORDERED_COLLECTION_TYPES)
                 else [metadata]
             ):
-                if isinstance(block, int):
+                if isinstance(block_to_move, int):
                     validate_number(
                         f"metadata[{idx}]",
-                        block,
+                        block_to_move,
                         int,
                         -num_blocks,
                         max_block_index,
                     )
-                    block %= num_blocks
-                elif isinstance(block, FLACMetadataBlock | VorbisComment):
+                    block_to_move %= num_blocks
+                elif isinstance(
+                    block_to_move, FLACMetadataBlock | VorbisComment
+                ):
                     try:
-                        block = block_indices_by_id[id(block)]
+                        block_to_move = block_indices_by_id[id(block_to_move)]
                     except KeyError:
                         raise ValueError(
                             f"The metadata block at metadata[{idx}] is "
@@ -2381,20 +2421,19 @@ class FLACAudio(Audio):
                         "collection of them."
                     )
 
-                if not block:
+                if not block_to_move:
                     raise ValueError(
-                        "STREAMINFO metadata blocks cannot be "
-                        "added, moved, or removed."
+                        "STREAMINFO blocks cannot be added, moved, or removed."
                     )
 
-                if block in seen_block_indices:
+                if block_to_move in seen_block_indices_to_move:
                     raise ValueError(
-                        f"Duplicate metadata block with index {block} "
+                        f"Duplicate metadata block with index {block_to_move} "
                         "encountered."
                     )
 
-                seen_block_indices.add(block)
-                block_indices.append(block)
+                seen_block_indices_to_move.add(block_to_move)
+                block_indices_to_move.append(block_to_move)
         else:
             if isinstance(types, int):
                 types = {types}
@@ -2418,32 +2457,38 @@ class FLACAudio(Audio):
 
             if 0 in types:
                 raise ValueError(
-                    "STREAMINFO metadata blocks cannot be added, "
-                    "moved, or removed."
+                    "STREAMINFO blocks cannot be added, moved, or removed."
                 )
 
-            block_indices = [
+            block_indices_to_move = [
                 idx
                 for idx, block in enumerate(blocks)
                 if block._block_type in types
             ]
 
         if (
-            not block_indices
-            or len(block_indices) == 1
-            and block_indices[0] == to_index
+            not block_indices_to_move
+            or len(block_indices_to_move) == 1
+            and block_indices_to_move[0] == to_index
         ):
             return
 
         blocks_to_move = [
-            blocks[block_index] for block_index in reversed(block_indices)
+            blocks[block_index] for block_index in block_indices_to_move
         ]
-        for block_index in sorted(block_indices, reverse=True):
+        for block_index in sorted(block_indices_to_move, reverse=True):
             del blocks[block_index]
             if block_index < to_index:
                 to_index -= 1
-        for block in blocks_to_move:
-            blocks.insert(to_index, block)
+        blocks[to_index:to_index] = blocks_to_move
+
+        # Rebuild the type index to match the metadata order
+        type_index = self._type_index
+        for block_index in type_index.values():
+            block_index.clear()
+        for block in blocks:
+            type_index[type(block)].append(block)
+
         self._merge_adjacent_padding()
 
     def optimize_padding(self) -> None:
@@ -2454,21 +2499,19 @@ class FLACAudio(Audio):
         """
         blocks = []
         padding_length = -4
-        has_padding = False
 
         for block in self._metadata:
             if block._block_type == 1:
                 padding_length += 4 + block._block_data_length
-                has_padding = True
             else:
                 blocks.append(block)
 
-        if not has_padding:
+        if padding_length == -4:
             return
 
         padding = FLACPadding(padding_length)
         blocks.append(padding)
-        self._metadata = self._metadata_view._blocks = blocks
+        self._metadata = self._metadata_view._metadata = blocks
         self._type_index[FLACPadding] = [padding]
 
     def remove_metadata(
@@ -2531,40 +2574,46 @@ class FLACAudio(Audio):
         has_types = types is not None
         if has_metadata == has_types:
             raise ValueError(
-                "Exactly one of `metadata` or `types` must be specified."
+                "Exactly one of `metadata` or `types` must be provided."
             )
 
         blocks = self._metadata
         type_index = self._type_index
+        active_tags_removed = False
+
         if has_metadata:
             num_blocks = len(blocks)
             max_block_index = num_blocks - 1
             block_indices_by_id = {
                 id(block): idx for idx, block in enumerate(blocks)
             }
-            seen_block_indices = set()
-            block_indices = []
-            for idx, block in enumerate(
+            block_indices_to_remove = set()
+
+            for idx, block_to_remove in enumerate(
                 metadata
                 if isinstance(metadata, COLLECTION_TYPES)
                 else [metadata]
             ):
-                if isinstance(block, int):
+                if isinstance(block_to_remove, int):
                     validate_number(
                         f"metadata[{idx}]",
-                        block,
+                        block_to_remove,
                         int,
                         -num_blocks,
                         max_block_index,
                     )
-                    block %= num_blocks
-                elif isinstance(block, FLACMetadataBlock | VorbisComment):
+                    block_to_remove %= num_blocks
+                elif isinstance(
+                    block_to_remove, FLACMetadataBlock | VorbisComment
+                ):
                     try:
-                        block = block_indices_by_id[id(block)]
+                        block_to_remove = block_indices_by_id[
+                            id(block_to_remove)
+                        ]
                     except KeyError:
                         raise ValueError(
-                            f"The metadata block at `metadata[{idx}]` is "
-                            "not in this FLAC audio file."
+                            f"The metadata block at `metadata[{idx}]` "
+                            "is not in this FLAC audio file."
                         ) from None
                 else:
                     raise TypeError(
@@ -2572,23 +2621,25 @@ class FLACAudio(Audio):
                         "instances of FLAC metadata blocks."
                     )
 
-                if not block:
+                if not block_to_remove:
                     raise ValueError(
-                        "STREAMINFO metadata blocks cannot be "
-                        "added, moved, or removed."
+                        "STREAMINFO blocks cannot be added, moved, or removed."
                     )
 
-                if block not in seen_block_indices:
-                    seen_block_indices.add(block)
-                    block_indices.append(block)
+                block_indices_to_remove.add(block_to_remove)
 
-            for block_index in block_indices:
-                block = blocks[block_index]
-                if block._block_type == 1:
+            for block_index_to_remove in block_indices_to_remove:
+                block_to_remove = blocks[block_index_to_remove]
+                if block_to_remove._block_type == 1:
                     continue
 
-                blocks[block_index] = FLACPadding(block._block_data_length)
-                type_index[type(block)].remove(block)
+                # Replace the block with PADDING of equivalent size
+                blocks[block_index_to_remove] = FLACPadding(
+                    block_to_remove._block_data_length
+                )
+                type_index[type(block_to_remove)].remove(block_to_remove)
+                if self._tags is block_to_remove:
+                    active_tags_removed = True
         else:
             if isinstance(types, int):
                 types = {types}
@@ -2609,17 +2660,29 @@ class FLACAudio(Audio):
                     "types and/or classes."
                 )
 
+            # PADDING blocks are preserved rather than removed
             types.discard(1)
+
             if 0 in types:
                 raise ValueError(
                     "STREAMINFO metadata blocks cannot be added, "
                     "moved, or removed."
                 )
 
-            for idx, block in enumerate(blocks):
-                if block._block_type in types:
-                    blocks[idx] = FLACPadding(block._block_data_length)
-                    type_index[type(block)].remove(block)
+            if types:
+                for idx, block in enumerate(blocks):
+                    if block._block_type in types:
+                        blocks[idx] = FLACPadding(block._block_data_length)
+                        type_index[type(block)].remove(block)
+                        if self._tags is block:
+                            active_tags_removed = True
+
+        if active_tags_removed:
+            self._tags = (
+                vorbis_comments[0]
+                if (vorbis_comments := type_index[VorbisComment])
+                else None
+            )
 
         self._merge_adjacent_padding()
 

@@ -130,7 +130,7 @@ class MusixmatchLyricsAPIClient(APIClient):
                This `dict` is mutated in-place.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------

@@ -140,9 +140,7 @@ class TIDALResourceAPI(ResourceAPI):
         if isinstance(expand, str):
             expand = [expand]
         elif not isinstance(expand, COLLECTION_TYPES):
-            raise TypeError(
-                "`expand` must be a string or a collection of strings."
-            )
+            raise TypeError("`expand` must be one or more strings.")
         for resource in expand:
             if resource not in relationships:
                 raise ValueError(

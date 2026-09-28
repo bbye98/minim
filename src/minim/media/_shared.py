@@ -79,6 +79,18 @@ class Audio(ABC):
         )
 
     @abstractmethod
+    def _set_active_tags(self, tags: Any, /) -> None:
+        """
+        Set the active tags for the audio file.
+
+        Parameters
+        ----------
+        tags : Any; positional-only
+            Tags to set as active.
+        """
+        ...
+
+    @abstractmethod
     def add_metadata(self, *args: Any, **kwargs: Any) -> None:
         """
         Add metadata structures and ancillary information.
@@ -151,10 +163,14 @@ class Audio(ABC):
     @property
     def tags(self) -> AudioTags:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
+        :bdg-primary:`get` :bdg-secondary:`set`
         Metadata describing the audio track.
         """
         return self._tags
+
+    @tags.setter
+    def tags(self, value: Any) -> None:
+        self._set_active_tags(value)
 
     def open(self) -> None:
         """
@@ -271,7 +287,7 @@ class NULPadding:
 
     __slots__ = ("_length",)
 
-    def __init__(self, length: int) -> None:
+    def __init__(self, length: int = 0, /) -> None:
         """
         This class implements the following special methods:
 
@@ -284,7 +300,7 @@ class NULPadding:
 
         Parameters
         ----------
-        length : int
+        length : int; positional-only; default: :code:`0`
             Padding length, in bytes.
         """
         self.set_length(length)

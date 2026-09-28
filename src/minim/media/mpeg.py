@@ -9,7 +9,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
 
-from .._types import COLLECTION_TYPES
+from .._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
 from .._utility import (
     join_values,
     set_obj_attr,
@@ -24,7 +24,7 @@ from .metadata.id3._shared import decode_synchsafe_int
 if TYPE_CHECKING:
     from typing import Any, Self
 
-    from .._types import Collection, PathLike
+    from .._types import Collection, OrderedCollection, PathLike
 
 
 __all__ = ["MPEGAudio", "MPEGStreamInfo"]
@@ -930,6 +930,17 @@ class MPEGAudio(Audio):
         """
         return self._metadata_view
 
+    def _set_active_tags(self, tags: ID3v1 | ID3v2) -> None:
+        """
+        Set the active tags for the MPEG audio file.
+
+        Parameters
+        ----------
+        tags : ID3v1 | ID3v2; positional-only
+            Tags to set as active.
+        """
+        raise NotImplementedError  # TODO
+
     def load_metadata(self) -> None:
         """
         Load ID3 tags and MPEG stream information.
@@ -940,13 +951,15 @@ class MPEGAudio(Audio):
         self._metadata = metadata = []
         self._type_index = type_index = defaultdict(list)
         self._metadata_view = MPEGMetadataView(metadata, type_index=type_index)
+        self._tags = None
 
         # Process ID3v2 tags, if any
         offset = 0
         while view[offset : offset + 3] == b"ID3":
-            if strict and metadata:
+            if strict and self._tags:
                 raise RuntimeError(
-                    "Multiple ID3v2 tags found in the MPEG audio file."
+                    "ID3v2 tag appears multiple times before the audio "
+                    f"stream in '{self._file_path}'."
                 )
 
             end_offset = (
@@ -957,8 +970,7 @@ class MPEGAudio(Audio):
             tags = ID3v2.from_stream(view[offset:end_offset], strict=strict)
             metadata.append(tags)
             type_index[ID3v2].append(tags)
-            if not hasattr(self, "_tags"):
-                self._tags = tags
+            self._tags = tags
             offset = end_offset
         self._audio_offset = offset
 
@@ -968,13 +980,13 @@ class MPEGAudio(Audio):
             tags = ID3v1.from_stream(view[-128:])
             metadata.append(tags)
             type_index[ID3v1].append(tags)
-            if not hasattr(self, "_tags"):
+            if self._tags is None:
                 self._tags = tags
             end_audio_offset -= 128
 
         # TODO: Allow for multiple ID3v1 tags when strict=False
-        # TODO: Find APE and Lyrics3 tags, if any, using their footers
-        # and then process them
+        # TODO: Find ID3v2, APE, and Lyrics3 tags, if any, using their
+        # footers and then process them
 
         # Process audio data to get stream information
         self._end_audio_offset = end_audio_offset
@@ -985,7 +997,7 @@ class MPEGAudio(Audio):
         self.close()
 
     def add_metadata(
-        self, metadata: ID3v1 | ID3v2 | Collection[ID3v1 | ID3v2], /
+        self, metadata: ID3v1 | ID3v2 | OrderedCollection[ID3v1 | ID3v2], /
     ) -> None:
         """
         Add MPEG metadata containers.
@@ -994,7 +1006,7 @@ class MPEGAudio(Audio):
         ----------
         metadata : minim.media.metadata.ID3v1, \
         minim.media.metadata.ID3v2, or \
-        Collection[minim.media.metadata.ID3v1 \
+        OrdereCollection[minim.media.metadata.ID3v1 \
         | minim.media.metadata.ID3v2]; positional-only
             Metadata containers to add.
         """
@@ -1040,36 +1052,40 @@ class MPEGAudio(Audio):
         has_types = types is not None
         if has_metadata == has_types:
             raise ValueError(
-                "Exactly one of `metadata` or `types` must be specified."
+                "Exactly one of `metadata` or `types` must be provided."
             )
 
         containers = self._metadata
         type_index = self._type_index
+        active_tags_removed = False
+
         if has_metadata:
             num_containers = len(containers)
             max_container_index = num_containers - 1
             container_indices_by_id = {
                 id(container): idx for idx, container in enumerate(containers)
             }
-            seen_container_indices = set()
-            container_indices = []
-            for idx, container in enumerate(
+            container_indices_to_remove = set()
+
+            for idx, container_to_remove in enumerate(
                 metadata
                 if isinstance(metadata, COLLECTION_TYPES)
                 else [metadata]
             ):
-                if isinstance(container, int):
+                if isinstance(container_to_remove, int):
                     validate_number(
                         f"metadata[{idx}]",
-                        container,
+                        container_to_remove,
                         int,
                         -num_containers,
                         max_container_index,
                     )
-                    container %= num_containers
-                elif isinstance(container, ID3v1 | ID3v2):
+                    container_to_remove %= num_containers
+                elif isinstance(container_to_remove, ID3v1 | ID3v2):
                     try:
-                        container = container_indices_by_id[id(container)]
+                        container_to_remove = container_indices_by_id[
+                            id(container_to_remove)
+                        ]
                     except KeyError:
                         raise ValueError(
                             f"`metadata[{idx}]` is not a metadata "
@@ -1081,13 +1097,18 @@ class MPEGAudio(Audio):
                         "instances of MPEG metadata containers."
                     )
 
-                if container not in seen_container_indices:
-                    seen_container_indices.add(container)
-                    container_indices.append(container)
+                container_indices_to_remove.add(container_to_remove)
 
-            for container_index in container_indices:
-                container = containers.pop(container_index)
-                type_index[type(container)].remove(container)
+            if container_indices_to_remove:
+                containers_ = []
+                for idx, container in enumerate(containers):
+                    if idx in container_indices_to_remove:
+                        type_index[type(container)].remove(container)
+                        if self._tags is container:
+                            active_tags_removed = True
+                    else:
+                        containers_.append(container)
+                self._metadata = self._metadata_view._metadata = containers_
         else:
             if isinstance(types, type) and issubclass(types, ID3v1 | ID3v2):
                 types = {types}
@@ -1106,13 +1127,33 @@ class MPEGAudio(Audio):
                     "container classes."
                 )
 
-            containers_ = []
-            for idx, container in enumerate(containers):
-                if type(container) in types:
-                    type_index[type(container)].remove(container)
-                else:
-                    containers_.append(container)
-            self._metadata = containers_
+            if types:
+                if not isinstance(types, set):
+                    types = set(types)
+
+                containers_ = []
+                for idx, container in enumerate(containers):
+                    if (container_cls := type(container)) in types:
+                        type_index[container_cls].remove(container)
+                        if self._tags is container:
+                            active_tags_removed = True
+                    else:
+                        containers_.append(container)
+                self._metadata = self._metadata_view._metadata = containers_
+
+        if active_tags_removed:
+            self._tags = (
+                min(
+                    containers_,
+                    key=lambda container: getattr(
+                        container,
+                        "_MPEG_TAG_PRIORITY",
+                        2_147_483_647,
+                    ),
+                )
+                if containers_
+                else None
+            )
 
     def save(
         self,
@@ -1170,5 +1211,12 @@ class MPEGAudio(Audio):
 
                include_padding : bool; default: :code:`True`
                    Whether to keep padding in ID3v2 tags.
+
+               adjust_padding : bool; keyword-only; default: :code:`True`
+                   Whether to adjust the padding to fit the serialized 
+                   frames. If :code:`True`, the padding will be resized 
+                   only if it can accommodate the serialized frames. If 
+                   :code:`False`, the padding length will remain 
+                   unchanged.
         """
         raise NotImplementedError  # TODO

@@ -746,9 +746,7 @@ class VorbisComment(AudioTags):
             isinstance(field_names, COLLECTION_TYPES)
             and all(isinstance(field_name, str) for field_name in field_names)
         ):
-            raise TypeError(
-                "`fields` must be a string or a collection of strings."
-            )
+            raise TypeError("`fields` must be one or more strings.")
 
         return {field_name: self.get(field_name) for field_name in field_names}
 
@@ -792,9 +790,7 @@ class VorbisComment(AudioTags):
                 )
             )
         ):
-            raise TypeError(
-                "`fields` must be a string or a collection of strings."
-            )
+            raise TypeError("`fields` must be one or more strings.")
 
         if is_string:
             if indices is None:
@@ -806,10 +802,7 @@ class VorbisComment(AudioTags):
                     isinstance(indices, COLLECTION_TYPES)
                     and all(isinstance(index, int) for index in indices)
                 ):
-                    raise TypeError(
-                        "`indices` must be an integer or a collection "
-                        "of integers."
-                    )
+                    raise TypeError("`indices` must be one or more integers.")
                 field_value = self._fields[
                     self._normalize_field_name(field_names)
                 ]

@@ -94,9 +94,7 @@ class TracksAPI(TIDALResourceAPI):
         if isinstance(formats, COLLECTION_TYPES):
             return [cls._prepare_formats(format_) for format_ in formats]
 
-        raise TypeError(
-            "`formats` must be `None`, a string, or a collection of strings."
-        )
+        raise TypeError("`formats` must be `None` or one or more strings.")
 
     @TTLCache.cached_method(ttl="hourly")
     def get_track_media_info(
@@ -1218,9 +1216,7 @@ class TracksAPI(TIDALResourceAPI):
             elif isinstance(isrcs, COLLECTION_TYPES):
                 isrcs = [prepare_isrc(isrc) for isrc in isrcs]
             else:
-                raise ValueError(
-                    "`isrcs` must be a string or a collection of strings."
-                )
+                raise ValueError("`isrcs` must be one or more strings.")
             params["filter[isrc]"] = isrcs
         elif owner_ids is not None:
             self._validate_tidal_ids(owner_ids)

@@ -534,7 +534,7 @@ class DeezerAPIClient(OAuth2APIClient):
             :code:`300 TOKEN_INVALID`.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------

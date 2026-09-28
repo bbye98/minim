@@ -231,9 +231,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
             return cls._prepare_expand(expand.strip().split(","))
 
         if not isinstance(expand, str | COLLECTION_TYPES):
-            raise TypeError(
-                "`expand` must be a string or a collection of strings."
-            )
+            raise TypeError("`expand` must be one or more strings.")
 
         for resource in expand:
             if resource not in relationships:
