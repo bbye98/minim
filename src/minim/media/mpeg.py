@@ -29,6 +29,8 @@ if TYPE_CHECKING:
 
 __all__ = ["MPEGAudio", "MPEGStreamInfo"]
 
+MPEGTagContainer = ID3v1 | ID3v2
+
 
 @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
 class MPEGStreamInfo(AudioStreamInfo):
@@ -212,9 +214,12 @@ class MPEGMetadataView(MetadataView):
 
     def get(
         self,
-        types: type[ID3v1 | ID3v2] | Collection[type[ID3v1 | ID3v2]],
+        types: type[MPEGTagContainer] | Collection[type[MPEGTagContainer]],
         /,
-    ) -> list[ID3v1 | ID3v2] | dict[type[ID3v1 | ID3v2], list[ID3v1 | ID3v2]]:
+    ) -> (
+        list[MPEGTagContainer]
+        | dict[type[MPEGTagContainer], list[MPEGTagContainer]]
+    ):
         """
         Get MPEG metadata containers by type.
 
@@ -227,10 +232,8 @@ class MPEGMetadataView(MetadataView):
 
         Parameters
         ----------
-        types : type[minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2], or \
-        Collection[type[minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2]]; positional-only
+        types : type[MPEGTagContainer] \
+        or Collection[type[MPEGTagContainer]]; positional-only
             Types of metadata containers.
 
             **Valid values**: :class:`~minim.media.metadata.ID3v1`,
@@ -238,11 +241,8 @@ class MPEGMetadataView(MetadataView):
 
         Returns
         -------
-        blocks : list[minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2] or \
-        dict[type[minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2], list[minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2]]
+        blocks : list[MPEGTagContainer] or \
+        dict[type[MPEGTagContainer], list[MPEGTagContainer]]
             Metadata containers. If `types` is a collection, a
             dictionary mapping the metadata container types to the
             metadata blocks is returned.
@@ -930,16 +930,16 @@ class MPEGAudio(Audio):
         """
         return self._metadata_view
 
-    def _set_active_tags(self, tags: ID3v1 | ID3v2) -> None:
+    def _set_active_tags(self, tags: MPEGTagContainer) -> None:
         """
         Set the active tags for the MPEG audio file.
 
         Parameters
         ----------
-        tags : ID3v1 | ID3v2; positional-only
+        tags : MPEGTagContainer; positional-only
             Tags to set as active.
         """
-        raise NotImplementedError  # TODO
+        validate_type("tags", tags, MPEGTagContainer)
 
     def load_metadata(self) -> None:
         """
@@ -997,24 +997,24 @@ class MPEGAudio(Audio):
         self.close()
 
     def add_metadata(
-        self, metadata: ID3v1 | ID3v2 | OrderedCollection[ID3v1 | ID3v2], /
+        self,
+        metadata: MPEGTagContainer | OrderedCollection[MPEGTagContainer],
+        /,
     ) -> None:
         """
         Add MPEG metadata containers.
 
         Parameters
         ----------
-        metadata : minim.media.metadata.ID3v1, \
-        minim.media.metadata.ID3v2, or \
-        OrderedCollection[minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2]; positional-only
+        metadata : MPEGTagContainer \
+        or OrderedCollection[MPEGTagContainer]; positional-only
             Metadata containers to add.
         """
         if not isinstance(metadata, ORDERED_COLLECTION_TYPES):
             metadata = [metadata]
 
         for idx, new_container in enumerate(metadata):
-            validate_type(f"metadata[{idx}]", new_container, ID3v1 | ID3v2)
+            validate_type(f"metadata[{idx}]", new_container, MPEGTagContainer)
 
         containers = self._metadata
         num_containers = len(containers)
@@ -1064,12 +1064,11 @@ class MPEGAudio(Audio):
         self,
         *,
         metadata: int
-        | ID3v1
-        | ID3v2
-        | Collection[int | ID3v1 | ID3v2]
+        | MPEGTagContainer
+        | Collection[int | MPEGTagContainer]
         | None = None,
-        types: type[ID3v1 | ID3v2]
-        | Collection[type[ID3v1 | ID3v2]]
+        types: type[MPEGTagContainer]
+        | Collection[type[MPEGTagContainer]]
         | None = None,
     ) -> None:
         """
@@ -1081,16 +1080,12 @@ class MPEGAudio(Audio):
 
         Parameters
         ----------
-        metadata : int, minim.media.metadata.ID3v1, \
-        minim.media.metadata.ID3v2, or \
-        Collection[int | minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2]; keyword-only; optional
+        metadata : int, MPEGTagContainer, or \
+        Collection[int | MPEGTagContainer]; keyword-only; optional
             Indices and/or instances of metadata containers to remove.
 
-        types : type[minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2] or \
-        Collection[type[minim.media.metadata.ID3v1 \
-        | minim.media.metadata.ID3v2]]; keyword-only; optional
+        types : type[MPEGTagContainer] or \
+        Collection[type[MPEGTagContainer]]; keyword-only; optional
             Types of metadata containers to remove.
 
             **Valid values**: :class:`~minim.media.metadata.ID3v1`,
@@ -1129,7 +1124,7 @@ class MPEGAudio(Audio):
                         max_container_index,
                     )
                     container_to_remove %= num_containers
-                elif isinstance(container_to_remove, ID3v1 | ID3v2):
+                elif isinstance(container_to_remove, MPEGTagContainer):
                     try:
                         container_to_remove = container_indices_by_id[
                             id(container_to_remove)
@@ -1158,12 +1153,12 @@ class MPEGAudio(Audio):
                         containers_.append(container)
                 self._metadata = self._metadata_view._metadata = containers_
         else:
-            if isinstance(types, type) and issubclass(types, ID3v1 | ID3v2):
+            if isinstance(types, type) and issubclass(types, MPEGTagContainer):
                 types = {types}
             elif isinstance(types, COLLECTION_TYPES):
                 for idx, type_ in enumerate(types):
                     if not isinstance(type_, type) or not issubclass(
-                        type_, ID3v1 | ID3v2
+                        type_, MPEGTagContainer
                     ):
                         raise TypeError(
                             f"`types[{idx}]` must be a MPEG metadata "
@@ -1267,4 +1262,37 @@ class MPEGAudio(Audio):
                    :code:`False`, the padding length will remain 
                    unchanged.
         """
-        raise NotImplementedError  # TODO
+        id3v1 = {} if id3v1 is None else id3v1
+        id3v1.setdefault("tag_version", (1, 1))
+        id3v2 = {} if id3v2 is None else id3v2
+        id3v2.setdefault("tag_version", (2, 4, 0))
+
+        prefix = []
+        suffix = []
+        for container in self._metadata:
+            match container:
+                case ID3v1():
+                    suffix.append(container.serialize(**id3v1))
+                case ID3v2():
+                    (suffix if container._mpeg_order < 0 else prefix).append(
+                        container.serialize(**id3v2)
+                    )
+        prefix = b"".join(prefix)
+        suffix = b"".join(suffix)
+
+        if file_path is None and len(prefix) == self._audio_offset:
+            with open(self._file_path, "r+b") as f:
+                f.write(prefix)
+                f.seek(self._end_audio_offset)
+                f.write(suffix)
+                f.truncate()
+        else:
+            with open(self._file_path, "rb") as f:
+                f.seek(self._audio_offset)
+                audio_stream = f.read(
+                    self._end_audio_offset - self._audio_offset
+                )
+            with open(file_path or self._file_path, "wb") as f:
+                f.write(prefix)
+                f.write(audio_stream)
+                f.write(suffix)
