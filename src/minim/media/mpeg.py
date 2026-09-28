@@ -1006,11 +1006,59 @@ class MPEGAudio(Audio):
         ----------
         metadata : minim.media.metadata.ID3v1, \
         minim.media.metadata.ID3v2, or \
-        OrdereCollection[minim.media.metadata.ID3v1 \
+        OrderedCollection[minim.media.metadata.ID3v1 \
         | minim.media.metadata.ID3v2]; positional-only
             Metadata containers to add.
         """
-        raise NotImplementedError  # TODO
+        if not isinstance(metadata, ORDERED_COLLECTION_TYPES):
+            metadata = [metadata]
+
+        for idx, new_container in enumerate(metadata):
+            validate_type(f"metadata[{idx}]", new_container, ID3v1 | ID3v2)
+
+        containers = self._metadata
+        num_containers = len(containers)
+        type_index = self._type_index
+
+        for new_container in metadata:
+            new_container_cls = type(new_container)
+            new_container_order = new_container._mpeg_order
+            new_container_priority = new_container._MPEG_TAG_PRIORITY
+
+            insert_idx = num_containers
+            if new_container_order >= 0:
+                for idx, container in enumerate(containers):
+                    container_order = container._mpeg_order
+                    if (
+                        container_order < 0
+                        or container_order > new_container_order
+                    ):
+                        insert_idx = idx
+                        break
+            else:
+                for idx, container in enumerate(containers):
+                    container_order = container._mpeg_order
+                    if (
+                        container_order < 0
+                        and container_order >= new_container_order
+                    ):
+                        insert_idx = idx
+                        break
+
+            containers.insert(insert_idx, new_container)
+            num_containers += 1
+            type_index[new_container_cls].append(new_container)
+
+            if (
+                self._tags is None
+                or new_container_priority
+                < (existing_tag_priority := self._tags._MPEG_TAG_PRIORITY)
+                or (
+                    new_container_priority == existing_tag_priority
+                    and isinstance(new_container, ID3v2)
+                )
+            ):
+                self._tags = new_container
 
     def remove_metadata(
         self,
