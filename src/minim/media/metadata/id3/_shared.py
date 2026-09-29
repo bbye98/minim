@@ -195,6 +195,8 @@ ID3V1_GENRES = {
     189: "Dubstep",
     190: "Garage Rock",
     191: "Psybient",
+    "RX": "Remix",
+    "CR": "Cover",
 }
 ID3V1_GENRES |= {v.lower(): k for k, v in ID3V1_GENRES.items()}
 ID3V2_TAG_VERSIONS = {(2, 2, 0), (2, 3, 0), (2, 4, 0)}

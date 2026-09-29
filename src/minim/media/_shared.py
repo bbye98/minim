@@ -19,6 +19,16 @@ if TYPE_CHECKING:
 class Audio(ABC):
     """
     Abstract base class for audio files.
+
+    .. note::
+
+       Metadata structures and ancillary information are loaded from
+       the audio file when the object is instantiated.
+
+       .. seealso::
+
+          :meth:`load_metadata` – Load metadata structures and ancillary
+          information from the audio file.
     """
 
     __slots__ = (
@@ -37,16 +47,6 @@ class Audio(ABC):
 
     def __init__(self, file_path: PathLike, /, *, strict: bool = True) -> None:
         """
-        .. note::
-
-           Metadata structures and ancillary information are loaded from
-           the audio file when the object is instantiated.
-
-           .. seealso::
-
-              :meth:`load_metadata` – Load metadata structures and
-              ancillary information from the audio file.
-
         Parameters
         ----------
         file_path : PathLike; positional-only

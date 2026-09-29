@@ -2001,6 +2001,16 @@ class FLACMetadataView(MetadataView):
 class FLACAudio(Audio):
     """
     FLAC audio file.
+
+    .. note::
+
+       Metadata structures and ancillary information are loaded from
+       the audio file when the object is instantiated.
+
+       .. seealso::
+
+          :meth:`load_metadata` – Load metadata structures and ancillary
+          information from the audio file.
     """
 
     __slots__ = ()

@@ -2095,6 +2095,177 @@ class ID3v2TextInfoFrame(ID3v2Frame):
                 )
 
 
+class ID3v2NumericTextInfoFrame(ID3v2TextInfoFrame):
+    """
+    Numeric text information frame.
+    """
+
+    _name: ClassVar[str] = "values"
+    _lower_bound: ClassVar[int | None] = 0
+    _upper_bound: ClassVar[int | None] = None
+
+    __slots__ = ()
+
+    @classmethod
+    def _from_stream_2_2(cls, stream: memoryview, /, *, strict=True) -> Self:
+        """
+        Instantiate a numeric text information frame object from an
+        ID3v2.2 frame bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytes-like object containing the numeric text information
+            frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        text_info_frame : minim.media.metadata.ID3v2NumericTextInfoFrame
+            Numeric text information frame.
+        """
+        obj = super()._from_stream_2_2(stream, strict=strict)
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
+        values = cls._split_bytestream(
+            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            encoding=obj._text_encoding,
+        )
+        if strict:
+            name = cls._name
+            lower_bound = cls._lower_bound
+            upper_bound = cls._upper_bound
+            for idx, val in enumerate(values):
+                validate_numeric(
+                    f"{name}[{idx}]", val, int, lower_bound, upper_bound
+                )
+        obj._text_info = values
+        return obj
+
+    @classmethod
+    def _from_stream_2_3(cls, stream: memoryview, /, *, strict=True) -> Self:
+        """
+        Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.3
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytes-like object containing the :code:`TBPM` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
+            :code:`TBPM` frame.
+        """
+        obj = super()._from_stream_2_3(stream, strict=strict)
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_3(
+            stream,
+            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
+        values = cls._split_bytestream(
+            stream[offset + 1 : offset + frame_length],
+            encoding=obj._text_encoding,
+        )
+        if strict:
+            name = cls._name
+            lower_bound = cls._lower_bound
+            upper_bound = cls._upper_bound
+            for idx, val in enumerate(values):
+                validate_numeric(
+                    f"{name}[{idx}]", val, int, lower_bound, upper_bound
+                )
+        obj._text_info = values
+        return obj
+
+    @classmethod
+    def _from_stream_2_4(cls, stream: memoryview, /, *, strict=True) -> Self:
+        """
+        Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.4
+        frame bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytes-like object containing the :code:`TBPM` frame.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the ID3 tag
+            specifications.
+
+        Returns
+        -------
+        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
+            :code:`TBPM` frame.
+        """
+        obj = super()._from_stream_2_4(stream, strict=strict)
+        if isinstance(obj, UnknownID3v2Frame):
+            return obj
+
+        stream, offset, frame_length = obj._decode_2_4(
+            stream,
+            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
+            strict=strict,
+        )
+        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
+        values = cls._split_bytestream(
+            stream[offset + 1 : offset + frame_length],
+            encoding=obj._text_encoding,
+        )
+        if strict:
+            name = cls._name
+            lower_bound = cls._lower_bound
+            upper_bound = cls._upper_bound
+            for idx, val in enumerate(values):
+                validate_numeric(
+                    f"{name}[{idx}]", val, int, lower_bound, upper_bound
+                )
+        obj._text_info = values
+        return obj
+
+    @ID3v2TextInfoFrame.text_info.setter
+    def text_info(
+        self, value: float | str | OrderedCollection[int | float | str], /
+    ) -> None:
+        if isinstance(value, (int, float, str)):
+            validate_numeric(
+                "text_info",
+                value,
+                int | float,
+                self._lower_bound,
+                self._upper_bound,
+            )
+            self._text_info = [str(round(float(value)))]
+        elif isinstance(value, ORDERED_COLLECTION_TYPES):
+            self._text_info = _text_info = []
+            lower_bound = self._lower_bound
+            upper_bound = self._upper_bound
+            for idx, val in enumerate(value):
+                validate_numeric(
+                    f"text_info[{idx}]",
+                    val,
+                    int | float,
+                    lower_bound,
+                    upper_bound,
+                )
+                _text_info.append(str(round(float(val))))
+        else:
+            raise TypeError(
+                "`text_info` must be a number, a string, or an ordered "
+                "collection of numbers and/or strings."
+            )
+
+
 class ID3v2DateTimeFrame(ID3v2TextInfoFrame):
     """
     Datetime frame.
@@ -3197,7 +3368,7 @@ class ID3v2TALBFrame(ID3v2TextInfoFrame):
     __slots__ = ()
 
 
-class ID3v2TBPMFrame(ID3v2TextInfoFrame):
+class ID3v2TBPMFrame(ID3v2NumericTextInfoFrame):
     """
     "Beats per minute (BPM)" frame.
 
@@ -3220,134 +3391,6 @@ class ID3v2TBPMFrame(ID3v2TextInfoFrame):
     }
 
     __slots__ = ()
-
-    @classmethod
-    def _from_stream_2_2(cls, stream: memoryview, /, *, strict=True) -> Self:
-        """
-        Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.2
-        frame bytestream.
-
-        Parameters
-        ----------
-        stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TBP` frame.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
-            :code:`TBP` frame.
-        """
-        obj = super()._from_stream_2_2(stream, strict=strict)
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
-        bpms = cls._split_bytestream(
-            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
-            encoding=obj._text_encoding,
-        )
-        if strict:
-            for idx, bpm in enumerate(bpms):
-                validate_numeric(f"bpms[{idx}]", bpm, int, 0)
-        obj._text_info = bpms
-        return obj
-
-    @classmethod
-    def _from_stream_2_3(cls, stream: memoryview, /, *, strict=True) -> Self:
-        """
-        Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.3
-        frame bytestream.
-
-        Parameters
-        ----------
-        stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TBPM` frame.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
-            :code:`TBPM` frame.
-        """
-        obj = super()._from_stream_2_3(stream, strict=strict)
-        if isinstance(obj, UnknownID3v2Frame):
-            return obj
-
-        stream, offset, frame_length = obj._decode_2_3(
-            stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
-        )
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        bpms = cls._split_bytestream(
-            stream[offset + 1 : offset + frame_length],
-            encoding=obj._text_encoding,
-        )
-        if strict:
-            for idx, bpm in enumerate(bpms):
-                validate_numeric(f"bpms[{idx}]", bpm, int, 0)
-        obj._text_info = bpms
-        return obj
-
-    @classmethod
-    def _from_stream_2_4(cls, stream: memoryview, /, *, strict=True) -> Self:
-        """
-        Instantiate an :class:`ID3v2TBPMFrame` object from an ID3v2.4
-        frame bytestream.
-
-        Parameters
-        ----------
-        stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TBPM` frame.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
-
-        Returns
-        -------
-        bpm_frame : minim.media.metadata.ID3v2TBPMFrame
-            :code:`TBPM` frame.
-        """
-        obj = super()._from_stream_2_4(stream, strict=strict)
-        if isinstance(obj, UnknownID3v2Frame):
-            return obj
-
-        stream, offset, frame_length = obj._decode_2_4(
-            stream,
-            frame_length=10 + decode_synchsafe_int(*stream[4:8]),
-            strict=strict,
-        )
-        obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
-        bpms = cls._split_bytestream(
-            stream[offset + 1 : offset + frame_length],
-            encoding=obj._text_encoding,
-        )
-        if strict:
-            for idx, bpm in enumerate(bpms):
-                validate_numeric(f"bpms[{idx}]", bpm, int, 0)
-        obj._text_info = bpms
-        return obj
-
-    @ID3v2TextInfoFrame.text_info.setter
-    def text_info(
-        self, value: float | str | OrderedCollection[int | float | str], /
-    ) -> None:
-        if isinstance(value, (int, float, str)):
-            self._text_info = [str(round(float(value)))]
-        elif isinstance(value, ORDERED_COLLECTION_TYPES):
-            self._text_info = _text_info = []
-            for idx, bpm in enumerate(value):
-                validate_numeric(f"text_info[{idx}]", bpm, int | float, 0)
-                _text_info.append(str(round(float(bpm))))
-        else:
-            raise TypeError(
-                "`text_info` must be a number, a string, or an ordered "
-                "collection of numbers and/or strings."
-            )
 
 
 class ID3v2TCMPFrame(ID3v2TextInfoFrame):
@@ -3540,7 +3583,9 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
        properties frames <https://id3.org/id3v2.4.0-frames>`_.
     """
 
-    _GENRE_RE: ClassVar[re.Pattern[str]] = re.compile(r"(?<!\()\((\d+)\)")
+    _GENRE_RE: ClassVar[re.Pattern[str]] = re.compile(
+        r"(?<!\()\((\d+|RX|CR)\)"
+    )
 
     _frame_ids: ClassVar[dict[int, bytes]] = {
         2: b"TCO",
@@ -3708,8 +3753,12 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
                     refinements.append("")
                     pending_refinement = False
 
-                code = int(genre.group(1))
-                text_info.append(ID3V1_GENRES.get(code, genre.group(0)))
+                code = genre.group(1)
+                text_info.append(
+                    ID3V1_GENRES.get(
+                        int(code) if code.isdigit() else code, genre.group(0)
+                    )
+                )
                 pending_refinement = True
                 index = genre.end()
 
@@ -3881,6 +3930,51 @@ class ID3v2TCOPFrame(ID3v2TextInfoFrame):
     }
 
     __slots__ = ()
+
+    # TODO: Enforce '4-digit year and space character' format
+
+
+class ID3v2TDENFrame(ID3v2DateTimeFrame):
+    """
+    "Encoding time" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TDEN"}
+
+    __slots__ = ()
+
+
+class ID3v2TDLYFrame(ID3v2NumericTextInfoFrame):
+    """
+    "Playlist delay" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TDLY>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TDY",
+        3: b"TDLY",
+        4: b"TDLY",
+    }
+
+    __slots__ = ()
+
+
+# class ID3v2TDORFrame(ID3v2DateTimeFrame): ...
 
 
 class ID3v2TDRCFrame(ID3v2DateTimeFrame):
@@ -4203,6 +4297,104 @@ class ID3v2TDRCFrame(ID3v2DateTimeFrame):
                 )
 
 
+class ID3v2TDRLFrame(ID3v2DateTimeFrame):
+    """
+    "Release time" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TDRL"}
+
+    __slots__ = ()
+
+
+class ID3v2TDTGFrame(ID3v2DateTimeFrame):
+    """
+    "Tagging time" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TDTG"}
+
+    __slots__ = ()
+
+
+class ID3v2TENCFrame(ID3v2TextInfoFrame):
+    """
+    "Encoded by" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TENC>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TEN",
+        3: b"TENC",
+        4: b"TENC",
+    }
+
+    __slots__ = ()
+
+
+class ID3v2TEXTFrame(ID3v2TextInfoFrame):
+    """
+    "Lyricist or text writer" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TEXT>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TXT",
+        3: b"TEXT",
+        4: b"TEXT",
+    }
+
+    __slots__ = ()
+
+
+# class ID3v2TFLTFrame(ID3v2DateTimeFrame): ...  # TFT
+
+
+class ID3v2TIPLFrame(ID3v2DateTimeFrame):
+    """
+    "Involved people list" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TIPL"}
+
+    __slots__ = ()
+
+
 class ID3v2TIT1Frame(ID3v2TextInfoFrame):
     """
     "Content group description" frame.
@@ -4278,6 +4470,166 @@ class ID3v2TIT3Frame(ID3v2TextInfoFrame):
     __slots__ = ()
 
 
+# class ID3v2TKEYFrame(ID3v2TextInfoFrame): ...  # TKE
+
+
+# class ID3v2TLANFrame(ID3v2TextInfoFrame): ...  # TLA
+
+
+class ID3v2TLENFrame(ID3v2NumericTextInfoFrame):
+    """
+    "Length" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TLEN>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.3. Derived and subjective
+       properties frames <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TLE",
+        3: b"TLEN",
+        4: b"TLEN",
+    }
+
+    __slots__ = ()
+
+
+class ID3v2TMCLFrame(ID3v2DateTimeFrame):
+    """
+    "Musician credits list" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TMCL"}
+
+    __slots__ = ()
+
+
+# class ID3v2TMEDFrame(ID3v2TextInfoFrame): ...
+
+
+class ID3v2TMOOFrame(ID3v2DateTimeFrame):
+    """
+    "Mood" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.3. Derived and subjective
+       properties frames <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TMOO"}
+
+    __slots__ = ()
+
+
+class ID3v2TOALFrame(ID3v2TextInfoFrame):
+    """
+    "Original album, movie, or show title" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TOAL>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TOT",
+        3: b"TOAL",
+        4: b"TOAL",
+    }
+
+    __slots__ = ()
+
+
+# class ID3v2TOFNFrame(ID3v2TextInfoFrame): ...  # TOF
+
+
+class ID3v2TOLYFrame(ID3v2TextInfoFrame):
+    """
+    "Original lyricist or text writer" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TOLY>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TOL",
+        3: b"TOLY",
+        4: b"TOLY",
+    }
+
+    __slots__ = ()
+
+
+class ID3v2TOPEFrame(ID3v2TextInfoFrame):
+    """
+    "Original artist or performer" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TOPE>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TOA",
+        3: b"TOPE",
+        4: b"TOPE",
+    }
+
+    __slots__ = ()
+
+
+# class ID3v2TORYFrame(ID3v2DateTimeFrame): ...  # TOR
+
+
+class ID3v2TOWNFrame(ID3v2DateTimeFrame):
+    """
+    "File owner or licensee" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.4. Rights and license frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {3: b"TOWN", 4: b"TOWN"}
+
+    __slots__ = ()
+
+
 class ID3v2TPE1Frame(ID3v2TextInfoFrame):
     """
     "Lead artist, performer, soloist, or performing group" frame.
@@ -4348,6 +4700,31 @@ class ID3v2TPE3Frame(ID3v2TextInfoFrame):
         2: b"TP3",
         3: b"TPE3",
         4: b"TPE3",
+    }
+
+    __slots__ = ()
+
+
+class ID3v2TPE4Frame(ID3v2TextInfoFrame):
+    """
+    "Interpreted, remixed, or otherwise modified by" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TPE4>`_.
+
+       `ID3v2.4.0 Native Frames: 4.2.2. Involved persons frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {
+        2: b"TP4",
+        3: b"TPE4",
+        4: b"TPE4",
     }
 
     __slots__ = ()
@@ -4578,6 +4955,23 @@ class ID3v2TPOSFrame(ID3v2TextInfoFrame):
         if not isinstance(value, list):
             value = [value]
         self._discs = value
+
+
+class ID3v2TPROFrame(ID3v2TextInfoFrame):
+    """
+    "Produced notice" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.4. Rights and license frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TPRO"}
+
+    __slots__ = ()
+
+    # TODO: Enforce '4-digit year and space character' format
 
 
 class ID3v2TPUBFrame(ID3v2TextInfoFrame):
@@ -4832,6 +5226,102 @@ class ID3v2TRCKFrame(ID3v2TextInfoFrame):
         self._tracks = value
 
 
+# class ID3v2TRDAFrame(ID3v2DateTimeFrame): ...  # TRD
+
+
+class ID3v2TRSNFrame(ID3v2TextInfoFrame):
+    """
+    "Internet radio station name" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.4. Rights and license frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {3: b"TRSN", 4: b"TRSN"}
+
+    __slots__ = ()
+
+
+class ID3v2TRSOFrame(ID3v2TextInfoFrame):
+    """
+    "Internet radio station owner" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.4. Rights and license frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {3: b"TRSO", 4: b"TRSO"}
+
+    __slots__ = ()
+
+
+class ID3v2TSIZFrame(ID3v2NumericTextInfoFrame):
+    """
+    "Size" frame.
+
+    .. seealso::
+
+       `ID3v2.2.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2-00>`_.
+
+       `ID3v2.3.0 Informal Standard: 4.2.1. Text information frames -
+       details <https://id3.org/id3v2.3.0#TSIZ>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {2: b"TSI", 3: b"TSIZ"}
+
+    __slots__ = ()
+
+
+class ID3v2TSOAFrame(ID3v2TextInfoFrame):
+    """
+    "Album sort order" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TSOA"}
+
+    __slots__ = ()
+
+
+class ID3v2TSOPFrame(ID3v2TextInfoFrame):
+    """
+    "Performer sort order" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TSOP"}
+
+    __slots__ = ()
+
+
+class ID3v2TSOTFrame(ID3v2TextInfoFrame):
+    """
+    "Title sort order" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.5. Other text frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TSOT"}
+
+    __slots__ = ()
+
+
 class ID3v2TSRCFrame(ID3v2TextInfoFrame):
     """
     "International Standard Recording Code (ISRC)" frame.
@@ -5004,6 +5494,21 @@ class ID3v2TSSEFrame(ID3v2TextInfoFrame):
         3: b"TSSE",
         4: b"TSSE",
     }
+
+    __slots__ = ()
+
+
+class ID3v2TSSTFrame(ID3v2TextInfoFrame):
+    """
+    "Set subtitle" frame.
+
+    .. seealso::
+
+       `ID3v2.4.0 Native Frames: 4.2.1. Identification frames
+       <https://id3.org/id3v2.4.0-frames>`_.
+    """
+
+    _frame_ids: ClassVar[dict[int, bytes]] = {4: b"TSST"}
 
     __slots__ = ()
 

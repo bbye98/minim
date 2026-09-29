@@ -269,6 +269,16 @@ class MPEGMetadataView(MetadataView):
 class MPEGAudio(Audio):
     """
     MPEG audio file.
+
+    .. note::
+
+       Metadata structures and ancillary information are loaded from
+       the audio file when the object is instantiated.
+
+       .. seealso::
+
+          :meth:`load_metadata` – Load metadata structures and ancillary
+          information from the audio file.
     """
 
     _BITRATES: ClassVar[dict[tuple[int, int], tuple[int, ...]]] = {
@@ -955,8 +965,9 @@ class MPEGAudio(Audio):
 
         # Process ID3v2 tags, if any
         offset = 0
+        id3v2_index = type_index[ID3v2]
         while view[offset : offset + 3] == b"ID3":
-            if strict and self._tags:
+            if strict and id3v2_index:
                 raise RuntimeError(
                     "ID3v2 tag appears multiple times before the audio "
                     f"stream in '{self._file_path}'."
@@ -969,7 +980,7 @@ class MPEGAudio(Audio):
             )
             tags = ID3v2.from_stream(view[offset:end_offset], strict=strict)
             metadata.append(tags)
-            type_index[ID3v2].append(tags)
+            id3v2_index.append(tags)
             self._tags = tags
             offset = end_offset
         self._audio_offset = offset
