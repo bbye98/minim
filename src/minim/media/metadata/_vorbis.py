@@ -717,28 +717,32 @@ class VorbisComment(AudioTags):
         self._fields.clear()
 
     def get(
-        self, field_names: str | Collection[str], /
+        self, field_names: str | Collection[str] | None = None, /
     ) -> list[str] | dict[str, list[str] | None] | None:
         """
         Get track metadata.
 
         Parameters
         ----------
-        field_names : str or Collection[str]; positional-only
-            Field names of the track metadata to get.
+        field_names : str or Collection[str]; positional-only; optional
+            Field names of the track metadata to get. If :code:`None`,
+            all fields are returned.
 
         Returns
         -------
         metadata : list[str], dict[str, list[str] | None], or None
-            Track metadata. If `field_names` is a collection of strings,
-            a dictionary mapping field names to their corresponding
-            values is returned.
+            Track metadata. If `field_names` is :code:`None` or a
+            collection of strings, a dictionary mapping field names to
+            their corresponding values is returned.
 
         Raises
         ------
         TypeError
             If `field_names` is not a string or collection of strings.
         """
+        if field_names is None:
+            return self._fields.copy()
+
         if isinstance(field_names, str):
             return self._fields.get(self._normalize_field_name(field_names))
 

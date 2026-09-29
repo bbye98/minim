@@ -2039,6 +2039,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
+        fallback: bool = True,
     ) -> bytes:
         """
         Serialize the text information frame to a bytestream.
@@ -2059,6 +2060,11 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
+        fallback : bool; keyword-only; default: :code:`True`
+            Whether to fall back to a generic "user-defined text
+            information" frame if the frame cannot be serialized for the
+            given tag version.
+
         Returns
         -------
         stream : bytes
@@ -2067,6 +2073,9 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         tag_version = normalize_id3v2_tag_version(tag_version)
         frame_id = self._frame_ids.get(tag_version[1])
         if frame_id is None:
+            if fallback:
+                raise NotImplementedError  # TODO
+
             raise RuntimeError(
                 f"A(n) {type(self).__name__} cannot be "
                 f"serialized to an ID3v2.{tag_version[1]} tag."

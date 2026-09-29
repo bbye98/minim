@@ -1838,7 +1838,8 @@ class ID3v2(AudioTags):
         self,
         frame_types: bytes
         | type[ID3v2Frame]
-        | Collection[bytes | type[ID3v2Frame]],
+        | Collection[bytes | type[ID3v2Frame]]
+        | None = None,
         /,
     ) -> (
         list[ID3v2Frame]
@@ -1852,18 +1853,23 @@ class ID3v2(AudioTags):
         ----------
         frame_types : bytes, \
         type[minim.media.metadata.ID3v2Frame], or Collection[bytes \
-        | type[minim.media.metadata.ID3v2Frame]]; positional-only
-            Frame IDs and/or classes.
+        | type[minim.media.metadata.ID3v2Frame]]; positional-only; \
+        optional
+            Frame IDs and/or classes. If :code:`None`, all frames are 
+            returned.
 
         Returns
         -------
         metadata : list[minim.media.metadata.ID3v2Frame], \
         dict[bytes | type[minim.media.metadata.ID3v2Frame, \
         list[minim.media.metadata.ID3v2Frame] | None], or None
-            Track metadata. If `field_names` is a collection of frame
-            IDs and/or classes, a dictionary mapping them to their
-            corresponding frame objects is returned.
+            Track metadata. If `field_names` is :code:`None` or a 
+            collection of frame IDs and/or classes, a dictionary mapping 
+            frame classes to their corresponding instances is returned.
         """
+        if frame_types is None:
+            return self._frames.copy()
+
         if (
             (is_bytes := isinstance(frame_types, bytes))
             or isinstance(frame_types, type)
