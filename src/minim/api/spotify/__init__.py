@@ -19,7 +19,7 @@ from ._web_api.shows import ShowsAPI
 from ._web_api.tracks import TracksAPI
 from ._web_api.users import UsersAPI
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "SpotifyWebAPIClient",
     "AlbumsAPI",
     "ArtistsAPI",

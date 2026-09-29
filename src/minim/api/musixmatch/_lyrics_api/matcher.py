@@ -1,7 +1,9 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-import warnings
 
+import warnings
+from typing import TYPE_CHECKING
+
+from ...._utility import prepare_isrc, prepare_string, validate_numeric
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 
@@ -71,8 +73,8 @@ class MatcherAPI(MusixmatchResourceAPI):
                 raise ValueError(
                     "Both artist and track search queries must be provided."
                 )
-            params["q_artist"] = self._prepare_string("artist", artist)
-            params["q_track"] = self._prepare_string("track", track)
+            params["q_artist"] = prepare_string("artist", artist)
+            params["q_track"] = prepare_string("track", track)
         else:
             if artist or track:
                 warnings.warn(
@@ -80,7 +82,7 @@ class MatcherAPI(MusixmatchResourceAPI):
                     "and track search queries, so the latter will be "
                     "omitted from the request."
                 )
-            params["track_isrc"] = self._prepare_isrc(isrc)
+            params["track_isrc"] = prepare_isrc(isrc)
         return self._client._request("GET", endpoint, params=params).json()
 
     @TTLCache.cached_method(ttl="static")
@@ -358,10 +360,10 @@ class MatcherAPI(MusixmatchResourceAPI):
         self._client._require_api_key("matcher.match_track_subtitles")
         params = {}
         if duration is not None:
-            self._validate_numeric("duration", duration, int, 0)
+            validate_numeric("duration", duration, int, 0)
             params["f_subtitle_length"] = duration
             if max_duration_deviation is not None:
-                self._validate_numeric(
+                validate_numeric(
                     "max_duration_deviation", max_duration_deviation, int, 0
                 )
                 params["f_subtitle_length_max_deviation"] = (

@@ -1,12 +1,14 @@
 from __future__ import annotations
-from datetime import datetime
+
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from ...._utility import join_values, prepare_string, validate_number
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -22,8 +24,8 @@ class UsersAPI(SpotifyResourceAPI):
        instantiated directly.
     """
 
-    _PEOPLE_TYPES = {"artists", "users"}
-    _RESOURCE_TYPES = {
+    _PEOPLE_TYPES: ClassVar[set[str]] = {"artists", "users"}
+    _RESOURCE_TYPES: ClassVar[set[str]] = {
         "track",
         "album",
         "episode",
@@ -32,7 +34,11 @@ class UsersAPI(SpotifyResourceAPI):
         "user",
         "playlist",
     }
-    _TIME_RANGES = {"long_term", "medium_term", "short_term"}
+    _TIME_RANGES: ClassVar[set[str]] = {
+        "long_term",
+        "medium_term",
+        "short_term",
+    }
 
     __slots__ = ()
 
@@ -52,7 +58,7 @@ class UsersAPI(SpotifyResourceAPI):
         ):
             raise ValueError(
                 f"Invalid time range {time_range!r}. Valid "
-                f"values: {UsersAPI._join_values(cls._TIME_RANGES)}."
+                f"values: {join_values(cls._TIME_RANGES)}."
             )
 
     def _manage_followed_people(
@@ -236,10 +242,10 @@ class UsersAPI(SpotifyResourceAPI):
             self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"me/{resource_type}", params=params
@@ -538,7 +544,7 @@ class UsersAPI(SpotifyResourceAPI):
         if user_id is None:
             return self.get_me()
         return self._client._request(
-            "GET", f"users/{self._prepare_string('user_id', user_id)}"
+            "GET", f"users/{prepare_string('user_id', user_id)}"
         ).json()
 
     @TTLCache.cached_method(ttl="hourly")
@@ -747,7 +753,7 @@ class UsersAPI(SpotifyResourceAPI):
                         }
         """
         self._client._require_scopes("users.get_my_top_items", "user-top-read")
-        item_type = self._prepare_string("item_type", item_type).lower()
+        item_type = prepare_string("item_type", item_type).lower()
         if item_type not in {"artists", "tracks"}:
             raise ValueError(
                 f"Invalid item type {item_type!r}. "
@@ -758,10 +764,10 @@ class UsersAPI(SpotifyResourceAPI):
             self._client.users._validate_time_range(time_range)
             params["time_range"] = time_range
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"me/top/{item_type}", params=params
@@ -956,7 +962,7 @@ class UsersAPI(SpotifyResourceAPI):
             self._validate_spotify_id(cursor)
             params["after"] = cursor
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         return self._client._request(
             "GET", "me/following", params=params
@@ -2201,10 +2207,10 @@ class UsersAPI(SpotifyResourceAPI):
         )
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "me/playlists", params=params
@@ -2332,10 +2338,10 @@ class UsersAPI(SpotifyResourceAPI):
             return self.get_my_playlists(limit=limit, offset=offset)
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         self._validate_spotify_id(user_id, enforce_length=False)
         return self._client._request(
@@ -2793,7 +2799,9 @@ class UsersAPI(SpotifyResourceAPI):
             track_ids = [
                 {
                     "id": track_ids,
-                    "added_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "added_at": datetime.now(UTC).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ"
+                    ),
                 }
             ]
         elif isinstance(track_ids, dict):
@@ -2820,7 +2828,7 @@ class UsersAPI(SpotifyResourceAPI):
                 if isinstance(track, str):
                     track_ids[idx] = {
                         "id": track,
-                        "added_at": datetime.now().strftime(
+                        "added_at": datetime.now(UTC).strftime(
                             "%Y-%m-%dT%H:%M:%SZ"
                         ),
                     }

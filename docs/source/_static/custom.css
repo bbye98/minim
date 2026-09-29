@@ -33,6 +33,14 @@
     color: var(--color-3);
 }
 
+.sd-badge.sd-bg-primary {
+    border: 1px solid var(--sd-color-primary);
+}
+
+.sd-badge.sd-bg-secondary {
+    border: 1px solid var(--sd-color-secondary);
+}
+
 .sd-tab-set>label {
     padding-top: 0.25rem !important;
 }

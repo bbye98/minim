@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import base64
 import json
 import re
@@ -6,13 +7,19 @@ from typing import TYPE_CHECKING
 
 import httpx
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    prepare_string,
+    validate_type,
+)
+from ..._shared import TTLCache
 from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -28,11 +35,16 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
        instantiated directly.
     """
 
-    _M3U_RE = re.compile(
+    _M3U_RE: ClassVar[re.Pattern[str]] = re.compile(
         r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
         r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
     )
-    _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
+    _VIDEO_QUALITIES: ClassVar[set[str]] = {
+        "AUDIO_ONLY",
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+    }
 
     __slots__ = ()
 
@@ -55,7 +67,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         stream : bytes
             Video stream data.
         """
-        self._validate_type("manifest", manifest, bytes | str)
+        validate_type("manifest", manifest, bytes | str)
         if isinstance(manifest, str):
             manifest = base64.b64decode(manifest)
 
@@ -229,7 +241,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @_copy_docstring(PrivatePagesAPI.get_video_page)
+    @copy_docstring(PrivatePagesAPI.get_video_page)
     def get_video_page(
         self,
         video_id: int | str,
@@ -324,19 +336,19 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         """
         self._client._require_subscription("videos.get_video_media_info")
         self._validate_tidal_ids(video_id, recursive=False)
-        quality = self._prepare_string("quality", quality).upper()
+        quality = prepare_string("quality", quality).upper()
         if quality not in self._VIDEO_QUALITIES:
             raise ValueError(
                 f"Invalid video quality {quality!r}. Valid values: "
-                f"{self._join_values(self._VIDEO_QUALITIES)}."
+                f"{join_values(self._VIDEO_QUALITIES)}."
             )
         intent = intent.strip().upper()
         if intent not in self._PLAYBACK_MODES:
             raise ValueError(
                 f"Invalid playback mode {intent!r}. Valid values: "
-                f"{self._join_values(self._PLAYBACK_MODES)}."
+                f"{join_values(self._PLAYBACK_MODES)}."
             )
-        self._validate_type("preview", preview, bool)
+        validate_type("preview", preview, bool)
         return self._client._request(
             "GET",
             f"v1/videos/{video_id}/playbackinfo",
@@ -347,7 +359,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             },
         ).json()
 
-    @_copy_docstring(PrivateUsersAPI.get_user_saved_videos)
+    @copy_docstring(PrivateUsersAPI.get_user_saved_videos)
     def get_user_saved_videos(
         self,
         user_id: int | str | None = None,
@@ -368,7 +380,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.save_videos)
+    @copy_docstring(PrivateUsersAPI.save_videos)
     def save_videos(
         self,
         video_ids: int | str | Collection[int | str],
@@ -385,7 +397,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             on_missing=on_missing,
         )
 
-    @_copy_docstring(PrivateUsersAPI.remove_saved_videos)
+    @copy_docstring(PrivateUsersAPI.remove_saved_videos)
     def remove_saved_videos(
         self,
         video_ids: int | str | Collection[int | str],
@@ -394,7 +406,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
     ) -> None:
         self._client.users.remove_saved_videos(video_ids, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.get_user_blocked_videos)
+    @copy_docstring(PrivateUsersAPI.get_user_blocked_videos)
     def get_user_blocked_videos(
         self,
         user_id: int | str | None = None,
@@ -407,13 +419,13 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateUsersAPI.block_video)
+    @copy_docstring(PrivateUsersAPI.block_video)
     def block_video(
         self, video_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.block_video(video_id, user_id=user_id)
 
-    @_copy_docstring(PrivateUsersAPI.unblock_video)
+    @copy_docstring(PrivateUsersAPI.unblock_video)
     def unblock_video(
         self, video_id: int | str, /, user_id: int | str | None = None
     ) -> None:
