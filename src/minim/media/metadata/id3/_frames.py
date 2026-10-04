@@ -2477,9 +2477,6 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
                         "digits and a space character."
                     )
 
-        obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_4(
-            stream, strict=strict
-        )
         obj._text_encoding = text_encoding
         obj._text_info = text_info
         return obj
