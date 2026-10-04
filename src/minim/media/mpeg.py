@@ -995,7 +995,7 @@ class MPEGAudio(Audio):
                 self._tags = tags
             end_audio_offset -= 128
 
-        # TODO: Allow for multiple ID3v1 tags when strict=False
+        # TODO: Allow for multiple ID3v1 tags when `strict=False`
         # TODO: Find ID3v2, APE, and Lyrics3 tags, if any, using their
         # footers and then process them
 

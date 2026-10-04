@@ -7,6 +7,7 @@ from collections.abc import Iterable
 from datetime import MAXYEAR, MINYEAR, datetime
 from itertools import zip_longest
 from pathlib import Path
+from types import MemberDescriptorType
 from typing import TYPE_CHECKING, ClassVar, NamedTuple
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
@@ -1012,7 +1013,8 @@ class ID3v2Frame(ABC):
     _TEXT_ENCODINGS |= {v: k for k, v in _TEXT_ENCODINGS.items()}
     _REGISTRY: ClassVar[dict[bytes, type[ID3v2Frame]]] = {}
 
-    _allow_multiple: bool
+    _allow_multiple: ClassVar[bool]
+    _frame_ids: ClassVar[dict[int, bytes]]
 
     __slots__ = ("_flags", "_group_id")
 
@@ -1050,12 +1052,22 @@ class ID3v2Frame(ABC):
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
-        for frame_ids in cls._frame_ids.values():
-            if isinstance(frame_ids, bytes):
-                cls._REGISTRY[frame_ids] = cls
-            else:
-                for frame_id in frame_ids:
-                    cls._REGISTRY[frame_id] = cls
+
+        for req_attr in ("_allow_multiple", "_frame_ids"):
+            if not hasattr(cls, req_attr):
+                raise ValueError(
+                    f"Subclass {cls.__name__} must define {req_attr!r}."
+                )
+
+        if not isinstance(
+            cls_frame_ids := cls._frame_ids, MemberDescriptorType
+        ):
+            for frame_ids in cls_frame_ids.values():
+                if isinstance(frame_ids, bytes):
+                    cls._REGISTRY[frame_ids] = cls
+                else:
+                    for frame_id in frame_ids:
+                        cls._REGISTRY[frame_id] = cls
 
     @abstractmethod
     def __repr__(self) -> str:
@@ -1146,7 +1158,7 @@ class ID3v2Frame(ABC):
         )
         if flags._is_encrypted:
             obj = EncryptedID3v2Frame.__new__(EncryptedID3v2Frame)
-            obj._frame_id = stream[:4].tobytes()
+            obj._frame_ids = {3: stream[:4].tobytes()}
             obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
             return obj
@@ -1189,7 +1201,7 @@ class ID3v2Frame(ABC):
         )
         if flags._is_encrypted:
             obj = EncryptedID3v2Frame.__new__(EncryptedID3v2Frame)
-            obj._frame_id = stream[:4].tobytes()
+            obj._frame_ids = {4: stream[:4].tobytes()}
             obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
             return obj
@@ -1271,7 +1283,7 @@ class ID3v2Frame(ABC):
         """
         stream = as_buffer(stream)
         tag_version = normalize_id3v2_tag_version(tag_version)
-        expected_frame_id = cls.get_frame_id(tag_version)
+        expected_frame_id = cls._frame_ids.get(tag_version[1])
         if stream[: len(expected_frame_id)] != expected_frame_id:
             raise ValueError(
                 f"`bytestream` does not contain a {expected_frame_id} frame."
@@ -1453,15 +1465,6 @@ class ID3v2Frame(ABC):
             is_utf = True
         if is_utf:
             raise ValueError(f"`{name}` cannot be encoded using ISO-8859-1.")
-
-    @property
-    @abstractmethod
-    def _frame_ids(self) -> dict[int, bytes]:
-        """
-        ID3v2 frame IDs, with the keys being the ID3v2 tag minor
-        versions.
-        """
-        ...
 
     @property
     def _key(self) -> Any:
@@ -1955,7 +1958,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
             strict=strict,
@@ -1993,7 +1996,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -2077,11 +2080,6 @@ class ID3v2TextInfoFrame(ID3v2Frame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        allow_fallback : bool; keyword-only; default: :code:`False`
-            Whether to fall back to a generic "user-defined text
-            information" frame if the frame cannot be serialized for the
-            given tag version.
-
         Returns
         -------
         stream : bytes
@@ -2090,9 +2088,6 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         tag_version = normalize_id3v2_tag_version(tag_version)
         frame_id = self._frame_ids.get(tag_version[1])
         if frame_id is None:
-            if allow_fallback:
-                raise NotImplementedError  # TODO
-
             raise RuntimeError(
                 f"A(n) {type(self).__name__} cannot be "
                 f"serialized to an ID3v2.{tag_version[1]} tag."
@@ -2206,7 +2201,7 @@ class ID3v2NumericTextInfoFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
@@ -2259,7 +2254,7 @@ class ID3v2NumericTextInfoFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -2412,7 +2407,7 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
             strict=strict,
@@ -2464,7 +2459,7 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -2472,7 +2467,7 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
         text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         text_info = cls._split_bytestream(
             stream[offset + 1 : offset + frame_length],
-            encoding=cls._text_encoding,
+            encoding=text_encoding,
         )
         if strict:
             for ti in text_info:
@@ -2574,7 +2569,7 @@ class ID3v2StructuredTextInfoFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
@@ -2618,7 +2613,7 @@ class ID3v2StructuredTextInfoFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -2702,8 +2697,6 @@ class ID3v2DateTimeTextInfoFrame(ID3v2TextInfoFrame):
     * :code:`__ior__` – Merge another datetime frame with the current
       one in-place, combining corresponding datetimes.
     """
-
-    _frame_ids: ClassVar[dict[int, bytes]] = {}
 
     __slots__ = ("_datetimes",)
 
@@ -2842,7 +2835,7 @@ class ID3v2DateTimeTextInfoFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -3198,7 +3191,7 @@ class ID3v2APICFrame(ID3v2Frame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
@@ -3250,7 +3243,7 @@ class ID3v2APICFrame(ID3v2Frame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -3590,7 +3583,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
@@ -3632,7 +3625,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -3956,7 +3949,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
             strict=strict,
@@ -3996,7 +3989,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -4425,7 +4418,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
@@ -4903,7 +4896,7 @@ class ID3v2TKEYFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
             strict=strict,
@@ -4947,7 +4940,7 @@ class ID3v2TKEYFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -5064,7 +5057,7 @@ class ID3v2TLANFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
             strict=strict,
@@ -5108,7 +5101,7 @@ class ID3v2TLANFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -5885,7 +5878,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
@@ -5927,7 +5920,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -6136,7 +6129,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
@@ -6176,7 +6169,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -6423,7 +6416,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_3(
+        stream, offset, frame_length = obj._decode_2_3(
             stream,
             frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
         )
@@ -6464,7 +6457,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         if isinstance(obj, EncryptedID3v2Frame):
             return obj
 
-        stream, offset, frame_length = cls._decode_2_4(
+        stream, offset, frame_length = obj._decode_2_4(
             stream,
             frame_length=10 + decode_synchsafe_int(*stream[4:8]),
             strict=strict,
@@ -6612,10 +6605,12 @@ class UnknownID3v2Frame(ID3v2Frame):
     Unknown ID3v2 frame.
     """
 
-    _allow_multiple: ClassVar[bool] = True
-    _frame_ids: ClassVar[dict[int, bytes]] = {}
-
-    __slots__ = ("_frame_data", "_frame_id", "_frame_length")
+    __slots__ = (
+        "_allow_multiple",
+        "_frame_data",
+        "_frame_ids",
+        "_frame_length",
+    )
 
     def __init__(
         self,
@@ -6624,6 +6619,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         *,
         flags: ID3v2FrameFlags | None = None,
         group_id: int | None = None,
+        allow_multiple: bool = True,
     ) -> None:
         """
         Parameters
@@ -6641,23 +6637,37 @@ class UnknownID3v2Frame(ID3v2Frame):
             Group identifier.
 
             **Valid range**: :code:`0` to :code:`255`.
+
+        allow_multiple : bool; keyword-only; default: :code:`True`
+            Whether the frame can be repeated multiple times.
         """
         super().__init__(flags=flags, group_id=group_id)
+
         validate_type("frame_id", frame_id, bytes | bytearray)
-        if not 3 <= len(frame_id) <= 4:
+        frame_id = bytes(frame_id)
+        if (len_frame_id := len(frame_id)) == 3:
+            self._frame_ids = {2: frame_id}
+        elif len_frame_id == 4:
+            self._frame_ids = {3: frame_id, 4: frame_id}
+        else:
             raise ValueError(
                 "`frame_id` must be three- or four-characters long."
             )
-        self._frame_id = bytes(frame_id)
+
         validate_type("frame_data", frame_data, bytes | bytearray)
         self._frame_data = bytes(frame_data)
         self._frame_length = len(self._frame_data)
 
+        validate_type("allow_multiple", allow_multiple, bool)
+        self._allow_multiple = allow_multiple
+
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}(frame_id={self._frame_id!r}, "
+            f"{type(self).__name__}"
+            f"(frame_id={self._frame_ids[max(self._frame_ids)]!r}, "
             f"frame_data=<{len(self._frame_data)} byte(s)>, "
-            f"flags={self._flags!r}, group_id={self._group_id})"
+            f"flags={self._flags!r}, group_id={self._group_id}, "
+            f"allow_multiple={self._allow_multiple})"
         )
 
     @classmethod
@@ -6683,7 +6693,7 @@ class UnknownID3v2Frame(ID3v2Frame):
             ID3v2 frame.
         """
         obj = super()._from_stream_2_2(stream, strict=strict)
-        obj._frame_id = stream[:3].tobytes()
+        obj._frame_ids = {2: stream[:3].tobytes()}
         obj._frame_length = int.from_bytes(stream[3:6], byteorder="big")
         obj._frame_data = stream[6 : 6 + obj._frame_length].tobytes()
         return obj
@@ -6711,8 +6721,8 @@ class UnknownID3v2Frame(ID3v2Frame):
             ID3v2 frame.
         """
         obj = super()._from_stream_2_3(stream, strict=strict)
-        if not hasattr(obj, "_frame_id"):
-            obj._frame_id = stream[:4].tobytes()
+        if not hasattr(obj, "_frame_ids"):
+            obj._frame_ids = {3: stream[:4].tobytes()}
             obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
         return obj
@@ -6740,18 +6750,11 @@ class UnknownID3v2Frame(ID3v2Frame):
             ID3v2 frame.
         """
         obj = super()._from_stream_2_4(stream, strict=strict)
-        if not hasattr(obj, "_frame_id"):
-            obj._frame_id = stream[:4].tobytes()
+        if not hasattr(obj, "_frame_ids"):
+            obj._frame_ids = {4: stream[:4].tobytes()}
             obj._frame_length = decode_synchsafe_int(*stream[4:8])
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
         return obj
-
-    @property
-    def frame_id(self) -> bytes:
-        """
-        :bdg-primary:`get` :bdg-secondary-line:`set` Frame ID.
-        """
-        return self._frame_id
 
     @property
     def frame_data(self) -> bytes:
@@ -6767,40 +6770,6 @@ class UnknownID3v2Frame(ID3v2Frame):
         Frame length, in bytes.
         """
         return len(self._frame_data)
-
-    def get_frame_id(self, tag_version: str | tuple[int, int, int]) -> bytes:
-        """
-        Get the frame ID for a given tag version.
-
-        Parameters
-        ----------
-        tag_version : str or tuple[int, int, int]
-            Tag version.
-
-            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
-            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
-            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
-
-        Returns
-        -------
-        frame_id : bytes
-            Frame ID.
-        """
-        frame_id = self._frame_id
-        if normalize_id3v2_tag_version(tag_version) == (2, 2, 0):
-            if len(frame_id) != 3:
-                raise ValueError(
-                    f"Frame ID {frame_id!r} is incompatible with "
-                    f"ID3v2.{tag_version[1]} tags."
-                )
-            return frame_id
-
-        if len(frame_id) != 4:
-            raise ValueError(
-                f"Frame ID {frame_id!r} is incompatible with "
-                f"ID3v2.{tag_version[1]} tags."
-            )
-        return frame_id
 
     def serialize(
         self,
@@ -6831,49 +6800,39 @@ class UnknownID3v2Frame(ID3v2Frame):
         stream : bytes
             Bytestream containing the ID3v2 frame.
         """
-        match tag_version := normalize_id3v2_tag_version(tag_version):
+        tag_version = normalize_id3v2_tag_version(tag_version)
+        frame_id = self._frame_ids.get(tag_version[1])
+        if frame_id is None:
+            frame_id = self._frame_ids[max(self._frame_ids)].decode(
+                encoding="ascii"
+            )
+            raise ValueError(
+                f"An UnknownID3v2Frame with frame ID {frame_id!r} is "
+                f"incompatible with ID3v2.{tag_version[1]} tags."
+            )
+
+        match tag_version:
             case (2, 4, _):
-                if len(self._frame_id) != 4:
-                    raise ValueError(
-                        "Frame ID "
-                        f"{self._frame_id.decode(encoding='ascii')!r} "
-                        f"is incompatible with ID3v2.{tag_version[1]} "
-                        "tags."
-                    )
                 return b"".join(
                     (
-                        self._frame_id,
+                        frame_id,
                         bytes(encode_synchsafe_int(self._frame_length)),
                         self._flags.to_bytes_2_4(),
                         self._frame_data,
                     )
                 )
             case (2, 3, _):
-                if len(self._frame_id) != 4:
-                    raise ValueError(
-                        "Frame ID "
-                        f"{self._frame_id.decode(encoding='ascii')!r} "
-                        f"is incompatible with ID3v2.{tag_version[1]} "
-                        "tags."
-                    )
                 return b"".join(
                     (
-                        self._frame_id,
+                        frame_id,
                         self._frame_length.to_bytes(length=4, byteorder="big"),
                         self._flags.to_bytes_2_3(),
                         self._frame_data,
                     )
                 )
             case (2, 2, _):
-                if len(self._frame_id) != 3:
-                    raise ValueError(
-                        "Frame ID "
-                        f"{self._frame_id.decode(encoding='ascii')!r} "
-                        f"is incompatible with ID3v2.{tag_version[1]} "
-                        "tags."
-                    )
                 return (
-                    self._frame_id
+                    frame_id
                     + self._frame_length.to_bytes(length=3, byteorder="big")
                     + self._frame_data
                 )
@@ -6898,6 +6857,7 @@ class EncryptedID3v2Frame(UnknownID3v2Frame):
         *,
         flags: ID3v2FrameFlags | None = None,
         group_id: int | None = None,
+        allow_multiple: bool = True,
     ) -> None:
         """
         Parameters
@@ -6906,7 +6866,7 @@ class EncryptedID3v2Frame(UnknownID3v2Frame):
             Frame ID.
 
         frame_data : bytes or bytearray
-            Frame data.
+            Encrypted frame data.
 
         flags : ID3v2FrameFlags; keyword-only; optional
             Flags.
@@ -6915,36 +6875,20 @@ class EncryptedID3v2Frame(UnknownID3v2Frame):
             Group identifier.
 
             **Valid range**: :code:`0` to :code:`255`.
+
+        allow_multiple : bool; keyword-only; default: :code:`True`
+            Whether the frame can be repeated multiple times. Will be
+            overwritten by the frame class's value if `frame_id`
+            corresponds to a known frame class.
         """
         super().__init__(
             frame_id=frame_id,
             frame_data=frame_data,
             flags=flags,
             group_id=group_id,
+            allow_multiple=allow_multiple,
         )
         self._class = cls = self._get_class(frame_id)
         if cls is not UnknownID3v2Frame:
             self._allow_multiple = cls._allow_multiple
             self._frame_ids = cls._frame_ids
-
-    def get_frame_id(self, tag_version: str | tuple[int, int, int]) -> bytes:
-        """
-        Get the frame ID for a given tag version.
-
-        Parameters
-        ----------
-        tag_version : str or tuple[int, int, int]
-            Tag version.
-
-            **Valid values**: :code:`"2.2.0"` or :code:`(2, 2, 0)`,
-            :code:`"2.3.0"` or :code:`(2, 3, 0)`,
-            :code:`"2.4.0"` or :code:`(2, 4, 0)`.
-
-        Returns
-        -------
-        frame_id : bytes
-            Frame ID.
-        """
-        if self._frame_ids:
-            return ID3v2Frame.get_frame_id(self, tag_version=tag_version)
-        return super().get_frame_id(tag_version=tag_version)

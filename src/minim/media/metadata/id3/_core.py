@@ -19,7 +19,7 @@ from ..._shared import NULPadding
 from .._shared import AudioTags
 from ._frames import (
     EncryptedID3v2Frame,
-    ID3v2DateTimeFrame,
+    ID3v2DateTimeTextInfoFrame,
     ID3v2Frame,
     UnknownID3v2Frame,
 )
@@ -1675,14 +1675,16 @@ class ID3v2(AudioTags):
                         if existing_frames := self._class_index.get(frame_cls):
                             if strict and not (
                                 merge_datetime_frames
-                                and issubclass(frame_cls, ID3v2DateTimeFrame)
+                                and issubclass(
+                                    frame_cls, ID3v2DateTimeTextInfoFrame
+                                )
                             ):
                                 raise ValueError(
                                     f"Multiple {frame_cls.__name__}s found."
                                 )
 
                             if merge_datetime_frames and issubclass(
-                                frame_cls, ID3v2DateTimeFrame
+                                frame_cls, ID3v2DateTimeTextInfoFrame
                             ):
                                 existing_frames[-1] |= frame
                             else:
