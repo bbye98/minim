@@ -159,7 +159,7 @@ class DeezerAPIClient(OAuth2APIClient):
             Access token. If provided, the authorization process is
             bypassed.
 
-        expires_at : str or datetime.datetime; keyword-only; optional
+        expires_at : str or datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
@@ -216,6 +216,9 @@ class DeezerAPIClient(OAuth2APIClient):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         APIClient.__init__(
             self,
@@ -538,7 +541,7 @@ class DeezerAPIClient(OAuth2APIClient):
 
         Returns
         -------
-        response : httpx.Response
+        response : Response
             HTTP response.
         """
         if (rate_limiter := self._rate_limiter) is not None:
@@ -720,7 +723,7 @@ class DeezerAPIClient(OAuth2APIClient):
                other relevant authorization parameters are set
                correctly.
 
-        expires_at : str or datetime.datetime; keyword-only; optional
+        expires_at : str or datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
         """

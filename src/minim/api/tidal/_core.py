@@ -290,7 +290,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
             provided, the user will be reauthorized via the specified
             authorization flow when the access token expires.
 
-        expires_at : str or datetime.datetime; keyword-only; optional
+        expires_at : str or datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
@@ -343,6 +343,9 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the TIDAL API.
@@ -656,7 +659,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             provided, the user will be reauthorized via the specified
             authorization flow when the access token expires.
 
-        expires_at : str or datetime.datetime; keyword-only; optional
+        expires_at : str or datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
@@ -703,6 +706,9 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the private TIDAL API.

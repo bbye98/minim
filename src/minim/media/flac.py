@@ -77,7 +77,7 @@ class FLACMetadataBlock(ABC):
 
         Returns
         -------
-        block : minim.media.flac.FLACMetadataBlock
+        block : FLACMetadataBlock
             FLAC metadata block.
         """
         ...
@@ -255,7 +255,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
 
         Returns
         -------
-        stream_info : minim.media.flac.FLACStreamInfo
+        stream_info : FLACStreamInfo
             :code:`STREAMINFO` metadata block.
 
         Raises
@@ -440,7 +440,7 @@ class FLACApplication(FLACMetadataBlock):
 
         Returns
         -------
-        app : minim.media.flac.FLACApplication
+        app : FLACApplication
             :code:`APPLICATION` metadata block.
         """
         stream = as_buffer(stream)
@@ -513,8 +513,7 @@ class FLACSeekTable(FLACMetadataBlock):
 
     Parameters
     ----------
-    seek_points : \
-    OrderedCollection[minim.media.flac.FLACSeekPoint, ...]; keyword-only
+    seek_points : OrderedCollection[FLACSeekPoint, ...]; keyword-only
         Seek points.
 
     Raises
@@ -568,7 +567,7 @@ class FLACSeekTable(FLACMetadataBlock):
 
         Returns
         -------
-        seek_table : minim.media.flac.FLACSeekTable
+        seek_table : FLACSeekTable
             :code:`SEEKTABLE` metadata block.
 
         Raises
@@ -612,8 +611,7 @@ class FLACSeekTable(FLACMetadataBlock):
 
         Parameters
         ----------
-        seek_points : tuple[minim.media.flac.FLACSeekPoint, ...]; \
-        positional-only
+        seek_points : tuple[FLACSeekPoint, ...]; positional-only
             Seek points.
 
         custom : bool; keyword-only; default: :code:`True`
@@ -766,7 +764,7 @@ class FLACSeekPoint(
 
         Returns
         -------
-        seek_point : minim.media.flac.FLACSeekPoint
+        seek_point : FLACSeekPoint
             :code:`SEEKPOINT` data.
         """
         return tuple.__new__(cls, data)
@@ -785,7 +783,7 @@ class FLACSeekPoint(
 
         Returns
         -------
-        seek_point : minim.media.flac.FLACSeekPoint
+        seek_point : FLACSeekPoint
             :code:`SEEKPOINT` data.
         """
         return tuple.__new__(cls, cls._STRUCT.unpack_from(as_buffer(stream)))
@@ -818,9 +816,7 @@ class FLACCueSheet(FLACMetadataBlock):
     is_cd : bool; keyword-only
         Whether the cue sheet is for CD-DA.
 
-    tracks : \
-    OrderedCollection[minim.media.flac.FLACCueSheetTrack, ...]; \
-    keyword-only
+    tracks : OrderedCollection[FLACCueSheetTrack, ...]; keyword-only
         Tracks.
 
     Raises
@@ -914,7 +910,7 @@ class FLACCueSheet(FLACMetadataBlock):
 
         Returns
         -------
-        cue_sheet : minim.media.flac.FLACCueSheet
+        cue_sheet : FLACCueSheet
             :code:`CUESHEET` metadata block.
 
         Raises
@@ -1003,8 +999,7 @@ class FLACCueSheet(FLACMetadataBlock):
 
         Parameters
         ----------
-        tracks : tuple[minim.media.flac.FLACCueSheetTrack, ...]; \
-        positional-only
+        tracks : tuple[FLACCueSheetTrack, ...]; positional-only
             Tracks.
 
         is_cd : bool
@@ -1145,9 +1140,7 @@ class FLACCueSheetTrack:
     has_pre_emphasis : bool; keyword-only
         Whether the track has pre-emphasis.
 
-    tracks : \
-    OrderedCollection[minim.media.flac.FLACCueSheetTrackIndex]; \
-    keyword-only
+    tracks : OrderedCollection[FLACCueSheetTrackIndex]; keyword-only
         Track indices.
 
     Raises
@@ -1224,7 +1217,7 @@ class FLACCueSheetTrack:
 
         Returns
         -------
-        track : minim.media.flac.FLACCueSheetTrack
+        track : FLACCueSheetTrack
             :code:`CUESHEET_TRACK` data.
 
         Raises
@@ -1289,8 +1282,7 @@ class FLACCueSheetTrack:
 
         Parameters
         ----------
-        indices : tuple[minim.media.flac.FLACCueSheetTrackIndex, ...]; \
-        positional-only
+        indices : tuple[FLACCueSheetTrackIndex, ...]; positional-only
             Track indices.
 
         custom : bool; keyword-only; default: :code:`True`
@@ -1426,7 +1418,7 @@ class FLACCueSheetTrackIndex(
 
         Returns
         -------
-        track_index : minim.media.flac.FLACCueSheetTrackIndex
+        track_index : FLACCueSheetTrackIndex
             :code:`CUESHEET_TRACK_INDEX` data.
 
         Raises
@@ -1461,7 +1453,7 @@ class FLACCueSheetTrackIndex(
 
         Returns
         -------
-        track_index : minim.media.flac.FLACCueSheetTrackIndex
+        track_index : FLACCueSheetTrackIndex
             :code:`CUESHEET_TRACK_INDEX` data.
 
         Raises
@@ -1557,8 +1549,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
 
-        flags : minim.media.metadata.ID3v2FrameFlags; keyword-only; \
-        optional
+        flags : ID3v2FrameFlags; keyword-only; optional
             Flags for the ID3v2 frame.
 
         group_id : int; keyword-only; optional
@@ -1685,7 +1676,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
 
         Returns
         -------
-        picture : minim.media.flac.FLACPicture
+        picture : FLACPicture
             FLAC :code:`PICTURE` metadata block.
 
         Raises
@@ -1850,7 +1841,7 @@ class UnknownFLACMetadataBlock(FLACMetadataBlock):
 
         Returns
         -------
-        block : minim.media.flac.UnknownFLACMetadataBlock
+        block : UnknownFLACMetadataBlock
             Metadata block.
 
         Raises
@@ -1937,10 +1928,9 @@ class FLACMetadataView(MetadataView):
 
         Parameters
         ----------
-        types : int, type[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment], or Collection[int \
-        | type[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment]]; positional-only
+        types : int, type[FLACMetadataBlock | VorbisComment], or \
+        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
+        positional-only
             Metadata block types.
 
             **Valid values**:
@@ -1956,12 +1946,9 @@ class FLACMetadataView(MetadataView):
 
         Returns
         -------
-        blocks : list[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment] or \
-        dict[type[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment], \
-        list[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment]]
+        blocks : list[FLACMetadataBlock | VorbisComment] or \
+        dict[type[FLACMetadataBlock | VorbisComment], \
+        list[FLACMetadataBlock | VorbisComment]]
             Metadata blocks. If `types` is a collection, a
             dictionary mapping the metadata block types to the metadata
             blocks is returned.
@@ -2195,10 +2182,9 @@ class FLACAudio(Audio):
 
         Parameters
         ----------
-        metadata : minim.media.flac.FLACMetadataBlock, \
-        minim.media.metadata.VorbisComment, or \
-        OrderedCollection[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment]; positional-only
+        metadata : FLACMetadataBlock, VorbisComment, or \
+        OrderedCollection[FLACMetadataBlock | VorbisComment]; \
+        positional-only
             Metadata blocks to add.
 
             .. note::
@@ -2352,16 +2338,14 @@ class FLACAudio(Audio):
             :code:`len(self.metadata)` to append metadata blocks to the
             end.
 
-        metadata : int, minim.media.flac.FLACMetadataBlock, \
-        minim.media.metadata.VorbisComment, or Collection[int \
-        | minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment]; keyword-only; optional
+        metadata : int, FLACMetadataBlock, VorbisComment, or \
+        Collection[int | FLACMetadataBlock | VorbisComment]; \
+        keyword-only; optional
             Indices and/or instances of metadata blocks to move.
 
-        types : int, type[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment], or Collection[int \
-        | type[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment]]; keyword-only; optional
+        types : int, type[FLACMetadataBlock | VorbisComment], or \
+        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
+        keyword-only; optional
             Types of metadata blocks to move.
 
             **Valid values**:
@@ -2559,16 +2543,14 @@ class FLACAudio(Audio):
 
         Parameters
         ----------
-        metadata : int, minim.media.flac.FLACMetadataBlock, \
-        minim.media.metadata.VorbisComment, or Collection[int \
-        | minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment]; keyword-only; optional
+        metadata : int, FLACMetadataBlock, VorbisComment, or \
+        Collection[int | FLACMetadataBlock | VorbisComment]; \
+        keyword-only; optional
             Indices and/or instances of metadata blocks to remove.
 
-        types : int, type[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment], or Collection[int \
-        | type[minim.media.flac.FLACMetadataBlock \
-        | minim.media.metadata.VorbisComment]]; keyword-only; optional
+        types : int, type[FLACMetadataBlock | VorbisComment], or \
+        Collection[int | type[FLACMetadataBlock | VorbisComment]]; \
+        keyword-only; optional
             Types of metadata blocks to remove.
 
             **Valid values**:

@@ -130,7 +130,7 @@ class ID3v1:
 
         Returns
         -------
-        tag : minim.media.metadata.ID3v1
+        tag : ID3v1
             ID3v1 tag.
         """
         (
@@ -438,7 +438,7 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2Flags
+        flags : ID3v2Flags
             Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0x3F:
@@ -469,7 +469,7 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2Flags
+        flags : ID3v2Flags
             Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0x1F:
@@ -499,7 +499,7 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2Flags
+        flags : ID3v2Flags
             Flags for an ID3v2 tag.
         """
         if strict and byte_ & 0xF:
@@ -544,7 +544,7 @@ class ID3v2Flags:
 
         Returns
         -------
-        flags : minim.media.metadata.ID3v2Flags
+        flags : ID3v2Flags
             Flags for an ID3v2 tag.
         """
         validate_number("byte_", byte_, int, 0)
@@ -747,12 +747,10 @@ class ID3v2(AudioTags):
         """
         Parameters
         ----------
-        frames : OrderedCollection[minim.media.metadata.ID3v2Frame]; \
-        positional-only
+        frames : OrderedCollection[ID3v2Frame]; positional-only
             ID3v2 frames.
 
-        flags : minim.media.metadata.ID3v2Flags; keyword-only; \
-        optional
+        flags : ID3v2Flags; keyword-only; optional
             Flags and extended header for ID3v2 tags.
 
         is_update : bool; keyword-only; default: :code:`False`
@@ -854,7 +852,7 @@ class ID3v2(AudioTags):
 
         Returns
         -------
-        tag : minim.media.metadata.ID3v2
+        tag : ID3v2
             ID3v2 tag.
         """
         flags = ID3v2Flags._from_byte_2_2(flags, strict=strict)
@@ -937,7 +935,7 @@ class ID3v2(AudioTags):
 
         Returns
         -------
-        tag : minim.media.metadata.ID3v2
+        tag : ID3v2
             ID3v2 tag.
         """
         obj = cls.__new__(cls)
@@ -1028,7 +1026,7 @@ class ID3v2(AudioTags):
 
         Returns
         -------
-        tag : minim.media.metadata.ID3v2
+        tag : ID3v2
             ID3v2 tag.
         """
         obj = cls.__new__(cls)
@@ -1131,7 +1129,7 @@ class ID3v2(AudioTags):
 
         Returns
         -------
-        tag : minim.media.metadata.ID3v2
+        tag : ID3v2
             ID3v2 tag.
         """
         stream = as_buffer(stream)
@@ -1384,7 +1382,7 @@ class ID3v2(AudioTags):
         :code:`TPA`/:code:`TPOS` – Disc number within a multi-disc set.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
-            return [str(disc.number) for disc in frames[-1]._discs]
+            return [str(disc.number) for disc in frames[-1]._structures]
 
     @disc_number.setter
     def disc_number(
@@ -1407,7 +1405,7 @@ class ID3v2(AudioTags):
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TPOS")):
             return [
                 str(total) if (total := disc.total) else total
-                for disc in frames[-1]._discs
+                for disc in frames[-1]._structures
             ]
 
     @property
@@ -1566,7 +1564,7 @@ class ID3v2(AudioTags):
         collection.
         """
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
-            return [str(track.number) for track in frames[-1]._tracks]
+            return [str(track.number) for track in frames[-1]._structures]
 
     @track_number.setter
     def track_number(
@@ -1589,7 +1587,7 @@ class ID3v2(AudioTags):
         if frames := self._class_index.get(ID3v2Frame._get_class(b"TRCK")):
             return [
                 str(total) if (total := track.total) else total
-                for track in frames[-1]._tracks
+                for track in frames[-1]._structures
             ]
 
     @property
@@ -1623,8 +1621,7 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.ID3v2Frame or \
-        OrderedCollection[minim.media.metadata.ID3v2Frame]; \
+        frames : ID3v2Frame or OrderedCollection[ID3v2Frame]; \
         positional-only
             Frames.
 
@@ -1749,8 +1746,7 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.ID3v2Frame or \
-        OrderedCollection[minim.media.metadata.ID3v2Frame]; \
+        frames : ID3v2Frame or OrderedCollection[ID3v2Frame]; \
         positional-only
             Known frames with the same frame ID.
         """
@@ -1803,8 +1799,7 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.ID3v2Frame or \
-        OrderedCollection[minim.media.metadata.ID3v2Frame]; \
+        frames : ID3v2Frame or OrderedCollection[ID3v2Frame]; \
         positional-only
             Frames.
 
@@ -1851,18 +1846,15 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frame_types : bytes, \
-        type[minim.media.metadata.ID3v2Frame], or Collection[bytes \
-        | type[minim.media.metadata.ID3v2Frame]]; positional-only; \
-        optional
+        frame_types : bytes, type[ID3v2Frame], or \
+        Collection[bytes | type[ID3v2Frame]]; positional-only; optional
             Frame IDs and/or classes. If :code:`None`, all frames are 
             returned.
 
         Returns
         -------
-        metadata : list[minim.media.metadata.ID3v2Frame], \
-        dict[bytes | type[minim.media.metadata.ID3v2Frame, \
-        list[minim.media.metadata.ID3v2Frame] | None], or None
+        metadata : list[ID3v2Frame], dict[bytes | type[ID3v2Frame], \
+        list[ID3v2Frame] | None], or None
             Track metadata. If `field_names` is :code:`None` or a 
             collection of frame IDs and/or classes, a dictionary mapping 
             frame classes to their corresponding instances is returned.
@@ -1924,12 +1916,11 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.ID3v2Frame; keyword-only; optional
+        frames : ID3v2Frame; keyword-only; optional
             Frame objects to remove.
 
-        types : bytes, type[minim.media.metadata.ID3v2Frame], \
-        or Collection[bytes | type[minim.media.metadata.ID3v2Frame]]; \
-        keyword-only; optional
+        types : bytes, type[ID3v2Frame], or \
+        Collection[bytes | type[ID3v2Frame]]; keyword-only; optional
             Frame IDs and/or classes to remove.
         """
         has_frames = frames is not None
@@ -2012,8 +2003,7 @@ class ID3v2(AudioTags):
 
         Parameters
         ----------
-        frames : minim.media.metadata.ID3v2Frame or \
-        OrderedCollection[minim.media.metadata.ID3v2Frame]; \
+        frames : ID3v2Frame or OrderedCollection[ID3v2Frame]; \
         positional-only
             Frames.
         """
@@ -2050,6 +2040,7 @@ class ID3v2(AudioTags):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
+        allow_fallback: bool = False,
         include_padding: bool = True,
         adjust_padding: bool = True,
     ) -> bytes:
@@ -2072,6 +2063,11 @@ class ID3v2(AudioTags):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
+
+        allow_fallback : bool; keyword-only; default: :code:`False`
+            Whether to fall back to a generic "user-defined text
+            information" frame if a text information frame cannot be
+            serialized for the given tag version.
 
         include_padding : bool; keyword-only; default: :code:`True`
             Whether to keep padding.
@@ -2098,7 +2094,11 @@ class ID3v2(AudioTags):
             )
 
         frames = b"".join(
-            frame.serialize(tag_version, text_encoding=text_encoding)
+            frame.serialize(
+                tag_version,
+                text_encoding=text_encoding,
+                allow_fallback=allow_fallback,
+            )
             for frame in self._frames
         )
         padding = self._padding

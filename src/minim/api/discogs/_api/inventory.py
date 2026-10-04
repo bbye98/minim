@@ -151,7 +151,7 @@ class InventoryAPI(DiscogsResourceAPI):
                                 validate_type(key, value, str)
                             case "accept_offer":
                                 validate_type(key, value, str)
-                                if value not in {"N", "Y"}:
+                                if value not in "NY":
                                     raise ValueError(
                                         "Invalid `accept_offer` value "
                                         f"{value!r}. Valid values: 'N', 'Y'."

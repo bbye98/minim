@@ -1092,8 +1092,8 @@ class PlayerAPI(SpotifyResourceAPI):
     def get_recently_played(
         self,
         *,
-        played_after: int | None = None,
-        played_before: int | None = None,
+        played_after: int | datetime | None = None,
+        played_before: int | datetime | None = None,
         limit: int | None = None,
     ) -> dict[str, Any]:
         """
@@ -1129,13 +1129,13 @@ class PlayerAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        played_after : int or datetime.datetime; keyword-only; optional
+        played_after : int or datetime; keyword-only; optional
             Only return items played after this Unix timestamp, in
             milliseconds.
 
             **Minimum value**: :code:`0`.
 
-        played_before : int or datetime.datetime; keyword-only; optional
+        played_before : int or datetime; keyword-only; optional
             Only return items played before this Unix timestamp, in
             milliseconds.
 

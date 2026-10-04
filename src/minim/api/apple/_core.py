@@ -197,6 +197,9 @@ class iTunesSearchAPIClient(APIClient):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         super().__init__(
             enable_cache=enable_cache,
@@ -205,12 +208,7 @@ class iTunesSearchAPIClient(APIClient):
         )
 
     def _request(
-        self,
-        method: str,
-        endpoint: str,
-        /,
-        retry: bool = True,
-        **kwargs: Any,
+        self, method: str, endpoint: str, /, retry: bool = True, **kwargs: Any
     ) -> httpx.Response:
         """
         Make an HTTP request to an iTunes Search API endpoint.
@@ -232,7 +230,7 @@ class iTunesSearchAPIClient(APIClient):
 
         Returns
         -------
-        response : httpx.Response
+        response : Response
             HTTP response.
         """
         if (rate_limiter := self._rate_limiter) is not None:

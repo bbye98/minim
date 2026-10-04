@@ -1083,13 +1083,11 @@ class TracksAPI(MusixmatchResourceAPI):
 
             **API default**: :code:`False`.
 
-        released_after : str or datetime.datetime; keyword-only; \
-        optional
+        released_after : str or datetime; keyword-only; optional
             Only return tracks released after this date, in
             :code:`YYYYMMDD` format.
 
-        released_before : str or datetime.datetime; keyword-only; \
-        optional
+        released_before : str or datetime; keyword-only; optional
             Only return tracks released before this date, in
             :code:`YYYYMMDD` format.
 

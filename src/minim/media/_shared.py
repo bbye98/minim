@@ -348,7 +348,7 @@ class NULPadding:
 
         Returns
         -------
-        padding : minim.media._shared.NULPadding
+        padding : NULPadding
             NUL-bytes padding object.
         """
         stream = as_buffer(stream)

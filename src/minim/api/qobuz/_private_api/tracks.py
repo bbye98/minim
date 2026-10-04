@@ -77,7 +77,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             * :code:`7` – Up to 24-bit, 96 kHz FLAC.
             * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
-        started_at : int or datetime.datetime; keyword-only
+        started_at : int or datetime; keyword-only
             Unix time at which the streaming started.
 
         online : bool; keyword-only
@@ -689,7 +689,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             * :code:`7` – Up to 24-bit, 96 kHz FLAC.
             * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
-        started_at : int or datetime.datetime; keyword-only
+        started_at : int or datetime; keyword-only
             Unix time at which the streaming started.
 
         online : bool; keyword-only
@@ -797,7 +797,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             * :code:`7` – Up to 24-bit, 96 kHz FLAC.
             * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
-        started_at : int or datetime.datetime; keyword-only
+        started_at : int or datetime; keyword-only
             Unix time at which the streaming started.
 
         duration : int; keyword-only; default: :code:`0`

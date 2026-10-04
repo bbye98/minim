@@ -177,7 +177,7 @@ class MPEGStreamInfo(AudioStreamInfo):
 
         Returns
         -------
-        stream_info : minim.media.mpeg.MPEGStreamInfo
+        stream_info : MPEGStreamInfo
             MPEG audio stream information.
         """
         obj = cls.__new__(cls)
@@ -631,7 +631,7 @@ class MPEGAudio(Audio):
 
         Returns
         -------
-        stream_info : minim.media.mpeg.MPEGStreamInfo
+        stream_info : MPEGStreamInfo
             MPEG audio stream information.
         """
         num_samples = (
@@ -713,7 +713,7 @@ class MPEGAudio(Audio):
 
         Returns
         -------
-        stream_info : minim.media.mpeg.MPEGStreamInfo
+        stream_info : MPEGStreamInfo
             MPEG audio stream information.
         """
         end_xing_offset = xing_offset + 4
@@ -826,7 +826,7 @@ class MPEGAudio(Audio):
 
     @staticmethod
     def _get_stream_info(
-        stream: memoryview, /, *, strict: bool
+        stream: memoryview, /, *, strict: bool = True
     ) -> Self | None:
         """
         Get MPEG audio stream information.
@@ -836,13 +836,13 @@ class MPEGAudio(Audio):
         stream : memoryview; positional-only
             Bytes-like object containing the MPEG audio stream.
 
-        strict : bool; keyword-only
+        strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the MPEG
             format specifications.
 
         Returns
         -------
-        stream_info : minim.media.mpeg.MPEGStreamInfo or None
+        stream_info : MPEGStreamInfo or None
             MPEG audio stream information. If :code:`None`, no audio
             frames were found.
         """

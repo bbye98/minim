@@ -1077,12 +1077,11 @@ class MarketplaceAPI(DiscogsResourceAPI):
             :code:`"Cancelled (Per Buyer's Request)"`,
             :code:`"Cancelled (Refund Received)"`.
 
-        created_after : str or datetime.datetime; keyword-only; optional
+        created_after : str or datetime; keyword-only; optional
             Only return orders created after this date, in
             :code:`YYYY-MM-DDTHH:MM:SSZ` format.
 
-        created_before : str or datetime.datetime; keyword-only; \
-        optional
+        created_before : str or datetime; keyword-only; optional
             Only return orders created before this date, in
             :code:`YYYY-MM-DDTHH:MM:SSZ` format.
 

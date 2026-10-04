@@ -303,8 +303,7 @@ class TokenDatabase:
         access_token_secret : str or None; keyword-only; optional
             Access token secret.
 
-        expires_at : str, datetime.datetime, or None; keyword-only; \
-        optional
+        expires_at : str, datetime, or None; keyword-only; optional
             Expiration time of the access token.
 
         refresh_token : str or None; keyword-only; optional
@@ -313,8 +312,7 @@ class TokenDatabase:
         extras : dict[str, Any]; keyword-only; optional
             Extra metadata associated with the access token.
 
-        added_at : str, datetime.datetime, or None; keyword-only; \
-        optional
+        added_at : str, datetime, or None; keyword-only; optional
             Time the access token was acquired and added to local
             storage.
         """
@@ -543,7 +541,7 @@ class TTLCache:
         Parameters
         ----------
         ttl : int, float, or str; keyword-only
-            Time-to-live (TTL) (in seconds) or a key referring to a
+            Time-to-live (TTL), in seconds, or a key referring to a
             predefined TTL for cache entries.
 
             **Valid keys**:
@@ -648,7 +646,7 @@ class TTLCache:
         Parameters
         ----------
         ttl : int, float, or str; keyword-only
-            Time-to-live (TTL) (in seconds) or a key referring to a
+            Time-to-live (TTL), in seconds, or a key referring to a
             predefined TTL for cache entries.
 
             **Valid keys**:
@@ -743,6 +741,9 @@ class APIClient(ABC):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         self.open()
         self._cache = TTLCache() if enable_cache else None
@@ -787,7 +788,7 @@ class APIClient(ABC):
             Instance of the exception that caused the context to be
             exited.
 
-        exc_tb : types.TracebackType or None
+        exc_tb : TracebackType or None
             Traceback object encapsulating the call stack at the point
             where the exception occurred.
         """
@@ -813,7 +814,7 @@ class APIClient(ABC):
 
         Returns
         -------
-        response : httpx.Response
+        response : Response
             HTTP response.
         """
         ...
@@ -1067,9 +1068,7 @@ class OAuthAPIClient(APIClient):
 
     @classmethod
     @abstractmethod
-    def get_tokens(
-        cls, **kwargs: Any
-    ) -> list[dict[str, Any]] | None:
+    def get_tokens(cls, **kwargs: Any) -> list[dict[str, Any]] | None:
         """
         Retrieve specific or all access tokens and their metadata for
         this client from local storage.
@@ -1452,6 +1451,9 @@ class OAuth1APIClient(OAuthAPIClient):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         super().__init__(
             enable_cache=enable_cache,
@@ -1800,7 +1802,7 @@ class OAuth1APIClient(OAuthAPIClient):
 
         Returns
         -------
-        response : httpx.Response
+        response : Response
             HTTP response.
         """
         if self._auth_flow is not None:
@@ -2190,7 +2192,7 @@ class OAuth2APIClient(OAuthAPIClient):
             provided, the user will be reauthorized via the specified
             authorization flow when the access token expires.
 
-        expires_at : str or datetime.datetime; keyword-only; optional
+        expires_at : str or datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
@@ -2249,6 +2251,9 @@ class OAuth2APIClient(OAuthAPIClient):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         super().__init__(
             enable_cache=enable_cache,
@@ -2735,7 +2740,7 @@ class OAuth2APIClient(OAuthAPIClient):
             provided, the user will be reauthorized via the current
             authorization flow when the access token expires.
 
-        expires_at : str or datetime.datetime; keyword-only; optional
+        expires_at : str or datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
         """
@@ -2951,7 +2956,7 @@ class ResourceAPI:
         """
         Parameters
         ----------
-        client : minim.api._shared.APIClient
+        client : APIClient
             API client instance used to make HTTP requests.
         """
         self._client = client

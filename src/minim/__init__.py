@@ -18,3 +18,5 @@ HOME_DIR = Path.home()
 MINIM_DIR = HOME_DIR / ".minim"
 if not MINIM_DIR.exists():
     MINIM_DIR.mkdir()
+
+from . import api, media

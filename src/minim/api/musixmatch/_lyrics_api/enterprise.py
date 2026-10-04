@@ -599,7 +599,7 @@ class EnterpriseAPI(MusixmatchResourceAPI):
 
             **Example**: "00001100196005".
 
-        valid_until : str or datetime.datetime
+        valid_until : str or datetime
             Validity end date, in :code:`YYYY-MM-DD` format.
 
         Returns

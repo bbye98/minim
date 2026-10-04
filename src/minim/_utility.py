@@ -143,13 +143,13 @@ def prepare_barcode(barcode: int | str, /) -> str:
     return barcode
 
 
-def prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
+def prepare_datetime(dt: str | datetime, fmt: str, /) -> str:
     """
     Validate, normalize, and stringify a datetime.
 
     Parameters
     ----------
-    dt : datetime.datetime or str; positional-only
+    dt : str or datetime; positional-only
         Datetime.
 
     fmt : str; positional-only
@@ -163,7 +163,7 @@ def prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
     Raises
     ------
     TypeError
-        If `dt` is neither a string nor a :class:`datetime.datetime`
+        If `dt` is neither a string nor a :class:`~datetime.datetime`
         object.
 
     ValueError
@@ -316,18 +316,42 @@ def validate_country_code(country_code: str, /) -> None:
 
     Raises
     ------
+    TypeError
+        If `country_code` is not a string.
+
     ValueError
         If `country_code` is not a valid ISO 3166-1 alpha-2 country
         code.
     """
-    if (
-        not isinstance(country_code, str)
-        or len(country_code) != 2
-        or not country_code.isalpha()
-    ):
+    validate_type("country_code", country_code, str)
+    if len(country_code) != 2 or not country_code.isalpha():
         raise ValueError(
             f"{country_code!r} is not a valid ISO 3166-1 alpha-2 country code."
         )
+
+
+def validate_key(key: str, /) -> None:
+    """
+    Validate the format of a musical key.
+
+    Parameters
+    ----------
+    key : str; positional-only
+        Musical key.
+
+    Raises
+    ------
+    ValueError
+        If `key` is not a valid musical key.
+    """
+    validate_type("key", key, str)
+    if key != "o" and (
+        not 2 <= len(key) <= 3
+        or key[0] not in "ABCDEFG"
+        or key[1] not in "b#"
+        or (len(key) == 3 and key[2] != "m")
+    ):
+        raise ValueError(f"{key!r} is not a valid musical key.")
 
 
 def validate_iso_8859_1_string(name: str, value: bytes | str, /) -> None:
@@ -344,35 +368,42 @@ def validate_iso_8859_1_string(name: str, value: bytes | str, /) -> None:
 
     Raises
     ------
+    TypeError
+        If `value` is not bytes or a string.
+
     ValueError
         If `value` does not contain only ISO-8859-1 characters.
     """
+    validate_type("value", value, bytes | str)
     if value and any(ord(char) > 255 for char in value):
         raise ValueError(f"`{name}` can contain only ISO-8859-1 characters.")
 
 
-def validate_language_code(language_code: str, /) -> None:
+def validate_language_code(language_code: str, /, *, length: int = 2) -> None:
     """
     Validate the format of an International Organization for
-    Standardization (ISO) 639-1 language code.
+    Standardization (ISO) 639 language code.
 
     Parameters
     ----------
     language_code : str; positional-only
-        ISO 639-1 language code.
+        ISO 639 language code.
+
+    length : int; keyword-only; default: :code:`2`
+        Expected length of the language code.
 
     Raises
     ------
+    TypeError
+        If `language_code` is not a string.
+
     ValueError
-        If `language_code` is not a valid ISO 639-1 language code.
+        If `language_code` is not a valid ISO 639 language code.
     """
-    if (
-        not isinstance(language_code, str)
-        or len(language_code) != 2
-        or not language_code.isalpha()
-    ):
+    validate_type("language_code", language_code, str)
+    if len(language_code) != length or not language_code.isalpha():
         raise ValueError(
-            f"{language_code!r} is not a valid ISO 639-1 language code."
+            f"{language_code!r} is not a valid ISO 639 language code."
         )
 
 
@@ -388,12 +419,15 @@ def validate_locale(locale: str, /) -> None:
 
     Raises
     ------
+    TypeError
+        If `locale` is not a string.
+
     ValueError
         If `locale` is not a valid locale identifier.
     """
+    validate_type("locale", locale, str)
     if (
-        not isinstance(locale, str)
-        or len(locale) != 5
+        len(locale) != 5
         or not locale[:2].isalpha()
         or locale[2] != "_"
         or not locale[3:].isalpha()
@@ -424,7 +458,7 @@ def validate_number(
     value : int or float; positional-only
         Variable value.
 
-    data_type : type or types.UnionType; positional-only
+    data_type : type or UnionType; positional-only
         Allowed numeric data types.
 
     lower_bound : int or float; optional
@@ -573,7 +607,7 @@ def validate_type(
     value : Any; positional-only
         Variable value.
 
-    data_type : type or types.UnionType; positional-only
+    data_type : type or UnionType; positional-only
         Allowed data types.
 
     Raises
