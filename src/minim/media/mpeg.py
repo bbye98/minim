@@ -1,5 +1,5 @@
 """
-Moving Picture Experts Group (MPEG) audio file handler and stream
+MPEG-1 and MPEG-2 (MP1, MP2, and MP3) audio file handler and stream
 information reporter.
 """
 
@@ -268,7 +268,7 @@ class MPEGMetadataView(MetadataView):
 
 class MPEGAudio(Audio):
     """
-    MPEG audio file.
+    MP1, MP2, or MP3 audio file.
 
     .. note::
 
