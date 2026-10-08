@@ -954,9 +954,15 @@ class MPEGAudio(Audio):
     def load_metadata(self) -> None:
         """
         Load ID3 tags and MPEG stream information.
+
+        .. note::
+
+           If multiple ID3, APE, and Lyrics3 tags are found, the first
+           one encountered—in that order—is set as the active tags.
         """
         self.open()
         view = self._view
+        file_path = self._file_path
         strict = self._strict
         self._metadata = metadata = []
         self._type_index = type_index = defaultdict(list)
@@ -970,7 +976,7 @@ class MPEGAudio(Audio):
             if strict and id3v2_index:
                 raise RuntimeError(
                     "ID3v2 tag appears multiple times before the audio "
-                    f"stream in '{self._file_path}'."
+                    f"stream in '{file_path}'."
                 )
 
             end_offset = (

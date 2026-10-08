@@ -879,7 +879,7 @@ class ID3v2(AudioTags):
 
         while offset < tag_end:
             if not stream[offset]:
-                obj._padding = ID3v2Padding.from_stream(
+                obj._padding = ID3v2Padding._from_stream(
                     stream[offset:], strict=strict
                 )
                 break
@@ -968,7 +968,7 @@ class ID3v2(AudioTags):
 
         while offset < tag_end:
             if not stream[offset]:
-                obj._padding = ID3v2Padding.from_stream(
+                obj._padding = ID3v2Padding._from_stream(
                     stream[offset:], strict=strict
                 )
                 break
@@ -1068,7 +1068,7 @@ class ID3v2(AudioTags):
                         "ID3v2.4 tag cannot simultaneously have a "
                         "footer and padding."
                     )
-                obj._padding = ID3v2Padding.from_stream(
+                obj._padding = ID3v2Padding._from_stream(
                     stream[offset:], strict=strict
                 )
                 break

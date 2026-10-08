@@ -2053,10 +2053,8 @@ class FLACAudio(Audio):
 
         .. note::
 
-           If multiple Vorbis comments are found, they are merged into a
-           single Vorbis comment, with field values concatenated in
-           container order and the vendor name from the last occurrence
-           retained.
+           If multiple Vorbis comments are found, the first one
+           encountered is set as the active tags.
         """
         self.open()
         file_path = self._file_path
@@ -2114,7 +2112,7 @@ class FLACAudio(Audio):
                         prev_block.adjust_length(4 + block_data_length)
                         continue
                     else:
-                        block = FLACPadding.from_stream(
+                        block = FLACPadding._from_stream(
                             block_data, strict=strict
                         )
                 case 2:  # APPLICATION

@@ -333,9 +333,12 @@ class NULPadding:
         return self._length
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
+    def _from_stream(
+        cls, stream: BytesLike, /, *, strict: bool = True
+    ) -> Self:
         """
-        Instantiate a NUL-bytes padding object from a bytes-like object.
+        Instantiate a NUL-bytes padding object from a bytes-like object
+        containing padding.
 
         Parameters
         ----------
@@ -351,7 +354,6 @@ class NULPadding:
         padding : NULPadding
             NUL-bytes padding object.
         """
-        stream = as_buffer(stream)
         if strict and any(stream):
             raise ValueError("Non-zero bits found in PADDING block.")
 
