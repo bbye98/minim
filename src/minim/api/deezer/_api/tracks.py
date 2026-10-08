@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 from .charts import ChartsAPI
 from .users import UsersAPI
@@ -121,13 +123,13 @@ class TracksAPI(DeezerResourceAPI):
         """
         return self._request_resource_relationship("GET", "track", track_id)
 
-    @_copy_docstring(ChartsAPI.get_top_tracks)
+    @copy_docstring(ChartsAPI.get_top_tracks)
     def get_top_tracks(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.charts.get_top_tracks(limit=limit, offset=offset)
 
-    @_copy_docstring(UsersAPI.get_user_tracks)
+    @copy_docstring(UsersAPI.get_user_tracks)
     def get_user_tracks(
         self,
         user_id: int | str = "me",
@@ -140,7 +142,7 @@ class TracksAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.update_track_metadata)
+    @copy_docstring(UsersAPI.update_track_metadata)
     def update_track_metadata(
         self,
         track_id: int | str,
@@ -154,11 +156,11 @@ class TracksAPI(DeezerResourceAPI):
             track_id, album=album, artist=artist, title=title
         )
 
-    @_copy_docstring(UsersAPI.delete_track)
+    @copy_docstring(UsersAPI.delete_track)
     def delete_track(self, track_id: int | str, /) -> bool:
         return self._client.users.delete_track(track_id)
 
-    @_copy_docstring(UsersAPI.get_user_saved_tracks)
+    @copy_docstring(UsersAPI.get_user_saved_tracks)
     def get_user_saved_tracks(
         self,
         user_id: int | str = "me",
@@ -171,7 +173,7 @@ class TracksAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.save_tracks)
+    @copy_docstring(UsersAPI.save_tracks)
     def save_tracks(
         self,
         track_ids: int | str | Collection[int | str],
@@ -181,13 +183,13 @@ class TracksAPI(DeezerResourceAPI):
     ) -> bool:
         return self._client.users.save_tracks(track_ids, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.remove_saved_track)
+    @copy_docstring(UsersAPI.remove_saved_track)
     def remove_saved_track(
         self, track_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         return self._client.users.remove_saved_track(track_id, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.get_user_top_tracks)
+    @copy_docstring(UsersAPI.get_user_top_tracks)
     def get_user_top_tracks(
         self,
         user_id: int | str = "me",
@@ -200,7 +202,7 @@ class TracksAPI(DeezerResourceAPI):
             user_id, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.get_user_track_recommendations)
+    @copy_docstring(UsersAPI.get_user_track_recommendations)
     def get_user_track_recommendations(
         self, user_id: int | str = "me", /
     ) -> dict[str, Any]:

@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring, validate_number
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
@@ -448,7 +450,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             offset=offset,
         )
 
-    @_copy_docstring(UsersAPI.get_my_saved_albums)
+    @copy_docstring(UsersAPI.get_my_saved_albums)
     def get_my_saved_albums(
         self,
         *,
@@ -460,15 +462,15 @@ class AlbumsAPI(SpotifyResourceAPI):
             country_code=country_code, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.save_albums)
+    @copy_docstring(UsersAPI.save_albums)
     def save_albums(self, album_ids: str | Collection[str], /) -> None:
         self._client.users.save_albums(album_ids)
 
-    @_copy_docstring(UsersAPI.remove_saved_albums)
+    @copy_docstring(UsersAPI.remove_saved_albums)
     def remove_saved_albums(self, album_ids: str | Collection[str], /) -> None:
         self._client.users.remove_saved_albums(album_ids)
 
-    @_copy_docstring(UsersAPI.are_albums_saved)
+    @copy_docstring(UsersAPI.are_albums_saved)
     def are_albums_saved(
         self, album_ids: str | Collection[str], /
     ) -> list[bool]:
@@ -562,10 +564,10 @@ class AlbumsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._validate_number("offset", offset, int, 0)
+            validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "browse/new-releases", params=params

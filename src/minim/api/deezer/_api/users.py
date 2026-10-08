@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from ...._utility import prepare_string, validate_number, validate_type
 from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 
@@ -248,7 +250,7 @@ class UsersAPI(DeezerResourceAPI):
             "user",
             user_id,
             "notifications",
-            params={"message": self._prepare_string("message", message)},
+            params={"message": prepare_string("message", message)},
         )
 
     def get_user_mix_tracks(
@@ -2128,7 +2130,7 @@ class UsersAPI(DeezerResourceAPI):
             "user",
             user_id,
             "playlists",
-            params={"name": self._prepare_string("name", name)},
+            params={"name": prepare_string("name", name)},
         )
 
     def update_playlist_details(
@@ -2196,16 +2198,16 @@ class UsersAPI(DeezerResourceAPI):
         )
         params = {}
         if name is not None:
-            params["name"] = self._prepare_string("name", name)
+            params["name"] = prepare_string("name", name)
         if description is not None:
-            params["description"] = self._prepare_string(
+            params["description"] = prepare_string(
                 "description", description, allow_blank=True
             )
         if public is not None:
-            self._validate_type("public", public, bool)
+            validate_type("public", public, bool)
             params["public"] = public
         if collaborative is not None:
-            self._validate_type("collaborative", collaborative, bool)
+            validate_type("collaborative", collaborative, bool)
             if collaborative:
                 if public is None:
                     params["public"] = False
@@ -2602,7 +2604,7 @@ class UsersAPI(DeezerResourceAPI):
             "episodes.set_episode_resume_point", "manage_library"
         )
         self._validate_deezer_ids(episode_id, recursive=False)
-        self._validate_number("position", position, int, 0, 100)
+        validate_number("position", position, int, 0, 100)
         return self._request_resource_relationship(
             "POST",
             "episode",
@@ -3190,11 +3192,11 @@ class UsersAPI(DeezerResourceAPI):
         )
         params = {}
         if album is not None:
-            params["album"] = self._prepare_string("album", album)
+            params["album"] = prepare_string("album", album)
         if artist is not None:
-            params["artist"] = self._prepare_string("artist", artist)
+            params["artist"] = prepare_string("artist", artist)
         if title is not None:
-            params["title"] = self._prepare_string("title", title)
+            params["title"] = prepare_string("title", title)
         if not params:
             raise ValueError("At least one change must be specified.")
         return self._request_resource_relationship(

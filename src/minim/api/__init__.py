@@ -46,3 +46,5 @@ db_cursor.execute(
     """
 )
 db_connection.commit()
+
+from . import apple, deezer, discogs, musixmatch, qobuz, spotify, tidal

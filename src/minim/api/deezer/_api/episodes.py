@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import DeezerResourceAPI
 from .users import UsersAPI
 
@@ -78,7 +80,7 @@ class EpisodesAPI(DeezerResourceAPI):
             "GET", "episode", episode_id
         )
 
-    @_copy_docstring(UsersAPI.set_episode_resume_point)
+    @copy_docstring(UsersAPI.set_episode_resume_point)
     def set_episode_resume_point(
         self, episode_id: int | str, /, position: int
     ) -> dict[str, Any]:
@@ -86,7 +88,7 @@ class EpisodesAPI(DeezerResourceAPI):
             episode_id, position=position
         )
 
-    @_copy_docstring(UsersAPI.remove_episode_resume_point)
+    @copy_docstring(UsersAPI.remove_episode_resume_point)
     def remove_episode_resume_point(
         self, episode_id: int | str, /
     ) -> dict[str, Any]:

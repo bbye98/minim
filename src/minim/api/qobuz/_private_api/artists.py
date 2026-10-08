@@ -1,12 +1,19 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import (
+    copy_docstring,
+    join_values,
+    validate_number,
+    validate_type,
+)
+from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -22,8 +29,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _CONTENT_FILTERS = {"hires", "explicit"}
-    _RELEASE_TYPES = {
+    _CONTENT_FILTERS: ClassVar[set[str]] = {"hires", "explicit"}
+    _RELEASE_TYPES: ClassVar[set[str]] = {
         "all",
         "album",
         "live",
@@ -33,13 +40,13 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         "download",
         "composer",
     }
-    _RELATIONSHIPS = {
+    _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "albums_with_last_release",
         "playlists",
         "tracks_appears_on",
     }
-    _SORT_FIELDS = {"relevant", "release_date"}
+    _SORT_FIELDS: ClassVar[set[str]] = {"relevant", "release_date"}
 
     __slots__ = ()
 
@@ -953,11 +960,11 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                 if sort_by not in self._SORT_FIELDS:
                     raise ValueError(
                         f"Invalid sort field {sort_by!r}. Valid "
-                        f"values: {self._join_values(self._SORT_FIELDS)}."
+                        f"values: {join_values(self._SORT_FIELDS)}."
                     )
                 params["order"] = sort_by
             if descending is not None:
-                self._validate_type("descending", descending, bool)
+                validate_type("descending", descending, bool)
                 params["orderDirection"] = "desc"
             return self._client._request(
                 "GET", "artist/page", params=params
@@ -1181,15 +1188,15 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             if sort_by not in self._SORT_FIELDS:
                 raise ValueError(
                     f"Invalid sort field {sort_by!r}. Valid "
-                    f"values: {self._join_values(self._SORT_FIELDS)}."
+                    f"values: {join_values(self._SORT_FIELDS)}."
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._validate_type("descending", descending, bool)
+            validate_type("descending", descending, bool)
             params["orderDirection"] = "desc" if descending else "asc"
         if include_tracks:
             if track_limit is not None:
-                self._validate_number("track_size", track_limit, int, 1, 30)
+                validate_number("track_size", track_limit, int, 1, 30)
                 params["track_size"] = track_limit
             return self._get_paginated_resources(
                 "artist/getReleasesList",
@@ -1536,7 +1543,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.toggle_item_saved("artist", artist_id)
 
-    @_copy_docstring(PrivateSearchAPI.search_artists)
+    @copy_docstring(PrivateSearchAPI.search_artists)
     def search_artists(
         self,
         query: str,
