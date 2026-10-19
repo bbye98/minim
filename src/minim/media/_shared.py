@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .._utility import as_buffer, validate_number, validate_type
+from .._utility import validate_number, validate_type
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -32,7 +32,6 @@ class Audio(ABC):
     """
 
     __slots__ = (
-        "_audio_offset",
         "_file",
         "_file_path",
         "_metadata",
@@ -140,6 +139,15 @@ class Audio(ABC):
 
         **kwargs : dict[str, Any]
             Keyword arguments to accept in implementations.
+        """
+        ...
+
+    @property
+    @abstractmethod
+    def audio_data(self) -> bytes:
+        """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Encoded audio data.
         """
         ...
 
@@ -355,7 +363,7 @@ class NULPadding:
             NUL-bytes padding object.
         """
         if strict and any(stream):
-            raise ValueError("Non-zero bits found in PADDING block.")
+            raise ValueError("Non-zero bits found in padding.")
 
         obj = cls.__new__(cls)
         obj._length = len(stream)

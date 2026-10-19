@@ -343,7 +343,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
                     | ((self.num_channels - 1) & 0x7) << 41
                     | ((self.bit_depth - 1) & 0x1F) << 36
                     | (self.num_samples & 0xFFFFFFFFF)
-                ).to_bytes(8, byteorder="big"),
+                ).to_bytes(length=8, byteorder="big"),
                 bytes.fromhex(self.md5),
             )
         )
@@ -377,6 +377,28 @@ class FLACPadding(NULPadding, FLACMetadataBlock):
     def block_data_length(self, length: int, /) -> None:
         validate_number("length", length, int, 0)
         self._length = length
+
+    @classmethod
+    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
+        """
+        Instantiate a :code:`PADDING` metadata block object from a
+        bytes-like object containing padding.
+
+        Parameters
+        ----------
+        stream : BytesLike; positional-only; optional
+            Bytes-like object containing padding.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the FLAC
+            format specifications.
+
+        Returns
+        -------
+        padding : FLACPadding
+            :code:`PADDING` metadata block.
+        """
+        return cls._from_stream(as_buffer(stream), strict=strict)
 
 
 class FLACApplication(FLACMetadataBlock):
@@ -2000,7 +2022,7 @@ class FLACAudio(Audio):
           information from the audio file.
     """
 
-    __slots__ = ()
+    __slots__ = ("_audio_data", "_audio_offset")
 
     @property
     def metadata(self) -> FLACMetadataView:
@@ -2008,6 +2030,18 @@ class FLACAudio(Audio):
         :bdg-primary:`get` :bdg-secondary-line:`set` Metadata blocks.
         """
         return self._metadata_view
+
+    @property
+    def audio_data(self) -> bytes:
+        """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Encoded audio data.
+        """
+        if self._audio_data is None:
+            with open(self._file_path, "rb") as f:
+                f.seek(self._audio_offset)
+                self._audio_data = f.read()
+        return self._audio_data
 
     def _merge_adjacent_padding(self) -> None:
         """
@@ -2165,6 +2199,7 @@ class FLACAudio(Audio):
             )
 
         self._audio_offset = offset
+        self._audio_data = None
 
     def add_metadata(
         self,
@@ -2708,7 +2743,7 @@ class FLACAudio(Audio):
         serialized_blocks = (
             (
                 ((block_index == last_block_index) << 7) | block._block_type
-            ).to_bytes(1, byteorder="big")
+            ).to_bytes(byteorder="big")
             + block._block_data_length.to_bytes(length=3, byteorder="big")
             + block.serialize()
             for block_index, block in enumerate(blocks)
@@ -2718,9 +2753,7 @@ class FLACAudio(Audio):
                 f.seek(4)
                 f.write(b"".join(serialized_blocks))
         else:
-            serialized_blocks = [b"fLaC", *serialized_blocks]
-            with open(self._file_path, "rb") as f:
-                f.seek(self._audio_offset)
-                serialized_blocks.append(f.read())
             with open(file_path or self._file_path, "wb") as f:
-                f.write(b"".join(serialized_blocks))
+                f.write(
+                    b"".join((b"fLaC", *serialized_blocks, self.audio_data))
+                )

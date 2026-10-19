@@ -27,9 +27,9 @@ class VorbisComment(AudioTags):
 
     .. seealso::
 
-        `Ogg Vorbis I format specification:
-        comment field and header specification
-        <https://www.xiph.org/vorbis/doc/v-comment.html>`_.
+       `Ogg Vorbis I format specification:
+       comment field and header specification
+       <https://www.xiph.org/vorbis/doc/v-comment.html>`_.
 
     This class implements the following special methods:
 

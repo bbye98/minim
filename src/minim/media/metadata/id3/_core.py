@@ -2042,7 +2042,6 @@ class ID3v2(AudioTags):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        allow_fallback: bool = False,
         include_padding: bool = True,
         adjust_padding: bool = True,
     ) -> bytes:
@@ -2065,11 +2064,6 @@ class ID3v2(AudioTags):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        allow_fallback : bool; keyword-only; default: :code:`False`
-            Whether to fall back to a generic "user-defined text
-            information" frame if a text information frame cannot be
-            serialized for the given tag version.
 
         include_padding : bool; keyword-only; default: :code:`True`
             Whether to keep padding.
@@ -2096,11 +2090,7 @@ class ID3v2(AudioTags):
             )
 
         frames = b"".join(
-            frame.serialize(
-                tag_version,
-                text_encoding=text_encoding,
-                allow_fallback=allow_fallback,
-            )
+            frame.serialize(tag_version, text_encoding=text_encoding)
             for frame in self._frames
         )
         padding = self._padding
@@ -2180,14 +2170,16 @@ class ID3v2(AudioTags):
             case (2, 3, _):
                 if flags._has_extended_header:
                     extended_header = (self._has_crc << 15).to_bytes(
-                        2, byteorder="big"
-                    ) + padding_length.to_bytes(4, byteorder="big")
+                        length=2, byteorder="big"
+                    ) + padding_length.to_bytes(length=4, byteorder="big")
                     if self._has_crc:
                         extended_header += zlib.crc32(frames).to_bytes(
-                            4, byteorder="big"
+                            length=4, byteorder="big"
                         )
                     extended_header = (
-                        len(extended_header).to_bytes(4, byteorder="big")
+                        len(extended_header).to_bytes(
+                            length=4, byteorder="big"
+                        )
                         + extended_header
                     )
                 else:

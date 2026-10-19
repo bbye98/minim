@@ -1069,14 +1069,10 @@ class ID3v2Frame(ABC):
                     for frame_id in frame_ids:
                         cls._REGISTRY[frame_id] = cls
 
-    @abstractmethod
-    def __repr__(self) -> str:
-        return super().__repr__()
-
     @classmethod
     def _get_class(cls, frame_id: bytes, /) -> Self:
         """
-        Get the class corresponding to an Frame ID.
+        Get the class corresponding to a frame ID.
 
         Parameters
         ----------
@@ -1102,21 +1098,20 @@ class ID3v2Frame(ABC):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing an ID3v2.2 frame.
+            Bytestream containing an ID3v2.2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the ID3 tag
-            specifications.
+            Unused keyword argument included only for compatibility.
 
         Returns
         -------
         frame : ID3v2Frame
             ID3v2 frame.
         """
-        if strict and len(stream) < 7:
+        if len(stream) < 7:
             raise ValueError(
-                "ID3v2.2 frame must be at least 1 byte long, excluding "
-                "the header."
+                "ID3v2.2 frame must be at least one byte long, "
+                "excluding the six-byte header."
             )
 
         obj = cls.__new__(cls)
@@ -1136,7 +1131,7 @@ class ID3v2Frame(ABC):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing an ID3v2.3 frame.
+            Bytestream containing an ID3v2.3 frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -1147,7 +1142,7 @@ class ID3v2Frame(ABC):
         frame : ID3v2Frame or EncryptedID3v2Frame
             ID3v2 frame.
         """
-        if strict and len(stream) < 11:
+        if len(stream) < 11:
             raise ValueError(
                 "ID3v2.3 frame must be at least 1 byte long, excluding "
                 "the header."
@@ -1179,7 +1174,7 @@ class ID3v2Frame(ABC):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing an ID3v2.4 frame.
+            Bytestream containing an ID3v2.4 frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -1190,7 +1185,7 @@ class ID3v2Frame(ABC):
         frame : ID3v2Frame or EncryptedID3v2Frame
             ID3v2 frame.
         """
-        if strict and len(stream) < 11:
+        if len(stream) < 11:
             raise ValueError(
                 "ID3v2.4 frame must be at least 1 byte long, excluding "
                 "the header."
@@ -1641,7 +1636,7 @@ class ID3v2Frame(ABC):
 
         extra_info = bytearray()
         if flags._is_compressed:
-            extra_info.extend(frame_length.to_bytes(4, byteorder="big"))
+            extra_info.extend(frame_length.to_bytes(length=4, byteorder="big"))
         if flags._has_group_id:
             extra_info.append(self._group_id)
 
@@ -1755,7 +1750,6 @@ class ID3v2Frame(ABC):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
@@ -1775,9 +1769,6 @@ class ID3v2Frame(ABC):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        **kwargs : dict[str, Any]
-            Additional keyword arguments to accept in implementations.
 
         Returns
         -------
@@ -1913,7 +1904,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the text information frame.
+            Bytestream containing the text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -1943,7 +1934,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the text information frame.
+            Bytestream containing the text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -1981,7 +1972,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the text information frame.
+            Bytestream containing the text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2059,7 +2050,6 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        allow_fallback: bool = False,
     ) -> bytes:
         """
         Serialize the text information frame to a bytestream.
@@ -2137,8 +2127,7 @@ class ID3v2NumericTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the numeric text information
-            frame.
+            Bytestream containing the numeric text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2183,8 +2172,7 @@ class ID3v2NumericTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the numeric text information
-            frame.
+            Bytestream containing the numeric text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2236,8 +2224,7 @@ class ID3v2NumericTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the numeric text information
-            frame.
+            Bytestream containing the numeric text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2345,8 +2332,7 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the copyright text information
-            frame.
+            Bytestream containing the copyright text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2388,8 +2374,7 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the copyright text information
-            frame.
+            Bytestream containing the copyright text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2440,8 +2425,7 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the copyright text information
-            frame.
+            Bytestream containing the copyright text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2511,8 +2495,7 @@ class ID3v2StructuredTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the structured text information
-            frame.
+            Bytestream containing the structured text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2547,8 +2530,7 @@ class ID3v2StructuredTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the structured text information
-            frame.
+            Bytestream containing the structured text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2591,8 +2573,7 @@ class ID3v2StructuredTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the structured text information
-            frame.
+            Bytestream containing the structured text information frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2815,7 +2796,7 @@ class ID3v2DateTimeTextInfoFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the datetime frame.
+            Bytestream containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -2946,7 +2927,6 @@ class ID3v2DateTimeTextInfoFrame(ID3v2TextInfoFrame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the datetime frame to a bytestream.
@@ -2966,9 +2946,6 @@ class ID3v2DateTimeTextInfoFrame(ID3v2TextInfoFrame):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
 
         Returns
         -------
@@ -3130,7 +3107,7 @@ class ID3v2APICFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`PIC` frame.
+            Bytestream containing the :code:`PIC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -3173,7 +3150,7 @@ class ID3v2APICFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`APIC` frame.
+            Bytestream containing the :code:`APIC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -3225,7 +3202,7 @@ class ID3v2APICFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`APIC` frame.
+            Bytestream containing the :code:`APIC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -3336,7 +3313,6 @@ class ID3v2APICFrame(ID3v2Frame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the :code:`PIC`/:code:`APIC` frame to a bytestream.
@@ -3353,9 +3329,6 @@ class ID3v2APICFrame(ID3v2Frame):
         text_encoding : str; keyword-only; optional
             Text encoding for the picture description. If :code:`None`,
             the text encoding already associated with the frame is used.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
 
         Returns
         -------
@@ -3533,7 +3506,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`COM` frame.
+            Bytestream containing the :code:`COM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -3565,7 +3538,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`COMM` frame.
+            Bytestream containing the :code:`COMM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -3607,7 +3580,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`COMM` frame.
+            Bytestream containing the :code:`COMM` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -3710,7 +3683,6 @@ class ID3v2COMMFrame(ID3v2Frame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the :code:`COM`/:code:`COMM` frame to a bytestream.
@@ -3727,9 +3699,6 @@ class ID3v2COMMFrame(ID3v2Frame):
         text_encoding : str; keyword-only; optional
             Text encoding. If :code:`None`, the text encoding already
             associated with the frame is used.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
 
         Returns
         -------
@@ -3897,7 +3866,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TCO` frame.
+            Bytestream containing the :code:`TCO` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -3931,7 +3900,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TCON` frame.
+            Bytestream containing the :code:`TCON` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -3971,7 +3940,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TCON` frame.
+            Bytestream containing the :code:`TCON` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -4107,7 +4076,6 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the :code:`TCO`/:code:`TCON` frame to a bytestream.
@@ -4127,9 +4095,6 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
 
         Returns
         -------
@@ -4325,7 +4290,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the datetime frame.
+            Bytestream containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -4398,7 +4363,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the datetime frame.
+            Bytestream containing the datetime frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -4476,7 +4441,6 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the "recording date" frame to a bytestream.
@@ -4496,9 +4460,6 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
 
         Returns
         -------
@@ -4838,7 +4799,7 @@ class ID3v2TKEYFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TKE` frame.
+            Bytestream containing the :code:`TKE` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -4876,7 +4837,7 @@ class ID3v2TKEYFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TKEY` frame.
+            Bytestream containing the :code:`TKEY` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -4920,7 +4881,7 @@ class ID3v2TKEYFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TKEY` frame.
+            Bytestream containing the :code:`TKEY` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -4999,7 +4960,7 @@ class ID3v2TLANFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TLA` frame.
+            Bytestream containing the :code:`TLA` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -5037,7 +4998,7 @@ class ID3v2TLANFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TLAN` frame.
+            Bytestream containing the :code:`TLAN` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -5081,7 +5042,7 @@ class ID3v2TLANFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TLAN` frame.
+            Bytestream containing the :code:`TLAN` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -5823,7 +5784,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TRC` frame.
+            Bytestream containing the :code:`TRC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -5858,7 +5819,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TSRC` frame.
+            Bytestream containing the :code:`TSRC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -5900,7 +5861,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TSRC` frame.
+            Bytestream containing the :code:`TSRC` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6076,7 +6037,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TXX` frame.
+            Bytestream containing the :code:`TXX` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6109,7 +6070,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TXXX` frame.
+            Bytestream containing the :code:`TXXX` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6149,7 +6110,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`TXXX` frame.
+            Bytestream containing the :code:`TXXX` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6225,7 +6186,6 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the :code:`TXX`/:code:`TXXX` frame to a bytestream.
@@ -6245,9 +6205,6 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
 
         Returns
         -------
@@ -6367,7 +6324,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`ULT` frame.
+            Bytestream containing the :code:`ULT` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6398,7 +6355,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`USLT` frame.
+            Bytestream containing the :code:`USLT` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6439,7 +6396,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the :code:`USLT` frame.
+            Bytestream containing the :code:`USLT` frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6539,7 +6496,6 @@ class ID3v2USLTFrame(ID3v2Frame):
         tag_version: str | tuple[int, int, int],
         *,
         text_encoding: str | None = None,
-        **kwargs: Any,
     ) -> bytes:
         """
         Serialize the :code:`ULT`/:code:`USLT` frame to a bytestream.
@@ -6559,9 +6515,6 @@ class ID3v2USLTFrame(ID3v2Frame):
 
             **Valid values**: :code:`"iso-8859-1"`, :code:`"utf-16"`,
             :code:`"utf-16be"`, :code:`"utf-8"`.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
 
         Returns
         -------
@@ -6678,7 +6631,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the ID3v2 frame.
+            Bytestream containing the ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6706,7 +6659,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the ID3v2 frame.
+            Bytestream containing the ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6735,7 +6688,7 @@ class UnknownID3v2Frame(ID3v2Frame):
         Parameters
         ----------
         stream : memoryview; positional-only
-            Bytes-like object containing the ID3v2 frame.
+            Bytestream containing the ID3v2 frame.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the ID3 tag
@@ -6771,8 +6724,8 @@ class UnknownID3v2Frame(ID3v2Frame):
     def serialize(
         self,
         tag_version: str | tuple[int, int, int],
-        *args: Any,
-        **kwargs: Any,
+        *,
+        text_encoding: str | None = None,
     ) -> bytes:
         """
         Serialize the ID3v2 frame to a bytestream.
@@ -6786,11 +6739,8 @@ class UnknownID3v2Frame(ID3v2Frame):
             :code:`"2.3.0"` or :code:`(2, 3, 0)`,
             :code:`"2.4.0"` or :code:`(2, 4, 0)`.
 
-        *args : tuple[Any, ...]
-            Additional (ignored) positional arguments.
-
-        **kwargs : dict[str, Any]
-            Additional (ignored) keyword arguments.
+        text_encoding : str; keyword-only; optional
+            Unused keyword argument included only for compatibility.
 
         Returns
         -------

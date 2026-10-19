@@ -419,7 +419,7 @@ class MPEGAudio(Audio):
         9: "ABR",
     }
 
-    __slots__ = ("_end_audio_offset",)
+    __slots__ = ("_audio_data", "_audio_offsets")
 
     @staticmethod
     def _sync_audio_frames(
@@ -934,6 +934,19 @@ class MPEGAudio(Audio):
         )
 
     @property
+    def audio_data(self) -> Any:
+        """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
+        Encoded audio data.
+        """
+        if self._audio_data is None:
+            audio_offset, end_audio_offset = self._audio_offsets
+            with open(self._file_path, "rb") as f:
+                f.seek(audio_offset)
+                self._audio_data = f.read(end_audio_offset - audio_offset)
+        return self._audio_data
+
+    @property
     def metadata(self) -> MPEGMetadataView:
         """
         :bdg-primary:`get` :bdg-secondary-line:`set` Metadata containers.
@@ -989,7 +1002,6 @@ class MPEGAudio(Audio):
             id3v2_index.append(tags)
             self._tags = tags
             offset = end_offset
-        self._audio_offset = offset
 
         # Process ID3v1 tags, if any
         end_audio_offset = len(view)
@@ -1006,7 +1018,8 @@ class MPEGAudio(Audio):
         # footers and then process them
 
         # Process audio data to get stream information
-        self._end_audio_offset = end_audio_offset
+        self._audio_offsets = (offset, end_audio_offset)
+        self._audio_data = None
         self._stream_info = self._get_stream_info(
             view[offset:end_audio_offset], strict=strict
         )
@@ -1297,19 +1310,15 @@ class MPEGAudio(Audio):
         prefix = b"".join(prefix)
         suffix = b"".join(suffix)
 
-        if file_path is None and len(prefix) == self._audio_offset:
+        audio_offset, end_audio_offset = self._audio_offsets
+        if file_path is None and len(prefix) == audio_offset:
             with open(self._file_path, "r+b") as f:
                 f.write(prefix)
-                f.seek(self._end_audio_offset)
+                f.seek(end_audio_offset)
                 f.write(suffix)
                 f.truncate()
         else:
-            with open(self._file_path, "rb") as f:
-                f.seek(self._audio_offset)
-                audio_stream = f.read(
-                    self._end_audio_offset - self._audio_offset
-                )
             with open(file_path or self._file_path, "wb") as f:
                 f.write(prefix)
-                f.write(audio_stream)
+                f.write(self.audio_data)
                 f.write(suffix)
