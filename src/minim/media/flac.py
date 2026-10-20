@@ -792,15 +792,14 @@ class FLACSeekPoint(
         return tuple.__new__(cls, data)
 
     @classmethod
-    def from_stream(cls, stream: bytes, /) -> Self:
+    def from_stream(cls, stream: BytesLike, /) -> Self:
         """
         Instantiate a :class:`FLACSeekPoint` object from a bytes-like
         object.
 
         Parameters
         ----------
-        stream : bytes, bytearray, memoryview, or mmap.mmap; \
-        positional-only; optional
+        stream : BytesLike; positional-only; optional
             Bytes-like object containing :code:`SEEKPOINT` data.
 
         Returns

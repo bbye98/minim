@@ -1,32 +1,18 @@
-"""
-MPEG-4 Part 14 (MP4) audio file handler and stream information reporter.
-"""
-
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import defaultdict
-from dataclasses import dataclass
 from types import MemberDescriptorType
 from typing import TYPE_CHECKING, ClassVar
 
-from .._types import ORDERED_COLLECTION_TYPES, BytesLike
-from .._utility import as_buffer, validate_number, validate_type
-from ._shared import Audio, MetadataView, NULPadding
-from .metadata._shared import AudioStreamInfo, AudioTags
+from ..._types import ORDERED_COLLECTION_TYPES, BytesLike
+from ..._utility import as_buffer, validate_number, validate_type
+from .._shared import NULPadding
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import Any, Self
 
-    from .._types import OrderedCollection
-
-
-# @dataclass(frozen=True, kw_only=True, repr=False, slots=True)
-# class MP4StreamInfo(AudioStreamInfo):
-#     """
-#     MP4 :code:`moov > trak > mdia > minf > stbl > stsd > alac/mp4a` or
-#     audio stream information.
-#     """
+    from ..._types import OrderedCollection
 
 
 class MP4Box(ABC):
@@ -108,7 +94,6 @@ class MP4Box(ABC):
         return cls._REGISTRY.get(fourcc, UnknownMP4Box)
 
     @classmethod
-    @abstractmethod
     def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
         Instantiate a :class:`MP4Box` object from a bytes-like object.
@@ -127,7 +112,13 @@ class MP4Box(ABC):
         box : MP4Box
             MP4 box.
         """
-        ...
+        stream = as_buffer(stream)
+        if stream[4:8] != cls._fourcc:
+            raise ValueError(
+                f"`stream` does not contain a MP4 {cls._fourcc} box."
+            )
+
+        return cls._from_stream(stream, strict=strict)
 
     @property
     def _box_length(self) -> int:
@@ -187,15 +178,6 @@ class MP4freeBox(MP4Box, NULPadding):
 
        `Free space atom ('free') <https://developer.apple.com
        /documentation/quicktime-file-format/free_space_atom>`_.
-
-    This class implements the following special methods:
-
-    * :code:`__add__` – Merge two :code:`free` box objects.
-
-    * :code:`__iadd__` – Merge another :code:`free` box object into the
-      current one in-place.
-
-    * :code:`__len__` – Return the length of the :code:`free` box.
     """
 
     _fourcc: ClassVar[str] = b"free"
@@ -233,32 +215,6 @@ class MP4freeBox(MP4Box, NULPadding):
 
         obj._length = box_length - offset
         return obj
-
-    @classmethod
-    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
-        """
-        Instantiate a :class:`MP4freeBox` object from a MP4 :code:`free`
-        box bytestream.
-
-        Parameters
-        ----------
-        stream : memoryview; positional-only
-            Bytes-like object containing the MP4 :code:`free` box data.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the MP4
-            specifications.
-
-        Returns
-        -------
-        free_box : MP4freeBox
-            MP4 :code:`free` box.
-        """
-        stream = as_buffer(stream)
-        if stream[4:8] != b"free":
-            raise ValueError("`stream` does not contain a MP4 free box.")
-
-        return cls._from_stream(stream, strict=strict)
 
     @property
     def _payload(self) -> bytes:
@@ -318,7 +274,6 @@ class MP4ftypBox(MP4Box):
             **Examples**: :code:`b"isom"`, :code:`b"iso2"`.
         """
         self.compatible_brands = compatible_brands
-        super().__init__(box_length=16 + 4 * len(self.compatible_brands))
         self.major_brand = major_brand
         self.minor_version = minor_version
 
@@ -378,32 +333,6 @@ class MP4ftypBox(MP4Box):
             for i in range(end_offset, box_length, 4)
         ]
         return obj
-
-    @classmethod
-    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
-        """
-        Instantiate a :class:`MP4ftypBox` object from a MP4 :code:`ftyp`
-        box bytestream.
-
-        Parameters
-        ----------
-        stream : memoryview; positional-only
-            Bytestream containing the :code:`ftyp` box.
-
-        strict : bool; keyword-only; default: :code:`True`
-            Whether to ensure metadata strictly adheres to the MP4
-            specifications.
-
-        Returns
-        -------
-        ftyp_box : MP4ftypBox
-            MP4 :code:`ftyp` box.
-        """
-        stream = as_buffer(stream)
-        if stream[4:8] != b"ftyp":
-            raise ValueError("`stream` does not contain a MP4 ftyp box.")
-
-        return cls._from_stream(stream, strict=strict)
 
     @property
     def _payload(self) -> bytes:
@@ -477,17 +406,143 @@ class MP4ftypBox(MP4Box):
         self._compatible_brands = compatible_brands
 
 
+class MP4mdatBox(MP4Box):
+    """
+    MP4 media data (:code:`mdat`) box.
+
+    .. seealso::
+
+       `Movie data atom ('mdat')
+       <https://developer.apple.com/documentation/quicktime-file-format
+       /movie_data_atom>`_.
+    """
+
+    _fourcc: ClassVar[str] = b"mdat"
+
+    __slots__ = ("_file_path", "_media_data")
+
+    def __init__(self, media_data: bytes | bytearray) -> None:
+        """
+        Parameters
+        ----------
+        media_data : bytes or bytearray
+            Media data.
+        """
+        self.media_data = media_data
+        self._file_path = None
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}"
+            f"(media_data=<{self._payload_length} byte(s)>)"
+        )
+
+    @classmethod
+    def _from_stream(
+        cls,
+        stream: memoryview,
+        /,
+        *,
+        file_path: Path | None = None,
+        offset: int | None = None,
+        strict: bool = True,
+    ) -> Self:
+        """
+        Instantiate a :class:`MP4mdatBox` object from a MP4 :code:`mdat`
+        box bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytestream containing the :code:`mdat` box.
+
+        file_path : Path; keyword-only; optional
+            Path to the MP4 file.
+
+        offset : int; keyword-only; optional
+            Byte offset of the start of the bytestream.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Unused keyword argument included only for compatibility.
+
+        Returns
+        -------
+        mdat_box : MP4mdatBox
+            MP4 :code:`mdat` box.
+        """
+        obj, box_length, has_extended_header = super()._from_stream(
+            stream, strict=strict
+        )
+        if file_path is not None and offset is not None:
+            obj._media_data = (
+                offset + 8 * (1 + has_extended_header),
+                offset + box_length,
+            )
+            obj._file_path = file_path
+        else:
+            obj._media_data = stream[8 * (1 + has_extended_header) :].tobytes()
+            obj._file_path = None
+        return obj
+
+    @property
+    def _payload(self) -> bytes:
+        """
+        Box payload.
+        """
+        return self.media_data
+
+    @property
+    def _payload_length(self) -> int:
+        """
+        Box payload length, in bytes.
+        """
+        media_data = self._media_data
+        if isinstance(media_data, bytes):
+            return len(media_data)
+
+        return media_data[1] - media_data[0]
+
+    @property
+    def media_data(self) -> bytes:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Media data.
+        """
+        media_data = self._media_data
+        if not isinstance(media_data, bytes):
+            with open(self._file_path, "rb") as f:
+                f.seek(media_data[0])
+                self._media_data = media_data = f.read(
+                    media_data[1] - media_data[0]
+                )
+        return media_data
+
+    @media_data.setter
+    def media_data(self, value: bytes | bytearray) -> None:
+        validate_type("media_data", value, bytes | bytearray)
+        self._media_data = bytes(value)
+
+
 class UnknownMP4Box(MP4Box):
-    """ """
+    """
+    Unknown MP4 box.
+    """
 
     __slots__ = ("_fourcc", "_payload")
 
     def __init__(
         self,
         fourcc: bytes,
-        payload: bytes | bytearray | list[MP4Box],
+        payload: bytes | bytearray | OrderedCollection[MP4Box],
     ) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        fourcc : bytes
+            Four-character code.
+
+        payload : bytes, bytearray, or OrderedCollection[MP4Box]
+            Box payload.
+        """
         super().__init__()
 
         validate_type("fourcc", fourcc, bytes)
@@ -496,9 +551,9 @@ class UnknownMP4Box(MP4Box):
         self._fourcc = fourcc
 
         validate_type(
-            "payload", payload, bytes | bytearray | OrderedCollection
+            "payload", payload, bytes | bytearray | ORDERED_COLLECTION_TYPES
         )
-        if isinstance(payload, OrderedCollection):
+        if isinstance(payload, ORDERED_COLLECTION_TYPES):
             for idx, box in enumerate(payload):
                 validate_type(f"box[{idx}]", box, MP4Box)
             payload = list(payload)
@@ -593,65 +648,3 @@ class UnknownMP4Box(MP4Box):
             return self._payload
 
         return self._payload.copy()
-
-
-class MP4Audio(Audio):
-    """
-    MP4 audio file.
-
-    .. note::
-
-       Metadata structures and ancillary information are loaded from
-       the audio file when the object is instantiated.
-
-       .. seealso::
-
-          :meth:`load_metadata` – Load metadata structures and ancillary
-          information from the audio file.
-    """
-
-    @property
-    def audio_data(self):
-        raise NotImplementedError()
-
-    @property
-    def metadata(self):
-        raise NotImplementedError()
-
-    def _set_active_tags(self) -> None:
-        raise NotImplementedError()
-
-    def add_metadata(self) -> None:
-        raise NotImplementedError()
-
-    def load_metadata(self) -> None:
-        """
-        Load metadata blocks from the MP4 audio file.
-        """
-        self.open()
-        file_path = self._file_path
-        view = self._view
-        view_length = len(view)
-        strict = self._strict
-
-        self._metadata = boxes = []
-        self._type_index = type_index = defaultdict(list)
-        # self._metadata_view = MP4MetadataView(metadata, type_index=type_index)
-        self._tags = None
-
-        offset = 0
-        while offset < view_length:
-            box = MP4Box._get_class(
-                view[offset + 4 : offset + 8]
-            )._from_stream(view[offset:])
-            boxes.append(box)
-            type_index[box._fourcc].append(box)
-            offset += box._box_length
-
-        # TODO
-
-    def remove_metadata(self) -> None:
-        raise NotImplementedError()
-
-    def save(self) -> None:
-        raise NotImplementedError()

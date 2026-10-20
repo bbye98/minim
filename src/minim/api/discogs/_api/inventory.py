@@ -366,7 +366,7 @@ class InventoryAPI(DiscogsResourceAPI):
 
         Returns
         -------
-        export_csv : bytes or pathlib.Path
+        export_csv : bytes or Path
             Raw CSV data or absolute path to the saved CSV file for the
             inventory export.
         """

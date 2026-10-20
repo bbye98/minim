@@ -1464,7 +1464,7 @@ class ID3v2Frame(ABC):
     @property
     def _key(self) -> Any:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
+        Unique key.
         """
         if not self._allow_multiple:
             raise AttributeError(
@@ -3247,7 +3247,7 @@ class ID3v2APICFrame(ID3v2Frame):
     @property
     def _key(self) -> int | str:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
+        Unique key.
         """
         if self._picture_type in {1, 2}:
             return self._picture_type
@@ -3615,7 +3615,7 @@ class ID3v2COMMFrame(ID3v2Frame):
     @property
     def _key(self) -> tuple[str, str]:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
+        Unique key.
         """
         return self._language, self._description
 
@@ -6143,7 +6143,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
     @property
     def _key(self) -> str:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
+        Unique key.
         """
         return self._description
 
@@ -6430,7 +6430,7 @@ class ID3v2USLTFrame(ID3v2Frame):
     @property
     def _key(self) -> tuple[str, str]:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set` Unique key.
+        Unique key.
         """
         return self._language, self._description
 

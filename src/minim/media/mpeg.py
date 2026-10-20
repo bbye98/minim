@@ -936,8 +936,7 @@ class MPEGAudio(Audio):
     @property
     def audio_data(self) -> Any:
         """
-        :bdg-primary:`get` :bdg-secondary-line:`set`
-        Encoded audio data.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Encoded audio data.
         """
         if self._audio_data is None:
             audio_offset, end_audio_offset = self._audio_offsets

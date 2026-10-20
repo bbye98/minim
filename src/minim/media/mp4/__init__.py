@@ -1,0 +1,16 @@
+"""
+MPEG-4 Part 14 (MP4) audio file handler and stream information reporter.
+"""
+
+from ._boxes import MP4Box
+from ._core import MP4Audio
+
+_mp4_boxes = {
+    cls.__name__: cls
+    for cls in sorted(
+        set(MP4Box._REGISTRY.values()), key=lambda cls: cls.__name__
+    )
+}
+globals().update(_mp4_boxes)
+
+__all__ = ["MP4Audio", *_mp4_boxes]
