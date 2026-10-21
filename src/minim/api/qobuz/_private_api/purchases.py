@@ -21,6 +21,8 @@ class PrivatePurchasesAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     @copy_docstring(PrivateUsersAPI.get_my_purchases)
     def get_my_purchases(
         self, *, limit: int | None = None, offset: int | None = None

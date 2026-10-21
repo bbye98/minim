@@ -38,7 +38,7 @@ class MusixmatchLyricsAPIClient(APIClient):
 
     BASE_URL: ClassVar[str] = "https://www.musixmatch.com/ws/1.1"
 
-    __slot__ = (
+    __slots__ = (
         "_api_key",
         "_client_key",
         "albums",

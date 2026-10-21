@@ -23,7 +23,7 @@ class UsersAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="user")
     def get_user(self, user_id: int | str = "me", /) -> dict[str, Any]:

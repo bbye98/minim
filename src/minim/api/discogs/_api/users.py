@@ -39,7 +39,7 @@ class UsersAPI(DiscogsResourceAPI):
         "year",
     }
 
-    __sort__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_my_identity(self) -> dict[str, Any]:

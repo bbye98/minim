@@ -35,7 +35,7 @@ class SearchAPI(DeezerResourceAPI):
         "DURATION",
     }
 
-    __slot__ = ()
+    __slots__ = ()
 
     def _search_resource(
         self,

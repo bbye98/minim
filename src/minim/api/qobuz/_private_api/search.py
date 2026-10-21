@@ -26,6 +26,8 @@ class PrivateSearchAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
+    __slots__ = ()
+
     def _search_resources(
         self,
         resource_type: str,

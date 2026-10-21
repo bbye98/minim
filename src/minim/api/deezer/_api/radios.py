@@ -23,7 +23,7 @@ class RadiosAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_radio(self, radio_id: int | str, /) -> dict[str, Any]:

@@ -25,7 +25,7 @@ class ArtistsAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_artist(self, artist_id: int | str, /) -> dict[str, Any]:

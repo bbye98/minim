@@ -21,6 +21,8 @@ class ProvidersAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="static")
     def get_providers(
         self, provider_ids: int | str | Collection[int | str], /

@@ -23,6 +23,8 @@ class SearchAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
+    __slots__ = ()
+
     _RELATIONSHIPS: ClassVar[set[str]] = {
         "albums",
         "artists",

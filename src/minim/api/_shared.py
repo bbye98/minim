@@ -48,6 +48,8 @@ class OAuthRedirectHandler(BaseHTTPRequestHandler):
     HTTP request handler for OAuth 1.0a and 2.0 redirect URIs.
     """
 
+    __slots__ = ()
+
     def do_GET(self) -> None:
         """
         Handle a GET request to the redirect URI.
@@ -105,6 +107,8 @@ class TokenDatabase:
     """
     API for storing and managing access tokens in local storage.
     """
+
+    __slots__ = ()
 
     @staticmethod
     def _get_token(

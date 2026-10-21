@@ -21,6 +21,8 @@ class RulesAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
+    __slots__ = ()
+
     @TTLCache.cached_method(ttl="static")
     def get_usage_rules(
         self, rule_ids: str | Collection[str], /

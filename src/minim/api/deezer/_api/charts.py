@@ -21,7 +21,7 @@ class ChartsAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_top_albums(

@@ -20,7 +20,7 @@ class EditorialAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_editorial(

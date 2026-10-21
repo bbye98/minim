@@ -7,7 +7,6 @@ from collections.abc import Iterable
 from datetime import MAXYEAR, MINYEAR, datetime
 from itertools import zip_longest
 from pathlib import Path
-from types import MemberDescriptorType
 from typing import TYPE_CHECKING, ClassVar, NamedTuple
 
 from ...._types import COLLECTION_TYPES, ORDERED_COLLECTION_TYPES
@@ -1050,19 +1049,19 @@ class ID3v2Frame(ABC):
                 )
             self._group_id = group_id
 
-    def __init_subclass__(cls, **kwargs: Any) -> None:
+    def __init_subclass__(
+        cls, *, register: bool = True, **kwargs: Any
+    ) -> None:
         super().__init_subclass__(**kwargs)
 
-        for req_attr in ("_allow_multiple", "_frame_ids"):
-            if not hasattr(cls, req_attr):
-                raise ValueError(
-                    f"Subclass {cls.__name__} must define {req_attr!r}."
-                )
+        if register:
+            for req_attr in ("_allow_multiple", "_frame_ids"):
+                if not hasattr(cls, req_attr):
+                    raise ValueError(
+                        f"Subclass {cls.__name__} must define {req_attr!r}."
+                    )
 
-        if not isinstance(
-            cls_frame_ids := cls._frame_ids, MemberDescriptorType
-        ):
-            for frame_ids in cls_frame_ids.values():
+            for frame_ids in cls._frame_ids.values():
                 if isinstance(frame_ids, bytes):
                     cls._REGISTRY[frame_ids] = cls
                 else:
@@ -6550,7 +6549,7 @@ class ID3v2USLTFrame(ID3v2Frame):
                 )
 
 
-class UnknownID3v2Frame(ID3v2Frame):
+class UnknownID3v2Frame(ID3v2Frame, register=False):
     """
     Unknown ID3v2 frame.
     """
@@ -6790,7 +6789,7 @@ class UnknownID3v2Frame(ID3v2Frame):
                 )
 
 
-class EncryptedID3v2Frame(UnknownID3v2Frame):
+class EncryptedID3v2Frame(UnknownID3v2Frame, register=False):
     """
     Encrypted ID3v2 frame.
     """

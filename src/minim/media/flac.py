@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 
 __all__ = [  # noqa: RUF022
     "FLACAudio",
+    "FLACMetadataView",
     "FLACStreamInfo",
     "FLACPadding",
     "FLACApplication",
@@ -46,7 +47,6 @@ __all__ = [  # noqa: RUF022
     "FLACCueSheetTrackIndex",
     "FLACPicture",
     "UnknownFLACMetadataBlock",
-    "FLACMetadataView",
 ]
 
 
@@ -407,6 +407,8 @@ class FLACApplication(FLACMetadataBlock):
     """
 
     _block_type: ClassVar[int] = 2
+
+    __slots__ = ("_app_data", "_app_id")
 
     def __init__(
         self,
@@ -1926,6 +1928,8 @@ class FLACMetadataView(MetadataView):
     * :code:`__len__` – Return the number of metadata blocks.
     """
 
+    __slots__ = ("_type_index",)
+
     def __repr__(self) -> str:
         return (
             f"{type(self).__name__}(<{len(self._metadata)} metadata block(s)>)"
@@ -2021,7 +2025,7 @@ class FLACAudio(Audio):
           information from the audio file.
     """
 
-    __slots__ = ("_audio_data", "_audio_offset")
+    __slots__ = ("_audio_data", "_audio_offset", "_type_index")
 
     @property
     def metadata(self) -> FLACMetadataView:

@@ -31,6 +31,8 @@ class Audio(ABC):
           information from the audio file.
     """
 
+    _type_index: defaultdict[type, list[Any]]
+
     __slots__ = (
         "_file",
         "_file_path",
@@ -40,7 +42,6 @@ class Audio(ABC):
         "_stream_info",
         "_strict",
         "_tags",
-        "_type_index",
         "_view",
     )
 
@@ -222,7 +223,9 @@ class MetadataView(ABC):
     * :code:`__len__` – Return the number of metadata containers.
     """
 
-    __slots__ = ("_metadata", "_type_index")
+    _type_index: dict[type[Any], list[Any]]
+
+    __slots__ = ("_metadata",)
 
     def __init__(
         self,
@@ -314,7 +317,7 @@ class NULPadding:
         self.set_length(length)
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}(length={self._length})"
+        return f"{type(self).__name__}({self._length})"
 
     def __add__(self, other: NULPadding) -> Self:
         type_ = type(self)

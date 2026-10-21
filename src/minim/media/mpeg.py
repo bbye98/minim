@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from .._types import Collection, OrderedCollection, PathLike
 
 
-__all__ = ["MPEGAudio", "MPEGStreamInfo"]
+__all__ = ["MPEGAudio", "MPEGMetadataView", "MPEGStreamInfo"]
 
 MPEGTagContainer = ID3v1 | ID3v2
 
@@ -211,6 +211,8 @@ class MPEGMetadataView(MetadataView):
 
     * :code:`__len__` – Return the number of metadata containers.
     """
+
+    __slots__ = ("_type_index",)
 
     def get(
         self,
@@ -419,7 +421,7 @@ class MPEGAudio(Audio):
         9: "ABR",
     }
 
-    __slots__ = ("_audio_data", "_audio_offsets")
+    __slots__ = ("_audio_data", "_audio_offsets", "_type_index")
 
     @staticmethod
     def _sync_audio_frames(

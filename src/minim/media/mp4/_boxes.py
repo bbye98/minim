@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from types import MemberDescriptorType
 from typing import TYPE_CHECKING, ClassVar
 
 from ..._types import ORDERED_COLLECTION_TYPES, BytesLike
@@ -22,20 +21,24 @@ class MP4Box(ABC):
 
     _REGISTRY: ClassVar[dict[bytes, type[MP4Box]]] = {}
 
-    _fourcc: str
-    _payload: bytes
+    _fourcc: bytes
+    _payload: bytes | list[MP4Box]
 
     __slots__ = ()
 
-    def __init_subclass__(cls, **kwargs: Any) -> None:
+    def __init_subclass__(
+        cls, *, register: bool = True, **kwargs: Any
+    ) -> None:
         super().__init_subclass__(**kwargs)
 
-        fourcc = getattr(cls, "_fourcc", None)
-        if fourcc is None:
-            raise ValueError(f"Subclass {cls.__name__} must define '_fourcc'.")
+        if register:
+            for req_attr in ("_fourcc", "_payload"):
+                if not hasattr(cls, req_attr):
+                    raise ValueError(
+                        f"Subclass {cls.__name__} must define {req_attr!r}."
+                    )
 
-        if not isinstance(fourcc, MemberDescriptorType):
-            cls._REGISTRY[fourcc] = cls
+            cls._REGISTRY[cls._fourcc] = cls
 
     @classmethod
     @abstractmethod
@@ -43,7 +46,7 @@ class MP4Box(ABC):
         cls, stream: memoryview, /, *, strict: bool = True
     ) -> tuple[Self, int, bool]:
         """
-        Instantiate a :class:`MP4Box` object from a bytestream.
+        Instantiate an MP4 box object from a bytestream.
 
         Parameters
         ----------
@@ -96,7 +99,7 @@ class MP4Box(ABC):
     @classmethod
     def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
         """
-        Instantiate a :class:`MP4Box` object from a bytes-like object.
+        Instantiate an MP4 box object from a bytes-like object.
 
         Parameters
         ----------
@@ -170,6 +173,90 @@ class MP4Box(ABC):
         )
 
 
+class MP4ContainerBox(MP4Box, register=False):
+    """
+    Abstract base class for MP4 container boxes.
+    """
+
+    __slots__ = ("_payload",)
+
+    def __init__(self, payload: MP4Box | OrderedCollection[MP4Box], /) -> None:
+        """
+        Parameters
+        ----------
+        payload : MP4Box or OrderedCollection[MP4Box]; positional-only
+            Child MP4 boxes.
+        """
+        self.payload = payload
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(<{len(self._payload)} box(es)>)"
+
+    @classmethod
+    def _from_stream(
+        cls, stream: memoryview, /, *, strict: bool = True
+    ) -> Self:
+        """
+        Instantiate an MP4 container box object from a bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytestream containing the MP4 container box data.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Unused keyword argument included only for compatibility.
+
+        Returns
+        -------
+        box : MP4ContainerBox
+            MP4 container box.
+        """
+        obj, box_length, has_extended_header = super()._from_stream(
+            stream, strict=strict
+        )
+        obj._payload = payload = []
+
+        offset = 8 * (1 + has_extended_header)
+        while offset < box_length:
+            box = MP4Box._get_class(
+                stream[offset + 4 : offset + 8]
+            )._from_stream(stream[offset:], strict=strict)
+            payload.append(box)
+            offset += box._box_length
+
+        return obj
+
+    @property
+    def _payload_length(self) -> int:
+        """
+        Box payload length, in bytes.
+        """
+        return sum(pl._box_length for pl in self._payload)
+
+    @property
+    def payload(self) -> list[MP4Box]:
+        """
+        :bdg-primary:`get` :bdg-secondary:`set` Box payload.
+        """
+        return self._payload.copy()
+
+    @payload.setter
+    def payload(self, value: MP4Box | OrderedCollection[MP4Box]) -> None:
+        match value:
+            case MP4Box():
+                self._payload = [value]
+            case ORDERED_COLLECTION_TYPES():
+                for idx, pl in enumerate(value):
+                    validate_type(f"payload[{idx}]", pl, MP4Box)
+                self._payload = list(value)
+            case _:
+                raise TypeError(
+                    "`payload` must be an MP4Box object or an ordered "
+                    "collection of MP4Box objects."
+                )
+
+
 class MP4freeBox(MP4Box, NULPadding):
     """
     MP4 free space (:code:`free`) box.
@@ -180,7 +267,7 @@ class MP4freeBox(MP4Box, NULPadding):
        /documentation/quicktime-file-format/free_space_atom>`_.
     """
 
-    _fourcc: ClassVar[str] = b"free"
+    _fourcc: ClassVar[bytes] = b"free"
 
     __slots__ = ()
 
@@ -242,7 +329,7 @@ class MP4ftypBox(MP4Box):
        /file_type_compatibility_atom>`_.
     """
 
-    _fourcc: ClassVar[str] = b"ftyp"
+    _fourcc: ClassVar[bytes] = b"ftyp"
 
     __slots__ = ("_compatible_brands", "_major_brand", "_minor_version")
 
@@ -412,30 +499,26 @@ class MP4mdatBox(MP4Box):
 
     .. seealso::
 
-       `Movie data atom ('mdat')
-       <https://developer.apple.com/documentation/quicktime-file-format
-       /movie_data_atom>`_.
+       `Movie data atom ('mdat') <https://developer.apple.com
+       /documentation/quicktime-file-format/movie_data_atom>`_.
     """
 
-    _fourcc: ClassVar[str] = b"mdat"
+    _fourcc: ClassVar[bytes] = b"mdat"
 
     __slots__ = ("_file_path", "_media_data")
 
-    def __init__(self, media_data: bytes | bytearray) -> None:
+    def __init__(self, media_data: bytes | bytearray, /) -> None:
         """
         Parameters
         ----------
-        media_data : bytes or bytearray
+        media_data : bytes or bytearray; positional-only
             Media data.
         """
         self.media_data = media_data
         self._file_path = None
 
     def __repr__(self) -> str:
-        return (
-            f"{type(self).__name__}"
-            f"(media_data=<{self._payload_length} byte(s)>)"
-        )
+        return f"{type(self).__name__}(<{self._payload_length} byte(s)>)"
 
     @classmethod
     def _from_stream(
@@ -522,7 +605,22 @@ class MP4mdatBox(MP4Box):
         self._media_data = bytes(value)
 
 
-class UnknownMP4Box(MP4Box):
+class MP4moovBox(MP4ContainerBox):
+    """
+    MP4 movie (:code:`moov`) box.
+
+    .. seealso::
+
+       `Movie atom ('moov') <https://developer.apple.com/documentation
+       /quicktime-file-format/movie_atom>`_.
+    """
+
+    _fourcc: ClassVar[bytes] = b"moov"
+
+    __slots__ = ()
+
+
+class UnknownMP4Box(MP4Box, register=False):
     """
     Unknown MP4 box.
     """
@@ -532,7 +630,7 @@ class UnknownMP4Box(MP4Box):
     def __init__(
         self,
         fourcc: bytes,
-        payload: bytes | bytearray | OrderedCollection[MP4Box],
+        payload: bytes | bytearray | MP4Box | OrderedCollection[MP4Box],
     ) -> None:
         """
         Parameters
@@ -550,16 +648,20 @@ class UnknownMP4Box(MP4Box):
             raise ValueError("`fourcc` must be a 4-byte encoded string.")
         self._fourcc = fourcc
 
-        validate_type(
-            "payload", payload, bytes | bytearray | ORDERED_COLLECTION_TYPES
-        )
-        if isinstance(payload, ORDERED_COLLECTION_TYPES):
-            for idx, box in enumerate(payload):
-                validate_type(f"box[{idx}]", box, MP4Box)
-            payload = list(payload)
-        else:
-            payload = bytes(payload)
-        self._payload = payload
+        match payload:
+            case ORDERED_COLLECTION_TYPES():
+                for idx, box in enumerate(payload):
+                    validate_type(f"box[{idx}]", box, MP4Box)
+                self._payload = list(payload)
+            case MP4Box():
+                self._payload = [payload]
+            case bytes() | bytearray():
+                self._payload = bytes(payload)
+            case _:
+                raise TypeError(
+                    "`payload` must be a bytes object, a bytearray, or "
+                    "one or more MP4Box objects."
+                )
 
     def __repr__(self) -> str:
         return (
@@ -634,14 +736,14 @@ class UnknownMP4Box(MP4Box):
     @property
     def fourcc(self) -> bytes:
         """
-        Four-character code.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Four-character code.
         """
         return self._fourcc
 
     @property
     def payload(self) -> bytes | list[MP4Box]:
         """
-        Box payload.
+        :bdg-primary:`get` :bdg-secondary-line:`set` Box payload.
         """
         payload = self._payload
         if isinstance(payload, bytes):

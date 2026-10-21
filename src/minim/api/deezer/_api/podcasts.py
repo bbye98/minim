@@ -23,7 +23,7 @@ class PodcastsAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_podcast(self, podcast_id: int | str, /) -> dict[str, Any]:

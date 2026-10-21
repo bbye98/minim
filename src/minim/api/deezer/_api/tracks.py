@@ -25,7 +25,7 @@ class TracksAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="popularity")
     def get_track(self, track_id: int | str, /) -> dict[str, Any]:

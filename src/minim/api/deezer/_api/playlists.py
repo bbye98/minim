@@ -25,7 +25,7 @@ class PlaylistsAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="user")
     def get_playlist(

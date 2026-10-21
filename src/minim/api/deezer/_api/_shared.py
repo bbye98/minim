@@ -20,7 +20,7 @@ class DeezerResourceAPI(ResourceAPI):
 
     _client: DeezerAPIClient
 
-    __slot__ = ()
+    __slots__ = ()
 
     @staticmethod
     def _prepare_deezer_ids(
