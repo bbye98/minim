@@ -71,6 +71,7 @@ class AudioStreamInfo:
     @property
     def duration(self) -> float:
         """
+        :bdg-primary:`get` :bdg-secondary-line:`set`
         Duration, in seconds.
         """
         return self.num_samples / self.sample_rate
