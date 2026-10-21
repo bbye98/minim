@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from ...._utility import validate_number, validate_numeric, validate_type
 from ..._shared import TTLCache
 from ._shared import MusixmatchResourceAPI
 
@@ -111,7 +113,7 @@ class AlbumsAPI(MusixmatchResourceAPI):
                     }
                   }
         """
-        self._validate_numeric("album_id", album_id, int)
+        validate_numeric("album_id", album_id, int)
         return self._client._request(
             "GET", "album.get", params={"album_id": album_id}
         ).json()
@@ -269,16 +271,16 @@ class AlbumsAPI(MusixmatchResourceAPI):
                     }
                   }
         """
-        self._validate_numeric("album_id", album_id, int)
+        validate_numeric("album_id", album_id, int)
         params = {"album_id": album_id}
         if has_lyrics is not None:
-            self._validate_type("has_lyrics", has_lyrics, bool)
+            validate_type("has_lyrics", has_lyrics, bool)
             params["f_has_lyrics"] = int(has_lyrics)
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 100)
+            validate_number("limit", limit, int, 1, 100)
             params["page_size"] = limit
         if page is not None:
-            self._validate_number("page", page, int, 1)
+            validate_number("page", page, int, 1)
             params["page"] = page
         return self._client._request(
             "GET", "album.tracks.get", params=params

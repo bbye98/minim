@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import _copy_docstring
+from ...._utility import copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
@@ -22,17 +23,17 @@ class LibraryAPI(SpotifyResourceAPI):
 
     __slots__ = ()
 
-    @_copy_docstring(UsersAPI.save_items)
+    @copy_docstring(UsersAPI.save_items)
     def save_items(self, spotify_uris: str | Collection[str], /) -> None:
         self._client.users.save_items(spotify_uris)
 
-    @_copy_docstring(UsersAPI.remove_saved_items)
+    @copy_docstring(UsersAPI.remove_saved_items)
     def remove_saved_items(
         self, spotify_uris: str | Collection[str], /
     ) -> None:
         self._client.users.remove_saved_items(spotify_uris)
 
-    @_copy_docstring(UsersAPI.are_items_saved)
+    @copy_docstring(UsersAPI.are_items_saved)
     def are_items_saved(
         self, spotify_uris: str | Collection[str], /
     ) -> list[bool]:

@@ -1,8 +1,11 @@
 from __future__ import annotations
+
 from numbers import Number
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._types import ORDERED_COLLECTION_TYPES
+from ...._utility import copy_docstring, validate_number
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
@@ -41,7 +44,7 @@ class TracksAPI(SpotifyResourceAPI):
     def _parse_attribute(
         self,
         attribute: str,
-        value: int | float | tuple[int | float | None, ...],
+        value: float | tuple[int | float | None, ...],
         data_type: type,
         range_: tuple[int | float | None, int | float | None],
         params: dict[str, Any],
@@ -86,9 +89,9 @@ class TracksAPI(SpotifyResourceAPI):
 
         is_int = data_type is int
         if isinstance(value, data_type):
-            self._validate_number(attribute, value, data_type, *range_)
+            validate_number(attribute, value, data_type, *range_)
             params[f"target_{attribute}"] = value
-        elif isinstance(value, tuple | list | set):
+        elif isinstance(value, ORDERED_COLLECTION_TYPES):
             if is_int and any(
                 not (isinstance(v, int) or v is None) for v in value
             ):
@@ -118,7 +121,7 @@ class TracksAPI(SpotifyResourceAPI):
                 )
             else:
                 for v in value:
-                    self._validate_number(attribute, v, data_type, *range_)
+                    validate_number(attribute, v, data_type, *range_)
                 if length == 2:
                     params[f"min_{attribute}"], params[f"max_{attribute}"] = (
                         value
@@ -130,7 +133,7 @@ class TracksAPI(SpotifyResourceAPI):
                         params[f"target_{attribute}"],
                     ) = value
         else:
-            raise ValueError(
+            raise TypeError(
                 f"The value provided for track attribute {attribute!r} "
                 f"must be a {(dtype := data_type.__name__)} or a "
                 f"tuple of {dtype}s, not a {type(value).__name__}."
@@ -459,7 +462,7 @@ class TracksAPI(SpotifyResourceAPI):
             "tracks", track_ids, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.get_my_saved_tracks)
+    @copy_docstring(UsersAPI.get_my_saved_tracks)
     def get_my_saved_tracks(
         self,
         *,
@@ -471,7 +474,7 @@ class TracksAPI(SpotifyResourceAPI):
             country_code=country_code, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.save_tracks)
+    @copy_docstring(UsersAPI.save_tracks)
     def save_tracks(
         self,
         track_ids: str
@@ -482,11 +485,11 @@ class TracksAPI(SpotifyResourceAPI):
     ) -> None:
         self._client.users.save_tracks(track_ids)
 
-    @_copy_docstring(UsersAPI.remove_saved_tracks)
+    @copy_docstring(UsersAPI.remove_saved_tracks)
     def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
         self._client.users.remove_saved_tracks(track_ids)
 
-    @_copy_docstring(UsersAPI.are_tracks_saved)
+    @copy_docstring(UsersAPI.are_tracks_saved)
     def are_tracks_saved(
         self, track_ids: str | Collection[str], /
     ) -> list[bool]:
@@ -1089,7 +1092,7 @@ class TracksAPI(SpotifyResourceAPI):
             self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 50)
+            validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
 
         n_seeds = self._parse_seeds(

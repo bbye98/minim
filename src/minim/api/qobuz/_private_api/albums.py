@@ -1,13 +1,15 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ...._types import COLLECTION_TYPES
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring, join_values, validate_type
+from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -23,7 +25,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _FEATURED_TYPES = {
+    _FEATURED_TYPES: ClassVar[set[str]] = {
         "most-streamed",
         "best-sellers",
         "new-releases",
@@ -42,7 +44,11 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         "album-of-the-week",
         "re-release-of-the-week",
     }
-    _RELATIONSHIPS = {"albumsFromSameArtist", "focus", "focusAll"}
+    _RELATIONSHIPS: ClassVar[set[str]] = {
+        "albumsFromSameArtist",
+        "focus",
+        "focusAll",
+    }
 
     __slots__ = ()
 
@@ -457,13 +463,11 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         if featured_type not in self._FEATURED_TYPES:
             raise ValueError(
                 f"Invalid featured_type {featured_type!r}. Valid "
-                f"values: '{self._join_values(self._FEATURED_TYPES)}."
+                f"values: '{join_values(self._FEATURED_TYPES)}."
             )
         params = {"type": featured_type}
         if genre_ids is not None:
-            self._validate_type(
-                "genre_ids", genre_ids, int | str | COLLECTION_TYPES
-            )
+            validate_type("genre_ids", genre_ids, int | str | COLLECTION_TYPES)
             if not isinstance(genre_ids, int):
                 if isinstance(genre_ids, str):
                     genre_ids = genre_ids.strip().split(",")
@@ -737,7 +741,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.toggle_item_saved("album", album_id)
 
-    @_copy_docstring(PrivateSearchAPI.search_albums)
+    @copy_docstring(PrivateSearchAPI.search_albums)
     def search_albums(
         self,
         query: str,

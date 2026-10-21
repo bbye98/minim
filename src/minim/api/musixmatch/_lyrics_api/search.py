@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import _copy_docstring
+from ...._utility import copy_docstring
 from ._shared import MusixmatchResourceAPI
-from .matcher import MatcherAPI
 from .artists import ArtistsAPI
+from .matcher import MatcherAPI
 from .tracks import TracksAPI
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ class SearchAPI(MusixmatchResourceAPI):
 
     __slots__ = ()
 
-    @_copy_docstring(MatcherAPI.match_track_lyrics)
+    @copy_docstring(MatcherAPI.match_track_lyrics)
     def match_track_lyrics(
         self,
         *,
@@ -41,7 +42,7 @@ class SearchAPI(MusixmatchResourceAPI):
             artist=artist, track=track, isrc=isrc
         )
 
-    @_copy_docstring(MatcherAPI.match_track)
+    @copy_docstring(MatcherAPI.match_track)
     def match_track(
         self,
         *,
@@ -53,7 +54,7 @@ class SearchAPI(MusixmatchResourceAPI):
             artist=artist, track=track, isrc=isrc
         )
 
-    @_copy_docstring(MatcherAPI.match_track_subtitles)
+    @copy_docstring(MatcherAPI.match_track_subtitles)
     def match_track_subtitles(
         self,
         *,
@@ -71,7 +72,7 @@ class SearchAPI(MusixmatchResourceAPI):
             max_duration_deviation=max_duration_deviation,
         )
 
-    @_copy_docstring(ArtistsAPI.search_artists)
+    @copy_docstring(ArtistsAPI.search_artists)
     def search_artists(
         self,
         artist_query: str | None = None,
@@ -87,7 +88,7 @@ class SearchAPI(MusixmatchResourceAPI):
             page=page,
         )
 
-    @_copy_docstring(TracksAPI.search_tracks)
+    @copy_docstring(TracksAPI.search_tracks)
     def search_tracks(
         self,
         query: str | None = None,

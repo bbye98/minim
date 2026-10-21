@@ -1,11 +1,11 @@
 from __future__ import annotations
+
 import time
-from typing import TYPE_CHECKING
 import warnings
+from typing import TYPE_CHECKING
 
-from ... import __version__, REPOSITORY_URL
+from ... import REPOSITORY_URL, __version__
 from .._shared import OAuth1APIClient
-
 from ._api.database import DatabaseAPI
 from ._api.inventory import InventoryAPI
 from ._api.marketplace import MarketplaceAPI
@@ -13,7 +13,7 @@ from ._api.search import SearchAPI
 from ._api.users import UsersAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     import httpx
 
@@ -23,23 +23,28 @@ class DiscogsAPIClient(OAuth1APIClient):
     Discogs API client.
     """
 
-    _rate_limit_per_second: float
-
-    _ALLOWED_AUTH_FLOWS = {None, "three_legged", "two_legged"}
-    _AUTH_FLOWS = {
+    _ALLOWED_AUTH_FLOWS: ClassVar[set[str | None]] = {
+        None,
+        "three_legged",
+        "two_legged",
+    }
+    _AUTH_FLOWS: ClassVar[dict[str | None, str]] = {
         None: "possibly unauthenticated client",
         "three_legged": "Three-Legged Flow",
         "two_legged": "Two-Legged Flow",
     }
-    _ENV_VAR_PREFIX = "DISCOGS_API"
-    _OPTIONAL_AUTH = True
-    _PROVIDER = "Discogs"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    _SIGNATURE_METHODS = {"PLAINTEXT"}
-    BASE_URL = "https://api.discogs.com"
-    AUTH_URL = "https://www.discogs.com/oauth/authorize"
-    REQUEST_TOKEN_URL = f"{BASE_URL}/oauth/request_token"
-    ACCESS_TOKEN_URL = f"{BASE_URL}/oauth/access_token"
+    _ENV_VAR_PREFIX: ClassVar[str] = "DISCOGS_API"
+    _OPTIONAL_AUTH: ClassVar[bool] = True
+    _PROVIDER: ClassVar[str] = "Discogs"
+    _QUAL_NAME: ClassVar[str] = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _SIGNATURE_METHODS: ClassVar[set[str]] = {"PLAINTEXT"}
+
+    AUTH_URL: ClassVar[str] = "https://www.discogs.com/oauth/authorize"
+    BASE_URL: ClassVar[str] = "https://api.discogs.com"
+    ACCESS_TOKEN_URL: ClassVar[str] = f"{BASE_URL}/oauth/access_token"
+    REQUEST_TOKEN_URL: ClassVar[str] = f"{BASE_URL}/oauth/request_token"
+
+    _rate_limit_per_second: float
 
     __slots__ = (
         "_rate_limit_per_second",
@@ -65,7 +70,7 @@ class DiscogsAPIClient(OAuth1APIClient):
         enable_cache: bool = True,
         limit_rate: bool = True,
         store_tokens: bool = True,
-        user_agent: str = f"minim/{__version__} +{REPOSITORY_URL}",
+        user_agent: str = f"Minim/{__version__} +{REPOSITORY_URL}",
     ) -> None:
         """
         Parameters
@@ -174,8 +179,8 @@ class DiscogsAPIClient(OAuth1APIClient):
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
 
-        user_agent : str; keyword-only; \
-        default: :code:`"minim/X.Y.Z +https://github.com/bbye98/minim"`
+        user_agent : str; keyword-only; default: \
+        :code:`f"Minim/{minim.__version__} +https://github.com/bbye98/minim"`
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
         """
@@ -223,8 +228,8 @@ class DiscogsAPIClient(OAuth1APIClient):
         /,
         *,
         retry: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to a Discogs API endpoint.
 

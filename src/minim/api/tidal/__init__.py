@@ -2,7 +2,6 @@
 API clients for TIDAL services, such as the TIDAL API.
 """
 
-from ._core import TIDALAPIClient, PrivateTIDALAPIClient
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -13,6 +12,7 @@ from ._api.search import SearchAPI
 from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 from ._api.videos import VideosAPI
+from ._core import PrivateTIDALAPIClient, TIDALAPIClient
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
 from ._private_api.feed import PrivateFeedAPI
@@ -24,7 +24,7 @@ from ._private_api.tracks import PrivateTracksAPI
 from ._private_api.users import PrivateUsersAPI
 from ._private_api.videos import PrivateVideosAPI
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "TIDALAPIClient",
     "PrivateTIDALAPIClient",
     "AlbumsAPI",

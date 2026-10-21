@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
@@ -19,7 +20,7 @@ class GenresAPI(DeezerResourceAPI):
        instantiated directly.
     """
 
-    __slot__ = ()
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_genre(

@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from ..._shared import TTLCache, _copy_docstring
+from ...._utility import copy_docstring
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
 
@@ -429,7 +431,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
             offset=offset,
         )
 
-    @_copy_docstring(UsersAPI.get_my_saved_audiobooks)
+    @copy_docstring(UsersAPI.get_my_saved_audiobooks)
     def get_my_saved_audiobooks(
         self,
         *,
@@ -441,17 +443,17 @@ class AudiobooksAPI(SpotifyResourceAPI):
             country_code=country_code, limit=limit, offset=offset
         )
 
-    @_copy_docstring(UsersAPI.save_audiobooks)
+    @copy_docstring(UsersAPI.save_audiobooks)
     def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
         self._client.users.save_audiobooks(audiobook_ids)
 
-    @_copy_docstring(UsersAPI.remove_saved_audiobooks)
+    @copy_docstring(UsersAPI.remove_saved_audiobooks)
     def remove_saved_audiobooks(
         self, audiobook_ids: str | Collection[str], /
     ) -> None:
         self._client.users.remove_saved_audiobooks(audiobook_ids)
 
-    @_copy_docstring(UsersAPI.are_audiobooks_saved)
+    @copy_docstring(UsersAPI.are_audiobooks_saved)
     def are_audiobooks_saved(
         self, audiobook_ids: str | Collection[str], /
     ) -> list[bool]:

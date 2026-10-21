@@ -8,6 +8,6 @@ conda:
 build:
   os: ubuntu-lts-latest
   tools:
-    python: mambaforge-latest
+    python: miniforge3-latest
 sphinx:
   configuration: docs/source/conf.py

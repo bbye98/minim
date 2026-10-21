@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from ...._utility import join_values, prepare_string
 from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ...._types import Collection
 
@@ -21,7 +23,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
        instantiated directly.
     """
 
-    _FAVORITE_TYPES = {
+    _FAVORITE_TYPES: ClassVar[set[str]] = {
         "albums",
         "artists",
         "articles",
@@ -452,11 +454,11 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication("favorites.get_my_saved_items")
         params = {}
         if item_type is not None:
-            item_type = self._prepare_string("item_type", item_type).lower()
+            item_type = prepare_string("item_type", item_type).lower()
             if item_type not in self._FAVORITE_TYPES:
                 raise ValueError(
                     f"Invalid item type {item_type!r}. Valid values: "
-                    f"{self._join_values(self._FAVORITE_TYPES)}."
+                    f"{join_values(self._FAVORITE_TYPES)}."
                 )
         return self._get_paginated_resources(
             "favorite/getUserFavorites",
@@ -541,11 +543,11 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": <bool>}`.
         """
         self._client._require_authentication("favorites.is_item_saved")
-        item_type = self._prepare_string("item_type", item_type).lower()
+        item_type = prepare_string("item_type", item_type).lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
             raise ValueError(
                 f"Invalid item type {item_type!r}. Valid values: "
-                f"{self._join_values(ft[:-1] for ft in self._FAVORITE_TYPES)}."
+                f"{join_values(ft[:-1] for ft in self._FAVORITE_TYPES)}."
             )
         if item_type == "album":
             self._validate_album_id(item_id)
@@ -593,11 +595,11 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": <bool>}`.
         """
         self._client._require_authentication("favorites.toggle_item_saved")
-        item_type = self._prepare_string("item_type", item_type).lower()
+        item_type = prepare_string("item_type", item_type).lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
             raise ValueError(
                 f"Invalid item type {item_type!r}. Valid values: "
-                f"{self._join_values(ft[:-1] for ft in self._FAVORITE_TYPES)}."
+                f"{join_values(ft[:-1] for ft in self._FAVORITE_TYPES)}."
             )
         if item_type == "album":
             self._validate_album_id(item_id)

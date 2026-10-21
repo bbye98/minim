@@ -1,11 +1,14 @@
 from __future__ import annotations
-from abc import abstractmethod
-from datetime import datetime
-import time
-from typing import TYPE_CHECKING
-import warnings
 
-from .._shared import TTLCache, OAuth2APIClient, ResourceAPI
+import time
+import warnings
+from abc import abstractmethod
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
+
+from ..._types import ORDERED_COLLECTION_TYPES
+from ..._utility import join_values, validate_country_code
+from .._shared import OAuth2APIClient, TTLCache
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -28,7 +31,7 @@ from ._private_api.users import PrivateUsersAPI
 from ._private_api.videos import PrivateVideosAPI
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     import httpx
 
@@ -40,16 +43,17 @@ class BaseTIDALAPIClient(OAuth2APIClient):
     Base class for TIDAL API clients.
     """
 
-    _ALLOWED_AUTH_FLOWS: set[str]
-    _ALLOWED_SCOPES: set[str]
-    _ENV_VAR_PREFIX: str
-    _QUAL_NAME: str
-    _VERSION: str
-    BASE_URL: str
+    _ALLOWED_AUTH_FLOWS: ClassVar[set[str]]
+    _ALLOWED_SCOPES: ClassVar[set[str]]
+    _ENV_VAR_PREFIX: ClassVar[str]
+    _QUAL_NAME: ClassVar[str]
+    _VERSION: ClassVar[str]
+    BASE_URL: ClassVar[str]
 
-    _PROVIDER = "TIDAL"
-    AUTH_URL = "https://login.tidal.com/authorize"
-    TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
+    _PROVIDER: ClassVar[str] = "TIDAL"
+
+    AUTH_URL: ClassVar[str] = "https://login.tidal.com/authorize"
+    TOKEN_URL: ClassVar[str] = "https://auth.tidal.com/v1/oauth2/token"
 
     __slots__ = ()
 
@@ -109,8 +113,8 @@ class BaseTIDALAPIClient(OAuth2APIClient):
         /,
         *,
         retry: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to a TIDAL API endpoint.
 
@@ -127,7 +131,7 @@ class BaseTIDALAPIClient(OAuth2APIClient):
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------
@@ -160,7 +164,7 @@ class BaseTIDALAPIClient(OAuth2APIClient):
         if country_code is None:
             params["countryCode"] = self._my_country_code
         else:
-            ResourceAPI._validate_country_code(country_code)
+            validate_country_code(country_code)
             params["countryCode"] = country_code
 
 
@@ -169,8 +173,8 @@ class TIDALAPIClient(BaseTIDALAPIClient):
     TIDAL API client.
     """
 
-    _ALLOWED_AUTH_FLOWS = {"pkce", "client_credentials"}
-    _ALLOWED_SCOPES = {
+    _ALLOWED_AUTH_FLOWS: ClassVar[set[str]] = {"pkce", "client_credentials"}
+    _ALLOWED_SCOPES: ClassVar[set[str]] = {
         "collection.read",
         "collection.write",
         "playlists.read",
@@ -182,12 +186,13 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         "search.read",
         "search.write",
     }
-    _ENV_VAR_PREFIX = "TIDAL_API"
-    _QUAL_NAME = (
+    _ENV_VAR_PREFIX: ClassVar[str] = "TIDAL_API"
+    _QUAL_NAME: ClassVar[str] = (
         f"minim.api.{BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
     )
-    _VERSION = "1.4.17"
-    BASE_URL = "https://openapi.tidal.com/v2"
+    _VERSION: ClassVar[str] = "1.4.17"
+
+    BASE_URL: ClassVar[str] = "https://openapi.tidal.com/v2"
 
     __slots__ = (
         "albums",
@@ -285,7 +290,7 @@ class TIDALAPIClient(BaseTIDALAPIClient):
             provided, the user will be reauthorized via the specified
             authorization flow when the access token expires.
 
-        expires_at : str or datetime.datetime; keyword-only; optional
+        expires_at : str or datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
@@ -338,6 +343,9 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the TIDAL API.
@@ -425,8 +433,8 @@ class TIDALAPIClient(BaseTIDALAPIClient):
         /,
         *,
         retry: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to a TIDAL API endpoint.
 
@@ -443,14 +451,14 @@ class TIDALAPIClient(BaseTIDALAPIClient):
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------
         response : httpx.Response
             HTTP response.
         """
-        if True or self._expires_at and datetime.now() > self._expires_at:
+        if self._expires_at and datetime.now(UTC) > self._expires_at:
             self._refresh_access_token()
 
         resp = self._client.request(method, endpoint, **kwargs)
@@ -508,11 +516,11 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
        /guidelines-developer-terms>`_.
     """
 
-    _ALLOWED_AUTH_FLOWS = {None, "pkce", "device"}
-    _ALLOWED_SCOPES = {"r_usr", "w_usr", "w_sub"}
-    _DEVICE_TYPES = {"BROWSER", "DESKTOP", "PHONE", "TV"}
-    _ENV_VAR_PREFIX = "PRIVATE_TIDAL_API"
-    _IMAGE_SIZES = {
+    _ALLOWED_AUTH_FLOWS: ClassVar[set[str]] = {None, "pkce", "device"}
+    _ALLOWED_SCOPES: ClassVar[set[str]] = {"r_usr", "w_usr", "w_sub"}
+    _DEVICE_TYPES: ClassVar[set[str]] = {"BROWSER", "DESKTOP", "PHONE", "TV"}
+    _ENV_VAR_PREFIX: ClassVar[str] = "PRIVATE_TIDAL_API"
+    _IMAGE_SIZES: ClassVar[dict[str, set[str]]] = {
         "album": {
             "1280x1280",
             "1080x1080",
@@ -526,24 +534,30 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         "playlist": {"1280x1280", "480x480", "320x320", "160x160"},
         "video": {"1280x720", "800x450", "640x360", "320x180", "160x90"},
     }
-    _IMAGE_TYPES = {
+    _IMAGE_TYPES: ClassVar[dict[str, str]] = {
         "album": "cover art",
         "artist": "profile art",
         "playlist": "cover art",
         "video": "thumbnail",
     }
-    _IS_TRUSTED_DEVICE = True
-    _OPTIONAL_AUTH = True
-    _QUAL_NAME = (
+    _IS_TRUSTED_DEVICE: ClassVar[bool] = True
+    _OPTIONAL_AUTH: ClassVar[bool] = True
+    _QUAL_NAME: ClassVar[str] = (
         f"minim.api.{BaseTIDALAPIClient._PROVIDER.lower()}.{__qualname__}"
     )
-    _REDIRECT_HANDLERS = {}
-    _REDIRECT_URIS = {"tidal://login/auth", "https://tidal.com/login/auth"}
-    _VERSION = "2025.12.18"
-    BASE_URL = "https://api.tidal.com"
-    DEVICE_AUTH_URL = "https://auth.tidal.com/v1/oauth2/device_authorization"
+    _REDIRECT_HANDLERS: ClassVar[set[str | None]] = set()
+    _REDIRECT_URIS: ClassVar[set[str]] = {
+        "tidal://login/auth",
+        "https://tidal.com/login/auth",
+    }
+    _VERSION: ClassVar[str] = "2025.12.18"
+
+    BASE_URL: ClassVar[str] = "https://api.tidal.com"
+    DEVICE_AUTH_URL: ClassVar[str] = (
+        "https://auth.tidal.com/v1/oauth2/device_authorization"
+    )
     #: URL for image resources.
-    RESOURCE_URL = "https://resources.tidal.com"
+    RESOURCE_URL: ClassVar[str] = "https://resources.tidal.com"
 
     __slots__ = (
         "albums",
@@ -645,7 +659,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             provided, the user will be reauthorized via the specified
             authorization flow when the access token expires.
 
-        expires_at : str or datetime.datetime; keyword-only; optional
+        expires_at : str or datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
@@ -692,6 +706,9 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
             requests.
+
+            **Example**: :code:`"Mozilla/5.0 (Windows NT 10.0; Win64;
+            x64) AppleWebKit/537.36"`.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the private TIDAL API.
@@ -791,13 +808,16 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
                 dimensions = f"{dimensions}x{dimensions}"
             else:
                 raise ValueError(f"Invalid dimensions {dimensions!r}.")
-        elif isinstance(dimensions, tuple | list) and len(dimensions) == 2:
+        elif (
+            isinstance(dimensions, ORDERED_COLLECTION_TYPES)
+            and len(dimensions) == 2
+        ):
             for ax, dim in zip(("width", "height"), dimensions):
                 if isinstance(dim, str):
                     if not dim.isdecimal():
                         raise ValueError(f"Invalid {ax} {dim!r}.")
                 elif not isinstance(dim, int):
-                    raise ValueError(f"Invalid {ax} {dim!r}.")
+                    raise TypeError(f"Invalid {ax} {dim!r}.")
             dimensions = f"{dimensions[0]}x{dimensions[1]}"
         else:
             raise ValueError(f"Invalid dimensions {dimensions!r}.")
@@ -807,13 +827,13 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             if item_type not in cls._IMAGE_SIZES:
                 raise ValueError(
                     f"Invalid resource type {item_type!r}. Valid "
-                    f"values: {cls._join_values(cls._IMAGE_SIZES)}."
+                    f"values: {join_values(cls._IMAGE_SIZES)}."
                 )
             if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
                 raise ValueError(
                     f"Invalid dimensions {dimensions!r} for a(n) "
                     f"{item_type} {cls._IMAGE_TYPES[item_type]}. "
-                    f"Valid values: {cls._join_values(sizes)}."
+                    f"Valid values: {join_values(sizes)}."
                 )
         return (
             f"{PrivateTIDALAPIClient.RESOURCE_URL}/{media_type}"
@@ -859,8 +879,8 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
         /,
         *,
         retry: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to a private TIDAL API endpoint.
 
@@ -877,14 +897,14 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             :code:`401 Unauthorized`.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------
         response : httpx.Response
             HTTP response.
         """
-        if self._expires_at and datetime.now() > self._expires_at:
+        if self._expires_at and datetime.now(UTC) > self._expires_at:
             self._refresh_access_token()
 
         if self._auth_flow == "device" and "r_usr" not in self._scopes:
@@ -904,7 +924,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
 
         error = resp.json()
         if isinstance(error, str):
-            raise RuntimeError(f"{resp.status_code} {error}")
+            raise RuntimeError(f"{resp.status_code} {error}")  # noqa: TRY004
 
         if "status" in error:
             if "subStatus" in error:
@@ -1099,7 +1119,7 @@ class PrivateTIDALAPIClient(BaseTIDALAPIClient):
             self._client.headers["x-tidal-token"] = client_id
             if "Authorization" in self._client.headers:
                 del self._client.headers["Authorization"]
-            self._expires_at = datetime.max
+            self._expires_at = datetime.max.replace(tzinfo=UTC)
         else:
             if "x-tidal-token" in self._client.headers:
                 del self._client.headers["x-tidal-token"]

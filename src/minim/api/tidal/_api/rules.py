@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from ..._shared import TTLCache
@@ -19,6 +20,8 @@ class RulesAPI(TIDALResourceAPI):
        This class is managed by :class:`~minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
+
+    __slots__ = ()
 
     @TTLCache.cached_method(ttl="static")
     def get_usage_rules(

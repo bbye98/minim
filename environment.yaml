@@ -1,7 +1,6 @@
 name: minim
 channels:
   - conda-forge
-  - microsoft
 dependencies:
   # CORE DEPENDENCIES
   - cryptography

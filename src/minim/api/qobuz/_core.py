@@ -1,14 +1,14 @@
 from __future__ import annotations
+
 import base64
-from datetime import datetime
 import getpass
 import hashlib
 import json
 import os
 import re
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from urllib.parse import urlencode, urlparse
-import warnings
+from urllib.parse import urlencode
 
 import httpx
 
@@ -20,8 +20,8 @@ from ._private_api.artists import PrivateArtistsAPI
 from ._private_api.catalog import PrivateCatalogAPI
 from ._private_api.dynamic import PrivateDynamicAPI
 from ._private_api.favorites import PrivateFavoritesAPI
-from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.genres import PrivateGenresAPI
+from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
 from ._private_api.purchases import PrivatePurchasesAPI
 from ._private_api.search import PrivateSearchAPI
@@ -32,7 +32,7 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from ..._types import Collection
 
@@ -50,32 +50,33 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
        <https://static.qobuz.com/apps/api/QobuzAPI-TermsofUse.pdf>`_.
     """
 
-    _APP_RE = re.compile(r"/resources/.*/bundle.js")
-    _ID_KEY_RE = re.compile(
+    _APP_RE: ClassVar[re.Pattern[str]] = re.compile(r"/resources/.*/bundle.js")
+    _ID_KEY_RE: ClassVar[re.Pattern[str]] = re.compile(
         r'production:\{api:\{appId:"([^"]+)",appSecret.*?privateKey:\s*"([^"]+)"'
     )
-    _SEED_RE = re.compile(
+    _SEED_RE: ClassVar[re.Pattern[str]] = re.compile(
         r'[a-z]\.initialSeed\("([^"]+)",window\.utimezone\.([^)]+)\)'
     )
 
-    _ALLOWED_AUTH_FLOWS = _AUTH_FLOWS = {
+    _ALLOWED_AUTH_FLOWS: ClassVar[dict[str, str]] = {
         None: "unauthenticated client",
         "ext_auth_code": "Qobuz authorization code flow",
         "password": "Qobuz Web Player login flow",
     }
-    _ENV_VAR_PREFIX = "PRIVATE_QOBUZ_API"
-    _OPTIONAL_AUTH = True
-    _PROVIDER = "Qobuz"
-    _REDIRECT_FLOWS = {"ext_auth_code"}
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    _VERSION = "1.17"
+    _AUTH_FLOWS: ClassVar[dict[str, str]] = _ALLOWED_AUTH_FLOWS
+    _ENV_VAR_PREFIX: ClassVar[str] = "PRIVATE_QOBUZ_API"
+    _OPTIONAL_AUTH: ClassVar[bool] = True
+    _PROVIDER: ClassVar[str] = "Qobuz"
+    _REDIRECT_FLOWS: ClassVar[set[str]] = {"ext_auth_code"}
+    _QUAL_NAME: ClassVar[str] = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _VERSION: ClassVar[str] = "1.17"
 
-    AUTH_URL = "https://www.qobuz.com/signin/oauth"
-    BASE_URL = "https://www.qobuz.com/api.json/0.2"
+    AUTH_URL: ClassVar[str] = "https://www.qobuz.com/signin/oauth"
+    BASE_URL: ClassVar[str] = "https://www.qobuz.com/api.json/0.2"
     #: Token endpoint.
-    TOKEN_URL = f"{BASE_URL}/oauth/callback"
+    TOKEN_URL: ClassVar[str] = f"{BASE_URL}/oauth/callback"
     #: Web Player URL.
-    WEB_PLAYER_URL = "https://play.qobuz.com"
+    WEB_PLAYER_URL: ClassVar[str] = "https://play.qobuz.com"
 
     __slots__ = (
         "_app_id",
@@ -88,8 +89,8 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         "catalog",
         "dynamic",
         "favorites",
-        "labels",
         "genres",
+        "labels",
         "playlists",
         "purchases",
         "search",
@@ -113,7 +114,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         enable_cache: bool = True,
         store_tokens: bool = True,
         user_agent: str | None = None,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> None:
         """
         Parameters
@@ -291,7 +292,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
                 user_identifier = user_identifier[1:]
             elif store_tokens and (
                 account := TokenDatabase._get_token(
-                    self.__class__.__name__,
+                    type(self).__name__,
                     auth_flow=auth_flow,
                     client_id=app_id,
                     user_identifier=user_identifier,
@@ -563,7 +564,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         pass  # Implemented as _obtain_user_auth_token()
 
     def _obtain_user_auth_token(
-        self, auth_flow: str | None = None, **kwargs: dict[str, Any]
+        self, auth_flow: str | None = None, **kwargs: Any
     ) -> None:
         """
         Get and set a new user authentication token via the provided or
@@ -618,7 +619,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
 
         if self._store_tokens:
             TokenDatabase.add_token(
-                self.__class__.__name__,
+                type(self).__name__,
                 auth_flow=self._auth_flow,
                 client_id=self._app_id,
                 client_secret=self._app_secret,
@@ -639,8 +640,8 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         *,
         signed: bool = False,
         sig_params: dict[str, Any] | None = None,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
+        **kwargs: Any,
+    ) -> httpx.Response:
         """
         Make an HTTP request to a private Qobuz API endpoint.
 
@@ -659,7 +660,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
             Query parameters to include in the signature.
 
         **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------
@@ -667,7 +668,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
             HTTP response.
         """
         if signed:
-            timestamp = datetime.now().timestamp()
+            timestamp = datetime.now(UTC).timestamp()
             signature = "".join(
                 f"{k}{str(v).lower() if isinstance(v, bool) else v}"
                 for k, v in sorted(sig_params.items())
@@ -680,7 +681,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
                     (
                         f"{endpoint.replace('/', '')}{signature}"
                         f"{timestamp}{self._app_secret}"
-                    ).encode(encoding="utf-8")
+                    ).encode()
                 ).hexdigest(),
             }
         resp = self._client.request(method, endpoint, **kwargs)
@@ -740,7 +741,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         open_browser: bool = False,
         store_tokens: bool = True,
         authenticate: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> None:
         """
         Set or update the authorization flow and related parameters.
@@ -890,7 +891,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         if auth_flow not in self._AUTH_FLOWS:
             raise ValueError(
                 f"Invalid authorization flow {auth_flow!r}. "
-                f"Valid values: {self._join_values(self._AUTH_FLOWS)}."
+                f"Valid values: {join_values(self._AUTH_FLOWS)}."
             )
 
         self._client.headers["x-app-id"] = self._app_id = app_id
@@ -911,26 +912,12 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         if authenticate and auth_flow is not None:
             self._obtain_user_auth_token(**kwargs)
 
-    def set_access_token(self, access_token: str) -> None:
+    def set_access_token(self) -> None:
         """
-        Set or update the access token.
-
-        .. note::
-
-           For this API client, access tokens are user authentication
-           tokens.
-
-        .. seealso::
-
-           :meth:`set_user_auth_token` – Set or update the user
-           authentication token.
-
-        Parameters
-        ----------
-        access_token : str or None; positional-only
-            Access token.
+        Not implemented for this API client; use
+        :meth:`set_user_auth_token` instead.
         """
-        self.set_user_auth_token(access_token)
+        raise NotImplementedError("Use set_user_auth_token() instead.")
 
     def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
         """
