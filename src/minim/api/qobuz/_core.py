@@ -52,7 +52,8 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
 
     _APP_RE = re.compile(r"/resources/.*/bundle.js")
     _ID_KEY_RE = re.compile(
-        r'production:\{api:\{appId:"([^"]+)",appSecret.*?privateKey:\s*"([^"]+)"'
+        r'production:\{api:\{appId:"([^"]+)",appSecret.*?privateKey:\s*"([^"]+)"',
+        re.DOTALL,
     )
     _SEED_RE = re.compile(
         r'[a-z]\.initialSeed\("([^"]+)",window\.utimezone\.([^)]+)\)'
