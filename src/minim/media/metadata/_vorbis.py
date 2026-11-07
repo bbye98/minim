@@ -204,9 +204,7 @@ class VorbisComment(AudioTags):
         length = int.from_bytes(stream[:4], byteorder="little")
         offset = 4
         end_offset = offset + length
-        obj._vendor = (
-            stream[offset:end_offset].tobytes().decode(encoding="utf-8")
-        )
+        obj._vendor = stream[offset:end_offset].tobytes().decode()
         offset = end_offset
         end_offset = offset + 4
         num_fields = int.from_bytes(
@@ -227,7 +225,7 @@ class VorbisComment(AudioTags):
             field_name, field_value = (
                 stream[offset:end_offset]
                 .tobytes()
-                .decode(encoding="utf-8")
+                .decode()
                 .split("=", maxsplit=1)
             )
             offset = end_offset
@@ -270,7 +268,7 @@ class VorbisComment(AudioTags):
                     f"Minim {__version__}"
                     if self._vendor is None
                     else self._vendor
-                ).encode(encoding="utf-8")
+                ).encode()
             )
             + sum(
                 4 + len(f"{key}={value}".encode())
@@ -918,9 +916,7 @@ class VorbisComment(AudioTags):
         """
         vectors = [
             len(
-                vendor := (self._vendor or f"Minim {__version__}").encode(
-                    encoding="utf-8"
-                )
+                vendor := (self._vendor or f"Minim {__version__}").encode()
             ).to_bytes(length=4, byteorder="little"),
             vendor,
             len(self._fields).to_bytes(length=4, byteorder="little"),

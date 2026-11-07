@@ -1153,7 +1153,7 @@ class ID3v2Frame(ABC):
         if flags._is_encrypted:
             obj = EncryptedID3v2Frame.__new__(EncryptedID3v2Frame)
             obj._frame_ids = {3: stream[:4].tobytes()}
-            obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
+            obj._frame_length = int.from_bytes(stream[4:8])
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
             return obj
 
@@ -1196,7 +1196,7 @@ class ID3v2Frame(ABC):
         if flags._is_encrypted:
             obj = EncryptedID3v2Frame.__new__(EncryptedID3v2Frame)
             obj._frame_ids = {4: stream[:4].tobytes()}
-            obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
+            obj._frame_length = int.from_bytes(stream[4:8])
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
             return obj
 
@@ -1349,11 +1349,7 @@ class ID3v2Frame(ABC):
         frame : bytes
             Encoded frame.
         """
-        return (
-            frame_id
-            + len(frame_data).to_bytes(length=3, byteorder="big")
-            + frame_data
-        )
+        return frame_id + len(frame_data).to_bytes(length=3) + frame_data
 
     @staticmethod
     def _split_bytestream(
@@ -1527,9 +1523,7 @@ class ID3v2Frame(ABC):
         flags = self._flags
         if flags._is_compressed:
             end_offset = offset + 4
-            decompressed_length = int.from_bytes(
-                stream[offset:end_offset], byteorder="big"
-            )
+            decompressed_length = int.from_bytes(stream[offset:end_offset])
             offset = end_offset
         if flags._has_group_id:
             self._group_id = stream[offset]
@@ -1635,7 +1629,7 @@ class ID3v2Frame(ABC):
 
         extra_info = bytearray()
         if flags._is_compressed:
-            extra_info.extend(frame_length.to_bytes(length=4, byteorder="big"))
+            extra_info.extend(frame_length.to_bytes(length=4))
         if flags._has_group_id:
             extra_info.append(self._group_id)
 
@@ -1646,9 +1640,7 @@ class ID3v2Frame(ABC):
         return b"".join(
             (
                 frame_id,
-                (frame_length + len(extra_info)).to_bytes(
-                    length=4, byteorder="big"
-                ),
+                (frame_length + len(extra_info)).to_bytes(length=4),
                 self._flags.serialize((2, 3, 0)),
                 extra_info,
                 frame_data,
@@ -1917,7 +1909,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         obj = super()._from_stream_2_2(stream, strict=strict)
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._text_info = cls._split_bytestream(
-            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            stream[7 : 6 + int.from_bytes(stream[3:6])],
             encoding=obj._text_encoding,
         )
         return obj
@@ -1950,7 +1942,7 @@ class ID3v2TextInfoFrame(ID3v2Frame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -2142,7 +2134,7 @@ class ID3v2NumericTextInfoFrame(ID3v2TextInfoFrame):
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         values = cls._split_bytestream(
-            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            stream[7 : 6 + int.from_bytes(stream[3:6])],
             encoding=obj._text_encoding,
         )
         if strict:
@@ -2190,7 +2182,7 @@ class ID3v2NumericTextInfoFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         values = cls._split_bytestream(
@@ -2344,7 +2336,7 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
         """
         text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         text_info = cls._split_bytestream(
-            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            stream[7 : 6 + int.from_bytes(stream[3:6])],
             encoding=text_encoding,
         )
         if strict:
@@ -2393,7 +2385,7 @@ class ID3v2CopyrightTextInfoFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
             strict=strict,
         )
         text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -2511,7 +2503,7 @@ class ID3v2StructuredTextInfoFrame(ID3v2TextInfoFrame):
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._structures = cls._parse(
             cls._split_bytestream(
-                stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+                stream[7 : 6 + int.from_bytes(stream[3:6])],
                 encoding=obj._text_encoding,
             ),
             strict=strict,
@@ -2549,7 +2541,7 @@ class ID3v2StructuredTextInfoFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._structures = cls._parse(
@@ -3166,7 +3158,7 @@ class ID3v2APICFrame(ID3v2Frame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
         )
         obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[
             stream[offset]
@@ -3520,7 +3512,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._language = stream[7:10].tobytes().decode(encoding="ascii")
         obj._description, obj._comment = cls._split_bytestream(
-            stream[10 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            stream[10 : 6 + int.from_bytes(stream[3:6])],
             encoding=obj._text_encoding,
             max_splits=1,
         )
@@ -3554,7 +3546,7 @@ class ID3v2COMMFrame(ID3v2Frame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         mid_offset = offset + 4
@@ -3882,7 +3874,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._text_info, obj._refinements = cls._deserialize_content_types(
             cls._split_bytestream(
-                stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+                stream[7 : 6 + int.from_bytes(stream[3:6])],
                 encoding=obj._text_encoding,
             )
         )
@@ -3916,7 +3908,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -4303,7 +4295,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
         obj = super(ID3v2TextInfoFrame, cls)._from_stream_2_2(
             stream, strict=strict
         )
-        frame_length = int.from_bytes(stream[3:6], byteorder="big")
+        frame_length = int.from_bytes(stream[3:6])
         obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         match stream[:3]:
             case b"TYE":
@@ -4381,7 +4373,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
         )
         obj._text_encoding = text_encoding = cls._TEXT_ENCODINGS[
             stream[offset]
@@ -4811,7 +4803,7 @@ class ID3v2TKEYFrame(ID3v2TextInfoFrame):
         """
         text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         text_info = cls._split_bytestream(
-            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            stream[7 : 6 + int.from_bytes(stream[3:6])],
             encoding=text_encoding,
         )
         if strict:
@@ -4855,7 +4847,7 @@ class ID3v2TKEYFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -4972,7 +4964,7 @@ class ID3v2TLANFrame(ID3v2TextInfoFrame):
         """
         text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         text_info = cls._split_bytestream(
-            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            stream[7 : 6 + int.from_bytes(stream[3:6])],
             encoding=text_encoding,
         )
         if strict:
@@ -5016,7 +5008,7 @@ class ID3v2TLANFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
             strict=strict,
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
@@ -5801,7 +5793,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
         obj._text_info = [
             prepare_isrc(isrc)
             for isrc in cls._split_bytestream(
-                stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+                stream[7 : 6 + int.from_bytes(stream[3:6])],
                 encoding=obj._text_encoding,
             )
         ]
@@ -5837,7 +5829,7 @@ class ID3v2TSRCFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._text_info = [
@@ -6052,7 +6044,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._description, obj._text_info = cls._split_bytestream(
-            stream[7 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            stream[7 : 6 + int.from_bytes(stream[3:6])],
             encoding=obj._text_encoding,
             max_splits=1,
         )
@@ -6088,7 +6080,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         obj._description, obj._text_info = cls._split_bytestream(
@@ -6338,7 +6330,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[6]]
         obj._language = stream[7:10].tobytes().decode(encoding="ascii")
         obj._description, obj._lyrics = cls._split_bytestream(
-            stream[10 : 6 + int.from_bytes(stream[3:6], byteorder="big")],
+            stream[10 : 6 + int.from_bytes(stream[3:6])],
             encoding=obj._text_encoding,
         )
         return obj
@@ -6371,7 +6363,7 @@ class ID3v2USLTFrame(ID3v2Frame):
 
         stream, offset, frame_length = obj._decode_2_3(
             stream,
-            frame_length=10 + int.from_bytes(stream[4:8], byteorder="big"),
+            frame_length=10 + int.from_bytes(stream[4:8]),
         )
         obj._text_encoding = cls._TEXT_ENCODINGS[stream[offset]]
         mid_offset = offset + 4
@@ -6643,7 +6635,7 @@ class UnknownID3v2Frame(ID3v2Frame, register=False):
         """
         obj = super()._from_stream_2_2(stream, strict=strict)
         obj._frame_ids = {2: stream[:3].tobytes()}
-        obj._frame_length = int.from_bytes(stream[3:6], byteorder="big")
+        obj._frame_length = int.from_bytes(stream[3:6])
         obj._frame_data = stream[6 : 6 + obj._frame_length].tobytes()
         return obj
 
@@ -6672,7 +6664,7 @@ class UnknownID3v2Frame(ID3v2Frame, register=False):
         obj = super()._from_stream_2_3(stream, strict=strict)
         if not hasattr(obj, "_frame_ids"):
             obj._frame_ids = {3: stream[:4].tobytes()}
-            obj._frame_length = int.from_bytes(stream[4:8], byteorder="big")
+            obj._frame_length = int.from_bytes(stream[4:8])
             obj._frame_data = stream[10 : 10 + obj._frame_length].tobytes()
         return obj
 
@@ -6771,7 +6763,7 @@ class UnknownID3v2Frame(ID3v2Frame, register=False):
                 return b"".join(
                     (
                         frame_id,
-                        self._frame_length.to_bytes(length=4, byteorder="big"),
+                        self._frame_length.to_bytes(length=4),
                         self._flags.to_bytes_2_3(),
                         self._frame_data,
                     )
@@ -6779,7 +6771,7 @@ class UnknownID3v2Frame(ID3v2Frame, register=False):
             case (2, 2, _):
                 return (
                     frame_id
-                    + self._frame_length.to_bytes(length=3, byteorder="big")
+                    + self._frame_length.to_bytes(length=3)
                     + self._frame_data
                 )
             case _:

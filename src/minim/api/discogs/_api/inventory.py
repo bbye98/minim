@@ -96,7 +96,7 @@ class InventoryAPI(DiscogsResourceAPI):
         else:
             csv_filename = "inventory.csv"
             csv_obj = io.BytesIO(
-                inventory_csv.encode(encoding="utf-8")
+                inventory_csv.encode()
                 if isinstance(inventory_csv, str)
                 else inventory_csv
             )

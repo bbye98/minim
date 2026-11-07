@@ -33,7 +33,7 @@ class AudioStreamInfo:
     """
 
     _NUM_CHANNELS_RANGE: ClassVar[tuple[int, int]] = (1, 65_535)
-    _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (1, 4_294_967_295)
+    _SAMPLE_RATE_RANGE: ClassVar[tuple[int, int]] = (1, 0xFFFFFFFF)
     _BIT_DEPTH_RANGE: ClassVar[tuple[int, int]] = (1, 32)
 
     #: :bdg-primary:`get` :bdg-secondary-line:`set` Number of channels.
@@ -104,7 +104,7 @@ class AudioTags(ABC):
             case bool():
                 return str(int(value))
             case bytes() | bytearray():
-                return value.decode(encoding="utf-8")
+                return value.decode()
             case datetime():
                 return value.strftime("%Y-%m-%dT%H:%M:%SZ")
             case Real():

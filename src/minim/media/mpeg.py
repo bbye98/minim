@@ -637,9 +637,7 @@ class MPEGAudio(Audio):
             MPEG audio stream information.
         """
         num_samples = (
-            int.from_bytes(
-                stream[vbri_offset + 10 : vbri_offset + 14], byteorder="big"
-            )
+            int.from_bytes(stream[vbri_offset + 10 : vbri_offset + 14])
             * MPEGAudio._SAMPLES_PER_FRAME[raw_mpeg_version, raw_layer]
         )
         return MPEGStreamInfo._from_data(
@@ -647,9 +645,7 @@ class MPEGAudio(Audio):
             sample_rate=sample_rate,
             num_samples=num_samples,
             bitrate=round(
-                int.from_bytes(
-                    stream[vbri_offset + 6 : vbri_offset + 10], byteorder="big"
-                )
+                int.from_bytes(stream[vbri_offset + 6 : vbri_offset + 10])
                 * sample_rate
                 / (125 * num_samples)
             ),
@@ -719,13 +715,7 @@ class MPEGAudio(Audio):
             MPEG audio stream information.
         """
         end_xing_offset = xing_offset + 4
-        if (
-            strict
-            and int.from_bytes(
-                stream[xing_offset:end_xing_offset], byteorder="big"
-            )
-            >> 4
-        ):
+        if strict and int.from_bytes(stream[xing_offset:end_xing_offset]) >> 4:
             raise ValueError(
                 "Non-zero bits found in reserved section of Xing header."
             )
@@ -737,9 +727,7 @@ class MPEGAudio(Audio):
         if has_num_samples:
             end_xing_offset = xing_offset + 4
             num_samples = (
-                int.from_bytes(
-                    stream[xing_offset:end_xing_offset], byteorder="big"
-                )
+                int.from_bytes(stream[xing_offset:end_xing_offset])
                 * MPEGAudio._SAMPLES_PER_FRAME[raw_mpeg_version, raw_layer]
             )
             xing_offset = end_xing_offset
@@ -750,9 +738,7 @@ class MPEGAudio(Audio):
             bitrate = round(
                 8
                 * sample_rate
-                * int.from_bytes(
-                    stream[xing_offset:end_xing_offset], byteorder="big"
-                )
+                * int.from_bytes(stream[xing_offset:end_xing_offset])
                 / (1_000 * num_samples)
             )
             xing_offset = end_xing_offset

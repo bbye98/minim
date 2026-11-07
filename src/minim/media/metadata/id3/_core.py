@@ -887,7 +887,7 @@ class ID3v2(AudioTags):
             end_offset = offset + 3
             frame_id = stream[offset:end_offset]
             end_offset += 3 + int.from_bytes(
-                stream[end_offset : end_offset + 3], byteorder="big"
+                stream[end_offset : end_offset + 3]
             )
             obj._add_frames(
                 ID3v2Frame._get_class(frame_id)._from_stream_2_2(
@@ -2157,9 +2157,7 @@ class ID3v2(AudioTags):
                         b"3DI",
                         tag_version[1],
                         0,
-                        int.from_bytes(
-                            self._flags.serialize(tag_version), byteorder="big"
-                        ),
+                        int.from_bytes(self._flags.serialize(tag_version)),
                         *encode_synchsafe_int(
                             len(extended_header) + len(frames) + padding_length
                         ),
@@ -2170,16 +2168,14 @@ class ID3v2(AudioTags):
             case (2, 3, _):
                 if flags._has_extended_header:
                     extended_header = (self._has_crc << 15).to_bytes(
-                        length=2, byteorder="big"
-                    ) + padding_length.to_bytes(length=4, byteorder="big")
+                        length=2
+                    ) + padding_length.to_bytes(length=4)
                     if self._has_crc:
                         extended_header += zlib.crc32(frames).to_bytes(
-                            length=4, byteorder="big"
+                            length=4
                         )
                     extended_header = (
-                        len(extended_header).to_bytes(
-                            length=4, byteorder="big"
-                        )
+                        len(extended_header).to_bytes(length=4)
                         + extended_header
                     )
                 else:
@@ -2205,9 +2201,7 @@ class ID3v2(AudioTags):
                     b"ID3",
                     tag_version[1],
                     0,
-                    int.from_bytes(
-                        self._flags.serialize(tag_version), byteorder="big"
-                    ),
+                    int.from_bytes(self._flags.serialize(tag_version)),
                     *encode_synchsafe_int(
                         len(extended_header) + len(frames) + padding_length
                     ),

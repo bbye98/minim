@@ -429,7 +429,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
             [
                 base64.b64decode(
                     "".join((secret, *match.groups()))[:-44]
-                ).decode(encoding="utf-8")
+                ).decode()
                 for secret, match in (
                     (
                         secret,
@@ -554,9 +554,7 @@ class PrivateQobuzAPIClient(OAuthAPIClient):
         )
         return self.users.login(
             input("Username: "),
-            hashlib.md5(
-                getpass.getpass().encode(encoding="utf-8")
-            ).hexdigest(),
+            hashlib.md5(getpass.getpass().encode()).hexdigest(),
             **kwargs,
         )
 

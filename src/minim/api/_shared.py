@@ -1725,13 +1725,13 @@ class OAuth1APIClient(OAuthAPIClient):
             case "HMAC-SHA1":
                 oauth["oauth_signature"] = base64.b64encode(
                     hmac.new(
-                        self._signing_key.encode(encoding="utf-8"),
+                        self._signing_key.encode(),
                         self._prepare_base_string(
                             method, endpoint, params=oauth | params | data
-                        ).encode(encoding="utf-8"),
+                        ).encode(),
                         hashlib.sha1,
                     ).digest()
-                ).decode(encoding="utf-8")
+                ).decode()
             case "RSA-SHA1":
                 private_key_file = MINIM_DIR / "private_key.pem"
                 if not private_key_file.exists():
@@ -1744,11 +1744,11 @@ class OAuth1APIClient(OAuthAPIClient):
                     private_key.sign(
                         self._prepare_base_string(
                             method, endpoint, params=oauth | params | data
-                        ).encode(encoding="utf-8"),
+                        ).encode(),
                         padding.PKCS1v15(),
                         hashes.SHA1(),
                     )
-                ).decode(encoding="utf-8")
+                ).decode()
         return "OAuth " + ", ".join(
             f'{key}="{quote(str(value), safe="")}"'
             for key, value in oauth.items()
@@ -2480,7 +2480,7 @@ class OAuth2APIClient(OAuthAPIClient):
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
                         f"{self._client_id}:{self._client_secret}".encode()
-                    ).decode(encoding="utf-8")
+                    ).decode()
                     resp_json = httpx.post(
                         self.TOKEN_URL,
                         data=data,
@@ -2509,7 +2509,7 @@ class OAuth2APIClient(OAuthAPIClient):
             case "client_credentials":
                 b64_client_credentials = base64.urlsafe_b64encode(
                     f"{self._client_id}:{self._client_secret}".encode()
-                ).decode(encoding="utf-8")
+                ).decode()
                 resp_json = httpx.post(
                     self.TOKEN_URL,
                     data={
@@ -2598,11 +2598,9 @@ class OAuth2APIClient(OAuthAPIClient):
                     )
                     data["code"] = self._get_auth_code(
                         code_challenge=base64.urlsafe_b64encode(
-                            hashlib.sha256(
-                                code_verifier.encode(encoding="utf-8")
-                            ).digest()
+                            hashlib.sha256(code_verifier.encode()).digest()
                         )
-                        .decode(encoding="utf-8")
+                        .decode()
                         .rstrip("=")
                     )
                 else:
@@ -2611,7 +2609,7 @@ class OAuth2APIClient(OAuthAPIClient):
                 if self._client_secret:
                     client_b64 = base64.urlsafe_b64encode(
                         f"{self._client_id}:{self._client_secret}".encode()
-                    ).decode(encoding="utf-8")
+                    ).decode()
                     resp_json = httpx.post(
                         self.TOKEN_URL,
                         data=data,

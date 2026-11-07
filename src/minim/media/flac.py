@@ -268,16 +268,16 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
             outside the allowed ranges.
         """
         stream = as_buffer(stream)
-        min_block_size = int.from_bytes(stream[:2], byteorder="big")
-        max_block_size = int.from_bytes(stream[2:4], byteorder="big")
+        min_block_size = int.from_bytes(stream[:2])
+        max_block_size = int.from_bytes(stream[2:4])
         if strict and max_block_size < min_block_size:
             raise ValueError(
                 "`min_block_size` must be less than or equal to "
                 "`max_block_size`."
             )
 
-        min_frame_size = int.from_bytes(stream[4:7], byteorder="big")
-        max_frame_size = int.from_bytes(stream[7:10], byteorder="big")
+        min_frame_size = int.from_bytes(stream[4:7])
+        max_frame_size = int.from_bytes(stream[7:10])
         if strict and (
             min_frame_size
             and max_frame_size
@@ -288,7 +288,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
                 "`max_frame_size`."
             )
 
-        sample_rate = int.from_bytes(stream[10:13], byteorder="big") >> 4
+        sample_rate = int.from_bytes(stream[10:13]) >> 4
         if strict:
             validate_range("sample_rate", sample_rate, *cls._SAMPLE_RATE_RANGE)
         num_channels = ((stream[12] & 0x0E) >> 1) + 1
@@ -307,8 +307,7 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         set_obj_attr(
             obj,
             "num_samples",
-            ((stream[13] & 0x0F) << 32)
-            + int.from_bytes(stream[14:18], byteorder="big"),
+            ((stream[13] & 0x0F) << 32) + int.from_bytes(stream[14:18]),
         )
         set_obj_attr(obj, "md5", stream[18:34].hex())
         return obj
@@ -334,16 +333,16 @@ class FLACStreamInfo(AudioStreamInfo, FLACMetadataBlock):
         """
         return b"".join(
             (
-                self.min_block_size.to_bytes(length=2, byteorder="big"),
-                self.max_block_size.to_bytes(length=2, byteorder="big"),
-                self.min_frame_size.to_bytes(length=3, byteorder="big"),
-                self.max_frame_size.to_bytes(length=3, byteorder="big"),
+                self.min_block_size.to_bytes(length=2),
+                self.max_block_size.to_bytes(length=2),
+                self.min_frame_size.to_bytes(length=3),
+                self.max_frame_size.to_bytes(length=3),
                 (
                     (self.sample_rate & 0xFFFFF) << 44
                     | ((self.num_channels - 1) & 0x7) << 41
                     | ((self.bit_depth - 1) & 0x1F) << 36
                     | (self.num_samples & 0xFFFFFFFFF)
-                ).to_bytes(length=8, byteorder="big"),
+                ).to_bytes(length=8),
                 bytes.fromhex(self.md5),
             )
         )
@@ -964,9 +963,7 @@ class FLACCueSheet(FLACMetadataBlock):
                     f"Invalid number of tracks ({num_tracks}) in CUESHEET block."
                 )
 
-        media_catalog_number = media_catalog_number.rstrip(b"\x00").decode(
-            encoding="utf-8"
-        )
+        media_catalog_number = media_catalog_number.rstrip(b"\x00").decode()
         if strict and not ASCII_CHARS_REGEX.match(media_catalog_number):
             raise ValueError(
                 "`media_catalog_number` must contain only ASCII "
@@ -1132,7 +1129,7 @@ class FLACCueSheet(FLACMetadataBlock):
             data.
         """
         return self._STRUCT.pack(
-            self.media_catalog_number.encode(encoding="utf-8"),
+            self.media_catalog_number.encode(),
             self.num_lead_in_samples,
             self.is_cd << 7,
             258 * b"\x00",
@@ -1282,9 +1279,7 @@ class FLACCueSheetTrack:
         set_obj_attr(
             obj,
             "isrc",
-            ""
-            if isrc == 12 * b"\x00"
-            else prepare_isrc(isrc.decode(encoding="utf-8")),
+            "" if isrc == 12 * b"\x00" else prepare_isrc(isrc.decode()),
         )
         set_obj_attr(obj, "is_audio", bool(flags & 0x80))
         set_obj_attr(obj, "has_pre_emphasis", bool(flags & 0x40))
@@ -1367,7 +1362,7 @@ class FLACCueSheetTrack:
         return self._STRUCT.pack(
             self.sample_offset,
             self.number,
-            self.isrc.encode(encoding="utf-8") if self.isrc else 12 * b"\x00",
+            self.isrc.encode() if self.isrc else 12 * b"\x00",
             (self.is_audio << 7) | (self.has_pre_emphasis << 6),
             13 * b"\x00",
             len(self.indices),
@@ -1720,9 +1715,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         description_length = int.from_bytes(stream[offset:end_offset])
         offset = end_offset
         end_offset = offset + description_length
-        description = (
-            stream[offset:end_offset].tobytes().decode(encoding="utf-8")
-        )
+        description = stream[offset:end_offset].tobytes().decode()
 
         offset = end_offset
         width, height, color_depth, num_indexed_colors, data_length = (
@@ -1757,7 +1750,7 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
         return (
             32
             + len(self._mime_type.encode(encoding="ascii"))
-            + len(self._description.encode(encoding="utf-8"))
+            + len(self._description.encode())
             + len(self._picture_data)
         )
 
@@ -1780,12 +1773,12 @@ class FLACPicture(FLACMetadataBlock, ID3v2APICFrame):
             data.
         """
         mime_type = self._mime_type.encode(encoding="ascii")
-        description = self._description.encode(encoding="utf-8")
+        description = self._description.encode()
         return b"".join(
             (
                 self._STRUCT_II.pack(self._picture_type, len(mime_type)),
                 mime_type,
-                len(description).to_bytes(length=4, byteorder="big"),
+                len(description).to_bytes(length=4),
                 description,
                 self._STRUCT_IIIII.pack(
                     self.width,
@@ -2114,9 +2107,7 @@ class FLACAudio(Audio):
             offset += 1
 
             end_offset = offset + 3
-            block_data_length = int.from_bytes(
-                view[offset:end_offset], byteorder="big"
-            )
+            block_data_length = int.from_bytes(view[offset:end_offset])
             offset = end_offset
 
             end_offset = offset + block_data_length
@@ -2747,7 +2738,7 @@ class FLACAudio(Audio):
             (
                 ((block_index == last_block_index) << 7) | block._block_type
             ).to_bytes(byteorder="big")
-            + block._block_data_length.to_bytes(length=3, byteorder="big")
+            + block._block_data_length.to_bytes(length=3)
             + block.serialize()
             for block_index, block in enumerate(blocks)
         )
