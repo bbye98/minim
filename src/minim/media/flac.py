@@ -2737,7 +2737,7 @@ class FLACAudio(Audio):
         serialized_blocks = (
             (
                 ((block_index == last_block_index) << 7) | block._block_type
-            ).to_bytes(byteorder="big")
+            ).to_bytes()
             + block._block_data_length.to_bytes(length=3)
             + block.serialize()
             for block_index, block in enumerate(blocks)

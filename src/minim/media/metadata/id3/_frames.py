@@ -2078,9 +2078,9 @@ class ID3v2TextInfoFrame(ID3v2Frame):
         null_char = (
             b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00"
         )
-        frame_data = self._TEXT_ENCODINGS[text_encoding].to_bytes(
-            byteorder="big"
-        ) + null_char.join(
+        frame_data = self._TEXT_ENCODINGS[
+            text_encoding
+        ].to_bytes() + null_char.join(
             ti.encode(encoding=text_encoding) for ti in self._text_info
         )
         match tag_version:
@@ -2956,9 +2956,7 @@ class ID3v2DateTimeTextInfoFrame(ID3v2TextInfoFrame):
             case (2, 4, _):
                 return self._encode_2_4(
                     frame_id,
-                    self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                        byteorder="big"
-                    )
+                    self._TEXT_ENCODINGS[text_encoding].to_bytes()
                     + (
                         b"\x00\x00"
                         if text_encoding.startswith("utf-16")
@@ -3343,12 +3341,10 @@ class ID3v2APICFrame(ID3v2Frame):
                     self._frame_ids[4],
                     b"".join(
                         (
-                            self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                                byteorder="big"
-                            ),
+                            self._TEXT_ENCODINGS[text_encoding].to_bytes(),
                             mime_type.encode(encoding="ascii"),
                             b"\x00",
-                            self._picture_type.to_bytes(byteorder="big"),
+                            self._picture_type.to_bytes(),
                             self._description.encode(encoding=text_encoding),
                             null_char,
                             self._picture_data,
@@ -3365,12 +3361,10 @@ class ID3v2APICFrame(ID3v2Frame):
                     self._frame_ids[3],
                     b"".join(
                         (
-                            self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                                byteorder="big"
-                            ),
+                            self._TEXT_ENCODINGS[text_encoding].to_bytes(),
                             mime_type.encode(encoding="ascii"),
                             b"\x00",
-                            self._picture_type.to_bytes(byteorder="big"),
+                            self._picture_type.to_bytes(),
                             self._description.encode(encoding=text_encoding),
                             null_char,
                             self._picture_data,
@@ -3392,11 +3386,9 @@ class ID3v2APICFrame(ID3v2Frame):
                     self._frame_ids[2],
                     b"".join(
                         (
-                            self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                                byteorder="big"
-                            ),
+                            self._TEXT_ENCODINGS[text_encoding].to_bytes(),
                             mime_type.encode(encoding="ascii"),
-                            self._picture_type.to_bytes(byteorder="big"),
+                            self._picture_type.to_bytes(),
                             self._description.encode(encoding=text_encoding),
                             null_char,
                             self._picture_data,
@@ -3700,7 +3692,7 @@ class ID3v2COMMFrame(ID3v2Frame):
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
         frame_data = b"".join(
             (
-                self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
+                self._TEXT_ENCODINGS[text_encoding].to_bytes(),
                 self._language.encode(encoding="ascii"),
                 self._description.encode(encoding=text_encoding),
                 b"\x00\x00" if text_encoding.startswith("utf-16") else b"\x00",
@@ -4101,9 +4093,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
             case (2, 4, _):
                 return self._encode_2_4(
                     b"TCON",
-                    self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                        byteorder="big"
-                    )
+                    self._TEXT_ENCODINGS[text_encoding].to_bytes()
                     + null_char.join(
                         ti.encode(encoding=text_encoding)
                         for ti in self._text_info
@@ -4112,9 +4102,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
             case (2, 3, _):
                 return self._encode_2_3(
                     b"TCON",
-                    self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                        byteorder="big"
-                    )
+                    self._TEXT_ENCODINGS[text_encoding].to_bytes()
                     + null_char.join(
                         ti.encode(encoding=text_encoding)
                         for ti in self._serialize_content_types(
@@ -4125,9 +4113,7 @@ class ID3v2TCONFrame(ID3v2TextInfoFrame):
             case (2, 2, _):
                 return self._encode_2_2(
                     b"TCO",
-                    self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                        byteorder="big"
-                    )
+                    self._TEXT_ENCODINGS[text_encoding].to_bytes()
                     + null_char.join(
                         ti.encode(encoding=text_encoding)
                         for ti in self._serialize_content_types(
@@ -4498,9 +4484,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
                 return b"".join(
                     self._encode_2_3(
                         frame_id,
-                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                            byteorder="big"
-                        )
+                        self._TEXT_ENCODINGS[text_encoding].to_bytes()
                         + null_char.join(data),
                     )
                     if any(data)
@@ -4540,9 +4524,7 @@ class ID3v2TDRCFrame(ID3v2DateTimeTextInfoFrame):
                 return b"".join(
                     self._encode_2_2(
                         frame_id,
-                        self._TEXT_ENCODINGS[text_encoding].to_bytes(
-                            byteorder="big"
-                        )
+                        self._TEXT_ENCODINGS[text_encoding].to_bytes()
                         + null_char.join(data),
                     )
                     if any(data)
@@ -6206,7 +6188,7 @@ class ID3v2TXXXFrame(ID3v2TextInfoFrame):
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
         frame_data = b"".join(
             (
-                self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
+                self._TEXT_ENCODINGS[text_encoding].to_bytes(),
                 self._description.encode(encoding=text_encoding),
                 self._text_info.encode(encoding=text_encoding),
             )
@@ -6516,7 +6498,7 @@ class ID3v2USLTFrame(ID3v2Frame):
         text_encoding = self._resolve_text_encoding(text_encoding, tag_version)
         frame_data = b"".join(
             (
-                self._TEXT_ENCODINGS[text_encoding].to_bytes(byteorder="big"),
+                self._TEXT_ENCODINGS[text_encoding].to_bytes(),
                 self._language.encode(encoding="ascii"),
                 self._description.encode(encoding=text_encoding),
                 (

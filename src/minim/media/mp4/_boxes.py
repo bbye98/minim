@@ -619,6 +619,38 @@ class MP4moovBox(MP4ContainerBox):
 
     __slots__ = ()
 
+    @classmethod
+    def _from_stream(
+        cls, stream: memoryview, /, *, strict: bool = True
+    ) -> Self:
+        """
+        Instantiate a :class:`MP4moovBox` object from a MP4 :code:`moov`
+        box bytestream.
+
+        Parameters
+        ----------
+        stream : memoryview; positional-only
+            Bytestream containing the :code:`moov` box.
+
+        strict : bool; keyword-only; default: :code:`True`
+            Whether to ensure metadata strictly adheres to the MP4
+            specifications.
+
+        Returns
+        -------
+        moov_box : MP4moovBox
+            MP4 :code:`moov` box.
+        """
+        obj = super()._from_stream(stream, strict=strict)
+        if strict and not any(
+            isinstance(child, MP4mvhdBox) for child in obj._payload
+        ):
+            raise ValueError(
+                "MP4 moov box bytestream does not contain a mvhd box."
+            )
+
+        return obj
+
 
 class MP4mvhdBox(MP4Box):
     """
@@ -630,12 +662,18 @@ class MP4mvhdBox(MP4Box):
        /documentation/quicktime-file-format/movie_header_atom>`_.
     """
 
-    _EPOCH_OFFSET: ClassVar[int] = 2_082_844_800
+    _EPOCH: ClassVar[datetime] = datetime(1904, 1, 1, tzinfo=UTC)
+    _EPOCH_OFFSET: ClassVar[int] = -2_082_844_800
     _STRUCT_HEADER: ClassVar[struct.Struct] = struct.Struct(">B3s")
     _STRUCTS: ClassVar[dict[int, struct.Struct]] = {
         0: struct.Struct(">5IH10s9i7I"),
         1: struct.Struct(">QQIQIH10s9i7I"),
     }
+    _TRANSFORMATION_MATRIX_COLUMNS_SCALE_MIN_MAX = (
+        (0x10000, -32_768, 32_767.999_984_741_21),
+        (0x10000, -32_768, 32_767.999_984_741_21),
+        (0x40000000, -2, 1.999_999_999_068_677_4),
+    )
 
     _fourcc: ClassVar[bytes] = b"mvhd"
 
@@ -644,7 +682,6 @@ class MP4mvhdBox(MP4Box):
         "_current_time",
         "_duration",
         "_flags",
-        "_matrix",
         "_modification_time",
         "_next_track_id",
         "_poster_time",
@@ -655,15 +692,131 @@ class MP4mvhdBox(MP4Box):
         "_selection_duration",
         "_selection_time",
         "_timescale",
+        "_transformation_matrix",
         "_version",
     )
 
-    def __init__(self) -> None:
-        """ """
-        raise NotImplementedError  # TODO
+    def __init__(
+        self,
+        *,
+        version: int = 0,
+        flags: int = 0,
+        creation_time: datetime = _EPOCH,
+        modification_time: datetime = _EPOCH,
+        timescale: int = 1_000,
+        duration: int | None = None,
+        preferred_rate: float = 1.0,
+        preferred_volume: float = 1.0,
+        transformation_matrix: OrderedCollection[OrderedCollection[float]] = (
+            (1.0, 0.0, 0.0),
+            (0.0, 1.0, 0.0),
+            (0.0, 0.0, 1.0),
+        ),
+        preview_time: int = 0,
+        preview_duration: int = 0,
+        poster_time: int = 0,
+        selection_time: int = 0,
+        selection_duration: int = 0,
+        current_time: int = 0,
+        next_track_id: int = 1,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        version : int; keyword-only; default: :code:`0`
+            Version.
+
+        flags : int; keyword-only; default: :code:`0`
+            Flags.
+
+        creation_time : datetime; keyword-only; \
+        default: :code:`datetime(1904, 1, 1)`
+            Datetime of the creation of the :code:`moov` box.
+
+        modification_time : datetime; keyword-only; \
+        default: :code:`datetime(1904, 1, 1)`
+            Datetime of the last change to the :code:`moov` box.
+
+        timescale : int; keyword-only; default: :code:`1_000`
+            Timescale, or the number of time units that pass per second 
+            in its time coordinate system.
+
+        duration : int; keyword-only; optional
+            Duration, in seconds.
+
+        preferred_rate : float; keyword-only; default: :code:`1.0`
+            Preferred rate, or the fraction of the media's normal rate, 
+            for playback.
+
+        preferred_volume : float; keyword-only; default: :code:`1.0`
+            Preferred volume, as a fraction of the media's normal 
+            volume.
+
+        transformation_matrix : OrderedCollection[OrderedCollection[float]]; \
+        keyword-only; \
+        default: :code:`((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))`
+            Transformation matrix.
+
+        preview_time : int; keyword-only; default: :code:`0`
+            Time in the media at which the preview begins, in seconds.
+
+        preview_duration : int; keyword-only; default: :code:`0`
+            Duration of the preview, in seconds.
+
+        poster_time : int; keyword-only; default: :code:`0`
+            Time in the media at which the poster begins, in seconds.
+
+        selection_time : int; keyword-only; default: :code:`0`
+            Time in the media at which the selection begins, in seconds.
+
+        selection_duration : int; keyword-only; default: :code:`0`
+            Duration of the selection, in seconds.
+
+        current_time : int; keyword-only; default: :code:`0`
+            Current time in the media, in seconds.
+
+        next_track_id : int; keyword-only; default: :code:`1`
+            Track ID of the next track in the media.
+        """
+        self.version = version
+        self.flags = flags
+        self.creation_time = creation_time
+        self.modification_time = modification_time
+        self.timescale = timescale
+        if duration is None:
+            duration = 0xFFFFFFFFFFFFFFFF if version else 0xFFFFFFFF
+        self.duration = duration
+        self.preferred_rate = preferred_rate
+        self.preferred_volume = preferred_volume
+        self.transformation_matrix = transformation_matrix
+        self.preview_time = preview_time
+        self.preview_duration = preview_duration
+        self.poster_time = poster_time
+        self.selection_time = selection_time
+        self.selection_duration = selection_duration
+        self.current_time = current_time
+        self.next_track_id = next_track_id
 
     def __repr__(self) -> str:
-        return super().__repr__()  # TODO
+        return (
+            f"<{type(self).__name__}("
+            f"version={self.version}, "
+            f"flags={self.flags}, "
+            f"creation_time={self.creation_time!r}, "
+            f"modification_time={self.modification_time!r}, "
+            f"timescale={self.timescale}, "
+            f"duration={self.duration}, "
+            f"preferred_rate={self.preferred_rate}, "
+            f"preferred_volume={self.preferred_volume}, "
+            f"transformation_matrix={self.transformation_matrix!r}, "
+            f"preview_time={self.preview_time}, "
+            f"preview_duration={self.preview_duration}, "
+            f"poster_time={self.poster_time}, "
+            f"selection_time={self.selection_time}, "
+            f"selection_duration={self.selection_duration}, "
+            f"current_time={self.current_time}, "
+            f"next_track_id={self.next_track_id})"
+        )
 
     @classmethod
     def _from_stream(
@@ -744,7 +897,7 @@ class MP4mvhdBox(MP4Box):
             if not obj._next_track_id:
                 raise ValueError("MP4 mvhd box next track ID cannot be zero.")
 
-        obj._matrix = ((a, b, u), (c, d, v), (x, y, w))
+        obj._transformation_matrix = ((a, b, u), (c, d, v), (x, y, w))
         return obj
 
     @property
@@ -752,7 +905,9 @@ class MP4mvhdBox(MP4Box):
         """
         Box payload.
         """
-        return self._STRUCTS[self._version].pack(
+        return self._STRUCT_HEADER.pack(
+            self._version, self._flags.to_bytes(length=3)
+        ) + self._STRUCTS[self._version].pack(
             self._creation_time,
             self._modification_time,
             self._timescale,
@@ -760,9 +915,9 @@ class MP4mvhdBox(MP4Box):
             self._preferred_rate,
             self._preferred_volume,
             10 * b"\x00",
-            *self._matrix[0],
-            *self._matrix[1],
-            *self._matrix[2],
+            *self._transformation_matrix[0],
+            *self._transformation_matrix[1],
+            *self._transformation_matrix[2],
             self._preview_time,
             self._preview_duration,
             self._poster_time,
@@ -815,13 +970,13 @@ class MP4mvhdBox(MP4Box):
         Datetime of the creation of the :code:`moov` box.
         """
         return datetime.fromtimestamp(
-            self._creation_time - self._EPOCH_OFFSET, tz=UTC
+            self._creation_time + self._EPOCH_OFFSET, tz=UTC
         )
 
     @creation_time.setter
     def creation_time(self, value: datetime) -> None:
         validate_type("creation_time", value, datetime)
-        value = int(value.timestamp()) + self._EPOCH_OFFSET
+        value = round(value.timestamp()) - self._EPOCH_OFFSET
         validate_number(
             "creation_time",
             value,
@@ -838,13 +993,13 @@ class MP4mvhdBox(MP4Box):
         Datetime of the last change to the :code:`moov` box.
         """
         return datetime.fromtimestamp(
-            self._modification_time - self._EPOCH_OFFSET, tz=UTC
+            self._modification_time + self._EPOCH_OFFSET, tz=UTC
         )
 
     @modification_time.setter
     def modification_time(self, value: datetime) -> None:
         validate_type("modification_time", value, datetime)
-        value = int(value.timestamp()) + self._EPOCH_OFFSET
+        value = round(value.timestamp()) - self._EPOCH_OFFSET
         validate_number(
             "modification_time",
             value,
@@ -869,22 +1024,23 @@ class MP4mvhdBox(MP4Box):
         self._timescale = value
 
     @property
-    def duration(self) -> int:
+    def duration(self) -> float:
         """
         :bdg-primary:`get` :bdg-secondary:`set` Duration, in seconds.
         """
         return self._duration / self._timescale
 
     @duration.setter
-    def duration(self, value: int) -> None:
+    def duration(self, value: float) -> None:
         validate_number(
             "duration",
             value,
-            int,
+            float,
             0,
-            0xFFFFFFFFFFFFFFFF if self._version else 0xFFFFFFFF,
+            (0xFFFFFFFFFFFFFFFF if self._version else 0xFFFFFFFF)
+            / self._timescale,
         )
-        self._duration = value * self._timescale
+        self._duration = round(value * self._timescale)
 
     @property
     def preferred_rate(self) -> float:
@@ -900,7 +1056,7 @@ class MP4mvhdBox(MP4Box):
         validate_number(
             "preferred_rate", value, float, 0.0, 65_535.999_984_741_21
         )
-        self._preferred_rate = int(value * 0x10000)
+        self._preferred_rate = round(value * 0x10000)
 
     @property
     def preferred_volume(self) -> float:
@@ -913,22 +1069,60 @@ class MP4mvhdBox(MP4Box):
     @preferred_volume.setter
     def preferred_volume(self, value: float) -> None:
         validate_number("preferred_volume", value, float, 0.0, 255.996_093_75)
-        self._preferred_volume = int(value * 256)
+        self._preferred_volume = round(value * 256)
 
     @property
-    def matrix(self) -> Any:
+    def transformation_matrix(
+        self,
+    ) -> tuple[
+        tuple[float, float, float],
+        tuple[float, float, float],
+        tuple[float, float, float],
+    ]:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
-        Transformation matrix for the media.
+        Transformation matrix.
         """
-        raise NotImplementedError  # TODO
+        return tuple(
+            (row[0] / 0x10000, row[1] / 0x10000, row[2] / 0x40000000)
+            for row in self._transformation_matrix
+        )
 
-    @matrix.setter
-    def matrix(self, value: Any) -> None:
-        raise NotImplementedError  # TODO
+    @transformation_matrix.setter
+    def transformation_matrix(
+        self, value: OrderedCollection[OrderedCollection[float]]
+    ) -> None:
+        if (
+            not isinstance(value, ORDERED_COLLECTION_TYPES)
+            or len(value) != 3
+            or not all(
+                isinstance(row, ORDERED_COLLECTION_TYPES) and len(row) == 3
+                for row in value
+            )
+        ):
+            raise ValueError(
+                "`transformation_matrix` must be a 3-by-3 matrix of numbers."
+            )
+
+        matrix = []
+        for row_idx, row in enumerate(value):
+            encoded_row = []
+            for col_idx, (col, (scale, minimum, maximum)) in enumerate(
+                zip(row, self._TRANSFORMATION_MATRIX_COLUMNS_SCALE_MIN_MAX)
+            ):
+                validate_number(
+                    f"transformation_matrix[{row_idx}][{col_idx}]",
+                    col,
+                    int | float,
+                    minimum,
+                    maximum,
+                )
+                encoded_row.append(round(col * scale))
+            matrix.append(encoded_row)
+        self._transformation_matrix = matrix
 
     @property
-    def preview_time(self) -> int:
+    def preview_time(self) -> float:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
         Time in the media at which the preview begins, in seconds.
@@ -936,12 +1130,14 @@ class MP4mvhdBox(MP4Box):
         return self._preview_time / self._timescale
 
     @preview_time.setter
-    def preview_time(self, value: int) -> None:
-        validate_number("preview_time", value, int, 0, 0xFFFFFFFF)
-        self._preview_time = value * self._timescale
+    def preview_time(self, value: float) -> None:
+        validate_number(
+            "preview_time", value, float, 0, 0xFFFFFFFF / self._timescale
+        )
+        self._preview_time = round(value * self._timescale)
 
     @property
-    def preview_duration(self) -> int:
+    def preview_duration(self) -> float:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
         Duration of the preview, in seconds.
@@ -949,12 +1145,14 @@ class MP4mvhdBox(MP4Box):
         return self._preview_duration / self._timescale
 
     @preview_duration.setter
-    def preview_duration(self, value: int) -> None:
-        validate_number("preview_duration", value, int, 0, 0xFFFFFFFF)
-        self._preview_duration = value * self._timescale
+    def preview_duration(self, value: float) -> None:
+        validate_number(
+            "preview_duration", value, float, 0, 0xFFFFFFFF / self._timescale
+        )
+        self._preview_duration = round(value * self._timescale)
 
     @property
-    def poster_time(self) -> int:
+    def poster_time(self) -> float:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
         Time in the media at which the poster begins, in seconds.
@@ -962,12 +1160,14 @@ class MP4mvhdBox(MP4Box):
         return self._poster_time / self._timescale
 
     @poster_time.setter
-    def poster_time(self, value: int) -> None:
-        validate_number("poster_time", value, int, 0, 0xFFFFFFFF)
-        self._poster_time = value * self._timescale
+    def poster_time(self, value: float) -> None:
+        validate_number(
+            "poster_time", value, float, 0, 0xFFFFFFFF / self._timescale
+        )
+        self._poster_time = round(value * self._timescale)
 
     @property
-    def selection_time(self) -> int:
+    def selection_time(self) -> float:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
         Time in the media at which the current selection begins, in
@@ -976,12 +1176,14 @@ class MP4mvhdBox(MP4Box):
         return self._selection_time / self._timescale
 
     @selection_time.setter
-    def selection_time(self, value: int) -> None:
-        validate_number("selection_time", value, int, 0, 0xFFFFFFFF)
-        self._selection_time = value * self._timescale
+    def selection_time(self, value: float) -> None:
+        validate_number(
+            "selection_time", value, float, 0, 0xFFFFFFFF / self._timescale
+        )
+        self._selection_time = round(value * self._timescale)
 
     @property
-    def selection_duration(self) -> int:
+    def selection_duration(self) -> float:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
         Duration of the current selection, in seconds.
@@ -989,12 +1191,14 @@ class MP4mvhdBox(MP4Box):
         return self._selection_duration / self._timescale
 
     @selection_duration.setter
-    def selection_duration(self, value: int) -> None:
-        validate_number("selection_duration", value, int, 0, 0xFFFFFFFF)
-        self._selection_duration = value * self._timescale
+    def selection_duration(self, value: float) -> None:
+        validate_number(
+            "selection_duration", value, float, 0, 0xFFFFFFFF / self._timescale
+        )
+        self._selection_duration = round(value * self._timescale)
 
     @property
-    def current_time(self) -> int:
+    def current_time(self) -> float:
         """
         :bdg-primary:`get` :bdg-secondary:`set`
         Current time position within the media, in seconds.
@@ -1002,9 +1206,11 @@ class MP4mvhdBox(MP4Box):
         return self._current_time / self._timescale
 
     @current_time.setter
-    def current_time(self, value: int) -> None:
-        validate_number("current_time", value, int, 0, 0xFFFFFFFF)
-        self._current_time = value * self._timescale
+    def current_time(self, value: float) -> None:
+        validate_number(
+            "current_time", value, float, 0, 0xFFFFFFFF / self._timescale
+        )
+        self._current_time = round(value * self._timescale)
 
     @property
     def next_track_id(self) -> int:
