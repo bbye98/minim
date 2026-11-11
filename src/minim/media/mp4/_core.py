@@ -40,7 +40,7 @@ class MP4MetadataView(MetadataView):
     * :code:`__len__` – Return the number of top-level boxes.
     """
 
-    __slots__ = ("_audio",)
+    __slots__ = ("_audio", "_unknown_index")
 
     def __init__(self, audio: MP4Audio, /) -> None:
         """
@@ -54,9 +54,6 @@ class MP4MetadataView(MetadataView):
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(<{len(self._metadata)} MP4 box(es)>)"
-
-    def _type_index(self) -> dict[type[MP4Box], list[MP4Box]]:
-        return self._audio._type_index
 
     def get(
         self, types: type[MP4Box] | Collection[type[MP4Box]], /
@@ -97,11 +94,15 @@ class MP4Audio(Audio):
     __slots__ = ()
 
     @property
-    def _type_index(self) -> defaultdict[MP4Box, list[MP4Box]]:
+    def _type_index(self) -> defaultdict[type[MP4Box], list[MP4Box]]:
         type_index = defaultdict(list)
         for box in self._metadata:
             self._index_box(box, type_index=type_index)
         return type_index
+
+    @property
+    def _unknown_index(self) -> dict[bytes, list[MP4Box]]:
+        raise NotImplementedError()  # TODO
 
     @property
     def audio_data(self):
@@ -115,7 +116,8 @@ class MP4Audio(Audio):
     def _index_box(
         box: MP4Box,
         /,
-        type_index: defaultdict[MP4Box, list[MP4Box]],
+        *,
+        type_index: defaultdict[type[MP4Box], list[MP4Box]],
     ) -> None:
         """
         Recursively add boxes to the type index in-place.
@@ -125,14 +127,15 @@ class MP4Audio(Audio):
         box : MP4Box; positional-only
             MP4 box.
 
-        type_index : defaultdict[MP4Box, list[MP4Box]]; keyword-only
+        type_index : defaultdict[type[MP4Box], list[MP4Box]]; \
+        keyword-only
             Type index.
 
             .. note::
 
                This `defaultdict` is mutated in-place.
         """
-        type_index[box._fourcc].append(box)
+        type_index[type(box)].append(box)
         if isinstance(box, MP4ContainerBox):
             for pl in box._payload:
                 MP4Audio._index_box(pl, type_index=type_index)
@@ -164,12 +167,15 @@ class MP4Audio(Audio):
             ) is MP4mdatBox:
                 box = box_cls._from_stream(
                     view[offset:],
+                    parent=None,
                     file_path=file_path,
                     offset=offset,
                     strict=strict,
                 )
             else:
-                box = box_cls._from_stream(view[offset:], strict=strict)
+                box = box_cls._from_stream(
+                    view[offset:], parent=None, strict=strict
+                )
             boxes.append(box)
             offset += box._box_length
 

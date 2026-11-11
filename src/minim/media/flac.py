@@ -1998,7 +1998,7 @@ class FLACMetadataView(MetadataView):
             return self._type_index[types_.pop()] or None
 
         return {
-            block_type: self._type_index[block_type] or None
+            block_type: self._type_index.get(block_type)
             for block_type in types_
         }
 

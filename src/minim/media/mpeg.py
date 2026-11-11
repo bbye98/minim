@@ -265,7 +265,7 @@ class MPEGMetadataView(MetadataView):
         if len(types_) == 1:
             return self._type_index[types_.pop()] or None
 
-        return {type_: self._type_index[type_] or None for type_ in types_}
+        return {type_: self._type_index.get(type_) for type_ in types_}
 
 
 class MPEGAudio(Audio):

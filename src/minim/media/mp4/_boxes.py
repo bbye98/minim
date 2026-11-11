@@ -18,13 +18,14 @@ if TYPE_CHECKING:
 
 class MP4Box(ABC):
     """
-    Abstract base class for MP4 boxes.
+    Abstract base class for MP4 boxes, without slots.
     """
 
     _REGISTRY: ClassVar[dict[bytes, type[MP4Box]]] = {}
 
-    _fourcc: bytes
+    _fourcc: bytes | set[bytes]
     _payload: bytes | list[MP4Box]
+    _is_top_level: bool
 
     __slots__ = ()
 
@@ -40,12 +41,16 @@ class MP4Box(ABC):
                         f"Subclass {cls.__name__} must define {req_attr!r}."
                     )
 
-            cls._REGISTRY[cls._fourcc] = cls
+            if isinstance(cls._fourcc, bytes):
+                cls._REGISTRY[cls._fourcc] = cls
+            else:
+                for fourcc in cls._fourcc:
+                    cls._REGISTRY[fourcc] = cls
 
     @classmethod
     @abstractmethod
     def _from_stream(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, strict: bool
     ) -> tuple[Self, int, bool]:
         """
         Instantiate an MP4 box object from a bytestream.
@@ -55,7 +60,7 @@ class MP4Box(ABC):
         stream : memoryview; positional-only
             Bytestream containing the MP4 box data.
 
-        strict : bool; keyword-only; default: :code:`True`
+        strict : bool; keyword-only
             Unused keyword argument included only for compatibility.
 
         Returns
@@ -99,7 +104,14 @@ class MP4Box(ABC):
         return cls._REGISTRY.get(fourcc, UnknownMP4Box)
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        *,
+        parent: MP4Box | None = None,
+        strict: bool = True,
+    ) -> Self:
         """
         Instantiate an MP4 box object from a bytes-like object.
 
@@ -107,6 +119,9 @@ class MP4Box(ABC):
         ----------
         stream : bytes-like; positional-only
             Bytes-like object containing the MP4 box data.
+
+        parent : MP4Box or None; keyword-only; optional
+            Parent box.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the MP4
@@ -123,7 +138,7 @@ class MP4Box(ABC):
                 f"`stream` does not contain a MP4 {cls._fourcc} box."
             )
 
-        return cls._from_stream(stream, strict=strict)
+        return cls._from_stream(stream, parent=parent, strict=strict)
 
     @property
     def _box_length(self) -> int:
@@ -167,36 +182,69 @@ class MP4Box(ABC):
             )
 
         return b"".join(
-            (
-                (payload_length + 8).to_bytes(length=4),
-                self._fourcc,
-                payload,
-            )
+            ((payload_length + 8).to_bytes(length=4), self._fourcc, payload)
         )
 
 
-class MP4ContainerBox(MP4Box, register=False):
+class SlottedMP4Box(MP4Box, register=False):
     """
-    Abstract base class for MP4 container boxes.
+    Abstract base class for MP4 boxes, with slots.
+    """
+
+    __slots__ = ("_parent",)
+
+    @property
+    def parent(self) -> MP4Box | None:
+        """
+        Parent MP4 box.
+        """
+        return self._parent
+
+    @parent.setter
+    def parent(self, value: MP4Box | None) -> None:
+        if self._is_top_level:
+            if value is not None:
+                raise ValueError("Cannot set parent for a top-level box.")
+        else:
+            validate_type("parent", value, MP4Box | None)
+        self._parent = value
+
+
+class MP4ContainerBox(SlottedMP4Box, register=False):
+    """
+    Base class for MP4 container boxes.
     """
 
     __slots__ = ("_payload",)
 
-    def __init__(self, payload: MP4Box | OrderedCollection[MP4Box], /) -> None:
+    def __init__(
+        self,
+        payload: MP4Box | OrderedCollection[MP4Box],
+        /,
+        *,
+        parent: MP4Box | None = None,
+    ) -> None:
         """
         Parameters
         ----------
         payload : MP4Box or OrderedCollection[MP4Box]; positional-only
             Child MP4 boxes.
+
+        parent : MP4Box or None; keyword-only; optional
+            Parent MP4 box.
         """
         self.payload = payload
+        self.parent = parent
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}(<{len(self._payload)} box(es)>)"
+        return (
+            f"{type(self).__name__}(<{len(self._payload)} box(es)>, "
+            f"parent=<{type(self._parent).__name__}>)"
+        )
 
     @classmethod
     def _from_stream(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, parent: MP4Box | None, strict: bool
     ) -> Self:
         """
         Instantiate an MP4 container box object from a bytestream.
@@ -206,7 +254,10 @@ class MP4ContainerBox(MP4Box, register=False):
         stream : memoryview; positional-only
             Bytestream containing the MP4 container box data.
 
-        strict : bool; keyword-only; default: :code:`True`
+        parent : MP4Box or None; keyword-only
+            Parent MP4 box.
+
+        strict : bool; keyword-only
             Unused keyword argument included only for compatibility.
 
         Returns
@@ -217,13 +268,19 @@ class MP4ContainerBox(MP4Box, register=False):
         obj, box_length, has_extended_header = super()._from_stream(
             stream, strict=strict
         )
+        if strict and parent is not None and cls._is_top_level:
+            raise ValueError(
+                f"MP4 {cls._fourcc.decode()} box must be a top-level box."
+            )
+
+        obj._parent = parent
         obj._payload = payload = []
 
         offset = 8 * (1 + has_extended_header)
         while offset < box_length:
             box = MP4Box._get_class(
                 stream[offset + 4 : offset + 8]
-            )._from_stream(stream[offset:], strict=strict)
+            )._from_stream(stream[offset:], parent=obj, strict=strict)
             payload.append(box)
             offset += box._box_length
 
@@ -270,12 +327,44 @@ class MP4freeBox(MP4Box, NULPadding):
     """
 
     _fourcc: ClassVar[bytes] = b"free"
+    _is_top_level: ClassVar[bool] = False
 
-    __slots__ = ()
+    __slots__ = ("_parent",)
+
+    def __init__(
+        self, length: int = 0, /, *, parent: MP4Box | None = None
+    ) -> None:
+        """
+        This class implements the following special methods:
+
+        * :code:`__add__` – Merge two MP4 free box objects.
+
+        * :code:`__iadd__` – Merge another MP4 free box object into the
+          current one in-place.
+
+        * :code:`__len__` – Return the length of the padding in the MP4
+          free box.
+
+        Parameters
+        ----------
+        length : int; positional-only; default: :code:`0`
+            Padding length, in bytes.
+
+        parent : MP4Box or None; keyword-only; optional
+            Parent MP4 box.
+        """
+        super().__init__(length)
+        self.parent = parent
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}({self._length}, "
+            f"parent=<{type(self._parent).__name__}>)"
+        )
 
     @classmethod
     def _from_stream(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, parent: MP4Box | None, strict: bool
     ) -> Self:
         """
         Instantiate a :class:`MP4freeBox` object from a MP4 :code:`free`
@@ -286,7 +375,10 @@ class MP4freeBox(MP4Box, NULPadding):
         stream : memoryview; positional-only
             Bytes-like object containing the MP4 :code:`free` box data.
 
-        strict : bool; keyword-only; default: :code:`True`
+        parent : MP4Box or None; keyword-only
+            Parent MP4 box.
+
+        strict : bool; keyword-only
             Whether to ensure metadata strictly adheres to the MP4
             specifications.
 
@@ -303,6 +395,7 @@ class MP4freeBox(MP4Box, NULPadding):
             raise ValueError("Non-zero bits found in MP4 free box.")
 
         obj._length = box_length - offset
+        obj._parent = parent
         return obj
 
     @property
@@ -319,8 +412,20 @@ class MP4freeBox(MP4Box, NULPadding):
         """
         return self._length
 
+    @property
+    def parent(self) -> MP4Box | None:
+        """
+        Parent MP4 box.
+        """
+        return self._parent
 
-class MP4ftypBox(MP4Box):
+    @parent.setter
+    def parent(self, value: MP4Box | None) -> None:
+        validate_type("parent", value, MP4Box | None)
+        self._parent = value
+
+
+class MP4ftypBox(SlottedMP4Box):
     """
     MP4 file type compatibility (:code:`ftyp`) box.
 
@@ -332,6 +437,7 @@ class MP4ftypBox(MP4Box):
     """
 
     _fourcc: ClassVar[bytes] = b"ftyp"
+    _is_top_level: ClassVar[bool] = True
 
     __slots__ = ("_compatible_brands", "_major_brand", "_minor_version")
 
@@ -365,6 +471,7 @@ class MP4ftypBox(MP4Box):
         self.compatible_brands = compatible_brands
         self.major_brand = major_brand
         self.minor_version = minor_version
+        self._parent = None
 
     def __repr__(self) -> str:
         return (
@@ -375,7 +482,7 @@ class MP4ftypBox(MP4Box):
 
     @classmethod
     def _from_stream(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, parent: MP4Box | None, strict: bool
     ) -> Self:
         """
         Instantiate a :class:`MP4ftypBox` object from a MP4 :code:`ftyp`
@@ -386,7 +493,10 @@ class MP4ftypBox(MP4Box):
         stream : memoryview; positional-only
             Bytestream containing the :code:`ftyp` box.
 
-        strict : bool; keyword-only; default: :code:`True`
+        parent : MP4Box or None; keyword-only
+            Parent MP4 box.
+
+        strict : bool; keyword-only
             Whether to ensure metadata strictly adheres to the MP4
             specifications.
 
@@ -399,6 +509,9 @@ class MP4ftypBox(MP4Box):
             stream, strict=strict
         )
         if strict:
+            if parent is not None:
+                raise ValueError("MP4 ftyp box must be a top-level box.")
+
             if has_extended_header:
                 raise ValueError(
                     "MP4 ftyp box cannot have an extended header."
@@ -419,6 +532,7 @@ class MP4ftypBox(MP4Box):
             stream[i : i + 4].tobytes()
             for i in range(end_offset, box_length, 4)
         ]
+        obj._parent = parent
         return obj
 
     @property
@@ -493,7 +607,7 @@ class MP4ftypBox(MP4Box):
         self._compatible_brands = compatible_brands
 
 
-class MP4mdatBox(MP4Box):
+class MP4mdatBox(SlottedMP4Box):
     """
     MP4 media data (:code:`mdat`) box.
 
@@ -504,6 +618,7 @@ class MP4mdatBox(MP4Box):
     """
 
     _fourcc: ClassVar[bytes] = b"mdat"
+    _is_top_level: ClassVar[bool] = True
 
     __slots__ = ("_file_path", "_media_data")
 
@@ -513,9 +628,10 @@ class MP4mdatBox(MP4Box):
         ----------
         media_data : bytes or bytearray; positional-only
             Media data.
+
         """
         self.media_data = media_data
-        self._file_path = None
+        self._file_path = self._parent = None
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(<{self._payload_length} byte(s)>)"
@@ -526,9 +642,10 @@ class MP4mdatBox(MP4Box):
         stream: memoryview,
         /,
         *,
-        file_path: Path | None = None,
-        offset: int | None = None,
-        strict: bool = True,
+        parent: MP4Box | None,
+        file_path: Path | None,
+        offset: int | None,
+        strict: bool,
     ) -> Self:
         """
         Instantiate a :class:`MP4mdatBox` object from a MP4 :code:`mdat`
@@ -539,13 +656,16 @@ class MP4mdatBox(MP4Box):
         stream : memoryview; positional-only
             Bytestream containing the :code:`mdat` box.
 
-        file_path : Path; keyword-only; optional
+        parent : MP4Box or None
+            Parent MP4 box.
+
+        file_path : Path; keyword-only
             Path to the MP4 file.
 
-        offset : int; keyword-only; optional
+        offset : int; keyword-only
             Byte offset of the start of the bytestream.
 
-        strict : bool; keyword-only; default: :code:`True`
+        strict : bool; keyword-only
             Unused keyword argument included only for compatibility.
 
         Returns
@@ -556,6 +676,9 @@ class MP4mdatBox(MP4Box):
         obj, box_length, has_extended_header = super()._from_stream(
             stream, strict=strict
         )
+        if strict and parent is not None:
+            raise ValueError("MP4 mdat box must be a top-level box.")
+
         if file_path is not None and offset is not None:
             obj._media_data = (
                 offset + 8 * (1 + has_extended_header),
@@ -565,6 +688,7 @@ class MP4mdatBox(MP4Box):
         else:
             obj._media_data = stream[8 * (1 + has_extended_header) :].tobytes()
             obj._file_path = None
+        obj._parent = parent
         return obj
 
     @property
@@ -616,12 +740,13 @@ class MP4moovBox(MP4ContainerBox):
     """
 
     _fourcc: ClassVar[bytes] = b"moov"
+    _is_top_level: ClassVar[bool] = True
 
     __slots__ = ()
 
     @classmethod
     def _from_stream(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, parent: MP4Box | None, strict: bool
     ) -> Self:
         """
         Instantiate a :class:`MP4moovBox` object from a MP4 :code:`moov`
@@ -632,7 +757,10 @@ class MP4moovBox(MP4ContainerBox):
         stream : memoryview; positional-only
             Bytestream containing the :code:`moov` box.
 
-        strict : bool; keyword-only; default: :code:`True`
+        parent : MP4Box or None; keyword-only
+            Parent MP4 box.
+
+        strict : bool; keyword-only
             Whether to ensure metadata strictly adheres to the MP4
             specifications.
 
@@ -641,7 +769,11 @@ class MP4moovBox(MP4ContainerBox):
         moov_box : MP4moovBox
             MP4 :code:`moov` box.
         """
-        obj = super()._from_stream(stream, strict=strict)
+        if strict and parent is not None:
+            raise ValueError("MP4 moov box must be a top-level box.")
+
+        obj = super()._from_stream(stream, parent=parent, strict=strict)
+
         if strict and not any(
             isinstance(child, MP4mvhdBox) for child in obj._payload
         ):
@@ -652,7 +784,7 @@ class MP4moovBox(MP4ContainerBox):
         return obj
 
 
-class MP4mvhdBox(MP4Box):
+class MP4mvhdBox(SlottedMP4Box):
     """
     MP4 movie header (:code:`mvhd`) box.
 
@@ -676,6 +808,7 @@ class MP4mvhdBox(MP4Box):
     )
 
     _fourcc: ClassVar[bytes] = b"mvhd"
+    _is_top_level: ClassVar[bool] = False
 
     __slots__ = (
         "_creation_time",
@@ -719,6 +852,7 @@ class MP4mvhdBox(MP4Box):
         selection_duration: int = 0,
         current_time: int = 0,
         next_track_id: int = 1,
+        parent: MP4Box | None = None,
     ) -> None:
         """
         Parameters
@@ -777,7 +911,11 @@ class MP4mvhdBox(MP4Box):
 
         next_track_id : int; keyword-only; default: :code:`1`
             Track ID of the next track in the media.
+
+        parent : MP4Box | None; keyword-only; default: :code:`None`
+            Parent box.
         """
+        self.parent = parent
         self.version = version
         self.flags = flags
         self.creation_time = creation_time
@@ -799,13 +937,11 @@ class MP4mvhdBox(MP4Box):
 
     def __repr__(self) -> str:
         return (
-            f"<{type(self).__name__}("
-            f"version={self.version}, "
+            f"{type(self).__name__}(version={self.version}, "
             f"flags={self.flags}, "
             f"creation_time={self.creation_time!r}, "
             f"modification_time={self.modification_time!r}, "
-            f"timescale={self.timescale}, "
-            f"duration={self.duration}, "
+            f"timescale={self.timescale}, duration={self.duration}, "
             f"preferred_rate={self.preferred_rate}, "
             f"preferred_volume={self.preferred_volume}, "
             f"transformation_matrix={self.transformation_matrix!r}, "
@@ -815,12 +951,13 @@ class MP4mvhdBox(MP4Box):
             f"selection_time={self.selection_time}, "
             f"selection_duration={self.selection_duration}, "
             f"current_time={self.current_time}, "
-            f"next_track_id={self.next_track_id})"
+            f"next_track_id={self.next_track_id}, "
+            f"parent=<{type(self._parent).__name__}>)"
         )
 
     @classmethod
     def _from_stream(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, parent: MP4Box | None, strict: bool
     ) -> Self:
         """
         Instantiate a :class:`MP4mvhdBox` object from a MP4 box
@@ -828,10 +965,13 @@ class MP4mvhdBox(MP4Box):
 
         Parameters
         ----------
-        stream : memoryview
+        stream : memoryview; positional-only
             MP4 box bytestream.
 
-        strict : bool, optional
+        parent : MP4Box or None; keyword-only
+            Parent box.
+
+        strict : bool; keyword-only
             Whether to raise an exception if the box is malformed.
 
         Returns
@@ -898,6 +1038,7 @@ class MP4mvhdBox(MP4Box):
                 raise ValueError("MP4 mvhd box next track ID cannot be zero.")
 
         obj._transformation_matrix = ((a, b, u), (c, d, v), (x, y, w))
+        obj._parent = parent
         return obj
 
     @property
@@ -1226,10 +1367,56 @@ class MP4mvhdBox(MP4Box):
         self._next_track_id = value
 
 
-class UnknownMP4Box(MP4Box, register=False):
+class MP4ilstBox(MP4ContainerBox):
+    """
+    MP4 metadata item list (:code:`ilst`) box.
+
+    .. seealso::
+
+       `Metadata item list atom ('ilst') <https://developer.apple.com
+       /documentation/quicktime-file-format/metadata_item_list_atom>`_.
+    """
+
+    _fourcc: ClassVar[bytes] = b"ilst"
+    _is_top_level: ClassVar[bool] = False
+
+    __slots__ = ()
+
+
+# class MP4mdiaBox(MP4ContainerBox):
+#     pass
+
+
+# class MP4metaBox(MP4ContainerBox):
+#     pass
+
+
+# class MP4trakBox(MP4ContainerBox):
+#     pass
+
+
+class MP4udtaBox(MP4ContainerBox):
+    """
+    MP4 user data (:code:`udta`) box.
+
+    .. seealso::
+
+       `User data atom ('udta') <https://developer.apple.com
+       /documentation/quicktime-file-format/user_data_atom>`_.
+    """
+
+    _fourcc: ClassVar[bytes] = b"udta"
+    _is_top_level: ClassVar[bool] = False
+
+    __slots__ = ()
+
+
+class UnknownMP4Box(SlottedMP4Box, register=False):
     """
     Unknown MP4 box.
     """
+
+    _is_top_level: ClassVar[bool] = False
 
     __slots__ = ("_fourcc", "_payload")
 
@@ -1237,6 +1424,8 @@ class UnknownMP4Box(MP4Box, register=False):
         self,
         fourcc: bytes,
         payload: bytes | bytearray | MP4Box | OrderedCollection[MP4Box],
+        *,
+        parent: MP4Box | None = None,
     ) -> None:
         """
         Parameters
@@ -1246,8 +1435,13 @@ class UnknownMP4Box(MP4Box, register=False):
 
         payload : bytes, bytearray, or OrderedCollection[MP4Box]
             Box payload.
+
+        parent : MP4Box or None; keyword-only; optional
+            Parent box.
+
         """
         super().__init__()
+        self.parent = parent
 
         validate_type("fourcc", fourcc, bytes)
         if len(fourcc) != 4:
@@ -1272,12 +1466,13 @@ class UnknownMP4Box(MP4Box, register=False):
     def __repr__(self) -> str:
         return (
             f"{type(self).__name__}(fourcc={self._fourcc!r}, "
-            f"payload=<{self._payload_length} byte(s)>)"
+            f"payload=<{self._payload_length} byte(s)>, "
+            f"parent=<{type(self._parent).__name__}>)"
         )
 
     @classmethod
     def _from_stream(
-        cls, stream: memoryview, /, *, strict: bool = True
+        cls, stream: memoryview, /, *, parent: MP4Box | None, strict: bool
     ) -> Self:
         """
         Instantiate a :class:`UnknownMP4Box` object from a MP4 box
@@ -1288,7 +1483,10 @@ class UnknownMP4Box(MP4Box, register=False):
         stream : memoryview; positional-only
             Bytestream containing the MP4 box data.
 
-        strict : bool; keyword-only; default: :code:`True`
+        parent : MP4Box or None; keyword-only
+            Parent box.
+
+        strict : bool; keyword-only
             Whether to ensure metadata strictly adheres to the MP4
             specifications.
 
@@ -1304,10 +1502,18 @@ class UnknownMP4Box(MP4Box, register=False):
         obj._payload = stream[
             8 * (1 + has_extended_header) : box_length
         ].tobytes()
+        obj._parent = parent
         return obj
 
     @classmethod
-    def from_stream(cls, stream: BytesLike, /, *, strict: bool = True) -> Self:
+    def from_stream(
+        cls,
+        stream: BytesLike,
+        /,
+        *,
+        parent: MP4Box | None = None,
+        strict: bool = True,
+    ) -> Self:
         """
         Instantiate a :class:`UnknownMP4Box` object from a bytes-like
         object.
@@ -1316,6 +1522,9 @@ class UnknownMP4Box(MP4Box, register=False):
         ----------
         stream : BytesLike; positional-only
             Bytes-like object containing the MP4 box data.
+
+        parent : MP4Box or None; keyword-only; optional
+            Parent box.
 
         strict : bool; keyword-only; default: :code:`True`
             Whether to ensure metadata strictly adheres to the MP4
@@ -1326,7 +1535,9 @@ class UnknownMP4Box(MP4Box, register=False):
         box : UnknownMP4Box
             Unknown MP4 box.
         """
-        return cls._from_stream(as_buffer(stream), strict=strict)
+        return cls._from_stream(
+            as_buffer(stream), parent=parent, strict=strict
+        )
 
     @property
     def _payload_length(self) -> int:

@@ -31,7 +31,7 @@ class Audio(ABC):
           information from the audio file.
     """
 
-    _type_index: defaultdict[type, list[Any]]
+    _type_index: defaultdict[type[Any], list[Any]]
 
     __slots__ = (
         "_file",
@@ -258,7 +258,7 @@ class MetadataView(ABC):
             f"(<{len(self._metadata)} metadata container(s)>)"
         )
 
-    def __getitem__(self, index: int, /) -> Any:
+    def __getitem__(self, index: int | slice, /) -> Any:
         return self._metadata[index]
 
     def __iter__(self) -> Iterator[Any]:
